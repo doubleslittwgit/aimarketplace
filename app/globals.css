@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+:root {
+  /* Base surfaces — white, with a soft blue-tinted off-white for cards */
+  --bg: #ffffff;
+  --surface: #f5fafd;
+  --surface-raised: #eaf4fa;
+  --border: #dfe9f0;
+  --border-strong: #c3d6e3;
+
+  /* Text */
+  --text-primary: #16232d;
+  --text-secondary: #47606f;
+  --text-muted: #718998;
+  --text-dim: #a2b4bf;
+
+  /* Signature accents — sky blue (identity) + coral (key/action color) */
+  --accent-signal: #ff6b4a;
+  --accent-signal-dim: #ffe4db;
+  --accent-ai: #3fa9e0;
+  --accent-ai-dim: #e2f2fb;
+  --accent-danger: #e5484d;
+  --accent-success: #1fa25c;
+
+  --font-display: var(--font-space-grotesk);
+  --font-body: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-dim: var(--text-dim);
+
+  --color-accent-signal: var(--accent-signal);
+  --color-accent-signal-dim: var(--accent-signal-dim);
+  --color-accent-ai: var(--accent-ai);
+  --color-accent-ai-dim: var(--accent-ai-dim);
+  --color-accent-danger: var(--accent-danger);
+  --color-accent-success: var(--accent-success);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+/* Soft ambient wash — sky blue + coral at very low opacity, kept airy */
+.bg-noise {
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(63, 169, 224, 0.07), transparent 45%),
+    radial-gradient(circle at 85% 0%, rgba(255, 107, 74, 0.05), transparent 40%);
+}
+
+.font-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+}
+.font-mono {
+  font-family: var(--font-mono), monospace;
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[ticker_32s_linear_infinite\] {
+    animation: none;
+  }
+}
