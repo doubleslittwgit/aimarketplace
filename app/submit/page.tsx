@@ -10,6 +10,14 @@ export default function SubmitPage() {
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [platforms, setPlatforms] = useState<string[]>([]);
+  const [minOsVersion, setMinOsVersion] = useState("");
+
+  function togglePlatform(p: string) {
+    setPlatforms((prev) =>
+      prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]
+    );
+  }
 
   const priceNumber = Number(price);
   const isFree = price !== "" && priceNumber === 0;
@@ -192,6 +200,49 @@ export default function SubmitPage() {
                 />
               </div>
             </Field>
+
+            {/* 対応環境 */}
+            {runtime === "local" ? (
+              <Field label="対応OS" required>
+                <div className="flex flex-wrap gap-2">
+                  {["Windows", "macOS", "Linux"].map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => togglePlatform(p)}
+                      className={`rounded-full border px-4 py-1.5 text-[13px] transition ${
+                        platforms.includes(p)
+                          ? "border-accent-ai/40 bg-accent-ai-dim text-accent-ai"
+                          : "border-border text-text-secondary hover:border-border-strong"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  value={minOsVersion}
+                  onChange={(e) => setMinOsVersion(e.target.value)}
+                  placeholder="例：Windows 10以降 / macOS 12 Monterey以降"
+                  className="mt-3 w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
+                />
+                <p className="mt-2 text-[12px] text-text-dim">
+                  対応OSと最低バージョンを明記してください。購入者が動作確認できずトラブルになるのを防ぎます
+                </p>
+              </Field>
+            ) : (
+              <Field label="推奨環境">
+                <input
+                  type="text"
+                  defaultValue="Chrome / Edge / Safari 最新版"
+                  className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
+                />
+                <p className="mt-2 text-[12px] text-text-dim">
+                  クラウド型でも、推奨ブラウザを記載すると購入者に安心感を与えられます
+                </p>
+              </Field>
+            )}
 
             {/* 価格 */}
             <Field label="価格" required>
