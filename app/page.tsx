@@ -16,9 +16,9 @@ export default function Home() {
             $ npx forge --publish ./my-tool
           </p>
           <h1 className="max-w-3xl font-display text-[2.75rem] font-semibold leading-[1.08] tracking-tight text-text-primary sm:text-[3.5rem]">
-            作ったツールを、
+            あなたのアイデアが
             <br />
-            必要としている人に<span className="text-accent-signal">配送する。</span>
+            <span className="text-accent-signal">世界を変える。</span>
           </h1>
           <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-text-secondary">
             Claude Codeやカーソルで作ったAIツールを、無料でも有料でも公開できるマーケットプレイス。
