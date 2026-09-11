@@ -1,0 +1,144 @@
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import Header from "@/components/Header";
+import BuyBox from "@/components/BuyBox";
+import AuthorCard from "@/components/AuthorCard";
+import ToolCard from "@/components/ToolCard";
+import { getToolBySlug, tools, formatInstalls } from "@/lib/mock-data";
+
+export default async function ToolDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const tool = getToolBySlug(slug);
+
+  if (!tool) notFound();
+
+  const related = tools.filter((t) => t.id !== tool.id).slice(0, 3);
+
+  return (
+    <>
+      <Header />
+
+      <main className="flex-1">
+        <div className="mx-auto max-w-6xl px-6 py-8">
+          {/* Breadcrumb */}
+          <nav className="mb-6 flex items-center gap-1.5 text-[13px] text-text-muted">
+            <Link href="/" className="hover:text-text-secondary">
+              forge
+            </Link>
+            <span>/</span>
+            <Link href="/browse" className="hover:text-text-secondary">
+              {tool.category}
+            </Link>
+          </nav>
+
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
+            {/* Main column */}
+            <div>
+              <div className="mb-5 flex items-start justify-between gap-4">
+                <div>
+                  <h1 className="font-display text-[2rem] font-semibold leading-tight text-text-primary">
+                    {tool.name}
+                  </h1>
+                  <p className="mt-2 text-[15px] text-text-secondary">
+                    {tool.tagline}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 font-mono text-[11px] tracking-wide ${
+                    tool.runtime === "local"
+                      ? "bg-accent-ai-dim text-accent-ai"
+                      : "border border-border text-text-muted"
+                  }`}
+                >
+                  {tool.runtime === "local" ? "LOCAL" : "CLOUD"}
+                </span>
+              </div>
+
+              {/* Manifest strip */}
+              <div className="mb-6 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-border bg-surface px-4 py-3 font-mono text-[12px] text-text-muted">
+                <span>
+                  pkg://{tool.slug}
+                  <span className="text-text-secondary">@v{tool.version}</span>
+                </span>
+                <span className="flex items-center gap-1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2 2 7l10 5 10-5-10-5Z" opacity=".5" />
+                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+                  </svg>
+                  {formatInstalls(tool.installs)} installs
+                </span>
+                <span>♥ {tool.likes}</span>
+              </div>
+
+              {/* Preview image placeholder */}
+              <div className="mb-8 flex h-72 items-center justify-center rounded-xl border border-border bg-gradient-to-br from-surface-raised to-surface">
+                <span className="font-display text-5xl font-semibold text-text-dim/40">
+                  {tool.name.slice(0, 2).toUpperCase()}
+                </span>
+              </div>
+
+              {/* Description */}
+              <section className="mb-8">
+                <h2 className="mb-3 font-display text-lg font-semibold text-text-primary">
+                  概要
+                </h2>
+                <p className="whitespace-pre-line text-[14px] leading-relaxed text-text-secondary">
+                  {tool.description}
+                </p>
+              </section>
+
+              {/* Tags */}
+              <section className="mb-8">
+                <div className="flex flex-wrap gap-2">
+                  {tool.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border border-border px-3 py-1 text-[12px] text-text-secondary"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-5">
+              <BuyBox tool={tool} />
+              <AuthorCard tool={tool} />
+            </div>
+          </div>
+
+          {/* Related tools */}
+          <section className="mt-16 border-t border-border pt-10">
+            <h2 className="mb-5 font-display text-lg font-semibold text-text-primary">
+              こちらもおすすめ
+            </h2>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+              {related.map((t) => (
+                <ToolCard key={t.id} tool={t} />
+              ))}
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer className="border-t border-border">
+        <div className="mx-auto max-w-6xl px-6 py-10 text-[13px] text-text-dim">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <span className="font-display text-text-muted">forge.</span>
+            <div className="flex gap-6">
+              <a href="#" className="hover:text-text-secondary">利用規約</a>
+              <a href="#" className="hover:text-text-secondary">プライバシーポリシー</a>
+              <a href="#" className="hover:text-text-secondary">お問い合わせ</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </>
+  );
+}
