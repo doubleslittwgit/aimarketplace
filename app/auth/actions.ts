@@ -71,3 +71,21 @@ export async function logout() {
   revalidatePath("/", "layout");
   redirect("/");
 }
+
+export async function signInWithGoogle(origin: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      // 認証完了後、Googleから戻ってきたユーザーをこのURLで受け取る
+      redirectTo: `${origin}/auth/callback`,
+    },
+  });
+
+  if (error || !data.url) {
+    redirect("/login?error=google");
+  }
+
+  redirect(data.url);
+}

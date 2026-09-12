@@ -3,12 +3,14 @@
 import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { login } from "@/app/auth/actions";
+import GoogleButton from "@/components/GoogleButton";
 
 export default function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
   const justSignedUp = searchParams.get("confirm") === "1";
+  const googleError = searchParams.get("error") === "google";
 
   function handleSubmit(formData: FormData) {
     setError(null);
@@ -19,10 +21,25 @@ export default function LoginForm() {
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4">
+    <div className="space-y-5">
+      <GoogleButton />
+
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-[12px] text-text-dim">または</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <form action={handleSubmit} className="space-y-4">
       {justSignedUp && (
         <div className="rounded-lg border border-accent-ai/30 bg-accent-ai-dim px-3.5 py-2.5 text-[13px] text-accent-ai">
           登録が完了しました。届いた確認メールのリンクを開いてから、ログインしてください。
+        </div>
+      )}
+
+      {googleError && (
+        <div className="rounded-lg border border-accent-danger/30 bg-accent-danger/10 px-3.5 py-2.5 text-[13px] text-accent-danger">
+          Googleログインに失敗しました。もう一度お試しください。
         </div>
       )}
 
@@ -67,6 +84,7 @@ export default function LoginForm() {
       >
         {isPending ? "ログイン中..." : "ログイン"}
       </button>
-    </form>
+      </form>
+    </div>
   );
 }

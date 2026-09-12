@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { signup } from "@/app/auth/actions";
+import { signup, signInWithGoogle } from "@/app/auth/actions";
+import GoogleButton from "@/components/GoogleButton";
 
 export default function SignupForm() {
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +17,16 @@ export default function SignupForm() {
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4">
+    <div className="space-y-5">
+      <GoogleButton />
+
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-[12px] text-text-dim">または</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <form action={handleSubmit} className="space-y-4">
       {error && (
         <div className="rounded-lg border border-accent-danger/30 bg-accent-danger/10 px-3.5 py-2.5 text-[13px] text-accent-danger">
           {error}
@@ -76,6 +86,7 @@ export default function SignupForm() {
       <p className="text-center text-[11px] leading-relaxed text-text-dim">
         登録すると、利用規約とプライバシーポリシーに同意したものとみなされます
       </p>
-    </form>
+      </form>
+    </div>
   );
 }
