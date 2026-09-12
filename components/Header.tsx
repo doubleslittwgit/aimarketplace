@@ -1,6 +1,13 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { logout } from "@/app/auth/actions";
 
-export default function Header() {
+export default async function Header() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-bg/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-6">
@@ -45,12 +52,33 @@ export default function Header() {
           >
             出品する
           </Link>
-          <Link
-            href="/login"
-            className="text-text-secondary transition hover:text-text-primary"
-          >
-            ログイン
-          </Link>
+
+          {user ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="hidden text-text-secondary transition hover:text-text-primary sm:block"
+              >
+                マイページ
+              </Link>
+              <form action={logout}>
+                <button
+                  type="submit"
+                  className="text-text-secondary transition hover:text-text-primary"
+                >
+                  ログアウト
+                </button>
+              </form>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="text-text-secondary transition hover:text-text-primary"
+            >
+              ログイン
+            </Link>
+          )}
+
           <Link
             href="/submit"
             className="rounded-md bg-accent-signal px-3.5 py-2 font-medium text-white transition hover:brightness-110"
