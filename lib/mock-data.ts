@@ -16,6 +16,7 @@ export type Tool = {
   tags: string[];
   updatedAt: string; // ISO date
   runtime: "cloud" | "local";
+  thumbnailUrl?: string | null;
 };
 
 export const categories = [

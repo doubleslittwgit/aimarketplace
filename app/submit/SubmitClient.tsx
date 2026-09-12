@@ -11,6 +11,7 @@ export default function SubmitClient() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [platforms, setPlatforms] = useState<string[]>([]);
   const [minOsVersion, setMinOsVersion] = useState("");
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -26,6 +27,14 @@ export default function SubmitClient() {
   function handleFile(file: File | undefined) {
     if (!file) return;
     setFileName(file.name);
+  }
+
+  function handleThumbnail(file: File | undefined) {
+    if (!file) return;
+    setThumbnailPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
   }
 
   function handleFormAction(formData: FormData) {
@@ -52,6 +61,48 @@ export default function SubmitClient() {
               {error}
             </div>
           )}
+
+          {/* サムネイル画像 */}
+          <Field label="サムネイル画像">
+            <div className="flex items-center gap-4">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-surface">
+                {thumbnailPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={thumbnailPreview}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    className="text-text-dim"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="9" cy="9" r="1.5" />
+                    <path d="m21 15-5-5L5 21" />
+                  </svg>
+                )}
+              </div>
+              <div>
+                <input
+                  type="file"
+                  name="thumbnail"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={(e) => handleThumbnail(e.target.files?.[0])}
+                  className="text-[12px] text-text-secondary"
+                />
+                <p className="mt-1.5 text-[12px] text-text-dim">
+                  未設定の場合は、ツール名の頭文字が自動で表示されます（推奨:正方形・PNG/JPEG）
+                </p>
+              </div>
+            </div>
+          </Field>
 
           {/* 実行環境に応じて、ファイルアップロード or デモURL のどちらかを表示 */}
           <input type="hidden" name="runtime" value={runtime} />

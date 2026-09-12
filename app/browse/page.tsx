@@ -30,6 +30,7 @@ async function loadRealTools(): Promise<Tool[]> {
       tags: r.tags || [],
       updatedAt: (r.updated_at || "").slice(0, 10),
       runtime: r.runtime,
+      thumbnailUrl: r.thumbnail_url || null,
     })) || []
   );
 }

@@ -36,6 +36,7 @@ async function loadTool(slug: string): Promise<{ tool: Tool; related: Tool[] } |
       tags: row.tags || [],
       updatedAt: (row.updated_at || "").slice(0, 10),
       runtime: row.runtime,
+      thumbnailUrl: row.thumbnail_url || null,
     };
 
     const { data: relatedRows } = await supabase
@@ -65,6 +66,7 @@ async function loadTool(slug: string): Promise<{ tool: Tool; related: Tool[] } |
         tags: r.tags || [],
         updatedAt: (r.updated_at || "").slice(0, 10),
         runtime: r.runtime,
+        thumbnailUrl: r.thumbnail_url || null,
       })) || [];
 
     // 実際の出品がまだ少ない間は、デモ用のツールで欄を埋める
@@ -150,11 +152,20 @@ export default async function ToolDetailPage({
                 <span>♥ {tool.likes}</span>
               </div>
 
-              {/* Preview image placeholder */}
-              <div className="mb-8 flex h-72 items-center justify-center rounded-xl border border-border bg-gradient-to-br from-surface-raised to-surface">
-                <span className="font-display text-5xl font-semibold text-text-dim/40">
-                  {tool.name.slice(0, 2).toUpperCase()}
-                </span>
+              {/* Preview image */}
+              <div className="mb-8 flex h-72 items-center justify-center overflow-hidden rounded-xl border border-border bg-gradient-to-br from-surface-raised to-surface">
+                {tool.thumbnailUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={tool.thumbnailUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="font-display text-5xl font-semibold text-text-dim/40">
+                    {tool.name.slice(0, 2).toUpperCase()}
+                  </span>
+                )}
               </div>
 
               {/* Description */}

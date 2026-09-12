@@ -16,6 +16,7 @@ function slugify(input: string) {
 }
 
 const MAX_FILE_SIZE = 300 * 1024 * 1024; // 300MB（出品フォームに明記している上限と揃える）
+const MAX_THUMBNAIL_SIZE = 10 * 1024 * 1024; // 10MB（storage_limits.sqlのtool-images上限と揃える）
 
 export async function createTool(formData: FormData): Promise<CreateToolResult> {
   const supabase = await createClient();
@@ -40,6 +41,8 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   const demoUrl = String(formData.get("demoUrl") || "").trim() || null;
   const file = formData.get("file");
   const uploadedFile = file instanceof File && file.size > 0 ? file : null;
+  const thumbnail = formData.get("thumbnail");
+  const uploadedThumbnail = thumbnail instanceof File && thumbnail.size > 0 ? thumbnail : null;
 
   if (!name || !tagline || !description || !category) {
     return { error: "必須項目が入力されていません" };
@@ -56,12 +59,17 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   if (uploadedFile && uploadedFile.size > MAX_FILE_SIZE) {
     return { error: "ファイルサイズは300MBまでです" };
   }
+  if (uploadedThumbnail && uploadedThumbnail.size > MAX_THUMBNAIL_SIZE) {
+    return { error: "サムネイル画像は10MBまでです" };
+  }
 
   const id = crypto.randomUUID();
   const slug = `${slugify(name)}-${id.slice(0, 6)}`;
 
   let fileKey: string | null = null;
   let fileSizeBytes: number | null = null;
+  let thumbnailUrl: string | null = null;
+  let thumbKey: string | null = null;
 
   // ファイルの保管パスは「作者ID/ツールID/ファイル名」に固定する。
   // これは supabase/storage.sql のダウンロード権限ルールが、
@@ -79,6 +87,25 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     fileSizeBytes = uploadedFile.size;
   }
 
+  // サムネイルは tool-images（公開バケット）に保存し、公開URLをそのままDBに持たせる
+  if (uploadedThumbnail) {
+    thumbKey = `${user.id}/${id}/${uploadedThumbnail.name}`;
+
+    const { error: thumbUploadError } = await supabase.storage
+      .from("tool-images")
+      .upload(thumbKey, uploadedThumbnail, { upsert: false });
+
+    if (thumbUploadError) {
+      if (fileKey) await supabase.storage.from("tool-files").remove([fileKey]);
+      return { error: `サムネイルのアップロードに失敗しました: ${thumbUploadError.message}` };
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from("tool-images")
+      .getPublicUrl(thumbKey);
+    thumbnailUrl = publicUrlData.publicUrl;
+  }
+
   const { error: insertError } = await supabase.from("tools").insert({
     id,
     slug,
@@ -93,6 +120,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     min_os_version: minOsVersion,
     file_key: fileKey,
     file_size_bytes: fileSizeBytes,
+    thumbnail_url: thumbnailUrl,
     demo_url: demoUrl,
     // MVP段階につき、審査フローが無いためそのまま公開する。
     // 将来ここを 'pending_review' にし、審査後に 'published' へ変える想定。
@@ -103,6 +131,9 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     // アップロード済みのファイルが孤立しないよう、失敗時は片付ける
     if (fileKey) {
       await supabase.storage.from("tool-files").remove([fileKey]);
+    }
+    if (thumbKey) {
+      await supabase.storage.from("tool-images").remove([thumbKey]);
     }
     return { error: `保存に失敗しました: ${insertError.message}` };
   }

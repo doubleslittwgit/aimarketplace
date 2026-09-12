@@ -11,9 +11,18 @@ export default function ToolCard({ tool }: { tool: Tool }) {
     >
       {/* Preview area */}
       <div className="relative flex h-36 items-center justify-center overflow-hidden border-b border-border bg-gradient-to-br from-surface-raised to-bg">
-        <span className="font-display text-3xl font-semibold text-text-dim/40">
-          {tool.name.slice(0, 2).toUpperCase()}
-        </span>
+        {tool.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={tool.thumbnailUrl}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <span className="font-display text-3xl font-semibold text-text-dim/40">
+            {tool.name.slice(0, 2).toUpperCase()}
+          </span>
+        )}
         <span
           className={`absolute right-3 top-3 rounded-full px-2 py-0.5 font-mono text-[10px] tracking-wide ${
             tool.runtime === "local"
