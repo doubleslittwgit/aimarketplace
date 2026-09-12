@@ -1,9 +1,46 @@
 import Header from "@/components/Header";
 import ActivityTicker from "@/components/ActivityTicker";
 import ToolCard from "@/components/ToolCard";
-import { tools, categories } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/server";
+import { tools as mockTools, categories, type Tool } from "@/lib/mock-data";
 
-export default function Home() {
+async function loadRealTools(): Promise<Tool[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("tools")
+    .select("*, profiles:author_id(display_name, handle)")
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .limit(6);
+
+  return (
+    data?.map((r) => ({
+      id: r.id,
+      slug: r.slug,
+      name: r.name,
+      tagline: r.tagline,
+      description: r.description,
+      category: r.category,
+      price: r.price,
+      version: r.version,
+      installs: r.install_count,
+      likes: r.like_count,
+      author: {
+        name: r.profiles?.display_name || "名前未設定の開発者",
+        handle: r.profiles?.handle ? `@${r.profiles.handle}` : "",
+      },
+      tags: r.tags || [],
+      updatedAt: (r.updated_at || "").slice(0, 10),
+      runtime: r.runtime,
+    })) || []
+  );
+}
+
+export default async function Home() {
+  const realTools = await loadRealTools();
+  // 実際の出品を先頭に、足りない分をデモ用ツールで埋める（最大6件表示）
+  const tools = [...realTools, ...mockTools].slice(0, 6);
+
   return (
     <>
       <Header />
@@ -41,7 +78,7 @@ export default function Home() {
           </div>
 
           <div className="mt-14 flex flex-wrap gap-x-10 gap-y-4 border-t border-border pt-8 font-mono text-[13px]">
-            <Stat label="公開ツール" value={`${tools.length * 253}+`} />
+            <Stat label="公開ツール" value={`${mockTools.length * 253 + realTools.length}+`} />
             <Stat label="開発者" value="480+" />
             <Stat label="累計ダウンロード" value="52.3k" />
             <Stat label="開発者への還元率" value="80%" accent />

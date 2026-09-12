@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { categories } from "@/lib/mock-data";
+import { createTool } from "./actions";
 
 export default function SubmitClient() {
   const [price, setPrice] = useState("");
   const [runtime, setRuntime] = useState<"cloud" | "local">("cloud");
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
   const [platforms, setPlatforms] = useState<string[]>([]);
   const [minOsVersion, setMinOsVersion] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   function togglePlatform(p: string) {
     setPlatforms((prev) =>
@@ -26,38 +28,12 @@ export default function SubmitClient() {
     setFileName(file.name);
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    // MVP段階ではDB接続前なので、送信の代わりに完了画面を表示するだけ
-    setSubmitted(true);
-  }
-
-  if (submitted) {
-    return (
-      <main className="flex flex-1 items-center justify-center px-6 py-20">
-        <div className="max-w-md text-center">
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-accent-signal-dim">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              className="text-accent-signal"
-            >
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
-          </div>
-          <h1 className="mb-2 font-display text-xl font-semibold text-text-primary">
-            送信内容を受け付けました
-          </h1>
-          <p className="text-[14px] text-text-secondary">
-            現在この画面はデモ表示です。実際の審査・公開機能は準備中です。
-          </p>
-        </div>
-      </main>
-    );
+  function handleFormAction(formData: FormData) {
+    setError(null);
+    startTransition(async () => {
+      const result = await createTool(formData);
+      if (result?.error) setError(result.error);
+    });
   }
 
   return (
@@ -66,13 +42,23 @@ export default function SubmitClient() {
         <h1 className="mb-1 font-display text-2xl font-semibold text-text-primary">
           ツールを公開する
         </h1>
-          <p className="mb-8 text-[13px] text-text-muted">
-            価格は0円から、あなたが決められます。無料公開もいつでも有料に切り替えられます。
-          </p>
+        <p className="mb-8 text-[13px] text-text-muted">
+          価格は0円から、あなたが決められます。無料公開もいつでも有料に切り替えられます。
+        </p>
 
-          <form onSubmit={handleSubmit} className="space-y-7">
-            {/* ファイルアップロード */}
-            <Field label="ファイル または デモURL" required>
+        <form action={handleFormAction} className="space-y-7">
+          {error && (
+            <div className="rounded-lg border border-accent-danger/30 bg-accent-danger/10 px-3.5 py-2.5 text-[13px] text-accent-danger">
+              {error}
+            </div>
+          )}
+
+          {/* 実行環境に応じて、ファイルアップロード or デモURL のどちらかを表示 */}
+          <input type="hidden" name="runtime" value={runtime} />
+          <input type="hidden" name="platforms" value={platforms.join(",")} readOnly />
+
+          {runtime === "local" ? (
+            <Field label="ファイル" required>
               <div
                 onDragOver={(e) => {
                   e.preventDefault();
@@ -118,159 +104,180 @@ export default function SubmitClient() {
                 )}
                 <input
                   type="file"
+                  name="file"
+                  required
                   className="mt-4 text-[12px] text-text-secondary"
                   onChange={(e) => handleFile(e.target.files?.[0])}
                 />
               </div>
-              <p className="mt-2 text-[12px] text-text-dim">
-                クラウド上で動くWebアプリの場合は、ファイルの代わりにデモURLを貼り付けても構いません
-              </p>
             </Field>
-
-            {/* ツール名 */}
-            <Field label="ツール名" required>
+          ) : (
+            <Field label="デモURL" required>
               <input
-                type="text"
+                type="url"
+                name="demoUrl"
                 required
-                placeholder="例：InvoiceParser AI"
+                placeholder="https://your-tool.vercel.app"
                 className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
               />
-            </Field>
-
-            {/* キャッチコピー */}
-            <Field label="一言説明（キャッチコピー）" required>
-              <input
-                type="text"
-                required
-                maxLength={60}
-                placeholder="例：請求書PDFを3秒でスプレッドシートに変換"
-                className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
-              />
-            </Field>
-
-            {/* 詳細説明 */}
-            <Field label="詳細説明" required>
-              <textarea
-                required
-                rows={5}
-                placeholder="このツールが何を解決するか、どう使うかを説明してください"
-                className="w-full resize-none rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
-              />
-            </Field>
-
-            {/* カテゴリ */}
-            <Field label="カテゴリ" required>
-              <select
-                required
-                defaultValue=""
-                className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
-              >
-                <option value="" disabled>
-                  選択してください
-                </option>
-                {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </Field>
-
-            {/* 実行環境 */}
-            <Field label="実行環境" required>
-              <div className="flex gap-3">
-                <RuntimeOption
-                  label="クラウド（Web）"
-                  description="サーバー上で動作。ブラウザだけで使える"
-                  active={runtime === "cloud"}
-                  onClick={() => setRuntime("cloud")}
-                />
-                <RuntimeOption
-                  label="ローカル実行"
-                  description="ダウンロードして使用。データが外に出ない"
-                  active={runtime === "local"}
-                  onClick={() => setRuntime("local")}
-                />
-              </div>
-            </Field>
-
-            {/* 対応環境 */}
-            {runtime === "local" ? (
-              <Field label="対応OS" required>
-                <div className="flex flex-wrap gap-2">
-                  {["Windows", "macOS", "Linux"].map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => togglePlatform(p)}
-                      className={`rounded-full border px-4 py-1.5 text-[13px] transition ${
-                        platforms.includes(p)
-                          ? "border-accent-ai/40 bg-accent-ai-dim text-accent-ai"
-                          : "border-border text-text-secondary hover:border-border-strong"
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
-                <input
-                  type="text"
-                  value={minOsVersion}
-                  onChange={(e) => setMinOsVersion(e.target.value)}
-                  placeholder="例：Windows 10以降 / macOS 12 Monterey以降"
-                  className="mt-3 w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
-                />
-                <p className="mt-2 text-[12px] text-text-dim">
-                  対応OSと最低バージョンを明記してください。購入者が動作確認できずトラブルになるのを防ぎます
-                </p>
-              </Field>
-            ) : (
-              <Field label="推奨環境">
-                <input
-                  type="text"
-                  defaultValue="Chrome / Edge / Safari 最新版"
-                  className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
-                />
-                <p className="mt-2 text-[12px] text-text-dim">
-                  クラウド型でも、推奨ブラウザを記載すると購入者に安心感を与えられます
-                </p>
-              </Field>
-            )}
-
-            {/* 価格 */}
-            <Field label="価格" required>
-              <div className="relative">
-                <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] text-text-muted">
-                  ¥
-                </span>
-                <input
-                  type="number"
-                  required
-                  min={0}
-                  step={100}
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="0"
-                  className="w-full rounded-lg border border-border bg-surface py-2.5 pl-8 pr-3.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
-                />
-              </div>
               <p className="mt-2 text-[12px] text-text-dim">
-                {price === ""
-                  ? "0円を入力すると無料公開になります"
-                  : isFree
-                    ? "無料ツールとして公開されます"
-                    : `${priceNumber.toLocaleString()}円で販売されます（手数料20%を差し引いた¥${Math.round(priceNumber * 0.8).toLocaleString()}が売上になります）`}
+                購入者がアクセスして実際に使うURLを入力してください
               </p>
             </Field>
+          )}
 
-            <button
-              type="submit"
-              className="w-full rounded-lg bg-accent-signal py-3 text-sm font-medium text-white transition hover:brightness-105"
+          {/* ツール名 */}
+          <Field label="ツール名" required>
+            <input
+              type="text"
+              name="name"
+              required
+              placeholder="例：InvoiceParser AI"
+              className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
+            />
+          </Field>
+
+          {/* キャッチコピー */}
+          <Field label="一言説明（キャッチコピー）" required>
+            <input
+              type="text"
+              name="tagline"
+              required
+              maxLength={60}
+              placeholder="例：請求書PDFを3秒でスプレッドシートに変換"
+              className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
+            />
+          </Field>
+
+          {/* 詳細説明 */}
+          <Field label="詳細説明" required>
+            <textarea
+              name="description"
+              required
+              rows={5}
+              placeholder="このツールが何を解決するか、どう使うかを説明してください"
+              className="w-full resize-none rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
+            />
+          </Field>
+
+          {/* カテゴリ */}
+          <Field label="カテゴリ" required>
+            <select
+              name="category"
+              required
+              defaultValue=""
+              className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
             >
-              公開する
-            </button>
-          </form>
-        </div>
+              <option value="" disabled>
+                選択してください
+              </option>
+              {categories.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          {/* 実行環境 */}
+          <Field label="実行環境" required>
+            <div className="flex gap-3">
+              <RuntimeOption
+                label="クラウド（Web）"
+                description="サーバー上で動作。ブラウザだけで使える"
+                active={runtime === "cloud"}
+                onClick={() => setRuntime("cloud")}
+              />
+              <RuntimeOption
+                label="ローカル実行"
+                description="ダウンロードして使用。データが外に出ない"
+                active={runtime === "local"}
+                onClick={() => setRuntime("local")}
+              />
+            </div>
+          </Field>
+
+          {/* 対応環境 */}
+          {runtime === "local" ? (
+            <Field label="対応OS" required>
+              <div className="flex flex-wrap gap-2">
+                {["Windows", "macOS", "Linux"].map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => togglePlatform(p)}
+                    className={`rounded-full border px-4 py-1.5 text-[13px] transition ${
+                      platforms.includes(p)
+                        ? "border-accent-ai/40 bg-accent-ai-dim text-accent-ai"
+                        : "border-border text-text-secondary hover:border-border-strong"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="text"
+                name="minOsVersion"
+                value={minOsVersion}
+                onChange={(e) => setMinOsVersion(e.target.value)}
+                placeholder="例：Windows 10以降 / macOS 12 Monterey以降"
+                className="mt-3 w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
+              />
+              <p className="mt-2 text-[12px] text-text-dim">
+                対応OSと最低バージョンを明記してください。購入者が動作確認できずトラブルになるのを防ぎます
+              </p>
+            </Field>
+          ) : (
+            <Field label="推奨環境">
+              <input
+                type="text"
+                name="minOsVersion"
+                defaultValue="Chrome / Edge / Safari 最新版"
+                className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
+              />
+              <p className="mt-2 text-[12px] text-text-dim">
+                クラウド型でも、推奨ブラウザを記載すると購入者に安心感を与えられます
+              </p>
+            </Field>
+          )}
+
+          {/* 価格 */}
+          <Field label="価格" required>
+            <div className="relative">
+              <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] text-text-muted">
+                ¥
+              </span>
+              <input
+                type="number"
+                name="price"
+                required
+                min={0}
+                step={100}
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="0"
+                className="w-full rounded-lg border border-border bg-surface py-2.5 pl-8 pr-3.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
+              />
+            </div>
+            <p className="mt-2 text-[12px] text-text-dim">
+              {price === ""
+                ? "0円を入力すると無料公開になります"
+                : isFree
+                  ? "無料ツールとして公開されます"
+                  : `${priceNumber.toLocaleString()}円で販売されます（手数料20%を差し引いた¥${Math.round(priceNumber * 0.8).toLocaleString()}が売上になります）`}
+            </p>
+          </Field>
+
+          <button
+            type="submit"
+            disabled={isPending}
+            className="w-full rounded-lg bg-accent-signal py-3 text-sm font-medium text-white transition hover:brightness-105 disabled:opacity-60"
+          >
+            {isPending ? "公開処理中..." : "公開する"}
+          </button>
+        </form>
+      </div>
     </main>
   );
 }

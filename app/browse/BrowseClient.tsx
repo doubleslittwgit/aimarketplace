@@ -2,17 +2,17 @@
 
 import { useMemo, useState } from "react";
 import ToolCard from "@/components/ToolCard";
-import { tools, categories } from "@/lib/mock-data";
+import { categories, type Tool } from "@/lib/mock-data";
 
 type SortKey = "new" | "popular" | "price_asc" | "price_desc";
 
-export default function BrowseClient() {
+export default function BrowseClient({ initialTools }: { initialTools: Tool[] }) {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("すべて");
   const [sort, setSort] = useState<SortKey>("new");
 
   const filtered = useMemo(() => {
-    let result = tools.filter((t) => {
+    let result = initialTools.filter((t) => {
       const matchesQuery =
         query.trim() === "" ||
         t.name.toLowerCase().includes(query.toLowerCase()) ||

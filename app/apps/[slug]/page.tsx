@@ -4,7 +4,84 @@ import Header from "@/components/Header";
 import BuyBox from "@/components/BuyBox";
 import AuthorCard from "@/components/AuthorCard";
 import ToolCard from "@/components/ToolCard";
-import { getToolBySlug, tools, formatInstalls } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/server";
+import { getToolBySlug, tools as mockTools, formatInstalls, type Tool } from "@/lib/mock-data";
+
+async function loadTool(slug: string): Promise<{ tool: Tool; related: Tool[] } | null> {
+  const supabase = await createClient();
+
+  const { data: row } = await supabase
+    .from("tools")
+    .select("*, profiles:author_id(display_name, handle)")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (row) {
+    const tool: Tool = {
+      id: row.id,
+      slug: row.slug,
+      name: row.name,
+      tagline: row.tagline,
+      description: row.description,
+      category: row.category,
+      price: row.price,
+      version: row.version,
+      installs: row.install_count,
+      likes: row.like_count,
+      author: {
+        name: row.profiles?.display_name || "名前未設定の開発者",
+        handle: row.profiles?.handle ? `@${row.profiles.handle}` : "",
+      },
+      tags: row.tags || [],
+      updatedAt: (row.updated_at || "").slice(0, 10),
+      runtime: row.runtime,
+    };
+
+    const { data: relatedRows } = await supabase
+      .from("tools")
+      .select("*, profiles:author_id(display_name, handle)")
+      .eq("status", "published")
+      .neq("id", row.id)
+      .order("created_at", { ascending: false })
+      .limit(3);
+
+    const related: Tool[] =
+      relatedRows?.map((r) => ({
+        id: r.id,
+        slug: r.slug,
+        name: r.name,
+        tagline: r.tagline,
+        description: r.description,
+        category: r.category,
+        price: r.price,
+        version: r.version,
+        installs: r.install_count,
+        likes: r.like_count,
+        author: {
+          name: r.profiles?.display_name || "名前未設定の開発者",
+          handle: r.profiles?.handle ? `@${r.profiles.handle}` : "",
+        },
+        tags: r.tags || [],
+        updatedAt: (r.updated_at || "").slice(0, 10),
+        runtime: r.runtime,
+      })) || [];
+
+    // 実際の出品がまだ少ない間は、デモ用のツールで欄を埋める
+    const filler = mockTools.filter((t) => t.slug !== slug).slice(0, 3 - related.length);
+
+    return { tool, related: [...related, ...filler] };
+  }
+
+  // データベースに無ければ、デモ用のモックデータにフォールバックする
+  const mockTool = getToolBySlug(slug);
+  if (!mockTool) return null;
+
+  return {
+    tool: mockTool,
+    related: mockTools.filter((t) => t.id !== mockTool.id).slice(0, 3),
+  };
+}
 
 export default async function ToolDetailPage({
   params,
@@ -12,11 +89,10 @@ export default async function ToolDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const tool = getToolBySlug(slug);
+  const result = await loadTool(slug);
 
-  if (!tool) notFound();
-
-  const related = tools.filter((t) => t.id !== tool.id).slice(0, 3);
+  if (!result) notFound();
+  const { tool, related } = result;
 
   return (
     <>
