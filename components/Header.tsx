@@ -1,12 +1,33 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { logout } from "@/app/auth/actions";
+import UserMenu from "@/components/UserMenu";
 
 export default async function Header() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  let displayName = "";
+  let avatarUrl: string | null = null;
+
+  if (user) {
+    // profilesテーブルの表示名を優先。無ければGoogleログイン時の情報を使う。
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("display_name, avatar_url")
+      .eq("id", user.id)
+      .single();
+
+    displayName =
+      profile?.display_name ||
+      (user.user_metadata?.display_name as string | undefined) ||
+      (user.user_metadata?.full_name as string | undefined) ||
+      "";
+
+    avatarUrl =
+      profile?.avatar_url || (user.user_metadata?.avatar_url as string | undefined) || null;
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-bg/85 backdrop-blur">
@@ -54,22 +75,7 @@ export default async function Header() {
           </Link>
 
           {user ? (
-            <>
-              <Link
-                href="/dashboard"
-                className="hidden text-text-secondary transition hover:text-text-primary sm:block"
-              >
-                マイページ
-              </Link>
-              <form action={logout}>
-                <button
-                  type="submit"
-                  className="text-text-secondary transition hover:text-text-primary"
-                >
-                  ログアウト
-                </button>
-              </form>
-            </>
+            <UserMenu email={user.email ?? ""} displayName={displayName} avatarUrl={avatarUrl} />
           ) : (
             <Link
               href="/login"
