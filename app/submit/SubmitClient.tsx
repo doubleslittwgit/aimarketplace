@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { categories } from "@/lib/mock-data";
 import { createTool } from "./actions";
 
@@ -12,8 +12,11 @@ export default function SubmitClient() {
   const [platforms, setPlatforms] = useState<string[]>([]);
   const [minOsVersion, setMinOsVersion] = useState("");
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [thumbnailName, setThumbnailName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
 
   function togglePlatform(p: string) {
     setPlatforms((prev) =>
@@ -27,10 +30,20 @@ export default function SubmitClient() {
   function handleFile(file: File | undefined) {
     if (!file) return;
     setFileName(file.name);
+
+    // ドラッグ&ドロップで受け取ったファイルを、実際のinput要素にも反映する。
+    // これをしないと見た目上はファイル名が表示されても、
+    // フォーム送信時にファイルの中身が送られない。
+    if (fileInputRef.current) {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      fileInputRef.current.files = dataTransfer.files;
+    }
   }
 
   function handleThumbnail(file: File | undefined) {
     if (!file) return;
+    setThumbnailName(file.name);
     setThumbnailPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
@@ -90,16 +103,38 @@ export default function SubmitClient() {
                 )}
               </div>
               <div>
+                <button
+                  type="button"
+                  onClick={() => thumbnailInputRef.current?.click()}
+                  className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3.5 py-2 text-[13px] font-medium text-text-secondary transition hover:border-border-strong hover:bg-surface-raised"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M12 3v12m0-12 4 4m-4-4-4 4" />
+                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                  </svg>
+                  {thumbnailName ? "画像を変更" : "画像を選択"}
+                </button>
+                {thumbnailName && (
+                  <p className="mt-1.5 text-[12px] text-text-secondary">{thumbnailName}</p>
+                )}
+                <p className="mt-1.5 text-[12px] text-text-dim">
+                  未設定の場合は、ツール名の頭文字が自動で表示されます（推奨:正方形・PNG/JPEG）
+                </p>
                 <input
+                  ref={thumbnailInputRef}
                   type="file"
                   name="thumbnail"
                   accept="image/png,image/jpeg,image/webp"
                   onChange={(e) => handleThumbnail(e.target.files?.[0])}
-                  className="text-[12px] text-text-secondary"
+                  className="hidden"
                 />
-                <p className="mt-1.5 text-[12px] text-text-dim">
-                  未設定の場合は、ツール名の頭文字が自動で表示されます（推奨:正方形・PNG/JPEG）
-                </p>
               </div>
             </div>
           </Field>
@@ -111,6 +146,7 @@ export default function SubmitClient() {
           {runtime === "local" ? (
             <Field label="ファイル" required>
               <div
+                onClick={() => fileInputRef.current?.click()}
                 onDragOver={(e) => {
                   e.preventDefault();
                   setDragOver(true);
@@ -121,10 +157,10 @@ export default function SubmitClient() {
                   setDragOver(false);
                   handleFile(e.dataTransfer.files?.[0]);
                 }}
-                className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-10 text-center transition ${
+                className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-10 text-center transition ${
                   dragOver
                     ? "border-accent-ai bg-accent-ai-dim"
-                    : "border-border bg-surface"
+                    : "border-border bg-surface hover:border-border-strong"
                 }`}
               >
                 <svg
@@ -154,11 +190,13 @@ export default function SubmitClient() {
                   </>
                 )}
                 <input
+                  ref={fileInputRef}
                   type="file"
                   name="file"
                   required
-                  className="mt-4 text-[12px] text-text-secondary"
+                  onClick={(e) => e.stopPropagation()}
                   onChange={(e) => handleFile(e.target.files?.[0])}
+                  className="hidden"
                 />
               </div>
             </Field>
