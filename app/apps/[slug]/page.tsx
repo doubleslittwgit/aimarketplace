@@ -7,7 +7,9 @@ import ToolCard from "@/components/ToolCard";
 import { createClient } from "@/lib/supabase/server";
 import { getToolBySlug, tools as mockTools, formatInstalls, type Tool } from "@/lib/mock-data";
 
-async function loadTool(slug: string): Promise<{ tool: Tool; related: Tool[] } | null> {
+async function loadTool(
+  slug: string
+): Promise<{ tool: Tool; related: Tool[]; isDemo: boolean } | null> {
   const supabase = await createClient();
 
   const { data: row } = await supabase
@@ -72,7 +74,7 @@ async function loadTool(slug: string): Promise<{ tool: Tool; related: Tool[] } |
     // 実際の出品がまだ少ない間は、デモ用のツールで欄を埋める
     const filler = mockTools.filter((t) => t.slug !== slug).slice(0, 3 - related.length);
 
-    return { tool, related: [...related, ...filler] };
+    return { tool, related: [...related, ...filler], isDemo: false };
   }
 
   // データベースに無ければ、デモ用のモックデータにフォールバックする
@@ -82,6 +84,7 @@ async function loadTool(slug: string): Promise<{ tool: Tool; related: Tool[] } |
   return {
     tool: mockTool,
     related: mockTools.filter((t) => t.id !== mockTool.id).slice(0, 3),
+    isDemo: true,
   };
 }
 
@@ -94,7 +97,34 @@ export default async function ToolDetailPage({
   const result = await loadTool(slug);
 
   if (!result) notFound();
-  const { tool, related } = result;
+  const { tool, related, isDemo } = result;
+
+  // ログイン状態と購入状態を取得する
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let isPurchased = false;
+  let isOwner = false;
+
+  if (user && !isDemo) {
+    const { data: purchase } = await supabase
+      .from("purchases")
+      .select("id")
+      .eq("tool_id", tool.id)
+      .eq("buyer_id", user.id)
+      .eq("status", "completed")
+      .maybeSingle();
+    isPurchased = Boolean(purchase);
+
+    const { data: ownerCheck } = await supabase
+      .from("tools")
+      .select("author_id")
+      .eq("id", tool.id)
+      .maybeSingle();
+    isOwner = ownerCheck?.author_id === user.id;
+  }
 
   return (
     <>
@@ -195,7 +225,13 @@ export default async function ToolDetailPage({
 
             {/* Sidebar */}
             <div className="space-y-5">
-              <BuyBox tool={tool} />
+              <BuyBox
+                tool={tool}
+                isLoggedIn={Boolean(user)}
+                isOwner={isOwner}
+                isPurchased={isPurchased}
+                isDemo={isDemo}
+              />
               <AuthorCard tool={tool} />
             </div>
           </div>

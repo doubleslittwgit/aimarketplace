@@ -1,6 +1,22 @@
 import { Tool, formatPrice } from "@/lib/mock-data";
+import PurchaseButton from "@/components/PurchaseButton";
 
-export default function BuyBox({ tool }: { tool: Tool }) {
+type Props = {
+  tool: Tool;
+  isLoggedIn: boolean;
+  isOwner: boolean;
+  isPurchased: boolean;
+  /** モックデータ（デモ用のサンプル）の場合は購入処理を無効にする */
+  isDemo?: boolean;
+};
+
+export default function BuyBox({
+  tool,
+  isLoggedIn,
+  isOwner,
+  isPurchased,
+  isDemo,
+}: Props) {
   const isFree = tool.price === 0;
 
   return (
@@ -14,15 +30,24 @@ export default function BuyBox({ tool }: { tool: Tool }) {
         )}
       </div>
 
-      <button
-        type="button"
-        className="mb-3 w-full rounded-lg bg-accent-signal py-3 text-sm font-medium text-white transition hover:brightness-105"
-      >
-        {isFree ? "無料でダウンロード" : "購入してダウンロード"}
-      </button>
+      {isDemo ? (
+        <div className="mb-3 w-full rounded-lg border border-border bg-surface-raised py-3 text-center text-sm text-text-muted">
+          サンプル表示のため購入できません
+        </div>
+      ) : (
+        <PurchaseButton
+          toolId={tool.id}
+          isFree={isFree}
+          isLoggedIn={isLoggedIn}
+          isOwner={isOwner}
+          isPurchased={isPurchased}
+        />
+      )}
 
       <p className="mb-4 text-center text-[12px] text-text-dim">
-        購入後、すぐにダウンロードできます
+        {isPurchased
+          ? "購入済みです。いつでもダウンロードできます"
+          : "購入後、すぐにダウンロードできます"}
       </p>
 
       <dl className="space-y-2.5 border-t border-border pt-4 font-mono text-[12px]">
