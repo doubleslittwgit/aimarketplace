@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import OtpInput from "@/components/OtpInput";
 
 export default function MfaVerifyClient() {
   const supabase = createClient();
@@ -37,9 +38,8 @@ export default function MfaVerifyClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!factorId || code.length !== 6) return;
+  async function submitCode(fullCode: string) {
+    if (!factorId || fullCode.length !== 6 || submitting) return;
     setSubmitting(true);
     setError(null);
 
@@ -54,15 +54,16 @@ export default function MfaVerifyClient() {
       const { error: verifyError } = await supabase.auth.mfa.verify({
         factorId,
         challengeId: challenge.id,
-        code,
+        code: fullCode,
       });
 
       if (verifyError) {
         setError(
           verifyError.message === "Invalid TOTP code"
-            ? "コードが正しくありません。もう一度お試しください。"
+            ? "コードが正しくありません。認証アプリの最新の6桁をもう一度入力してください。"
             : verifyError.message
         );
+        setCode("");
         return;
       }
 
@@ -81,6 +82,11 @@ export default function MfaVerifyClient() {
     }
   }
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    submitCode(code);
+  }
+
   if (preparing) {
     return null;
   }
@@ -89,13 +95,40 @@ export default function MfaVerifyClient() {
     <div className="flex min-h-[70vh] items-center justify-center px-6">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-xl border border-border bg-surface p-7"
+        className="w-full max-w-sm rounded-2xl border border-border bg-surface p-8 text-center shadow-sm"
       >
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent-ai-dim">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--accent-ai)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="3" y="11" width="18" height="10" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+        </div>
+
         <h1 className="mb-1.5 font-display text-lg font-semibold text-text-primary">
-          二段階認証
+          本人確認が必要です
         </h1>
-        <p className="mb-5 text-[13px] text-text-muted">
-          認証アプリに表示されている6桁のコードを入力してください。
+        <p className="mb-1 text-[13px] text-text-secondary">
+          スマートフォンの
+          <span className="mx-1 inline-flex items-center gap-1 rounded bg-accent-ai-dim px-1.5 py-0.5 align-middle text-[12px] font-semibold text-accent-ai">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="2" />
+              <path d="M12 18h.01" />
+            </svg>
+            認証アプリ
+          </span>
+          を開き、
+        </p>
+        <p className="mb-6 text-[13px] text-text-secondary">
+          表示されている<span className="font-semibold text-text-primary">6桁のコード</span>を入力してください。
         </p>
 
         {error && (
@@ -104,16 +137,17 @@ export default function MfaVerifyClient() {
           </div>
         )}
 
-        <input
-          type="text"
-          inputMode="numeric"
-          maxLength={6}
-          autoFocus
-          value={code}
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-          placeholder="123456"
-          className="mb-4 w-full rounded-lg border border-border bg-bg px-3 py-2.5 text-center font-mono text-lg tracking-[0.3em] text-text-primary"
-        />
+        <div className="mb-2">
+          <OtpInput
+            value={code}
+            onChange={setCode}
+            onComplete={submitCode}
+            disabled={submitting}
+          />
+        </div>
+        <p className="mb-6 text-[11px] text-text-dim">
+          コードは30秒ごとに更新されます。最新の番号を入力してください。
+        </p>
 
         <button
           type="submit"
