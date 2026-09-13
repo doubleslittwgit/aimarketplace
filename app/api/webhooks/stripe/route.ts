@@ -106,11 +106,21 @@ export async function POST(request: Request) {
 
   // --- 2. 冪等性の担保 ---
   // 同じ支払いに対する通知が再送されても、記録は1つだけにする。
-  const { data: alreadyRecorded } = await supabase
+  const { data: alreadyRecorded, error: idempotencyError } = await supabase
     .from("purchases")
     .select("id")
     .eq("stripe_payment_intent_id", paymentIntentId)
     .maybeSingle();
+
+  if (idempotencyError) {
+    // ここでエラーを握りつぶすと「ツールが見つかりません」等の誤解を招くメッセージになり、
+    // 本当の原因（例: SUPABASE_SERVICE_ROLE_KEYが無効）が分からなくなる。
+    console.error("[webhook] 購入記録の重複確認に失敗:", idempotencyError.message);
+    return NextResponse.json(
+      { error: `重複確認に失敗しました: ${idempotencyError.message}` },
+      { status: 500 }
+    );
+  }
 
   if (alreadyRecorded) {
     return NextResponse.json({ received: true, duplicate: true });
@@ -118,13 +128,22 @@ export async function POST(request: Request) {
 
   // --- 3. 金額の再検証 ---
   // ブラウザ経由の値ではなく、DBの正規の価格を信頼する。
-  const { data: tool } = await supabase
+  const { data: tool, error: toolFetchError } = await supabase
     .from("tools")
     .select("id, price, author_id")
     .eq("id", toolId)
     .maybeSingle();
 
+  if (toolFetchError) {
+    console.error("[webhook] ツール情報の取得に失敗:", toolFetchError.message);
+    return NextResponse.json(
+      { error: `ツール情報の取得に失敗しました: ${toolFetchError.message}` },
+      { status: 500 }
+    );
+  }
+
   if (!tool) {
+    console.error(`[webhook] ツールが見つかりません: tool_id=${toolId}`);
     return NextResponse.json({ error: "ツールが見つかりません" }, { status: 400 });
   }
 
