@@ -16,6 +16,32 @@ function slugify(input: string) {
     .slice(0, 40);
 }
 
+/**
+ * アップロードされたファイル名をStorageの保存パスとして安全な形に変換する。
+ *
+ * スマホのカメラやChatGPT等が生成するファイル名には、日本語・絵文字・空白・
+ * 括弧などが含まれることがあり、そのままではSupabase Storageのキーとして
+ * 無効になる（"Invalid key" エラー）。拡張子は保持しつつ、本体部分は
+ * 英数字・アンダースコア・ハイフンだけに絞り込む。
+ */
+function sanitizeFileName(name: string): string {
+  const dotIndex = name.lastIndexOf(".");
+  const hasExt = dotIndex > 0 && dotIndex < name.length - 1;
+  const base = hasExt ? name.slice(0, dotIndex) : name;
+  const ext = hasExt ? name.slice(dotIndex + 1).replace(/[^a-zA-Z0-9]/g, "").toLowerCase() : "";
+
+  const safeBase =
+    base
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9_-]+/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/(^_|_$)/g, "")
+      .slice(0, 80) || "file";
+
+  return ext ? `${safeBase}.${ext}` : safeBase;
+}
+
 const MAX_FILE_SIZE = MAX_TOOL_FILE_SIZE; // 出品フォームに明記している上限と揃える
 const MAX_THUMBNAIL_SIZE = MAX_THUMBNAIL_FILE_SIZE; // storage_limits.sqlのtool-images上限と揃える
 
@@ -76,7 +102,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   // これは supabase/storage.sql のダウンロード権限ルールが、
   // このパス構造を前提に「誰のファイルか」を判定しているため。
   if (runtime === "local" && uploadedFile) {
-    fileKey = `${user.id}/${id}/${uploadedFile.name}`;
+    fileKey = `${user.id}/${id}/${sanitizeFileName(uploadedFile.name)}`;
 
     const { error: uploadError } = await supabase.storage
       .from("tool-files")
@@ -90,7 +116,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
 
   // サムネイルは tool-images（公開バケット）に保存し、公開URLをそのままDBに持たせる
   if (uploadedThumbnail) {
-    thumbKey = `${user.id}/${id}/${uploadedThumbnail.name}`;
+    thumbKey = `${user.id}/${id}/${sanitizeFileName(uploadedThumbnail.name)}`;
 
     const { error: thumbUploadError } = await supabase.storage
       .from("tool-images")
