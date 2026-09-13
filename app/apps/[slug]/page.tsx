@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
 import BuyBox from "@/components/BuyBox";
 import AuthorCard from "@/components/AuthorCard";
 import ToolCard from "@/components/ToolCard";
+import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
 import { createClient } from "@/lib/supabase/server";
 import { getToolBySlug, tools as mockTools, formatInstalls, type Tool } from "@/lib/mock-data";
 
@@ -129,6 +131,9 @@ export default async function ToolDetailPage({
   return (
     <>
       <Header />
+      <Suspense fallback={null}>
+        <PurchaseSuccessModal />
+      </Suspense>
 
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-6 py-8">
