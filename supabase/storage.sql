@@ -61,6 +61,11 @@ create policy "sellers can delete own tool files"
 
 -- ダウンロード: ここが最重要。
 -- 「出品者本人」か「購入完了した人」だけが読める。
+--
+-- 注意: tools テーブルにも "name" 列（ツールの表示名）が存在するため、
+-- サブクエリ内で単に "name" と書くと、意図した storage.objects.name ではなく
+-- tools.name に束縛されてしまう（列名の意図しないシャドーイング）。
+-- 必ず対象テーブルを明示した "objects.name" の形で参照すること。
 drop policy if exists "owners and buyers can download tool files" on storage.objects;
 create policy "owners and buyers can download tool files"
   on storage.objects for select
@@ -69,7 +74,7 @@ create policy "owners and buyers can download tool files"
     bucket_id = 'tool-files'
     and (
       -- 出品者本人
-      (storage.foldername(name))[1] = auth.uid()::text
+      (storage.foldername(objects.name))[1] = auth.uid()::text
       -- または、このツールを購入完了している人
       or exists (
         select 1
@@ -77,12 +82,12 @@ create policy "owners and buyers can download tool files"
         join public.tools t on t.id = p.tool_id
         where p.buyer_id = auth.uid()
           and p.status = 'completed'
-          and (storage.foldername(name))[2] = t.id::text
+          and (storage.foldername(objects.name))[2] = t.id::text
       )
       -- または、無料公開されているツール
       or exists (
         select 1 from public.tools t
-        where (storage.foldername(name))[2] = t.id::text
+        where (storage.foldername(objects.name))[2] = t.id::text
           and t.price = 0
           and t.status = 'published'
       )
