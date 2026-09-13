@@ -86,6 +86,13 @@ export default function UserMenu({ email, displayName, avatarUrl }: Props) {
             ツールを公開する
           </Link>
           <Link
+            href="/seller"
+            className="block px-3.5 py-2 text-[13px] text-text-secondary hover:bg-surface-raised hover:text-text-primary"
+            onClick={() => setOpen(false)}
+          >
+            売上の受け取り設定
+          </Link>
+          <Link
             href="/mfa"
             className="block px-3.5 py-2 text-[13px] text-text-secondary hover:bg-surface-raised hover:text-text-primary"
             onClick={() => setOpen(false)}

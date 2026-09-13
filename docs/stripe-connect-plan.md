@@ -46,8 +46,8 @@ Webhook と、サーバー側で本人確認を済ませたサーバーアクシ
 ## 進捗
 
 - [x] **Step 0** 計画書の作成（このファイル）
-- [ ] **Step 1** DB: `seller_accounts` テーブル作成（RLS・権限含む）
-- [ ] **Step 2** Connect オンボーディング（アカウント作成 + Account Links）
+- [x] **Step 1** DB: `seller_accounts` テーブル作成（RLS・権限含む）
+- [x] **Step 2** Connect オンボーディング（`/seller` ページ + Account Links）
 - [ ] **Step 3** Webhook: `account.updated` で審査状況を追跡
 - [ ] **Step 4** 出品制限: 有料出品はオンボーディング完了者のみ
 - [ ] **Step 5** チェックアウトを destination charge 方式に変更 ★本番の決済に影響
@@ -60,6 +60,25 @@ Webhook と、サーバー側で本人確認を済ませたサーバーアクシ
    途中で中断しても本番サイトは動き続ける。
 2. Step 5 で初めて決済ロジックを切り替える。ここは他が全部揃ってから着手する。
 3. **開発中はテストモード(サンドボックス)のまま**。本番キーへの切り替えは Step 7。
+
+---
+
+## 実装上の落とし穴（記録）
+
+### `"use server"` からのエクスポートは公開エンドポイントになる
+
+`"use server"` を付けたファイルからエクスポートした async 関数は、
+Next.js によって**誰でも呼べるHTTPエンドポイント**として公開される。
+
+当初 `syncSellerAccount(userId, account)` を `app/seller/actions.ts` に
+置いていたが、これは第三者が任意の userId を「受取可能」に書き換えられる
+**重大な脆弱性**だった。`lib/stripe/seller-account.ts`（通常のサーバーモジュール）
+に移動して解決済み。
+
+原則:
+- `"use server"` からエクスポートする関数は、**引数に「誰の操作か」を取らない**。
+  必ず `auth.getUser()` でセッションから本人を確定させる。
+- 引数で対象を指定する必要がある処理は、サーバーアクションにしない。
 
 ---
 
