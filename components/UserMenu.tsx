@@ -85,6 +85,13 @@ export default function UserMenu({ email, displayName, avatarUrl }: Props) {
           >
             ツールを公開する
           </Link>
+          <Link
+            href="/mfa"
+            className="block px-3.5 py-2 text-[13px] text-text-secondary hover:bg-surface-raised hover:text-text-primary"
+            onClick={() => setOpen(false)}
+          >
+            二段階認証
+          </Link>
 
           <div className="my-1.5 border-t border-border" />
 
