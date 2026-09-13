@@ -59,3 +59,20 @@ grant insert, update, delete on public.reviews to authenticated;
 -- seller_earnings_summary（売上集計ビュー）
 -- ------------------------------------------------------------
 grant select on public.seller_earnings_summary to authenticated;
+
+
+-- ------------------------------------------------------------
+-- service_role（Webhookなど、管理者権限で書き込む処理用）
+-- ------------------------------------------------------------
+-- 通常のSupabaseプロジェクトでは service_role に対して
+-- public スキーマの全テーブルへの ALL PRIVILEGES が自動付与されるが、
+-- このプロジェクトは「Automatically expose new tables」をオフにしていた影響で
+-- service_role にも SELECT/INSERT/UPDATE/DELETE が付与されず、
+-- Webhook経由の購入記録作成が「permission denied」で全て失敗する事態になった。
+-- RLSはservice_roleに対しては無視されるが、GRANT（テーブルに触れる許可）は
+-- 別物なので、これも明示的に必要。
+grant select, insert, update, delete on public.profiles to service_role;
+grant select, insert, update, delete on public.tools to service_role;
+grant select, insert, update, delete on public.purchases to service_role;
+grant select, insert, update, delete on public.reviews to service_role;
+grant select on public.seller_earnings_summary to service_role;
