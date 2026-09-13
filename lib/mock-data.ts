@@ -17,7 +17,18 @@ export type Tool = {
   updatedAt: string; // ISO date
   runtime: "cloud" | "local";
   thumbnailUrl?: string | null;
+  fileSizeBytes?: number | null;
 };
+
+// 出品フォームの上限（サーバー側 app/submit/actions.ts のチェックと必ず揃えること）
+export const MAX_TOOL_FILE_SIZE = 300 * 1024 * 1024; // 300MB
+export const MAX_THUMBNAIL_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+export function formatFileSize(bytes: number | null | undefined) {
+  if (bytes === null || bytes === undefined || bytes <= 0) return null;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export const categories = [
   "自動化・ワークフロー",

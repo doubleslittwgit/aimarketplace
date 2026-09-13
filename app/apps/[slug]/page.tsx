@@ -41,6 +41,7 @@ async function loadTool(
       updatedAt: (row.updated_at || "").slice(0, 10),
       runtime: row.runtime,
       thumbnailUrl: row.thumbnail_url || null,
+      fileSizeBytes: row.file_size_bytes ?? null,
     };
 
     const { data: relatedRows } = await supabase

@@ -1,4 +1,4 @@
-import { Tool, formatPrice } from "@/lib/mock-data";
+import { Tool, formatPrice, formatFileSize } from "@/lib/mock-data";
 import PurchaseButton from "@/components/PurchaseButton";
 
 type Props = {
@@ -58,6 +58,9 @@ export default function BuyBox({
         />
         <Row label="インストール数" value={tool.installs.toLocaleString()} />
         <Row label="最終更新" value={tool.updatedAt} />
+        {tool.runtime === "local" && formatFileSize(tool.fileSizeBytes) && (
+          <Row label="必要容量" value={formatFileSize(tool.fileSizeBytes)!} />
+        )}
       </dl>
     </div>
   );

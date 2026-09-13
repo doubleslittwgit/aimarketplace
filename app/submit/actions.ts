@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE } from "@/lib/mock-data";
 
 export type CreateToolResult = { error: string } | { error: null };
 
@@ -15,8 +16,8 @@ function slugify(input: string) {
     .slice(0, 40);
 }
 
-const MAX_FILE_SIZE = 300 * 1024 * 1024; // 300MB（出品フォームに明記している上限と揃える）
-const MAX_THUMBNAIL_SIZE = 10 * 1024 * 1024; // 10MB（storage_limits.sqlのtool-images上限と揃える）
+const MAX_FILE_SIZE = MAX_TOOL_FILE_SIZE; // 出品フォームに明記している上限と揃える
+const MAX_THUMBNAIL_SIZE = MAX_THUMBNAIL_FILE_SIZE; // storage_limits.sqlのtool-images上限と揃える
 
 export async function createTool(formData: FormData): Promise<CreateToolResult> {
   const supabase = await createClient();

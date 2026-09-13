@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useRef } from "react";
-import { categories } from "@/lib/mock-data";
+import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { createTool } from "./actions";
 
 export default function SubmitClient() {
@@ -9,10 +9,12 @@ export default function SubmitClient() {
   const [runtime, setRuntime] = useState<"cloud" | "local">("cloud");
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [fileSize, setFileSize] = useState<number | null>(null);
   const [platforms, setPlatforms] = useState<string[]>([]);
   const [minOsVersion, setMinOsVersion] = useState("");
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [thumbnailName, setThumbnailName] = useState<string | null>(null);
+  const [thumbnailSize, setThumbnailSize] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -26,10 +28,13 @@ export default function SubmitClient() {
 
   const priceNumber = Number(price);
   const isFree = price !== "" && priceNumber === 0;
+  const fileTooLarge = fileSize !== null && fileSize > MAX_TOOL_FILE_SIZE;
+  const thumbnailTooLarge = thumbnailSize !== null && thumbnailSize > MAX_THUMBNAIL_FILE_SIZE;
 
   function handleFile(file: File | undefined) {
     if (!file) return;
     setFileName(file.name);
+    setFileSize(file.size);
 
     // ドラッグ&ドロップで受け取ったファイルを、実際のinput要素にも反映する。
     // これをしないと見た目上はファイル名が表示されても、
@@ -44,6 +49,7 @@ export default function SubmitClient() {
   function handleThumbnail(file: File | undefined) {
     if (!file) return;
     setThumbnailName(file.name);
+    setThumbnailSize(file.size);
     setThumbnailPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
@@ -52,6 +58,18 @@ export default function SubmitClient() {
 
   function handleFormAction(formData: FormData) {
     setError(null);
+    if (fileTooLarge) {
+      setError(
+        `ファイルサイズが上限(${formatFileSize(MAX_TOOL_FILE_SIZE)})を超えています`
+      );
+      return;
+    }
+    if (thumbnailTooLarge) {
+      setError(
+        `サムネイル画像のサイズが上限(${formatFileSize(MAX_THUMBNAIL_FILE_SIZE)})を超えています`
+      );
+      return;
+    }
     startTransition(async () => {
       const result = await createTool(formData);
       if (result?.error) setError(result.error);
@@ -122,10 +140,18 @@ export default function SubmitClient() {
                   {thumbnailName ? "画像を変更" : "画像を選択"}
                 </button>
                 {thumbnailName && (
-                  <p className="mt-1.5 text-[12px] text-text-secondary">{thumbnailName}</p>
+                  <p className="mt-1.5 text-[12px] text-text-secondary">
+                    {thumbnailName}
+                    {thumbnailSize !== null && ` ・ ${formatFileSize(thumbnailSize)}`}
+                  </p>
+                )}
+                {thumbnailTooLarge && (
+                  <p className="mt-1 text-[12px] text-accent-danger">
+                    上限({formatFileSize(MAX_THUMBNAIL_FILE_SIZE)})を超えています
+                  </p>
                 )}
                 <p className="mt-1.5 text-[12px] text-text-dim">
-                  未設定の場合は、ツール名の頭文字が自動で表示されます（推奨:正方形・PNG/JPEG）
+                  未設定の場合は、ツール名の頭文字が自動で表示されます（推奨:正方形・PNG/JPEG、最大{formatFileSize(MAX_THUMBNAIL_FILE_SIZE)}）
                 </p>
                 <input
                   ref={thumbnailInputRef}
@@ -176,16 +202,29 @@ export default function SubmitClient() {
                   <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
                 </svg>
                 {fileName ? (
-                  <p className="text-[13px] font-medium text-text-primary">
-                    {fileName}
-                  </p>
+                  <>
+                    <p className="text-[13px] font-medium text-text-primary">
+                      {fileName}
+                    </p>
+                    {fileSize !== null && (
+                      <p
+                        className={`mt-1 text-[12px] ${
+                          fileTooLarge ? "text-accent-danger" : "text-text-muted"
+                        }`}
+                      >
+                        {formatFileSize(fileSize)}
+                        {fileTooLarge &&
+                          `（上限${formatFileSize(MAX_TOOL_FILE_SIZE)}を超えています）`}
+                      </p>
+                    )}
+                  </>
                 ) : (
                   <>
                     <p className="text-[13px] text-text-secondary">
                       ここにファイルをドラッグ、またはクリックして選択
                     </p>
                     <p className="mt-1 text-[12px] text-text-dim">
-                      ZIP / EXE / APP　最大300MBまで
+                      ZIP / EXE / APP　最大{formatFileSize(MAX_TOOL_FILE_SIZE)}まで
                     </p>
                   </>
                 )}
@@ -360,7 +399,7 @@ export default function SubmitClient() {
 
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || fileTooLarge || thumbnailTooLarge}
             className="w-full rounded-lg bg-accent-signal py-3 text-sm font-medium text-white transition hover:brightness-105 disabled:opacity-60"
           >
             {isPending ? "公開処理中..." : "公開する"}
