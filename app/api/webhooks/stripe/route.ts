@@ -66,6 +66,37 @@ export async function POST(request: Request) {
     );
   }
 
+  // --- 出品者（連結アカウント）の審査状況が変わったとき ---
+  // 本人確認が通った、追加情報が必要になった、入金が止められた等で届く。
+  // ここで更新しておかないと、出品者の画面が古い状態のままになる。
+  //
+  // 対象の特定には、署名検証済みのイベントに含まれる account.id だけを使う。
+  // ユーザーから渡された値は一切使わないため、なりすましの余地がない。
+  if (event.type === "account.updated") {
+    const account = event.data.object as Stripe.Account;
+    const admin = createAdminClient();
+
+    const { error } = await admin
+      .from("seller_accounts")
+      .update({
+        charges_enabled: account.charges_enabled,
+        payouts_enabled: account.payouts_enabled,
+        details_submitted: account.details_submitted,
+        requirements_due: account.requirements?.currently_due ?? [],
+      })
+      .eq("stripe_account_id", account.id);
+
+    if (error) {
+      console.error("[webhook] 出品者情報の更新に失敗:", error.message);
+      return NextResponse.json(
+        { error: `出品者情報の更新に失敗しました: ${error.message}` },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ received: true });
+  }
+
   // 支払い完了以外のイベントは、受け取ったことだけ伝えて何もしない
   if (event.type !== "checkout.session.completed") {
     return NextResponse.json({ received: true });

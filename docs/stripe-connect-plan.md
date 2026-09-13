@@ -48,7 +48,8 @@ Webhook と、サーバー側で本人確認を済ませたサーバーアクシ
 - [x] **Step 0** 計画書の作成（このファイル）
 - [x] **Step 1** DB: `seller_accounts` テーブル作成（RLS・権限含む）
 - [x] **Step 2** Connect オンボーディング（`/seller` ページ + Account Links）
-- [ ] **Step 3** Webhook: `account.updated` で審査状況を追跡
+- [x] **Step 3** Webhook: `account.updated` で審査状況を追跡
+  - ⚠️ Stripeダッシュボードのエンドポイント設定に `account.updated` を追加する必要あり
 - [ ] **Step 4** 出品制限: 有料出品はオンボーディング完了者のみ
 - [ ] **Step 5** チェックアウトを destination charge 方式に変更 ★本番の決済に影響
 - [ ] **Step 6** テストモードで通しテスト
