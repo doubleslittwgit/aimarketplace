@@ -43,32 +43,42 @@ export default function MfaVerifyClient() {
     setSubmitting(true);
     setError(null);
 
-    const { data: challenge, error: challengeError } =
-      await supabase.auth.mfa.challenge({ factorId });
-    if (challengeError) {
-      setError(challengeError.message);
-      setSubmitting(false);
-      return;
-    }
+    try {
+      const { data: challenge, error: challengeError } =
+        await supabase.auth.mfa.challenge({ factorId });
+      if (challengeError) {
+        setError(challengeError.message);
+        return;
+      }
 
-    const { error: verifyError } = await supabase.auth.mfa.verify({
-      factorId,
-      challengeId: challenge.id,
-      code,
-    });
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challenge.id,
+        code,
+      });
 
-    if (verifyError) {
+      if (verifyError) {
+        setError(
+          verifyError.message === "Invalid TOTP code"
+            ? "コードが正しくありません。もう一度お試しください。"
+            : verifyError.message
+        );
+        return;
+      }
+
+      // クライアント側のルーターだと、更新後のCookie（aal2）が
+      // ミドルウェアに読み込まれる前に遷移してしまうことがあるため、
+      // 確実性を優先してフルページ遷移にする。
+      window.location.assign(next);
+    } catch (err) {
       setError(
-        verifyError.message === "Invalid TOTP code"
-          ? "コードが正しくありません。もう一度お試しください。"
-          : verifyError.message
+        err instanceof Error
+          ? `予期しないエラーが発生しました: ${err.message}`
+          : "予期しないエラーが発生しました。もう一度お試しください。"
       );
+    } finally {
       setSubmitting(false);
-      return;
     }
-
-    router.replace(next);
-    router.refresh();
   }
 
   if (preparing) {

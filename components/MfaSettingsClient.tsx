@@ -75,37 +75,44 @@ export default function MfaSettingsClient() {
     setVerifying(true);
     setError(null);
 
-    const { data: challenge, error: challengeError } =
-      await supabase.auth.mfa.challenge({ factorId: pendingFactorId });
-    if (challengeError) {
-      setError(challengeError.message);
-      setVerifying(false);
-      return;
-    }
+    try {
+      const { data: challenge, error: challengeError } =
+        await supabase.auth.mfa.challenge({ factorId: pendingFactorId });
+      if (challengeError) {
+        setError(challengeError.message);
+        return;
+      }
 
-    const { error: verifyError } = await supabase.auth.mfa.verify({
-      factorId: pendingFactorId,
-      challengeId: challenge.id,
-      code,
-    });
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId: pendingFactorId,
+        challengeId: challenge.id,
+        code,
+      });
 
-    setVerifying(false);
+      if (verifyError) {
+        setError(
+          verifyError.message === "Invalid TOTP code"
+            ? "コードが正しくありません。もう一度お試しください。"
+            : verifyError.message
+        );
+        return;
+      }
 
-    if (verifyError) {
+      setEnrolling(false);
+      setQrCode(null);
+      setSecret(null);
+      setPendingFactorId(null);
+      setCode("");
+      await loadFactors();
+    } catch (err) {
       setError(
-        verifyError.message === "Invalid TOTP code"
-          ? "コードが正しくありません。もう一度お試しください。"
-          : verifyError.message
+        err instanceof Error
+          ? `予期しないエラーが発生しました: ${err.message}`
+          : "予期しないエラーが発生しました。もう一度お試しください。"
       );
-      return;
+    } finally {
+      setVerifying(false);
     }
-
-    setEnrolling(false);
-    setQrCode(null);
-    setSecret(null);
-    setPendingFactorId(null);
-    setCode("");
-    await loadFactors();
   }
 
   async function unenroll(factorId: string) {
