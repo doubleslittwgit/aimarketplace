@@ -12,14 +12,13 @@ import { getToolBySlug, tools as mockTools, formatInstalls, type Tool } from "@/
 
 async function loadTool(
   slug: string
-): Promise<{ tool: Tool; related: Tool[]; isDemo: boolean } | null> {
+): Promise<{ tool: Tool; related: Tool[]; isDemo: boolean; status: string } | null> {
   const supabase = await createClient();
 
   const { data: row } = await supabase
     .from("tools")
     .select("*, profiles:author_id(display_name, handle)")
     .eq("slug", slug)
-    .eq("status", "published")
     .maybeSingle();
 
   if (row) {
@@ -78,7 +77,7 @@ async function loadTool(
     // 実際の出品がまだ少ない間は、デモ用のツールで欄を埋める
     const filler = mockTools.filter((t) => t.slug !== slug).slice(0, 3 - related.length);
 
-    return { tool, related: [...related, ...filler], isDemo: false };
+    return { tool, related: [...related, ...filler], isDemo: false, status: row.status };
   }
 
   // データベースに無ければ、デモ用のモックデータにフォールバックする
@@ -89,6 +88,7 @@ async function loadTool(
     tool: mockTool,
     related: mockTools.filter((t) => t.id !== mockTool.id).slice(0, 3),
     isDemo: true,
+    status: "published",
   };
 }
 
@@ -101,7 +101,7 @@ export default async function ToolDetailPage({
   const result = await loadTool(slug);
 
   if (!result) notFound();
-  const { tool, related, isDemo } = result;
+  const { tool, related, isDemo, status } = result;
 
   // ログイン状態と購入状態を取得する
   const supabase = await createClient();
@@ -169,6 +169,18 @@ export default async function ToolDetailPage({
 
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-6 py-8">
+          {isOwner && status !== "published" && (
+            <div className="mb-6 rounded-lg border border-accent-ai/30 bg-accent-ai-dim px-4 py-3 text-[13px] text-accent-ai">
+              {status === "pending_review" &&
+                "このツールは審査中です。承認されると一般公開されます（このプレビューはあなただけに見えています）。"}
+              {status === "rejected" &&
+                "このツールは却下されました。マイページで却下理由を確認してください（このプレビューはあなただけに見えています）。"}
+              {status === "suspended" &&
+                "このツールは現在非公開です（このプレビューはあなただけに見えています）。"}
+              {status === "draft" &&
+                "このツールは下書きです（このプレビューはあなただけに見えています）。"}
+            </div>
+          )}
           {/* Breadcrumb */}
           <nav className="mb-6 flex items-center gap-1.5 text-[13px] text-text-muted">
             <Link href="/" className="hover:text-text-secondary">
