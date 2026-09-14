@@ -58,7 +58,7 @@ do $$ begin
 exception when duplicate_object then null; end $$;
 
 do $$ begin
-  create type tool_status as enum ('draft', 'pending_review', 'published', 'suspended');
+  create type tool_status as enum ('draft', 'pending_review', 'published', 'suspended', 'rejected');
 exception when duplicate_object then null; end $$;
 
 create table if not exists public.tools (
@@ -90,6 +90,14 @@ create table if not exists public.tools (
   status tool_status not null default 'draft',
   -- ウイルススキャン結果（VirusTotal連携時に使用）
   scan_passed boolean not null default false,
+
+  -- AIによる出品審査（実行はせずコードを読むだけの静的レビュー。
+  -- 最終判断は人間の管理者が行うための参考情報）
+  ai_review_summary text,
+  ai_review_risk text check (ai_review_risk in ('low','medium','high','unknown')),
+  rejection_reason text,
+  reviewed_by uuid references public.profiles(id),
+  reviewed_at timestamptz,
 
   install_count integer not null default 0,
   like_count integer not null default 0,
@@ -314,3 +322,32 @@ drop trigger if exists tools_touch_updated_at on public.tools;
 create trigger tools_touch_updated_at
   before update on public.tools
   for each row execute function public.touch_updated_at();
+
+
+-- ============================================================
+-- 7. admins: 管理者（出品審査の担当者）
+-- ============================================================
+-- 注意: profiles には絶対に is_admin のような列を置かない。
+-- grants.sql が profiles 全体への update を authenticated に与えているため、
+-- そこに置くとユーザーが自分を管理者に昇格させられてしまう。
+-- seller_accounts と同じ考え方で、専用テーブルに分離する。
+create table if not exists public.admins (
+  user_id uuid primary key references public.profiles(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+alter table public.admins enable row level security;
+-- authenticated には一切のポリシーを与えない = 誰も直接読み書きできない。
+-- 判定は is_admin()（security definer）関数経由でのみ行う。
+
+create or replace function public.is_admin(p_user_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists(select 1 from public.admins where user_id = p_user_id);
+$$;
+
+grant execute on function public.is_admin(uuid) to authenticated, anon, service_role;

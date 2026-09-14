@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import BuyBox from "@/components/BuyBox";
 import AuthorCard from "@/components/AuthorCard";
 import ToolCard from "@/components/ToolCard";
+import ToolReviews from "@/components/ToolReviews";
 import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
 import { createClient } from "@/lib/supabase/server";
 import { getToolBySlug, tools as mockTools, formatInstalls, type Tool } from "@/lib/mock-data";
@@ -129,6 +130,36 @@ export default async function ToolDetailPage({
     isOwner = ownerCheck?.author_id === user.id;
   }
 
+  // レビュー一覧（デモ用のツールには実データが無いのでスキップ）
+  let reviews: {
+    id: string;
+    rating: number;
+    comment: string | null;
+    created_at: string;
+    author_id: string;
+    author_name: string;
+  }[] = [];
+
+  if (!isDemo) {
+    const { data: reviewRows } = await supabase
+      .from("reviews")
+      .select("id, rating, comment, created_at, author_id, profiles:author_id(display_name, handle)")
+      .eq("tool_id", tool.id)
+      .order("created_at", { ascending: false });
+
+    reviews = (reviewRows ?? []).map((r) => {
+      const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
+      return {
+        id: r.id,
+        rating: r.rating,
+        comment: r.comment,
+        created_at: r.created_at,
+        author_id: r.author_id,
+        author_name: profile?.display_name || (profile?.handle ? `@${profile.handle}` : "匿名"),
+      };
+    });
+  }
+
   return (
     <>
       <Header />
@@ -227,6 +258,16 @@ export default async function ToolDetailPage({
                   ))}
                 </div>
               </section>
+
+              {!isDemo && (
+                <ToolReviews
+                  toolId={tool.id}
+                  slug={tool.slug}
+                  reviews={reviews}
+                  currentUserId={user?.id ?? null}
+                  isPurchased={isPurchased}
+                />
+              )}
             </div>
 
             {/* Sidebar */}

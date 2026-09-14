@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE } from "@/lib/mock-data";
+import { reviewToolSubmission } from "@/lib/ai/review-tool";
 
 export type CreateToolResult = { error: string } | { error: null };
 
@@ -152,6 +153,23 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     thumbnailUrl = publicUrlData.publicUrl;
   }
 
+  // AIによる静的レビュー（実行はせず、コードを読んで所見を作るだけ）。
+  // 最終判断は必ず人間（管理者）が行うが、明確に危険なものだけは
+  // ここで自動的に弾く（「危険なものを弾くのは自動、良いものを通すのは手動」という方針）。
+  const fileBuffer = uploadedFile
+    ? Buffer.from(await uploadedFile.arrayBuffer())
+    : null;
+
+  const review = await reviewToolSubmission({
+    toolName: name,
+    tagline,
+    description,
+    fileBuffer,
+    fileName: uploadedFile?.name ?? null,
+  });
+
+  const initialStatus = review.risk === "high" ? "rejected" : "pending_review";
+
   const { error: insertError } = await supabase.from("tools").insert({
     id,
     slug,
@@ -168,9 +186,10 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     file_size_bytes: fileSizeBytes,
     thumbnail_url: thumbnailUrl,
     demo_url: demoUrl,
-    // MVP段階につき、審査フローが無いためそのまま公開する。
-    // 将来ここを 'pending_review' にし、審査後に 'published' へ変える想定。
-    status: "published",
+    status: initialStatus,
+    ai_review_summary: review.summary,
+    ai_review_risk: review.risk,
+    rejection_reason: review.risk === "high" ? review.summary : null,
   });
 
   if (insertError) {
@@ -184,5 +203,9 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     return { error: `保存に失敗しました: ${insertError.message}` };
   }
 
-  redirect(`/apps/${slug}`);
+  redirect(
+    initialStatus === "rejected"
+      ? "/dashboard?rejected=1"
+      : `/dashboard?pending=1`
+  );
 }

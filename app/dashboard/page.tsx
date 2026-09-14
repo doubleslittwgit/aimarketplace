@@ -8,14 +8,16 @@ const STATUS_LABEL: Record<string, string> = {
   draft: "下書き",
   pending_review: "審査中",
   published: "公開中",
-  suspended: "停止中",
+  suspended: "非公開",
+  rejected: "却下",
 };
 
 const STATUS_STYLE: Record<string, string> = {
   draft: "bg-surface-raised text-text-muted",
   pending_review: "bg-accent-ai-dim text-accent-ai",
   published: "bg-accent-success/10 text-accent-success",
-  suspended: "bg-accent-danger/10 text-accent-danger",
+  suspended: "bg-surface-raised text-text-muted",
+  rejected: "bg-accent-danger/10 text-accent-danger",
 };
 
 type PurchaseRow = {
@@ -41,6 +43,7 @@ type OwnToolRow = {
   install_count: number;
   like_count: number;
   updated_at: string;
+  rejection_reason: string | null;
 };
 
 type SaleRow = {
@@ -81,7 +84,7 @@ export default async function DashboardPage() {
         .order("created_at", { ascending: false }),
       supabase
         .from("tools")
-        .select("id, slug, name, price, status, install_count, like_count, updated_at")
+        .select("id, slug, name, price, status, install_count, like_count, updated_at, rejection_reason")
         .eq("author_id", user.id)
         .order("updated_at", { ascending: false }),
       supabase
@@ -220,6 +223,16 @@ export default async function DashboardPage() {
                         {formatPrice(t.price)} ・ {t.install_count.toLocaleString()} installs ・
                         ♥ {t.like_count}
                       </p>
+                      {t.status === "rejected" && t.rejection_reason && (
+                        <p className="mt-1.5 max-w-md text-[11px] leading-relaxed text-accent-danger">
+                          却下理由: {t.rejection_reason}
+                        </p>
+                      )}
+                      {t.status === "pending_review" && (
+                        <p className="mt-1.5 text-[11px] text-text-dim">
+                          管理者の審査待ちです。承認されると公開されます。
+                        </p>
+                      )}
                     </div>
                     <Link
                       href={`/apps/${t.slug}/edit`}

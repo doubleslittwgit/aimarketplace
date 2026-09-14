@@ -42,6 +42,14 @@ export async function GET(
 
   const isOwner = tool.author_id === user.id;
 
+  // 審査待ちのツールに限り、管理者は中身を確認するためにダウンロードできる。
+  // （既に公開済み・他人が購入したツールにまで無条件でアクセスできると
+  // 過剰な権限になるため、審査対象のときだけに絞る）
+  const { data: isAdminData } = await supabase.rpc("is_admin", {
+    p_user_id: user.id,
+  });
+  const isReviewingAdmin = Boolean(isAdminData) && tool.status === "pending_review";
+
   // 購入済みかどうかを確認する
   const { data: purchase } = await supabase
     .from("purchases")
@@ -51,7 +59,8 @@ export async function GET(
     .eq("status", "completed")
     .maybeSingle();
 
-  const hasAccess = isOwner || Boolean(purchase) || tool.price === 0;
+  const hasAccess =
+    isOwner || Boolean(purchase) || tool.price === 0 || isReviewingAdmin;
 
   if (!hasAccess) {
     return NextResponse.json(

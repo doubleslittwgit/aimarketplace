@@ -8,9 +8,10 @@ type Props = {
   email: string;
   displayName: string;
   avatarUrl: string | null;
+  isAdmin?: boolean;
 };
 
-export default function UserMenu({ email, displayName, avatarUrl }: Props) {
+export default function UserMenu({ email, displayName, avatarUrl, isAdmin }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -99,6 +100,19 @@ export default function UserMenu({ email, displayName, avatarUrl }: Props) {
           >
             二段階認証
           </Link>
+
+          {isAdmin && (
+            <>
+              <div className="my-1.5 border-t border-border" />
+              <Link
+                href="/admin/review"
+                className="block px-3.5 py-2 text-[13px] text-accent-ai hover:bg-surface-raised"
+                onClick={() => setOpen(false)}
+              >
+                出品の審査（管理者）
+              </Link>
+            </>
+          )}
 
           <div className="my-1.5 border-t border-border" />
 

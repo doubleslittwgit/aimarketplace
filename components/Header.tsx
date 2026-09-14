@@ -10,6 +10,7 @@ export default async function Header() {
 
   let displayName = "";
   let avatarUrl: string | null = null;
+  let isAdmin = false;
 
   if (user) {
     // profilesテーブルの表示名を優先。無ければGoogleログイン時の情報を使う。
@@ -27,6 +28,11 @@ export default async function Header() {
 
     avatarUrl =
       profile?.avatar_url || (user.user_metadata?.avatar_url as string | undefined) || null;
+
+    const { data: isAdminData } = await supabase.rpc("is_admin", {
+      p_user_id: user.id,
+    });
+    isAdmin = Boolean(isAdminData);
   }
 
   return (
@@ -75,7 +81,12 @@ export default async function Header() {
           </Link>
 
           {user ? (
-            <UserMenu email={user.email ?? ""} displayName={displayName} avatarUrl={avatarUrl} />
+            <UserMenu
+              email={user.email ?? ""}
+              displayName={displayName}
+              avatarUrl={avatarUrl}
+              isAdmin={isAdmin}
+            />
           ) : (
             <Link
               href="/login"
