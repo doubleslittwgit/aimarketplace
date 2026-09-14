@@ -105,11 +105,22 @@ create index if not exists tools_category_idx on public.tools(category);
 alter table public.tools enable row level security;
 
 -- 公開済みのツールは誰でも閲覧できる。
--- 下書き・審査中・停止中のものは、作者本人だけが見られる。
+-- 下書き・審査中・停止中のものは、作者本人と、既に購入済みの人だけが見られる。
+-- （購入済みの人まで含めるのは、出品者が後から非公開にしても
+-- 　既に買った人がダウンロードできなくならないようにするため）
 drop policy if exists "published tools are viewable by everyone" on public.tools;
 create policy "published tools are viewable by everyone"
   on public.tools for select
-  using (status = 'published' or auth.uid() = author_id);
+  using (
+    status = 'published'
+    or auth.uid() = author_id
+    or exists (
+      select 1 from public.purchases p
+      where p.tool_id = tools.id
+        and p.buyer_id = auth.uid()
+        and p.status = 'completed'
+    )
+  );
 
 -- ログイン済みユーザーは、自分を作者としてのみ出品できる
 drop policy if exists "users can insert own tools" on public.tools;

@@ -221,6 +221,12 @@ export default async function DashboardPage() {
                         ♥ {t.like_count}
                       </p>
                     </div>
+                    <Link
+                      href={`/apps/${t.slug}/edit`}
+                      className="shrink-0 rounded-lg border border-border px-3 py-1.5 text-[12px] text-text-secondary transition hover:bg-surface-raised"
+                    >
+                      編集
+                    </Link>
                   </div>
                 ))}
               </div>
