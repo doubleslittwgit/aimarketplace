@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { withRetrySupabase } from "@/lib/retry";
 
 export type SellerActionResult = { error: string };
 
@@ -46,11 +47,13 @@ export async function startSellerOnboarding(): Promise<
     // 注意: 必ず「DBに記録済みのIDを再利用する」こと。
     // ここで毎回新規作成すると、出品者ごとに使われないアカウントが増え続け、
     // 「登録したのに受け取れない」状態になる。
-    const { data: existing, error: lookupError } = await admin
-      .from("seller_accounts")
-      .select("stripe_account_id")
-      .eq("user_id", user.id)
-      .maybeSingle();
+    const { data: existing, error: lookupError } = await withRetrySupabase(() =>
+      admin
+        .from("seller_accounts")
+        .select("stripe_account_id")
+        .eq("user_id", user.id)
+        .maybeSingle()
+    );
 
     if (lookupError) {
       return { error: `登録状況の確認に失敗しました: ${lookupError.message}` };
@@ -100,16 +103,25 @@ export async function startSellerOnboarding(): Promise<
 
       // 作成直後はどの項目も未完了。実際の状態は、登録完了後の同期処理と
       // account.updated Webhook が埋める（列のデフォルトは全て false）。
-      const { error: insertError } = await admin.from("seller_accounts").insert({
-        user_id: user.id,
-        stripe_account_id: accountId,
-      });
+      const { error: insertError } = await withRetrySupabase(() =>
+        admin
+          .from("seller_accounts")
+          .insert({ user_id: user.id, stripe_account_id: accountId })
+          .select("user_id")
+          .maybeSingle()
+      );
 
       if (insertError) {
-        // DBに記録できないまま登録画面へ送ると、次回また別のアカウントを
-        // 作ってしまう。ここで中断する方が安全。
+        // 再試行しても保存できなかった場合。
+        // Stripe側にはアカウントが出来てしまっているため、
+        // 復旧できるようIDをログに残す（次回は同じIDを使い回したい）。
+        console.error(
+          `[seller] 連結アカウントを作成したが保存に失敗: ${accountId}`,
+          insertError.message
+        );
         return {
-          error: `登録情報の保存に失敗しました: ${insertError.message}`,
+          error:
+            "登録情報の保存に失敗しました。少し時間をおいて、もう一度お試しください。",
         };
       }
     }
