@@ -77,6 +77,25 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   if (Number.isNaN(price)) {
     return { error: "価格の形式が正しくありません" };
   }
+  if (price > 0) {
+    // 有料ツールは、実際に売上を受け取れる状態の出品者しか出せないようにする。
+    // これをしないと「買えるのに出品者が代金を受け取れない」商品が生まれてしまう。
+    const { data: canReceive, error: receiveCheckError } = await supabase.rpc(
+      "seller_can_receive_payments",
+      { p_user_id: user.id }
+    );
+    if (receiveCheckError) {
+      return {
+        error: `受け取り設定の確認に失敗しました: ${receiveCheckError.message}`,
+      };
+    }
+    if (!canReceive) {
+      return {
+        error:
+          "有料ツールを出品するには、先に売上の受け取り設定（Stripe登録）を完了してください。マイページの「売上の受け取り設定」から進められます。無料ツールとして出品する場合はこの設定は不要です。",
+      };
+    }
+  }
   if (runtime === "local" && !uploadedFile) {
     return { error: "ローカル実行ツールにはファイルのアップロードが必要です" };
   }

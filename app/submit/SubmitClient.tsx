@@ -4,7 +4,11 @@ import { useState, useTransition, useRef } from "react";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { createTool } from "./actions";
 
-export default function SubmitClient() {
+export default function SubmitClient({
+  canReceivePayments,
+}: {
+  canReceivePayments: boolean;
+}) {
   const [price, setPrice] = useState("");
   const [runtime, setRuntime] = useState<"cloud" | "local">("cloud");
   const [dragOver, setDragOver] = useState(false);
@@ -395,6 +399,15 @@ export default function SubmitClient() {
                   ? "無料ツールとして公開されます"
                   : `${priceNumber.toLocaleString()}円で販売されます（手数料20%を差し引いた¥${Math.round(priceNumber * 0.8).toLocaleString()}が売上になります）`}
             </p>
+            {!isFree && priceNumber > 0 && !canReceivePayments && (
+              <p className="mt-2 rounded-lg border border-accent-danger/30 bg-accent-danger/5 px-3 py-2 text-[12px] text-accent-danger">
+                有料で出品するには、先に
+                <a href="/seller" className="mx-1 underline">
+                  売上の受け取り設定
+                </a>
+                を完了してください（未完了のまま送信すると公開できません）。
+              </p>
+            )}
           </Field>
 
           <button
