@@ -76,8 +76,29 @@ body {
   to { transform: translateX(-50%); }
 }
 
+/* ヒーローで浮かせるツールカード用。4種とも軌道を変えて機械的な同期に見えないようにする */
+@keyframes float-a {
+  0%, 100% { transform: translate(0, 0) rotate(-3deg); }
+  50% { transform: translate(5px, -14px) rotate(-1.5deg); }
+}
+@keyframes float-b {
+  0%, 100% { transform: translate(0, 0) rotate(2deg); }
+  50% { transform: translate(-7px, -9px) rotate(3.5deg); }
+}
+@keyframes float-c {
+  0%, 100% { transform: translate(0, 0) rotate(3deg); }
+  50% { transform: translate(-6px, 12px) rotate(1deg); }
+}
+@keyframes float-d {
+  0%, 100% { transform: translate(0, 0) rotate(-2deg); }
+  50% { transform: translate(8px, 9px) rotate(-4deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-\[ticker_32s_linear_infinite\] {
     animation: none;
+  }
+  [data-float] {
+    animation: none !important;
   }
 }
