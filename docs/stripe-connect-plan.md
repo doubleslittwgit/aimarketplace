@@ -66,6 +66,29 @@ Webhook と、サーバー側で本人確認を済ませたサーバーアクシ
 
 ## 実装上の落とし穴（記録）
 
+### Accounts v1 は新規Connect実装では使えない
+
+`stripe.accounts.create({ type/controller })`（v1形式）は
+新規のConnect実装では Stripe に拒否される。
+**`stripe.v2.core.accounts.create()`（Accounts v2）を使うこと。**
+Account Links も同様に `stripe.v2.core.accountLinks.create()`。
+
+### configuration は `merchant` ではなく `recipient`
+
+`on_behalf_of` を付けない destination charge では、出品者は
+Merchant of Record ではなく「資金の受取人」になる。
+`merchant` を指定すると出品者に決済事業者としての重い要件が課されるため、
+`recipient` を指定する。
+
+### `charges_enabled` を販売可否の条件にしてはいけない
+
+上記の通り出品者は決済を受け付ける側ではないため、
+`charges_enabled` は **false のままが正常**。
+これを条件にすると出品者は永久に販売できない。
+正しい条件は `transfers_enabled && payouts_enabled`
+（= 送金を受け取れて、出金もできる）。
+
+
 ### `"use server"` からのエクスポートは公開エンドポイントになる
 
 `"use server"` を付けたファイルからエクスポートした async 関数は、

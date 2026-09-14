@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { stripe } from "@/lib/stripe/server";
+import { sellerAccountFieldsFromStripe } from "@/lib/stripe/seller-account";
 
 /**
  * Stripeからの支払い完了通知を受け取る窓口。
@@ -78,12 +79,7 @@ export async function POST(request: Request) {
 
     const { error } = await admin
       .from("seller_accounts")
-      .update({
-        charges_enabled: account.charges_enabled,
-        payouts_enabled: account.payouts_enabled,
-        details_submitted: account.details_submitted,
-        requirements_due: account.requirements?.currently_due ?? [],
-      })
+      .update(sellerAccountFieldsFromStripe(account))
       .eq("stripe_account_id", account.id);
 
     if (error) {

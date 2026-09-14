@@ -59,27 +59,37 @@ export async function startSellerOnboarding(): Promise<
     let accountId = existing?.stripe_account_id ?? null;
 
     if (!accountId) {
-      // Express アカウントを作成する。
+      // Stripeは新規のConnect実装に Accounts v2 (/v2/core/accounts) を要求する。
+      // v1形式（accounts.create with type/controller）は新規実装では拒否される。
       //
-      // controller の指定は Connect 契約時に同意した内容と揃えている:
-      //   fees.payer = application   … Stripeの手数料はプラットフォームが負担
-      //   losses.payments = application … 返金・チャージバックの責任もプラットフォーム
-      //   stripe_dashboard.type = express … 出品者はExpressダッシュボードを使う
+      // configuration は "recipient" を使う。
+      // destination charge を on_behalf_of なしで行う場合、出品者は
+      // Merchant of Record ではなく「資金の受取人」になるため。
+      // （merchant を指定すると、出品者に決済事業者としての重い要件が課される）
       //
-      // capabilities は transfers のみを要求する。
-      // destination charge 方式では決済自体はプラットフォーム側で行われるため、
-      // 出品者側に card_payments は不要。要求する権限を最小にすることで、
-      // 出品者が提出しなければならない情報も少なくて済む。
-      const account = await stripe.accounts.create({
-        country: "JP",
-        email: user.email ?? undefined,
-        controller: {
-          stripe_dashboard: { type: "express" },
-          fees: { payer: "application" },
-          losses: { payments: "application" },
+      // responsibilities は Connect契約時に同意した内容と揃えている:
+      //   fees_collector   = application … Stripeの手数料はプラットフォーム負担
+      //   losses_collector = application … 返金・チャージバックもプラットフォーム責任
+      const account = await stripe.v2.core.accounts.create({
+        contact_email: user.email ?? undefined,
+        dashboard: "express",
+        identity: { country: "JP" },
+        configuration: {
+          recipient: {
+            capabilities: {
+              stripe_balance: {
+                stripe_transfers: { requested: true },
+              },
+            },
+          },
         },
-        capabilities: {
-          transfers: { requested: true },
+        defaults: {
+          currency: "jpy",
+          locales: ["ja-JP"],
+          responsibilities: {
+            fees_collector: "application",
+            losses_collector: "application",
+          },
         },
         metadata: {
           buildbay_user_id: user.id,
@@ -88,13 +98,11 @@ export async function startSellerOnboarding(): Promise<
 
       accountId = account.id;
 
+      // 作成直後はどの項目も未完了。実際の状態は、登録完了後の同期処理と
+      // account.updated Webhook が埋める（列のデフォルトは全て false）。
       const { error: insertError } = await admin.from("seller_accounts").insert({
         user_id: user.id,
         stripe_account_id: accountId,
-        charges_enabled: account.charges_enabled,
-        payouts_enabled: account.payouts_enabled,
-        details_submitted: account.details_submitted,
-        requirements_due: account.requirements?.currently_due ?? [],
       });
 
       if (insertError) {
@@ -106,13 +114,19 @@ export async function startSellerOnboarding(): Promise<
       }
     }
 
-    const link = await stripe.accountLinks.create({
+    // 登録リンクは使い捨て・短時間で失効するため、毎回発行し直す
+    const link = await stripe.v2.core.accountLinks.create({
       account: accountId,
-      // 期限切れ等でリンクが無効になった場合の戻り先
-      refresh_url: `${origin}/seller?refresh=1`,
-      // 登録が終わって戻ってくる先
-      return_url: `${origin}/seller?return=1`,
-      type: "account_onboarding",
+      use_case: {
+        type: "account_onboarding",
+        account_onboarding: {
+          configurations: ["recipient"],
+          // 期限切れ等でリンクが無効になった場合の戻り先
+          refresh_url: `${origin}/seller?refresh=1`,
+          // 登録が終わって戻ってくる先
+          return_url: `${origin}/seller?return=1`,
+        },
+      },
     });
 
     onboardingUrl = link.url;

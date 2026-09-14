@@ -4,7 +4,10 @@ import Header from "@/components/Header";
 import SellerOnboardingButton from "@/components/SellerOnboardingButton";
 import { createClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe/server";
-import { syncSellerAccount } from "@/lib/stripe/seller-account";
+import {
+  syncSellerAccount,
+  sellerAccountFieldsFromStripe,
+} from "@/lib/stripe/seller-account";
 
 /** Stripeが返す要件キーを、出品者に分かる日本語に置き換える */
 const REQUIREMENT_LABELS: Record<string, string> = {
@@ -44,7 +47,7 @@ export default async function SellerPage({
   const { data: account } = await supabase
     .from("seller_accounts")
     .select(
-      "stripe_account_id, charges_enabled, payouts_enabled, details_submitted, requirements_due"
+      "stripe_account_id, transfers_enabled, payouts_enabled, details_submitted, requirements_due"
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -56,20 +59,16 @@ export default async function SellerPage({
     try {
       const fresh = await stripe.accounts.retrieve(account.stripe_account_id);
       await syncSellerAccount(user.id, fresh);
-      current = {
-        ...account,
-        charges_enabled: fresh.charges_enabled,
-        payouts_enabled: fresh.payouts_enabled,
-        details_submitted: fresh.details_submitted,
-        requirements_due: fresh.requirements?.currently_due ?? [],
-      };
+      current = { ...account, ...sellerAccountFieldsFromStripe(fresh) };
     } catch {
       // 取得に失敗しても画面は表示する（Webhookが後から更新してくれる）
     }
   }
 
+  // destination charge では出品者は「資金の受取人」なので、
+  // charges_enabled ではなく「送金を受け取れる/出金できる」で判定する
   const canReceive = Boolean(
-    current?.charges_enabled && current?.payouts_enabled
+    current?.transfers_enabled && current?.payouts_enabled
   );
   const inProgress = Boolean(current) && !canReceive;
   const due = current?.requirements_due ?? [];
