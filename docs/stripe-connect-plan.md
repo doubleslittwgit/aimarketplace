@@ -115,6 +115,26 @@ Next.js によって**誰でも呼べるHTTPエンドポイント**として公�
 
 ---
 
+## 実装上の落とし穴（記録・追記）
+
+### DBの審査状況が最新でないことがある
+
+出品者がStripeの登録画面から戻ってきた瞬間、`account.updated` Webhookの
+到達がわずかに遅れることがある。`/seller` ページは `?return=1` のときだけ
+Stripeから直接状態を取り直すため、それ以外のタイミングで開くと
+一時的に古い状態（例: `payouts_enabled: false`）が表示されることがある。
+実害はなく、Webhookが届き次第自動で解消される。
+
+### 通しテストで実証済み（2026-09-14）
+
+`pi_3UFZag5O2ZdmTMxl0FVdfY84` にて確認:
+- `transfer_data.destination` が出品者のConnectアカウントIDと一致
+- `application_fee_amount` が手数料20%と一致
+- `on_behalf_of: null`（意図通り、recipient構成なのでMerchant of Recordにならない）
+- Charge に実際の `transfer: "tr_..."` が作成され、購入と同時に自動送金された
+
+---
+
 ## 環境変数
 
 | 変数名 | 用途 | 状態 |
