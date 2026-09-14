@@ -2,11 +2,11 @@
 
 import { signInWithGoogle } from "@/app/auth/actions";
 
-export default function GoogleButton() {
+export default function GoogleButton({ next }: { next?: string }) {
   return (
     <button
       type="button"
-      onClick={() => signInWithGoogle(window.location.origin)}
+      onClick={() => signInWithGoogle(window.location.origin, next)}
       className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-border bg-surface py-2.5 text-sm font-medium text-text-primary transition hover:border-border-strong hover:bg-surface-raised"
     >
       <svg width="16" height="16" viewBox="0 0 24 24">

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Header from "@/components/Header";
 import SubmitClient from "./SubmitClient";
 import { createClient } from "@/lib/supabase/server";
@@ -8,13 +9,64 @@ export default async function SubmitPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let canReceivePayments = false;
-  if (user) {
-    const { data } = await supabase.rpc("seller_can_receive_payments", {
-      p_user_id: user.id,
-    });
-    canReceivePayments = Boolean(data);
+  // ログインしていない場合は、フォームを一切表示せず、
+  // どの経路で来ても同じ「ログインが必要です」の案内を出す。
+  if (!user) {
+    return (
+      <>
+        <Header />
+        <main className="flex-1">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-text-primary/40 px-4">
+            <div className="w-full max-w-sm rounded-2xl border border-border bg-bg p-8 text-center shadow-xl">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent-ai-dim">
+                <svg
+                  width="26"
+                  height="26"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--accent-ai)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="3" y="11" width="18" height="10" rx="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+
+              <h1 className="mb-1.5 font-display text-lg font-semibold text-text-primary">
+                ログインが必要です
+              </h1>
+              <p className="mb-6 text-[13px] text-text-secondary">
+                ツールを出品するには、ログインまたは新規登録が必要です。
+              </p>
+
+              <div className="flex flex-col gap-2">
+                <Link
+                  href="/login?next=/submit"
+                  className="w-full rounded-lg bg-accent-signal py-2.5 text-[13px] font-medium text-white transition hover:brightness-105"
+                >
+                  ログインする
+                </Link>
+                <Link
+                  href="/signup?next=/submit"
+                  className="w-full rounded-lg border border-border py-2.5 text-[13px] font-medium text-text-secondary transition hover:bg-surface"
+                >
+                  新規登録する
+                </Link>
+              </div>
+            </div>
+          </div>
+        </main>
+      </>
+    );
   }
+
+  let canReceivePayments = false;
+  const { data } = await supabase.rpc("seller_can_receive_payments", {
+    p_user_id: user.id,
+  });
+  canReceivePayments = Boolean(data);
 
   return (
     <>

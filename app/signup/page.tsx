@@ -1,8 +1,15 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import Header from "@/components/Header";
 import SignupForm from "./SignupForm";
 
-export default function SignupPage() {
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
+  const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
   return (
     <>
       <Header />
@@ -15,11 +22,13 @@ export default function SignupPage() {
             無料で登録して、ツールの公開・購入を始める
           </p>
 
-          <SignupForm />
+          <Suspense fallback={null}>
+            <SignupForm />
+          </Suspense>
 
           <p className="mt-6 text-center text-[13px] text-text-muted">
             すでにアカウントをお持ちの方は{" "}
-            <Link href="/login" className="text-accent-signal hover:underline">
+            <Link href={loginHref} className="text-accent-signal hover:underline">
               ログイン
             </Link>
           </p>

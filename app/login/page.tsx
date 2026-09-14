@@ -3,7 +3,13 @@ import { Suspense } from "react";
 import Header from "@/components/Header";
 import LoginForm from "./LoginForm";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
+  const signupHref = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
   return (
     <>
       <Header />
@@ -22,7 +28,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-[13px] text-text-muted">
             アカウントをお持ちでない方は{" "}
-            <Link href="/signup" className="text-accent-signal hover:underline">
+            <Link href={signupHref} className="text-accent-signal hover:underline">
               新規登録
             </Link>
           </p>

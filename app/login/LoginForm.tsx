@@ -11,6 +11,7 @@ export default function LoginForm() {
   const searchParams = useSearchParams();
   const justSignedUp = searchParams.get("confirm") === "1";
   const googleError = searchParams.get("error") === "google";
+  const next = searchParams.get("next") || "/";
 
   function handleSubmit(formData: FormData) {
     setError(null);
@@ -22,7 +23,7 @@ export default function LoginForm() {
 
   return (
     <div className="space-y-5">
-      <GoogleButton />
+      <GoogleButton next={next} />
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
@@ -31,6 +32,7 @@ export default function LoginForm() {
       </div>
 
       <form action={handleSubmit} className="space-y-4">
+      <input type="hidden" name="next" value={next} />
       {justSignedUp && (
         <div className="rounded-lg border border-accent-ai/30 bg-accent-ai-dim px-3.5 py-2.5 text-[13px] text-accent-ai">
           登録が完了しました。届いた確認メールのリンクを開いてから、ログインしてください。

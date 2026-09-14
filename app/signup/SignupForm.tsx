@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { signup, signInWithGoogle } from "@/app/auth/actions";
+import { useSearchParams } from "next/navigation";
+import { signup } from "@/app/auth/actions";
 import GoogleButton from "@/components/GoogleButton";
 
 export default function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") || "/";
 
   function handleSubmit(formData: FormData) {
     setError(null);
@@ -18,7 +21,7 @@ export default function SignupForm() {
 
   return (
     <div className="space-y-5">
-      <GoogleButton />
+      <GoogleButton next={next} />
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
@@ -27,6 +30,7 @@ export default function SignupForm() {
       </div>
 
       <form action={handleSubmit} className="space-y-4">
+      <input type="hidden" name="next" value={next} />
       {error && (
         <div className="rounded-lg border border-accent-danger/30 bg-accent-danger/10 px-3.5 py-2.5 text-[13px] text-accent-danger">
           {error}
