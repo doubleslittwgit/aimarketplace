@@ -51,7 +51,7 @@ Webhook と、サーバー側で本人確認を済ませたサーバーアクシ
 - [x] **Step 3** Webhook: `account.updated` で審査状況を追跡
   - ⚠️ Stripeダッシュボードのエンドポイント設定に `account.updated` を追加する必要あり
 - [x] **Step 4** 出品制限: 有料出品はオンボーディング完了者のみ（サーバー側で強制 + フォームにも案内表示）
-- [ ] **Step 5** チェックアウトを destination charge 方式に変更 ★本番の決済に影響
+- [x] **Step 5** チェックアウトを destination charge 方式に変更 ★本番の決済に影響
 - [ ] **Step 6** テストモードで通しテスト
 - [ ] **Step 7** 本番キーへの切り替え（最後）
 

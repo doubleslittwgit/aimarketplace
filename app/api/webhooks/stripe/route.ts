@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createClient } from "@supabase/supabase-js";
 import { stripe } from "@/lib/stripe/server";
 import { sellerAccountFieldsFromStripe } from "@/lib/stripe/seller-account";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
  * Stripeからの支払い完了通知を受け取る窓口。
@@ -25,21 +25,6 @@ import { sellerAccountFieldsFromStripe } from "@/lib/stripe/seller-account";
  *      Webhookはログインユーザーではないため、管理者権限で書き込む必要がある。
  */
 
-// service_roleキーを使う専用クライアント（RLSを迂回できる強い権限）
-function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!url || !serviceKey) {
-    throw new Error(
-      "SUPABASE_SERVICE_ROLE_KEY が設定されていません（Webhookの処理に必要です）"
-    );
-  }
-
-  return createClient(url, serviceKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-}
 
 export async function POST(request: Request) {
   const body = await request.text();

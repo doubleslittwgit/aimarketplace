@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { stripe, PLATFORM_FEE_RATE } from "@/lib/stripe/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type CheckoutResult = { error: string };
 
@@ -62,6 +63,35 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
     redirect(`/apps/${tool.slug}?already=1`);
   }
 
+  // 出品者が実際に売上を受け取れる状態か、購入直前にもう一度確認する。
+  // 出品時点ではOKでも、その後Stripe側の審査状態が変わっている可能性があるため。
+  //
+  // seller_accounts はRLSで本人以外に非公開なので、買い手のセッションでは読めない。
+  // ここは「出品者の連結アカウントIDを取得する」という管理的な操作のため、
+  // 管理者権限のクライアントを使う（買い手には一切公開しない）。
+  const admin = createAdminClient();
+  const { data: sellerAccount, error: sellerAccountError } = await admin
+    .from("seller_accounts")
+    .select("stripe_account_id, transfers_enabled, payouts_enabled")
+    .eq("user_id", tool.author_id)
+    .maybeSingle();
+
+  if (sellerAccountError) {
+    return {
+      error: `出品者情報の確認に失敗しました: ${sellerAccountError.message}`,
+    };
+  }
+  if (
+    !sellerAccount ||
+    !sellerAccount.transfers_enabled ||
+    !sellerAccount.payouts_enabled
+  ) {
+    return {
+      error:
+        "現在このツールは購入できません（出品者の受け取り設定が完了していません）",
+    };
+  }
+
   const headerList = await headers();
   const origin =
     headerList.get("origin") ||
@@ -92,6 +122,17 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
       ],
       success_url: `${origin}/apps/${tool.slug}?purchased=1`,
       cancel_url: `${origin}/apps/${tool.slug}?canceled=1`,
+      // ここが destination charge の核心部分。
+      // on_behalf_of は指定しない（指定すると出品者がMerchant of Recordになり、
+      // recipient構成のアカウントでは要求できない権限が必要になってしまう）。
+      // 決済自体はプラットフォーム名義で行われ、手数料を差し引いた残りだけが
+      // 出品者のアカウントへ自動的に送金される。
+      payment_intent_data: {
+        application_fee_amount: platformFee,
+        transfer_data: {
+          destination: sellerAccount.stripe_account_id,
+        },
+      },
       // Webhookで「誰が何を買ったか」を特定するための情報。
       // 金額もここに記録し、後でDBの値と突き合わせて検証する。
       metadata: {
