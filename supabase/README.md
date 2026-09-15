@@ -8,18 +8,16 @@
 
 | ファイル | 内容 |
 |---|---|
-| `schema.sql` | テーブル（ユーザー・ツール・購入履歴・レビュー・管理者）の定義とアクセス制御 |
+| `schema.sql` | テーブル（ユーザー・ツール・購入履歴・レビュー）の定義とアクセス制御 |
 | `storage.sql` | ファイル保管場所の設定と、ダウンロード権限の制御 |
 | `storage_limits.sql` | アップロードできるファイルサイズ・形式の制限 |
 | `functions.sql` | 購入処理・手数料計算などのサーバー側の処理 |
 | `likes.sql` | いいね機能（`tool_likes` テーブルと件数の自動同期） |
+| `seller_accounts.sql` | Stripe Connectの連結アカウント情報（出品者の受け取り設定） |
+| `admins.sql` | 管理者一覧と `is_admin()` 判定関数（出品審査などに使用） |
 | `add_thumbnail.sql` | サムネイル列の追加（後から足したもの） |
 | `increment_install.sql` | ダウンロード数を加算する関数 |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
-
-> **注意**: `seller_accounts` テーブル（Stripe Connectの連結アカウント情報）は
-> 本番DBに直接適用されており、このフォルダにまだ定義ファイルがありません。
-> 環境を作り直す場合は、Supabaseダッシュボードから定義を書き出す必要があります。
 
 ---
 
@@ -44,9 +42,11 @@
 3. `storage_limits.sql`
 4. `functions.sql`
 5. `likes.sql`
-6. `add_thumbnail.sql`
-7. `increment_install.sql`
-8. `grants.sql` ← **必ず最後**
+6. `seller_accounts.sql`
+7. `admins.sql`（実行後、ファイル内のコメントに従って初期管理者を1件登録すること）
+8. `add_thumbnail.sql`
+9. `increment_install.sql`
+10. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」
