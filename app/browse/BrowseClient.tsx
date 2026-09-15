@@ -6,8 +6,21 @@ import { categories, type Tool } from "@/lib/mock-data";
 
 type SortKey = "new" | "popular" | "price_asc" | "price_desc";
 
-export default function BrowseClient({ initialTools }: { initialTools: Tool[] }) {
-  const [query, setQuery] = useState("");
+export default function BrowseClient({
+  initialTools,
+  initialQuery = "",
+}: {
+  initialTools: Tool[];
+  initialQuery?: string;
+}) {
+  const [query, setQuery] = useState(initialQuery);
+  // ヘッダーの検索から /browse?q=... に遷移してきた場合に入力欄を追随させる。
+  // useEffectでの同期は再レンダーが連鎖するため、レンダー中に調整する。
+  const [syncedQuery, setSyncedQuery] = useState(initialQuery);
+  if (initialQuery !== syncedQuery) {
+    setSyncedQuery(initialQuery);
+    setQuery(initialQuery);
+  }
   const [activeCategory, setActiveCategory] = useState<string>("すべて");
   const [sort, setSort] = useState<SortKey>("new");
 
@@ -39,7 +52,7 @@ export default function BrowseClient({ initialTools }: { initialTools: Tool[] })
         );
     }
     return result;
-  }, [query, activeCategory, sort]);
+  }, [initialTools, query, activeCategory, sort]);
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">

@@ -21,8 +21,32 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Forge — AIツールを、世界に配送する",
-  description: "個人開発者が作ったAIコーディングツールを売買できるマーケットプレイス",
+  metadataBase: new URL("https://www.getbuildbay.com"),
+  title: {
+    default: "BuildBay — AIでつくったツールが集まる港",
+    template: "%s | BuildBay",
+  },
+  description:
+    "AIを活用して開発したツールを、無料でも有料でも公開・販売できるマーケットプレイス。個人開発者の作ったツールを、必要としている人へ。",
+  keywords: ["AIツール", "マーケットプレイス", "個人開発", "Claude Code", "自動化ツール"],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    url: "/",
+    siteName: "BuildBay",
+    title: "BuildBay — AIでつくったツールが集まる港",
+    description:
+      "AIを活用して開発したツールを、無料でも有料でも公開・販売できるマーケットプレイス。",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BuildBay — AIでつくったツールが集まる港",
+    description:
+      "AIを活用して開発したツールを、無料でも有料でも公開・販売できるマーケットプレイス。",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
