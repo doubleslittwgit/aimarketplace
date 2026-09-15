@@ -196,6 +196,28 @@ export async function POST(request: Request) {
   });
 
   if (insertError) {
+    // purchases_one_completed_per_buyer_tool（DBのユニーク制約）に
+    // ひっかかった場合は、他の話と性質が違うので分けて扱う。
+    //
+    // これは「同じ買い手が同じツールをほぼ同時に2回購入し、
+    // 2つの独立した支払いが両方とも成立してしまった」ケース。
+    // Stripe上では既に実際にお金が動いてしまっているため、
+    // 500を返してStripeに再送させても解決しない
+    // （再送してもこのセッションの支払い自体は既に完了済みで、
+    //  再試行のたびに同じ理由で失敗し続けるだけ）。
+    //
+    // 代わりに、返金対応が必要な事象として大きくログに残した上で
+    // 200を返し、Stripeの再送ループを止める。
+    if (insertError.code === "23505") {
+      console.error(
+        `[webhook] ⚠️ 二重決済を検出（要・返金対応）: tool=${toolId}, buyer=${buyerId}, payment_intent=${paymentIntentId}, amount=${amountPaid}`
+      );
+      return NextResponse.json({
+        received: true,
+        error: "duplicate_completed_purchase_needs_refund",
+      });
+    }
+
     // ここで失敗すると「支払ったのに購入記録が無い」状態になる。
     // 500を返すとStripeが自動で再送してくれるので、あえてエラーにする。
     console.error("[webhook] 購入記録の作成に失敗:", insertError.message);
