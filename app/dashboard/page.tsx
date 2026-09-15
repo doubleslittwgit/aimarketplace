@@ -255,6 +255,11 @@ export default async function DashboardPage() {
                           却下理由: {t.rejection_reason}
                         </p>
                       )}
+                      {t.status === "suspended" && t.rejection_reason && (
+                        <p className="mt-1.5 max-w-md text-[11px] leading-relaxed text-accent-danger">
+                          運営により非公開にされました。理由: {t.rejection_reason}
+                        </p>
+                      )}
                       {t.status === "pending_review" && (
                         <p className="mt-1.5 text-[11px] text-text-dim">
                           管理者の審査待ちです。承認されると公開されます。

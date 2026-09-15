@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { notify } from "@/lib/notifications/create";
+import { newReview } from "@/lib/notifications/content";
 
 export type ReviewActionResult = { error: string } | { error: null };
 
@@ -31,6 +33,17 @@ export async function upsertReview(
     return { error: "評価は1〜5の範囲で選んでください" };
   }
 
+  // 新規投稿か上書き編集かを先に判定しておく。
+  // 出品者への通知は「新しいレビューがついた」ことを知らせるものなので、
+  // 星の数を書き直しただけの編集では、毎回は送らない。
+  const { data: existing } = await supabase
+    .from("reviews")
+    .select("id")
+    .eq("tool_id", toolId)
+    .eq("author_id", user.id)
+    .maybeSingle();
+  const isNewReview = !existing;
+
   const { error } = await supabase.from("reviews").upsert(
     {
       tool_id: toolId,
@@ -47,6 +60,20 @@ export async function upsertReview(
       ? "このツールを購入した方だけがレビューを書けます"
       : `投稿に失敗しました: ${error.message}`;
     return { error: message };
+  }
+
+  if (isNewReview) {
+    const { data: tool } = await supabase
+      .from("tools")
+      .select("name, author_id")
+      .eq("id", toolId)
+      .maybeSingle();
+
+    // 自分の購入したツールに自分でレビューは書けない設計だが、
+    // 念のため出品者本人には通知しない分岐を入れておく
+    if (tool && tool.author_id !== user.id) {
+      await notify(tool.author_id, "new_review", newReview(tool.name, rating, slug));
+    }
   }
 
   revalidatePath(`/apps/${slug}`);

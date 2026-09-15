@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { formatPrice } from "@/lib/mock-data";
-import { approveTool, rejectTool } from "./actions";
+import { approveTool, rejectTool, unpublishToolByAdmin } from "./actions";
 
 type PendingTool = {
   id: string;
@@ -25,6 +25,19 @@ type PendingTool = {
   profiles: { display_name: string | null; handle: string } | null;
 };
 
+type PublishedTool = {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  price: number;
+  category: string;
+  runtime: "cloud" | "local";
+  created_at: string;
+  author_id: string;
+  profiles: { display_name: string | null; handle: string } | null;
+};
+
 const RISK_STYLE: Record<string, string> = {
   low: "bg-accent-success/10 text-accent-success",
   medium: "bg-accent-ai-dim text-accent-ai",
@@ -39,30 +52,182 @@ const RISK_LABEL: Record<string, string> = {
   unknown: "AI判定: 不明",
 };
 
-export default function AdminReviewClient({ tools }: { tools: PendingTool[] }) {
+export default function AdminReviewClient({
+  tools,
+  publishedTools,
+}: {
+  tools: PendingTool[];
+  publishedTools: PublishedTool[];
+}) {
+  const [tab, setTab] = useState<"pending" | "published">("pending");
+
   return (
     <main className="flex-1">
       <div className="mx-auto max-w-3xl px-6 py-10">
         <h1 className="mb-1 font-display text-2xl font-semibold text-text-primary">
           出品の審査
         </h1>
-        <p className="mb-8 text-[13px] text-text-muted">
-          審査待ち: {tools.length}件。AIレビューはあくまで参考情報です。最終判断はご自身で行ってください。
+        <p className="mb-6 text-[13px] text-text-muted">
+          AIレビューはあくまで参考情報です。最終判断はご自身で行ってください。
         </p>
 
-        {tools.length === 0 ? (
+        <div className="mb-6 flex gap-1 border-b border-border">
+          <TabButton
+            active={tab === "pending"}
+            onClick={() => setTab("pending")}
+            label={`審査待ち (${tools.length})`}
+          />
+          <TabButton
+            active={tab === "published"}
+            onClick={() => setTab("published")}
+            label={`公開中のツール管理 (${publishedTools.length})`}
+          />
+        </div>
+
+        {tab === "pending" ? (
+          tools.length === 0 ? (
+            <div className="rounded-xl border border-border bg-surface p-8 text-center text-[13px] text-text-muted">
+              審査待ちのツールはありません。
+            </div>
+          ) : (
+            <div className="space-y-5">
+              {tools.map((tool) => (
+                <ReviewCard key={tool.id} tool={tool} />
+              ))}
+            </div>
+          )
+        ) : publishedTools.length === 0 ? (
           <div className="rounded-xl border border-border bg-surface p-8 text-center text-[13px] text-text-muted">
-            審査待ちのツールはありません。
+            公開中のツールはありません。
           </div>
         ) : (
-          <div className="space-y-5">
-            {tools.map((tool) => (
-              <ReviewCard key={tool.id} tool={tool} />
+          <div className="space-y-3">
+            {publishedTools.map((tool) => (
+              <PublishedToolRow key={tool.id} tool={tool} />
             ))}
           </div>
         )}
       </div>
     </main>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`-mb-px border-b-2 px-3 py-2.5 text-[13px] font-medium transition ${
+        active
+          ? "border-accent-signal text-text-primary"
+          : "border-transparent text-text-muted hover:text-text-secondary"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function PublishedToolRow({ tool }: { tool: PublishedTool }) {
+  const [isPending, startTransition] = useTransition();
+  const [showForm, setShowForm] = useState(false);
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+
+  function handleUnpublish() {
+    setError(null);
+    startTransition(async () => {
+      const result = await unpublishToolByAdmin(tool.id, reason);
+      if (result?.error) setError(result.error);
+      else setDone(true);
+    });
+  }
+
+  if (done) {
+    return (
+      <div className="rounded-xl border border-border bg-surface p-4 text-[13px] text-text-muted">
+        「{tool.name}」を非公開にしました。
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-border bg-surface p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="truncate font-display text-[14px] font-semibold text-text-primary">
+            {tool.name}
+          </h2>
+          <p className="mt-0.5 text-[12px] text-text-muted">{tool.tagline}</p>
+          <p className="mt-0.5 font-mono text-[11px] text-text-dim">
+            出品者: {tool.profiles?.display_name ?? "不明"}（@{tool.profiles?.handle}） ・{" "}
+            {formatPrice(tool.price)} ・ {tool.category}
+          </p>
+        </div>
+        <a
+          href={`/apps/${tool.slug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shrink-0 text-[12px] text-text-muted hover:underline"
+        >
+          商品ページを見る
+        </a>
+      </div>
+
+      {error && (
+        <div className="mt-3 rounded-lg border border-accent-danger/30 bg-accent-danger/5 px-3 py-2 text-[12px] text-accent-danger">
+          {error}
+        </div>
+      )}
+
+      {showForm ? (
+        <div className="mt-3">
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            rows={2}
+            placeholder="非公開にする理由（出品者に表示されます）"
+            className="mb-2 w-full resize-none rounded-lg border border-border bg-bg px-3 py-2 text-[12px] text-text-primary outline-none focus:border-border-strong"
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleUnpublish}
+              disabled={isPending}
+              className="rounded-lg bg-accent-danger px-4 py-2 text-[12px] font-medium text-white transition hover:brightness-105 disabled:opacity-60"
+            >
+              {isPending ? "処理中..." : "この理由で非公開にする"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="rounded-lg border border-border px-4 py-2 text-[12px] text-text-secondary hover:bg-surface-raised"
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setShowForm(true)}
+            className="rounded-lg border border-accent-danger/40 bg-bg px-4 py-2 text-[12px] font-medium text-accent-danger transition hover:bg-accent-danger/10"
+          >
+            非公開にする
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 

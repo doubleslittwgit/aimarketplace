@@ -3,6 +3,13 @@ import Stripe from "stripe";
 import { stripe } from "@/lib/stripe/server";
 import { sellerAccountFieldsFromStripe } from "@/lib/stripe/seller-account";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { notify } from "@/lib/notifications/create";
+import {
+  sale as saleContent,
+  purchaseReceipt,
+  sellerAccountStatusChanged,
+} from "@/lib/notifications/content";
+import { formatPrice } from "@/lib/mock-data";
 
 /**
  * Stripeからの支払い完了通知を受け取る窓口。
@@ -62,9 +69,18 @@ export async function POST(request: Request) {
     const account = event.data.object as Stripe.Account;
     const admin = createAdminClient();
 
+    // 通知を出すかどうかの判定に使うため、更新前の状態を先に取得しておく
+    const { data: before } = await admin
+      .from("seller_accounts")
+      .select("user_id, transfers_enabled, payouts_enabled, requirements_due")
+      .eq("stripe_account_id", account.id)
+      .maybeSingle();
+
+    const newFields = sellerAccountFieldsFromStripe(account);
+
     const { error } = await admin
       .from("seller_accounts")
-      .update(sellerAccountFieldsFromStripe(account))
+      .update(newFields)
       .eq("stripe_account_id", account.id);
 
     if (error) {
@@ -73,6 +89,35 @@ export async function POST(request: Request) {
         { error: `出品者情報の更新に失敗しました: ${error.message}` },
         { status: 500 }
       );
+    }
+
+    // Stripeはこのイベントを些細な変更でも頻繁に送ってくるため、
+    // 「受け取り可否」や「追加情報の要否」が実際に変わった時だけ通知する。
+    if (before) {
+      const wasEnabled = before.transfers_enabled && before.payouts_enabled;
+      const isEnabled = newFields.transfers_enabled && newFields.payouts_enabled;
+      const hadRequirements = (before.requirements_due?.length ?? 0) > 0;
+      const hasRequirements = (newFields.requirements_due?.length ?? 0) > 0;
+
+      if (!wasEnabled && isEnabled) {
+        await notify(
+          before.user_id,
+          "seller_account_status_changed",
+          sellerAccountStatusChanged("enabled")
+        );
+      } else if (wasEnabled && !isEnabled) {
+        await notify(
+          before.user_id,
+          "seller_account_status_changed",
+          sellerAccountStatusChanged("disabled")
+        );
+      } else if (!hadRequirements && hasRequirements) {
+        await notify(
+          before.user_id,
+          "seller_account_status_changed",
+          sellerAccountStatusChanged("requirements_due")
+        );
+      }
     }
 
     return NextResponse.json({ received: true });
@@ -142,7 +187,7 @@ export async function POST(request: Request) {
   // ブラウザ経由の値ではなく、DBの正規の価格を信頼する。
   const { data: tool, error: toolFetchError } = await supabase
     .from("tools")
-    .select("id, price, author_id")
+    .select("id, name, slug, price, author_id")
     .eq("id", toolId)
     .maybeSingle();
 
@@ -234,6 +279,27 @@ export async function POST(request: Request) {
   if (rpcError) {
     console.error("[webhook] インストール数の更新に失敗:", rpcError.message);
   }
+
+  // 出品者・購入者への通知。失敗しても購入自体の成立には影響させない。
+  const { data: buyerProfile } = await supabase
+    .from("profiles")
+    .select("display_name, handle")
+    .eq("id", buyerId)
+    .maybeSingle();
+  const buyerName =
+    buyerProfile?.display_name || buyerProfile?.handle || "購入者";
+
+  await notify(
+    sellerId,
+    "sale",
+    saleContent(tool.name, buyerName, formatPrice(sellerEarnings))
+  );
+  await notify(
+    buyerId,
+    "purchase_receipt",
+    purchaseReceipt(tool.name, formatPrice(tool.price), tool.slug),
+    { email: true }
+  );
 
   return NextResponse.json({ received: true, recorded: true });
 }

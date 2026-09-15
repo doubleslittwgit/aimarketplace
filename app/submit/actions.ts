@@ -4,6 +4,12 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE } from "@/lib/mock-data";
 import { reviewToolSubmission } from "@/lib/ai/review-tool";
+import { notify, notifyAdmins } from "@/lib/notifications/create";
+import {
+  toolAutoRejectedRisk,
+  adminNewPendingReview,
+  adminHighRiskFlagged,
+} from "@/lib/notifications/content";
 
 export type CreateToolResult = { error: string } | { error: null };
 
@@ -201,6 +207,34 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       await supabase.storage.from("tool-images").remove([thumbKey]);
     }
     return { error: `保存に失敗しました: ${insertError.message}` };
+  }
+
+  // 出品者の表示名（通知の宛先ではなく、管理者向け通知の文面に使う）
+  const { data: authorProfile } = await supabase
+    .from("profiles")
+    .select("display_name, handle")
+    .eq("id", user.id)
+    .maybeSingle();
+  const authorName =
+    authorProfile?.display_name || authorProfile?.handle || "名前未設定の出品者";
+
+  if (initialStatus === "rejected") {
+    // 危険判定による自動却下: 出品者へ、そして管理者にも念のため知らせる
+    await notify(
+      user.id,
+      "tool_auto_rejected_risk",
+      toolAutoRejectedRisk(name, review.summary)
+    );
+    await notifyAdmins(
+      "admin_high_risk_flagged",
+      adminHighRiskFlagged(name, authorName, review.summary)
+    );
+  } else {
+    // 通常の審査待ち: 管理者に知らせる
+    await notifyAdmins(
+      "admin_new_pending_review",
+      adminNewPendingReview(name, authorName)
+    );
   }
 
   redirect(

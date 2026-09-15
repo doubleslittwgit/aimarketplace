@@ -3,6 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { notify } from "@/lib/notifications/create";
+import {
+  toolApproved,
+  toolRejected,
+  toolUnpublishedByAdmin as toolUnpublishedByAdminContent,
+} from "@/lib/notifications/content";
 
 export type ReviewActionResult = { error: string } | { error: null };
 
@@ -33,7 +39,7 @@ export async function approveTool(toolId: string): Promise<ReviewActionResult> {
   if (authError) return { error: authError };
 
   const admin = createAdminClient();
-  const { error } = await admin
+  const { data: tool, error } = await admin
     .from("tools")
     .update({
       status: "published",
@@ -41,9 +47,15 @@ export async function approveTool(toolId: string): Promise<ReviewActionResult> {
       reviewed_at: new Date().toISOString(),
       rejection_reason: null,
     })
-    .eq("id", toolId);
+    .eq("id", toolId)
+    .select("id, name, slug, author_id")
+    .maybeSingle();
 
   if (error) return { error: `承認に失敗しました: ${error.message}` };
+
+  if (tool) {
+    await notify(tool.author_id, "tool_approved", toolApproved(tool.name, tool.slug));
+  }
 
   revalidatePath("/admin/review");
   return { error: null };
@@ -61,7 +73,7 @@ export async function rejectTool(
   }
 
   const admin = createAdminClient();
-  const { error } = await admin
+  const { data: tool, error } = await admin
     .from("tools")
     .update({
       status: "rejected",
@@ -69,10 +81,61 @@ export async function rejectTool(
       reviewed_at: new Date().toISOString(),
       rejection_reason: reason.trim(),
     })
-    .eq("id", toolId);
+    .eq("id", toolId)
+    .select("id, name, author_id")
+    .maybeSingle();
 
   if (error) return { error: `却下に失敗しました: ${error.message}` };
 
+  if (tool) {
+    await notify(tool.author_id, "tool_rejected", toolRejected(tool.name, reason.trim()));
+  }
+
   revalidatePath("/admin/review");
+  return { error: null };
+}
+
+/**
+ * 既に公開済みのツールを、管理者が理由付きで非公開にする。
+ * 出品者本人による非公開化（edit画面）とは別の経路。
+ * rejection_reason 列を再利用しており、「suspended かつ
+ * rejection_reason がある」＝管理者による非公開、という区別にしている。
+ */
+export async function unpublishToolByAdmin(
+  toolId: string,
+  reason: string
+): Promise<ReviewActionResult> {
+  const { error: authError, userId } = await requireAdmin();
+  if (authError) return { error: authError };
+
+  if (!reason.trim()) {
+    return { error: "非公開にする理由を入力してください（出品者に表示されます）" };
+  }
+
+  const admin = createAdminClient();
+  const { data: tool, error } = await admin
+    .from("tools")
+    .update({
+      status: "suspended",
+      reviewed_by: userId,
+      reviewed_at: new Date().toISOString(),
+      rejection_reason: reason.trim(),
+    })
+    .eq("id", toolId)
+    .eq("status", "published")
+    .select("id, name, author_id")
+    .maybeSingle();
+
+  if (error) return { error: `非公開化に失敗しました: ${error.message}` };
+  if (!tool) return { error: "対象のツールが見つかりません（既に非公開の可能性があります）" };
+
+  await notify(
+    tool.author_id,
+    "tool_unpublished_by_admin",
+    toolUnpublishedByAdminContent(tool.name, reason.trim())
+  );
+
+  revalidatePath("/admin/review");
+  revalidatePath("/dashboard");
   return { error: null };
 }

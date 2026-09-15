@@ -14,7 +14,16 @@ import { getToolBySlug, tools as mockTools, formatInstalls, type Tool } from "@/
 
 async function loadTool(
   slug: string
-): Promise<{ tool: Tool; related: Tool[]; isDemo: boolean; status: string } | null> {
+): Promise<
+  | {
+      tool: Tool;
+      related: Tool[];
+      isDemo: boolean;
+      status: string;
+      rejectionReason: string | null;
+    }
+  | null
+> {
   const supabase = await createClient();
 
   const { data: row } = await supabase
@@ -79,7 +88,13 @@ async function loadTool(
     // 実際の出品がまだ少ない間は、デモ用のツールで欄を埋める
     const filler = mockTools.filter((t) => t.slug !== slug).slice(0, 3 - related.length);
 
-    return { tool, related: [...related, ...filler], isDemo: false, status: row.status };
+    return {
+      tool,
+      related: [...related, ...filler],
+      isDemo: false,
+      status: row.status,
+      rejectionReason: row.rejection_reason ?? null,
+    };
   }
 
   // データベースに無ければ、デモ用のモックデータにフォールバックする
@@ -91,6 +106,7 @@ async function loadTool(
     related: mockTools.filter((t) => t.id !== mockTool.id).slice(0, 3),
     isDemo: true,
     status: "published",
+    rejectionReason: null,
   };
 }
 
@@ -103,7 +119,7 @@ export default async function ToolDetailPage({
   const result = await loadTool(slug);
 
   if (!result) notFound();
-  const { tool, related, isDemo, status } = result;
+  const { tool, related, isDemo, status, rejectionReason } = result;
 
   // ログイン状態と購入状態を取得する
   const supabase = await createClient();
@@ -188,7 +204,9 @@ export default async function ToolDetailPage({
               {status === "rejected" &&
                 "このツールは却下されました。マイページで却下理由を確認してください（このプレビューはあなただけに見えています）。"}
               {status === "suspended" &&
-                "このツールは現在非公開です（このプレビューはあなただけに見えています）。"}
+                (rejectionReason
+                  ? `このツールは運営により非公開にされています。理由: ${rejectionReason}（このプレビューはあなただけに見えています）`
+                  : "このツールは現在非公開です（このプレビューはあなただけに見えています）。")}
               {status === "draft" &&
                 "このツールは下書きです（このプレビューはあなただけに見えています）。"}
             </div>

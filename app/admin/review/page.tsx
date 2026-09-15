@@ -21,20 +21,35 @@ export default async function AdminReviewPage() {
   // 他人が出品した、まだ published でないツールも見る必要があるため、
   // ここでは（上で管理者確認が済んだ後にだけ）管理者権限のクライアントを使う。
   const admin = createAdminClient();
-  const { data: pendingTools } = await admin
-    .from("tools")
-    .select(
-      "id, slug, name, tagline, description, category, price, runtime, platforms, min_os_version, demo_url, thumbnail_url, file_key, ai_review_summary, ai_review_risk, created_at, author_id, profiles:author_id(display_name, handle)"
-    )
-    .eq("status", "pending_review")
-    .order("created_at", { ascending: true });
+  const [{ data: pendingTools }, { data: publishedTools }] = await Promise.all([
+    admin
+      .from("tools")
+      .select(
+        "id, slug, name, tagline, description, category, price, runtime, platforms, min_os_version, demo_url, thumbnail_url, file_key, ai_review_summary, ai_review_risk, created_at, author_id, profiles:author_id(display_name, handle)"
+      )
+      .eq("status", "pending_review")
+      .order("created_at", { ascending: true }),
+    admin
+      .from("tools")
+      .select(
+        "id, slug, name, tagline, price, category, runtime, created_at, author_id, profiles:author_id(display_name, handle)"
+      )
+      .eq("status", "published")
+      .order("created_at", { ascending: false }),
+  ]);
 
   return (
     <>
       <Header />
-      <AdminReviewClient tools={(pendingTools ?? []) as unknown as PendingToolFromDB[]} />
+      <AdminReviewClient
+        tools={(pendingTools ?? []) as unknown as PendingToolFromDB[]}
+        publishedTools={(publishedTools ?? []) as unknown as PublishedToolFromDB[]}
+      />
     </>
   );
 }
 
 type PendingToolFromDB = Parameters<typeof AdminReviewClient>[0]["tools"][number];
+type PublishedToolFromDB = Parameters<
+  typeof AdminReviewClient
+>[0]["publishedTools"][number];

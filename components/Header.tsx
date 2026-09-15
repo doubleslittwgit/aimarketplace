@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import HeaderSearch from "@/components/HeaderSearch";
+import NotificationBell from "@/components/NotificationBell";
 import { createClient } from "@/lib/supabase/server";
 import UserMenu from "@/components/UserMenu";
 
@@ -37,6 +38,26 @@ export default async function Header() {
     isAdmin = Boolean(isAdminData);
   }
 
+  // 通知ベル用に、直近の通知を取得しておく（未ログイン時は取得しない）
+  let notifications: {
+    id: string;
+    type: string;
+    title: string;
+    body: string | null;
+    link_url: string | null;
+    read_at: string | null;
+    created_at: string;
+  }[] = [];
+
+  if (user) {
+    const { data } = await supabase
+      .from("notifications")
+      .select("id, type, title, body, link_url, read_at, created_at")
+      .order("created_at", { ascending: false })
+      .limit(20);
+    notifications = data ?? [];
+  }
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-bg/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-6">
@@ -66,12 +87,15 @@ export default async function Header() {
           </Link>
 
           {user ? (
-            <UserMenu
-              email={user.email ?? ""}
-              displayName={displayName}
-              avatarUrl={avatarUrl}
-              isAdmin={isAdmin}
-            />
+            <>
+              <NotificationBell initialNotifications={notifications} />
+              <UserMenu
+                email={user.email ?? ""}
+                displayName={displayName}
+                avatarUrl={avatarUrl}
+                isAdmin={isAdmin}
+              />
+            </>
           ) : (
             <Link
               href="/login"
