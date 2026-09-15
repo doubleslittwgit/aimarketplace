@@ -59,12 +59,22 @@ export default function ToolCard({ tool }: { tool: Tool }) {
           pkg://{tool.slug}
           <span className="text-text-muted">@v{tool.version}</span>
         </span>
-        <span className="flex shrink-0 items-center gap-1 pl-2 text-text-muted">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2 2 7l10 5 10-5-10-5Z" opacity=".5" />
-            <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg>
-          {formatInstalls(tool.installs)}
+        <span className="flex shrink-0 items-center gap-2.5 pl-2 text-text-muted">
+          {tool.likes > 0 && (
+            <span className="flex items-center gap-1">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
+              </svg>
+              {tool.likes}
+            </span>
+          )}
+          <span className="flex items-center gap-1">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2 2 7l10 5 10-5-10-5Z" opacity=".5" />
+              <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+            {formatInstalls(tool.installs)}
+          </span>
         </span>
       </div>
     </Link>

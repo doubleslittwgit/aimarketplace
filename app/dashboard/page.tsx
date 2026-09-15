@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import SellerOnboardingButton from "@/components/SellerOnboardingButton";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/mock-data";
 
@@ -102,6 +104,31 @@ export default async function DashboardPage() {
   const sales = (salesData ?? []) as unknown as SaleRow[];
 
   const totalEarnings = sales.reduce((sum, s) => sum + s.seller_earnings, 0);
+
+  // 今月分の売上（Stripeの入金サイクルを意識しやすくするため）
+  const now = new Date();
+  const thisMonthEarnings = sales
+    .filter((s) => {
+      const d = new Date(s.created_at);
+      return (
+        d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+      );
+    })
+    .reduce((sum, s) => sum + s.seller_earnings, 0);
+
+  // 受け取り設定の状態。自分の行はRLSで読めるため管理者権限は使わない。
+  // destination charge 構成では charges_enabled は false のままが正常なので、
+  // transfers_enabled && payouts_enabled で判定する。
+  const { data: sellerAccount } = await supabase
+    .from("seller_accounts")
+    .select("transfers_enabled, payouts_enabled, details_submitted")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const canReceive = Boolean(
+    sellerAccount?.transfers_enabled && sellerAccount?.payouts_enabled
+  );
+  const onboardingStarted = Boolean(sellerAccount);
 
   return (
     <>
@@ -251,12 +278,82 @@ export default async function DashboardPage() {
             <h2 className="mb-4 font-display text-lg font-semibold text-text-primary">
               売上
             </h2>
+
             <div className="mb-4 rounded-xl border border-border bg-surface p-5">
-              <p className="text-[12px] text-text-muted">累計売上(手数料差引後)</p>
-              <p className="mt-1 font-display text-2xl font-semibold text-text-primary">
-                {formatPrice(totalEarnings)}
-              </p>
+              <div className="flex flex-wrap gap-x-10 gap-y-4">
+                <div>
+                  <p className="text-[12px] text-text-muted">
+                    累計売上(手数料差引後)
+                  </p>
+                  <p className="mt-1 font-display text-2xl font-semibold text-text-primary">
+                    {formatPrice(totalEarnings)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[12px] text-text-muted">今月の売上</p>
+                  <p className="mt-1 font-display text-2xl font-semibold text-text-primary">
+                    {formatPrice(thisMonthEarnings)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 border-t border-border pt-4">
+                {canReceive ? (
+                  <>
+                    <div className="mb-3 flex items-start gap-2">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-success" />
+                      <p className="text-[13px] text-text-secondary">
+                        売上は登録済みの口座へ自動で入金されます。
+                        <span className="block text-text-muted">
+                          入金のタイミングや明細、振込先の変更はStripeの画面から確認できます。
+                        </span>
+                      </p>
+                    </div>
+                    <div className="sm:max-w-xs">
+                      <SellerOnboardingButton
+                        action="dashboard"
+                        label="Stripeで入金・明細を確認する"
+                        variant="secondary"
+                      />
+                    </div>
+                  </>
+                ) : onboardingStarted ? (
+                  <>
+                    <div className="mb-3 flex items-start gap-2">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-ai" />
+                      <p className="text-[13px] text-text-secondary">
+                        受け取り設定が完了していません。
+                        <span className="block text-text-muted">
+                          設定が終わるまで、有料ツールの販売と売上の入金はできません。
+                        </span>
+                      </p>
+                    </div>
+                    <Link
+                      href="/seller"
+                      className="inline-block rounded-lg bg-accent-signal px-4 py-2.5 text-[13px] font-medium text-white transition hover:brightness-105"
+                    >
+                      設定の続きへ
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <p className="mb-3 text-[13px] text-text-secondary">
+                      有料ツールを販売するには、売上の受け取り設定が必要です。
+                      <span className="block text-text-muted">
+                        無料ツールの公開には設定は不要です。
+                      </span>
+                    </p>
+                    <Link
+                      href="/seller"
+                      className="inline-block rounded-lg bg-accent-signal px-4 py-2.5 text-[13px] font-medium text-white transition hover:brightness-105"
+                    >
+                      受け取り設定を始める
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
+
             {sales.length === 0 ? (
               <div className="rounded-xl border border-border bg-surface p-6 text-center text-[13px] text-text-muted">
                 まだ販売実績はありません。
@@ -292,6 +389,7 @@ export default async function DashboardPage() {
           </section>
         </div>
       </main>
+      <Footer width="max-w-6xl" />
     </>
   );
 }

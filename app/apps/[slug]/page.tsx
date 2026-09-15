@@ -4,6 +4,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BuyBox from "@/components/BuyBox";
+import LikeButton from "@/components/LikeButton";
 import AuthorCard from "@/components/AuthorCard";
 import ToolCard from "@/components/ToolCard";
 import ToolReviews from "@/components/ToolReviews";
@@ -112,6 +113,7 @@ export default async function ToolDetailPage({
 
   let isPurchased = false;
   let isOwner = false;
+  let isLiked = false;
 
   if (user && !isDemo) {
     const { data: purchase } = await supabase
@@ -129,6 +131,15 @@ export default async function ToolDetailPage({
       .eq("id", tool.id)
       .maybeSingle();
     isOwner = ownerCheck?.author_id === user.id;
+
+    // いいね済みか（RLSにより自分の行しか読めない）
+    const { data: like } = await supabase
+      .from("tool_likes")
+      .select("tool_id")
+      .eq("tool_id", tool.id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    isLiked = Boolean(like);
   }
 
   // レビュー一覧（デモ用のツールには実データが無いのでスキップ）
@@ -292,6 +303,15 @@ export default async function ToolDetailPage({
                 isPurchased={isPurchased}
                 isDemo={isDemo}
               />
+              {/* デモ用ツールはDBに実体が無いのでいいねできない */}
+              {!isDemo && (
+                <LikeButton
+                  toolId={tool.id}
+                  slug={tool.slug}
+                  initialLiked={isLiked}
+                  initialCount={tool.likes}
+                />
+              )}
               <AuthorCard tool={tool} />
             </div>
           </div>
