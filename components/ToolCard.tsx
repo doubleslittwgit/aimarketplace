@@ -10,7 +10,7 @@ export default function ToolCard({ tool }: { tool: Tool }) {
       className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface transition hover:border-border-strong hover:bg-surface-raised"
     >
       {/* Preview area */}
-      <div className="relative flex h-36 items-center justify-center overflow-hidden border-b border-border bg-gradient-to-br from-surface-raised to-bg">
+      <div className="relative aspect-video overflow-hidden border-b border-border bg-gradient-to-br from-surface-raised to-bg">
         {tool.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -19,7 +19,7 @@ export default function ToolCard({ tool }: { tool: Tool }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="font-display text-3xl font-semibold text-text-dim/40">
+          <span className="absolute inset-0 flex items-center justify-center font-display text-3xl font-semibold text-text-dim/40">
             {tool.name.slice(0, 2).toUpperCase()}
           </span>
         )}
@@ -35,16 +35,17 @@ export default function ToolCard({ tool }: { tool: Tool }) {
 
         {/* 入手実績バッジ（インストール数・いいね数） */}
         <div className="absolute left-3 top-3 flex items-center gap-1.5">
-          <span className="flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2 2 7l10 5 10-5-10-5Z" opacity=".5" />
-              <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+          <span className="flex items-center gap-1 rounded-full bg-bg/90 px-2 py-0.5 text-[11px] font-medium text-text-secondary shadow-sm backdrop-blur-sm">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-ai">
+              <path d="M12 3v12" />
+              <path d="m7 10 5 5 5-5" />
+              <path d="M5 21h14" />
             </svg>
             {formatInstalls(tool.installs)}
           </span>
           {tool.likes > 0 && (
-            <span className="flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+            <span className="flex items-center gap-1 rounded-full bg-bg/90 px-2 py-0.5 text-[11px] font-medium text-text-secondary shadow-sm backdrop-blur-sm">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className="text-accent-signal">
                 <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
               </svg>
               {tool.likes}

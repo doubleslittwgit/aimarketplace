@@ -245,8 +245,26 @@ export default async function ToolDetailPage({
                 </span>
               </div>
 
+              {/* 実績バー：ダウンロード数・いいね数 */}
+              <div className="mb-6 flex flex-wrap items-center gap-2">
+                <span className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-[13px] text-text-secondary">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-ai">
+                    <path d="M12 3v12" />
+                    <path d="m7 10 5 5 5-5" />
+                    <path d="M5 21h14" />
+                  </svg>
+                  ダウンロード {formatInstalls(tool.installs)}
+                </span>
+                <span className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-[13px] text-text-secondary">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-accent-signal">
+                    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
+                  </svg>
+                  いいね {tool.likes}
+                </span>
+              </div>
+
               {/* Preview image */}
-              <div className="relative mb-8 flex h-72 items-center justify-center overflow-hidden rounded-xl border border-border bg-gradient-to-br from-surface-raised to-surface">
+              <div className="relative mb-8 aspect-video overflow-hidden rounded-xl border border-border bg-gradient-to-br from-surface-raised to-surface">
                 {tool.thumbnailUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -255,29 +273,10 @@ export default async function ToolDetailPage({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="font-display text-5xl font-semibold text-text-dim/40">
+                  <span className="absolute inset-0 flex items-center justify-center font-display text-5xl font-semibold text-text-dim/40">
                     {tool.name.slice(0, 2).toUpperCase()}
                   </span>
                 )}
-
-                {/* 入手実績バッジ（インストール数・いいね数） */}
-                <div className="absolute left-3 top-3 flex items-center gap-2">
-                  <span className="flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 text-[12px] font-medium text-white backdrop-blur-sm">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2 2 7l10 5 10-5-10-5Z" opacity=".5" />
-                      <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
-                    </svg>
-                    {formatInstalls(tool.installs)}
-                  </span>
-                  {tool.likes > 0 && (
-                    <span className="flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 text-[12px] font-medium text-white backdrop-blur-sm">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
-                      </svg>
-                      {tool.likes}
-                    </span>
-                  )}
-                </div>
               </div>
 
               {/* Description */}
