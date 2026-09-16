@@ -113,7 +113,7 @@ export default function SubmitClient({
               公開方法
               <span className="ml-1 text-accent-signal">*</span>
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <PriceTypeOption
                 label="無料"
                 description="誰でもすぐにダウンロードできます"

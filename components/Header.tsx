@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import HeaderSearch from "@/components/HeaderSearch";
 import NotificationBell from "@/components/NotificationBell";
+import MobileMenu from "@/components/MobileMenu";
 import { createClient } from "@/lib/supabase/server";
 import UserMenu from "@/components/UserMenu";
 
@@ -60,7 +61,7 @@ export default async function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-bg/85 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="BuildBay" className="h-7 w-auto" />
@@ -72,7 +73,7 @@ export default async function Header() {
           </Suspense>
         </div>
 
-        <nav className="ml-auto flex items-center gap-5 text-sm">
+        <nav className="ml-auto flex items-center gap-3 text-sm sm:gap-5">
           <Link
             href="/browse"
             className="hidden text-text-secondary transition hover:text-text-primary sm:block"
@@ -105,12 +106,22 @@ export default async function Header() {
             </Link>
           )}
 
+          {/*
+            スマホ幅では「公開する」ボタンを隠す（探す・出品するのテキストリンクと
+            同様 sm 未満は非表示）。この操作自体は下のハンバーガーメニュー内の
+            「出品する」や、ログイン時はUserMenu内の「ツールを公開する」からも
+            変わらず行えるため、機能が失われるわけではない。
+            ヘッダーの横幅を切り詰めて、通知ベル・ユーザーメニューと衝突しないようにするため。
+          */}
           <Link
             href="/submit"
-            className="rounded-md bg-accent-signal px-3.5 py-2 font-medium text-white transition hover:brightness-110"
+            className="hidden rounded-md bg-accent-signal px-3.5 py-2 font-medium text-white transition hover:brightness-110 sm:block"
           >
             公開する
           </Link>
+
+          {/* スマホ幅でのみ表示するハンバーガーメニュー（検索・探す・出品する・ログイン） */}
+          <MobileMenu isLoggedIn={Boolean(user)} />
         </nav>
       </div>
     </header>

@@ -66,7 +66,7 @@ export default async function Home() {
             <div className="absolute bottom-[-6rem] left-1/2 h-80 w-[44rem] -translate-x-1/2 rounded-full bg-accent-signal/10 blur-[130px]" />
           </div>
 
-          <div className="relative mx-auto max-w-7xl px-6 py-28 sm:py-36">
+          <div className="relative mx-auto max-w-7xl px-6 py-16 sm:py-36">
             {/* 実際に出品されているツールを浮かせて紹介（十分な余白が取れる画面幅のみ） */}
             {floatTools[0] && (
               <FloatingCard
@@ -109,7 +109,7 @@ export default async function Home() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.png" alt="BuildBay" className="h-20 w-auto sm:h-28 md:h-32" />
 
-              <h1 className="mt-10 font-display text-[2.75rem] font-semibold leading-[1.1] tracking-tight text-text-primary sm:text-[4rem] md:text-[4.5rem]">
+              <h1 className="mt-10 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-text-primary sm:text-[4rem] md:text-[4.5rem]">
                 あなたのアイデアが、
                 <br />
                 <span className="text-accent-signal">世界を変える。</span>
