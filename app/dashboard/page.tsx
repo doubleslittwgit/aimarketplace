@@ -291,9 +291,24 @@ export default async function DashboardPage() {
 
           {/* 売上 */}
           <section>
-            <h2 className="mb-4 font-display text-lg font-semibold text-text-primary">
-              売上
-            </h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-display text-lg font-semibold text-text-primary">
+                売上
+              </h2>
+              {sales.length > 0 && (
+                <a
+                  href="/api/dashboard/sales-csv"
+                  className="flex items-center gap-1.5 text-[12px] text-text-muted hover:text-text-primary"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 3v12" />
+                    <path d="m7 10 5 5 5-5" />
+                    <path d="M5 21h14" />
+                  </svg>
+                  CSVでダウンロード
+                </a>
+              )}
+            </div>
 
             <div className="mb-4 rounded-xl border border-border bg-surface p-5">
               <div className="flex flex-wrap gap-x-10 gap-y-4">
