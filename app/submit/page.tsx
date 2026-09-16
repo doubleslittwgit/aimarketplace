@@ -1,9 +1,14 @@
 import Link from "next/link";
 import Header from "@/components/Header";
-import SubmitClient from "./SubmitClient";
+import SubmitClient, { type DraftInitialValues } from "./SubmitClient";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function SubmitPage() {
+export default async function SubmitPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ draft?: string }>;
+}) {
+  const { draft: draftId } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -12,6 +17,7 @@ export default async function SubmitPage() {
   // ログインしていない場合は、フォームを一切表示せず、
   // どの経路で来ても同じ「ログインが必要です」の案内を出す。
   if (!user) {
+    const nextPath = draftId ? `/submit?draft=${encodeURIComponent(draftId)}` : "/submit";
     return (
       <>
         <Header />
@@ -43,13 +49,13 @@ export default async function SubmitPage() {
 
               <div className="flex flex-col gap-2">
                 <Link
-                  href="/login?next=/submit"
+                  href={`/login?next=${encodeURIComponent(nextPath)}`}
                   className="w-full rounded-lg bg-accent-signal py-2.5 text-[13px] font-medium text-white transition hover:brightness-105"
                 >
                   ログインする
                 </Link>
                 <Link
-                  href="/signup?next=/submit"
+                  href={`/signup?next=${encodeURIComponent(nextPath)}`}
                   className="w-full rounded-lg border border-border py-2.5 text-[13px] font-medium text-text-secondary transition hover:bg-surface"
                 >
                   新規登録する
@@ -68,10 +74,40 @@ export default async function SubmitPage() {
   });
   canReceivePayments = Boolean(data);
 
+  let initialDraft: DraftInitialValues | null = null;
+  if (draftId) {
+    const { data: draft } = await supabase
+      .from("tools")
+      .select(
+        "id, author_id, status, name, tagline, description, category, price, runtime, platforms, min_os_version, demo_url, thumbnail_url, file_key"
+      )
+      .eq("id", draftId)
+      .maybeSingle();
+
+    // 他人の下書き・既に下書きでなくなったものは、静かに無視して
+    // 通常の新規出品フォームとして表示する（存在自体は教えない）
+    if (draft && draft.author_id === user.id && draft.status === "draft") {
+      initialDraft = {
+        id: draft.id,
+        name: draft.name,
+        tagline: draft.tagline,
+        description: draft.description,
+        category: draft.category,
+        price: draft.price,
+        runtime: draft.runtime,
+        platforms: draft.platforms ?? [],
+        minOsVersion: draft.min_os_version,
+        demoUrl: draft.demo_url,
+        thumbnailUrl: draft.thumbnail_url,
+        fileName: draft.file_key ? draft.file_key.split("/").pop() ?? null : null,
+      };
+    }
+  }
+
   return (
     <>
       <Header />
-      <SubmitClient canReceivePayments={canReceivePayments} />
+      <SubmitClient canReceivePayments={canReceivePayments} initialDraft={initialDraft} />
     </>
   );
 }

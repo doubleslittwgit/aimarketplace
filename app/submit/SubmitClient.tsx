@@ -2,30 +2,61 @@
 
 import { useState, useTransition, useRef } from "react";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
-import { createTool } from "./actions";
+import { createTool, saveDraft } from "./actions";
 
 type PriceType = "free" | "paid" | null;
 
+export type DraftInitialValues = {
+  id: string;
+  name: string;
+  tagline: string;
+  description: string;
+  category: string;
+  price: number;
+  runtime: "cloud" | "local";
+  platforms: string[];
+  minOsVersion: string | null;
+  demoUrl: string | null;
+  thumbnailUrl: string | null;
+  fileName: string | null;
+};
+
 export default function SubmitClient({
   canReceivePayments,
+  initialDraft,
 }: {
   canReceivePayments: boolean;
+  initialDraft?: DraftInitialValues | null;
 }) {
-  const [priceType, setPriceType] = useState<PriceType>(null);
-  const [price, setPrice] = useState("");
-  const [runtime, setRuntime] = useState<"cloud" | "local">("cloud");
+  const [draftId, setDraftId] = useState<string | null>(initialDraft?.id ?? null);
+  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
+  const [priceType, setPriceType] = useState<PriceType>(
+    initialDraft ? (initialDraft.price > 0 ? "paid" : "free") : null
+  );
+  const [price, setPrice] = useState(
+    initialDraft ? String(initialDraft.price || "") : ""
+  );
+  const [runtime, setRuntime] = useState<"cloud" | "local">(
+    initialDraft?.runtime ?? "cloud"
+  );
   const [dragOver, setDragOver] = useState(false);
-  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(
+    initialDraft?.fileName ?? null
+  );
   const [fileSize, setFileSize] = useState<number | null>(null);
-  const [platforms, setPlatforms] = useState<string[]>([]);
-  const [minOsVersion, setMinOsVersion] = useState("");
-  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [platforms, setPlatforms] = useState<string[]>(initialDraft?.platforms ?? []);
+  const [minOsVersion, setMinOsVersion] = useState(initialDraft?.minOsVersion ?? "");
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
+    initialDraft?.thumbnailUrl ?? null
+  );
   const [thumbnailName, setThumbnailName] = useState<string | null>(null);
   const [thumbnailSize, setThumbnailSize] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isSavingDraft, startSaveDraft] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   function togglePlatform(p: string) {
     setPlatforms((prev) =>
@@ -90,17 +121,35 @@ export default function SubmitClient({
     });
   }
 
+  function handleSaveDraft() {
+    if (!formRef.current) return;
+    setError(null);
+    const formData = new FormData(formRef.current);
+    startSaveDraft(async () => {
+      const result = await saveDraft(formData, draftId ?? undefined);
+      if (result.error !== null) {
+        setError(result.error);
+        return;
+      }
+      setDraftId(result.draftId);
+      setDraftSavedAt(new Date());
+    });
+  }
+
   return (
     <main className="flex-1">
       <div className="mx-auto max-w-2xl px-6 py-10">
         <h1 className="mb-1 font-display text-2xl font-semibold text-text-primary">
-          ツールを公開する
+          {initialDraft ? "下書きの続きを書く" : "ツールを公開する"}
         </h1>
         <p className="mb-8 text-[13px] text-text-muted">
-          まずは無料公開か有料販売かを選んでください。無料公開は登録なしですぐに始められます。
+          {initialDraft
+            ? "続きを入力して、公開するか、また後で続きを書くか選べます。"
+            : "まずは無料公開か有料販売かを選んでください。無料公開は登録なしですぐに始められます。"}
         </p>
 
-        <form action={handleFormAction} className="space-y-7">
+        <form ref={formRef} action={handleFormAction} className="space-y-7">
+          {draftId && <input type="hidden" name="draftId" value={draftId} />}
           {error && (
             <div className="rounded-lg border border-accent-danger/30 bg-accent-danger/10 px-3.5 py-2.5 text-[13px] text-accent-danger">
               {error}
@@ -342,7 +391,7 @@ export default function SubmitClient({
                       ref={fileInputRef}
                       type="file"
                       name="file"
-                      required
+                      required={!fileName}
                       onClick={(e) => e.stopPropagation()}
                       onChange={(e) => handleFile(e.target.files?.[0])}
                       className="hidden"
@@ -355,6 +404,7 @@ export default function SubmitClient({
                     type="url"
                     name="demoUrl"
                     required
+                    defaultValue={initialDraft?.demoUrl ?? ""}
                     placeholder="https://your-tool.vercel.app"
                     className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
                   />
@@ -370,6 +420,7 @@ export default function SubmitClient({
                   type="text"
                   name="name"
                   required
+                  defaultValue={initialDraft?.name}
                   placeholder="例：InvoiceParser AI"
                   className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
                 />
@@ -382,6 +433,7 @@ export default function SubmitClient({
                   name="tagline"
                   required
                   maxLength={60}
+                  defaultValue={initialDraft?.tagline}
                   placeholder="例：請求書PDFを3秒でスプレッドシートに変換"
                   className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
                 />
@@ -393,6 +445,7 @@ export default function SubmitClient({
                   name="description"
                   required
                   rows={5}
+                  defaultValue={initialDraft?.description}
                   placeholder="このツールが何を解決するか、どう使うかを説明してください"
                   className="w-full resize-none rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
                 />
@@ -403,7 +456,7 @@ export default function SubmitClient({
                 <select
                   name="category"
                   required
-                  defaultValue=""
+                  defaultValue={initialDraft?.category ?? ""}
                   className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
                 >
                   <option value="" disabled>
@@ -471,7 +524,7 @@ export default function SubmitClient({
                   <input
                     type="text"
                     name="minOsVersion"
-                    defaultValue="Chrome / Edge / Safari 最新版"
+                    defaultValue={initialDraft?.minOsVersion || "Chrome / Edge / Safari 最新版"}
                     className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
                   />
                   <p className="mt-2 text-[12px] text-text-dim">
@@ -480,13 +533,29 @@ export default function SubmitClient({
                 </Field>
               )}
 
-              <button
-                type="submit"
-                disabled={isPending || fileTooLarge || thumbnailTooLarge || !priceValid}
-                className="w-full rounded-lg bg-accent-signal py-3 text-sm font-medium text-white transition hover:brightness-105 disabled:opacity-60"
-              >
-                {isPending ? "公開処理中..." : "公開する"}
-              </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="submit"
+                  disabled={isPending || fileTooLarge || thumbnailTooLarge || !priceValid}
+                  className="flex-1 rounded-lg bg-accent-signal py-3 text-sm font-medium text-white transition hover:brightness-105 disabled:opacity-60"
+                >
+                  {isPending ? "公開処理中..." : "公開する"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveDraft}
+                  disabled={isSavingDraft}
+                  className="rounded-lg border border-border bg-surface px-5 py-3 text-sm font-medium text-text-secondary transition hover:bg-surface-raised disabled:opacity-60"
+                >
+                  {isSavingDraft ? "保存中..." : "下書き保存"}
+                </button>
+              </div>
+              {draftSavedAt && (
+                <p className="text-[12px] text-text-muted">
+                  {draftSavedAt.toLocaleTimeString("ja-JP")}
+                  に下書きを保存しました。マイページからいつでも続きを書けます。
+                </p>
+              )}
             </>
           )}
         </form>

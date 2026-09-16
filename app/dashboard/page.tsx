@@ -278,10 +278,10 @@ export default async function DashboardPage() {
                       )}
                     </div>
                     <Link
-                      href={`/apps/${t.slug}/edit`}
+                      href={t.status === "draft" ? `/submit?draft=${t.id}` : `/apps/${t.slug}/edit`}
                       className="shrink-0 rounded-lg border border-border px-3 py-1.5 text-[12px] text-text-secondary transition hover:bg-surface-raised"
                     >
-                      編集
+                      {t.status === "draft" ? "続きを書く" : "編集"}
                     </Link>
                   </div>
                 ))}
