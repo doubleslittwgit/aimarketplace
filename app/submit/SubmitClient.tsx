@@ -250,6 +250,34 @@ export default function SubmitClient({
             )}
           </div>
 
+          {/* 実行環境（無料/有料の次に決める、重要な設定のため） */}
+          {(priceType === "free" || (priceType === "paid" && canReceivePayments)) && (
+            <Field label="実行環境" required>
+              <div className="flex gap-3">
+                <RuntimeOption
+                  label="クラウド（Web）"
+                  description="サーバー上で動作。ブラウザだけで使える"
+                  active={runtime === "cloud"}
+                  onClick={() => setRuntime("cloud")}
+                />
+                <RuntimeOption
+                  label="ローカル実行"
+                  description="ダウンロードして使用。データが外に出ない"
+                  active={runtime === "local"}
+                  onClick={() => setRuntime("local")}
+                />
+              </div>
+
+              {priceType === "paid" && runtime === "cloud" && (
+                <p className="mt-3 text-[12px] font-medium leading-relaxed text-accent-danger">
+                  ご注意：クラウド型はURLを知っている人なら誰でもアクセスできてしまうため、
+                  第三者がURLを流用し、無断で無料公開してしまう恐れがあります。
+                  ログイン必須にする等、アクセス制限をご自身のサービス側で設けることを推奨します。
+                </p>
+              )}
+            </Field>
+          )}
+
           {showForm && (
             <>
               {/* サムネイル画像 */}
@@ -468,24 +496,6 @@ export default function SubmitClient({
                     </option>
                   ))}
                 </select>
-              </Field>
-
-              {/* 実行環境 */}
-              <Field label="実行環境" required>
-                <div className="flex gap-3">
-                  <RuntimeOption
-                    label="クラウド（Web）"
-                    description="サーバー上で動作。ブラウザだけで使える"
-                    active={runtime === "cloud"}
-                    onClick={() => setRuntime("cloud")}
-                  />
-                  <RuntimeOption
-                    label="ローカル実行"
-                    description="ダウンロードして使用。データが外に出ない"
-                    active={runtime === "local"}
-                    onClick={() => setRuntime("local")}
-                  />
-                </div>
               </Field>
 
               {/* 対応環境 */}

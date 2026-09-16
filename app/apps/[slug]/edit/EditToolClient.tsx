@@ -404,6 +404,13 @@ export default function EditToolClient({
                 ? "無料ツールとして公開されます"
                 : `${priceNumber.toLocaleString()}円で販売されます（手数料20%を差し引いた¥${Math.round(priceNumber * 0.8).toLocaleString()}が売上になります）`}
             </p>
+            {tool.runtime === "cloud" && !isFree && (
+              <p className="mt-2 text-[12px] font-medium leading-relaxed text-accent-danger">
+                ご注意：クラウド型はURLを知っている人なら誰でもアクセスできてしまうため、
+                第三者がURLを流用し、無断で無料公開してしまう恐れがあります。
+                ログイン必須にする等、アクセス制限をご自身のサービス側で設けることを推奨します。
+              </p>
+            )}
             {priceBlocked && (
               <p className="mt-2 rounded-lg border border-accent-danger/30 bg-accent-danger/5 px-3 py-2 text-[12px] text-accent-danger">
                 有料で公開するには、先に
