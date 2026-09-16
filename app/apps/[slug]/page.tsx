@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BuyBox from "@/components/BuyBox";
 import LikeButton from "@/components/LikeButton";
+import ReportButton from "@/components/ReportButton";
 import AuthorCard from "@/components/AuthorCard";
 import ToolCard from "@/components/ToolCard";
 import ToolReviews from "@/components/ToolReviews";
@@ -333,6 +334,11 @@ export default async function ToolDetailPage({
                 />
               )}
               <AuthorCard tool={tool} />
+              {!isDemo && !isOwner && (
+                <div className="text-center">
+                  <ReportButton toolId={tool.id} slug={tool.slug} />
+                </div>
+              )}
             </div>
           </div>
 

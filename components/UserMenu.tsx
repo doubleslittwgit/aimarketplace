@@ -111,6 +111,13 @@ export default function UserMenu({ email, displayName, avatarUrl, isAdmin }: Pro
               >
                 出品の審査（管理者）
               </Link>
+              <Link
+                href="/admin/reports"
+                className="block px-3.5 py-2 text-[13px] text-accent-ai hover:bg-surface-raised"
+                onClick={() => setOpen(false)}
+              >
+                通報の確認（管理者）
+              </Link>
             </>
           )}
 

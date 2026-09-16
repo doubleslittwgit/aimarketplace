@@ -136,3 +136,14 @@ export function adminHighRiskFlagged(
     linkUrl: `${SITE_URL}/admin/review`,
   };
 }
+
+export function adminToolReported(
+  toolName: string,
+  reasonLabel: string
+): NotificationContent {
+  return {
+    title: `🚩 通報がありました: ${toolName}`,
+    body: `理由: ${reasonLabel}`,
+    linkUrl: `${SITE_URL}/admin/reports`,
+  };
+}

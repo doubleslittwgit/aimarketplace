@@ -135,14 +135,25 @@ export default async function DashboardPage() {
       <Header />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-6 py-10">
-          <div className="mb-8">
-            <h1 className="font-display text-2xl font-semibold text-text-primary">
-              マイページ
-            </h1>
-            <p className="mt-1 text-[13px] text-text-muted">
-              {profile?.display_name ?? user.email} としてログイン中
-              {profile?.handle ? ` ・ @${profile.handle}` : ""}
-            </p>
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h1 className="font-display text-2xl font-semibold text-text-primary">
+                マイページ
+              </h1>
+              <p className="mt-1 text-[13px] text-text-muted">
+                {profile?.display_name ?? user.email} としてログイン中
+                {profile?.handle ? ` ・ @${profile.handle}` : ""}
+              </p>
+            </div>
+            <Link
+              href="/dashboard/likes"
+              className="flex items-center gap-1.5 text-[13px] text-text-muted hover:text-text-primary"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
+              </svg>
+              お気に入り
+            </Link>
           </div>
 
           {/* 購入済みツール */}
