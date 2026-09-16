@@ -3,6 +3,11 @@ import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import "./globals.css";
 
+// Supabase（DB）が東京リージョンにあるため、サーバー関数もできるだけ近い場所で
+// 実行させる。指定が無いと既定のリージョン（多くの場合アメリカ）で動いてしまい、
+// DBへの問い合わせのたびに太平洋を往復することになり、体感速度が大きく落ちる。
+export const preferredRegion = "hnd1";
+
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],

@@ -23,6 +23,7 @@ async function loadTool(
       isDemo: boolean;
       status: string;
       rejectionReason: string | null;
+      authorId: string | null;
     }
   | null
 > {
@@ -105,6 +106,7 @@ async function loadTool(
       isDemo: false,
       status: row.status,
       rejectionReason: row.rejection_reason ?? null,
+      authorId: row.author_id,
     };
   }
 
@@ -118,6 +120,7 @@ async function loadTool(
     isDemo: true,
     status: "published",
     rejectionReason: null,
+    authorId: null,
   };
 }
 
@@ -130,7 +133,7 @@ export default async function ToolDetailPage({
   const result = await loadTool(slug);
 
   if (!result) notFound();
-  const { tool, related, isDemo, status, rejectionReason } = result;
+  const { tool, related, isDemo, status, rejectionReason, authorId } = result;
 
   // ログイン状態と購入状態を取得する
   const supabase = await createClient();
@@ -138,66 +141,54 @@ export default async function ToolDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  let isPurchased = false;
-  let isOwner = false;
-  let isLiked = false;
+  const isOwner = Boolean(user) && authorId === user?.id;
 
-  if (user && !isDemo) {
-    const { data: purchase } = await supabase
-      .from("purchases")
-      .select("id")
-      .eq("tool_id", tool.id)
-      .eq("buyer_id", user.id)
-      .eq("status", "completed")
-      .maybeSingle();
-    isPurchased = Boolean(purchase);
-
-    const { data: ownerCheck } = await supabase
-      .from("tools")
-      .select("author_id")
-      .eq("id", tool.id)
-      .maybeSingle();
-    isOwner = ownerCheck?.author_id === user.id;
-
+  // 以下の3つは互いに依存しないので同時に問い合わせる
+  // （DBが東京リージョンにあり、1回の往復にも時間がかかるため、
+  //  直列にすると表示速度に直結する）。
+  const [{ data: purchase }, { data: like }, { data: reviewRows }] = await Promise.all([
+    user && !isDemo
+      ? supabase
+          .from("purchases")
+          .select("id")
+          .eq("tool_id", tool.id)
+          .eq("buyer_id", user.id)
+          .eq("status", "completed")
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
     // いいね済みか（RLSにより自分の行しか読めない）
-    const { data: like } = await supabase
-      .from("tool_likes")
-      .select("tool_id")
-      .eq("tool_id", tool.id)
-      .eq("user_id", user.id)
-      .maybeSingle();
-    isLiked = Boolean(like);
-  }
+    user && !isDemo
+      ? supabase
+          .from("tool_likes")
+          .select("tool_id")
+          .eq("tool_id", tool.id)
+          .eq("user_id", user.id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    // レビュー一覧（デモ用のツールには実データが無いのでスキップ）
+    !isDemo
+      ? supabase
+          .from("reviews")
+          .select("id, rating, comment, created_at, author_id, profiles:author_id(display_name, handle)")
+          .eq("tool_id", tool.id)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: null }),
+  ]);
 
-  // レビュー一覧（デモ用のツールには実データが無いのでスキップ）
-  let reviews: {
-    id: string;
-    rating: number;
-    comment: string | null;
-    created_at: string;
-    author_id: string;
-    author_name: string;
-  }[] = [];
+  const isPurchased = Boolean(purchase);
+  const isLiked = Boolean(like);
 
-  if (!isDemo) {
-    const { data: reviewRows } = await supabase
-      .from("reviews")
-      .select("id, rating, comment, created_at, author_id, profiles:author_id(display_name, handle)")
-      .eq("tool_id", tool.id)
-      .order("created_at", { ascending: false });
-
-    reviews = (reviewRows ?? []).map((r) => {
-      const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
-      return {
-        id: r.id,
-        rating: r.rating,
-        comment: r.comment,
-        created_at: r.created_at,
-        author_id: r.author_id,
-        author_name: profile?.display_name || (profile?.handle ? `@${profile.handle}` : "匿名"),
-      };
-    });
-  }
+  const reviews = (reviewRows ?? []).map((r) => {
+    const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
+    return {
+      id: r.id,
+      rating: r.rating,
+      comment: r.comment,
+      created_at: r.created_at,
+      author_id: r.author_id,
+      author_name: profile?.display_name || (profile?.handle ? `@${profile.handle}` : "匿名"),
+    };
+  });
 
   return (
     <>

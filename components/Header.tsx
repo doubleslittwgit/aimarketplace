@@ -15,31 +15,6 @@ export default async function Header() {
   let displayName = "";
   let avatarUrl: string | null = null;
   let isAdmin = false;
-
-  if (user) {
-    // profilesテーブルの表示名を優先。無ければGoogleログイン時の情報を使う。
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("display_name, avatar_url")
-      .eq("id", user.id)
-      .single();
-
-    displayName =
-      profile?.display_name ||
-      (user.user_metadata?.display_name as string | undefined) ||
-      (user.user_metadata?.full_name as string | undefined) ||
-      "";
-
-    avatarUrl =
-      profile?.avatar_url || (user.user_metadata?.avatar_url as string | undefined) || null;
-
-    const { data: isAdminData } = await supabase.rpc("is_admin", {
-      p_user_id: user.id,
-    });
-    isAdmin = Boolean(isAdminData);
-  }
-
-  // 通知ベル用に、直近の通知を取得しておく（未ログイン時は取得しない）
   let notifications: {
     id: string;
     type: string;
@@ -51,12 +26,36 @@ export default async function Header() {
   }[] = [];
 
   if (user) {
-    const { data } = await supabase
-      .from("notifications")
-      .select("id, type, title, body, link_url, read_at, created_at")
-      .order("created_at", { ascending: false })
-      .limit(20);
-    notifications = data ?? [];
+    // 以下の3つは互いの結果に依存しないため、順番に待つのではなく
+    // 同時に投げてまとめて待つ。DBが東京リージョンにあり、1回の往復にも
+    // 時間がかかるため、これを直列にすると表示速度に直結する。
+    const [{ data: profile }, { data: isAdminData }, { data: notificationsData }] =
+      await Promise.all([
+        supabase
+          .from("profiles")
+          .select("display_name, avatar_url")
+          .eq("id", user.id)
+          .single(),
+        supabase.rpc("is_admin", { p_user_id: user.id }),
+        supabase
+          .from("notifications")
+          .select("id, type, title, body, link_url, read_at, created_at")
+          .order("created_at", { ascending: false })
+          .limit(20),
+      ]);
+
+    // profilesテーブルの表示名を優先。無ければGoogleログイン時の情報を使う。
+    displayName =
+      profile?.display_name ||
+      (user.user_metadata?.display_name as string | undefined) ||
+      (user.user_metadata?.full_name as string | undefined) ||
+      "";
+
+    avatarUrl =
+      profile?.avatar_url || (user.user_metadata?.avatar_url as string | undefined) || null;
+
+    isAdmin = Boolean(isAdminData);
+    notifications = notificationsData ?? [];
   }
 
   return (
