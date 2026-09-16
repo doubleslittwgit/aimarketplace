@@ -46,6 +46,7 @@ async function loadTool(
       version: row.version,
       installs: row.install_count,
       likes: row.like_count,
+      views: row.view_count,
       author: {
         name: row.profiles?.display_name || "名前未設定の開発者",
         handle: row.profiles?.handle ? `@${row.profiles.handle}` : "",
@@ -57,6 +58,10 @@ async function loadTool(
       galleryUrls: row.gallery_urls || [],
       fileSizeBytes: row.file_size_bytes ?? null,
     };
+
+    // 閲覧数（インプレッション表示用）。失敗しても閲覧自体は成立させたいので、
+    // ページ表示をブロックしない範囲でエラーは無視する。
+    void supabase.rpc("increment_view_count", { p_tool_id: row.id });
 
     const { data: relatedRows } = await supabase
       .from("tools")
@@ -78,6 +83,7 @@ async function loadTool(
         version: r.version,
         installs: r.install_count,
         likes: r.like_count,
+        views: r.view_count,
         author: {
           name: r.profiles?.display_name || "名前未設定の開発者",
           handle: r.profiles?.handle ? `@${r.profiles.handle}` : "",

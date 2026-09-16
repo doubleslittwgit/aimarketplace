@@ -24,6 +24,7 @@ async function loadRealTools(): Promise<Tool[]> {
       version: r.version,
       installs: r.install_count,
       likes: r.like_count,
+      views: r.view_count,
       author: {
         name: r.profiles?.display_name || "名前未設定の開発者",
         handle: r.profiles?.handle ? `@${r.profiles.handle}` : "",

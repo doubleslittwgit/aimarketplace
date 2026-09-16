@@ -9,6 +9,7 @@ export type Tool = {
   version: string;
   installs: number;
   likes: number;
+  views: number;
   author: {
     name: string;
     handle: string;
@@ -33,11 +34,30 @@ export function formatFileSize(bytes: number | null | undefined) {
 
 export const categories = [
   "自動化・ワークフロー",
-  "動画・画像編集",
-  "データ分析",
   "開発者ツール",
-  "マーケティング",
+  "データ分析",
+  "AI・チャットボット",
+  "動画・画像編集",
+  "写真",
   "デザイン",
+  "文章・ライティング",
+  "音楽・オーディオ",
+  "マーケティング",
+  "SNS・コミュニティ",
+  "eコマース・物販",
+  "ビジネス・生産性",
+  "金融・家計管理",
+  "教育・学習",
+  "翻訳・言語学習",
+  "ゲーム",
+  "ライフスタイル",
+  "健康・フィットネス",
+  "料理・レシピ",
+  "旅行",
+  "子育て・育児",
+  "ペット",
+  "ユーティリティ",
+  "その他",
 ] as const;
 
 export const tools: Tool[] = [
@@ -52,6 +72,7 @@ export const tools: Tool[] = [
     price: 1200,
     version: "2.4.0",
     installs: 842,
+    views: 3400,
     likes: 156,
     author: { name: "Kenji Sato", handle: "@kenji_dev" },
     tags: ["PDF", "経理", "OCR"],
@@ -69,6 +90,7 @@ export const tools: Tool[] = [
     price: 0,
     version: "1.9.2",
     installs: 3021,
+    views: 12500,
     likes: 512,
     author: { name: "Mio Tanaka", handle: "@mio_edits" },
     tags: ["動画編集", "自動化"],
@@ -86,6 +108,7 @@ export const tools: Tool[] = [
     price: 2400,
     version: "0.8.1",
     installs: 214,
+    views: 980,
     likes: 48,
     author: { name: "Rei Fujimoto", handle: "@rei_analytics" },
     tags: ["機械学習", "SaaS"],
@@ -103,6 +126,7 @@ export const tools: Tool[] = [
     price: 500,
     version: "3.1.0",
     installs: 1508,
+    views: 6200,
     likes: 289,
     author: { name: "Yuto Ishikawa", handle: "@yuto_builds" },
     tags: ["Git", "レポート", "AI要約"],
@@ -120,6 +144,7 @@ export const tools: Tool[] = [
     price: 800,
     version: "1.3.4",
     installs: 967,
+    views: 4100,
     likes: 201,
     author: { name: "Nana Kobayashi", handle: "@nana_growth" },
     tags: ["広告", "コピーライティング"],
@@ -137,6 +162,7 @@ export const tools: Tool[] = [
     price: 0,
     version: "2.0.0",
     installs: 4102,
+    views: 15800,
     likes: 733,
     author: { name: "Haru Watanabe", handle: "@haru_designs" },
     tags: ["Figma", "配色", "デザインツール"],

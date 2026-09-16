@@ -32,6 +32,7 @@ async function loadRealTools(): Promise<Tool[]> {
       version: r.version,
       installs: r.install_count,
       likes: r.like_count,
+      views: r.view_count,
       author: {
         name: r.profiles?.display_name || "名前未設定の開発者",
         handle: r.profiles?.handle ? `@${r.profiles.handle}` : "",
@@ -216,46 +217,90 @@ function FloatingCard({
   anim: "float-a" | "float-b" | "float-c" | "float-d";
   duration: string;
 }) {
+  const initials = tool.author.name
+    .split(" ")
+    .map((s) => s[0])
+    .join("")
+    .slice(0, 2);
+
   return (
     <a
       href={`/apps/${tool.slug}`}
       data-float
       style={{ animation: `${anim} ${duration} ease-in-out infinite` }}
-      className={`absolute z-10 w-72 rounded-2xl border border-border bg-bg/95 p-5 shadow-[0_20px_45px_-16px_rgba(22,35,45,0.22)] backdrop-blur-sm transition hover:border-border-strong ${className}`}
+      className={`absolute z-10 w-72 overflow-hidden rounded-2xl border border-border bg-bg/95 shadow-[0_20px_45px_-16px_rgba(22,35,45,0.22)] backdrop-blur-sm transition hover:border-border-strong ${className}`}
     >
-      <div className="flex items-start justify-between gap-2">
+      {/* サムネイル */}
+      <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-surface-raised to-surface">
+        {tool.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={tool.thumbnailUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <span
+            className={`flex h-full w-full items-center justify-center font-display text-2xl font-semibold ${FLOAT_ICON_STYLES[index % FLOAT_ICON_STYLES.length]}`}
+          >
+            {tool.name.slice(0, 1)}
+          </span>
+        )}
         <span
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-display text-sm font-semibold ${FLOAT_ICON_STYLES[index % FLOAT_ICON_STYLES.length]}`}
-        >
-          {tool.name.slice(0, 1)}
-        </span>
-        <span
-          className={`shrink-0 rounded-full px-2 py-1 font-mono text-[10px] tracking-wide ${
+          className={`absolute right-2.5 top-2.5 rounded-full px-2 py-0.5 font-mono text-[10px] tracking-wide ${
             tool.runtime === "local"
               ? "bg-accent-ai-dim text-accent-ai"
-              : "border border-border text-text-muted"
+              : "bg-bg/90 text-text-muted"
           }`}
         >
           {tool.runtime === "local" ? "LOCAL" : "CLOUD"}
         </span>
       </div>
-      <p className="mt-3 font-display text-[16px] font-semibold leading-tight text-text-primary">
-        {tool.name}
-      </p>
-      <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-text-secondary">
-        {tool.tagline}
-      </p>
-      <div className="mt-4 flex items-center justify-between font-mono text-[12px] text-text-dim">
-        <span className="flex items-center gap-1.5">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2 2 7l10 5 10-5-10-5Z" opacity=".5" />
-            <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg>
-          {formatInstalls(tool.installs)}
-        </span>
-        <span className={tool.price === 0 ? "text-text-muted" : "text-accent-signal"}>
-          {formatPrice(tool.price)}
-        </span>
+
+      <div className="p-4">
+        <p className="font-display text-[15px] font-semibold leading-tight text-text-primary">
+          {tool.name}
+        </p>
+        <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-text-secondary">
+          {tool.tagline}
+        </p>
+
+        {/* 出品者 */}
+        <div className="mt-2.5 flex items-center gap-1.5">
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-ai-dim text-[9px] font-semibold text-accent-ai">
+            {initials}
+          </div>
+          <span className="truncate text-[12px] text-text-muted">{tool.author.name}</span>
+        </div>
+
+        <div className="mt-3 flex items-center justify-between font-mono text-[12px] text-text-dim">
+          <span className="flex items-center gap-2.5">
+            <span className="flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3v12" />
+                <path d="m7 10 5 5 5-5" />
+                <path d="M5 21h14" />
+              </svg>
+              {formatInstalls(tool.installs)}
+            </span>
+            {tool.likes > 0 && (
+              <span className="flex items-center gap-1">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" className="text-accent-signal">
+                  <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
+                </svg>
+                {tool.likes}
+              </span>
+            )}
+            {tool.views > 0 && (
+              <span className="flex items-center gap-1">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
+                  <circle cx="12" cy="12" r="2.5" />
+                </svg>
+                {formatInstalls(tool.views)}
+              </span>
+            )}
+          </span>
+          <span className={tool.price === 0 ? "text-text-muted" : "text-accent-signal"}>
+            {formatPrice(tool.price)}
+          </span>
+        </div>
       </div>
     </a>
   );

@@ -3,6 +3,11 @@ import { Tool, formatInstalls, formatPrice } from "@/lib/mock-data";
 
 export default function ToolCard({ tool }: { tool: Tool }) {
   const isFree = tool.price === 0;
+  const initials = tool.author.name
+    .split(" ")
+    .map((s) => s[0])
+    .join("")
+    .slice(0, 2);
 
   return (
     <Link
@@ -33,7 +38,7 @@ export default function ToolCard({ tool }: { tool: Tool }) {
           {tool.runtime === "local" ? "LOCAL" : "CLOUD"}
         </span>
 
-        {/* 入手実績バッジ（インストール数・いいね数） */}
+        {/* 入手実績バッジ（インストール数・いいね数・閲覧数） */}
         <div className="absolute left-3 top-3 flex items-center gap-1.5">
           <span className="flex items-center gap-1 rounded-full bg-bg/90 px-2 py-0.5 text-[11px] font-medium text-text-secondary shadow-sm backdrop-blur-sm">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-ai">
@@ -49,6 +54,15 @@ export default function ToolCard({ tool }: { tool: Tool }) {
                 <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
               </svg>
               {tool.likes}
+            </span>
+          )}
+          {tool.views > 0 && (
+            <span className="flex items-center gap-1 rounded-full bg-bg/90 px-2 py-0.5 text-[11px] font-medium text-text-secondary shadow-sm backdrop-blur-sm">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted">
+                <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
+                <circle cx="12" cy="12" r="2.5" />
+              </svg>
+              {formatInstalls(tool.views)}
             </span>
           )}
         </div>
@@ -71,6 +85,14 @@ export default function ToolCard({ tool }: { tool: Tool }) {
         <p className="line-clamp-2 text-[13px] leading-relaxed text-text-secondary">
           {tool.tagline}
         </p>
+
+        {/* 出品者 */}
+        <div className="mt-1 flex items-center gap-1.5">
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-ai-dim text-[9px] font-semibold text-accent-ai">
+            {initials}
+          </div>
+          <span className="truncate text-[12px] text-text-muted">{tool.author.name}</span>
+        </div>
       </div>
     </Link>
   );
