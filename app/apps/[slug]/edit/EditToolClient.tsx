@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { updateTool, setToolPublished, deleteTool } from "./actions";
@@ -18,6 +18,7 @@ type Tool = {
   min_os_version: string | null;
   demo_url: string | null;
   thumbnail_url: string | null;
+  gallery_urls: string[] | null;
   file_key: string | null;
   status: "draft" | "pending_review" | "published" | "suspended";
 };
@@ -50,6 +51,11 @@ export default function EditToolClient({
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const MAX_GALLERY_IMAGES = 5;
+  const [existingGallery, setExistingGallery] = useState<string[]>(tool.gallery_urls ?? []);
+  const [newGalleryFiles, setNewGalleryFiles] = useState<File[]>([]);
+  const [galleryError, setGalleryError] = useState<string | null>(null);
 
   const priceNumber = Number(price);
   const isFree = price !== "" && priceNumber === 0;
@@ -83,6 +89,52 @@ export default function EditToolClient({
       if (prev && prev.startsWith("blob:")) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
     });
+  }
+
+  /** newGalleryFilesの内容を、隠しinput(name="galleryImages")のfilesに反映する */
+  function syncGalleryInput(files: File[]) {
+    if (!galleryInputRef.current) return;
+    const dataTransfer = new DataTransfer();
+    files.forEach((f) => dataTransfer.items.add(f));
+    galleryInputRef.current.files = dataTransfer.files;
+  }
+
+  function handleGalleryAdd(selected: FileList | null) {
+    if (!selected) return;
+    setGalleryError(null);
+    const remaining = MAX_GALLERY_IMAGES - existingGallery.length - newGalleryFiles.length;
+    const incoming = Array.from(selected);
+
+    if (incoming.length > remaining) {
+      setGalleryError(`追加できるのはあと${remaining}枚までです`);
+    }
+
+    const oversized = incoming.find((f) => f.size > MAX_THUMBNAIL_FILE_SIZE);
+    if (oversized) {
+      setGalleryError(
+        `「${oversized.name}」は上限(${formatFileSize(MAX_THUMBNAIL_FILE_SIZE)})を超えています`
+      );
+    }
+
+    const accepted = incoming
+      .filter((f) => f.size <= MAX_THUMBNAIL_FILE_SIZE)
+      .slice(0, Math.max(0, remaining));
+
+    const next = [...newGalleryFiles, ...accepted];
+    setNewGalleryFiles(next);
+    syncGalleryInput(next);
+  }
+
+  function removeExistingGalleryImage(url: string) {
+    setExistingGallery((prev) => prev.filter((u) => u !== url));
+    setGalleryError(null);
+  }
+
+  function removeNewGalleryImage(index: number) {
+    const next = newGalleryFiles.filter((_, i) => i !== index);
+    setNewGalleryFiles(next);
+    syncGalleryInput(next);
+    setGalleryError(null);
   }
 
   function handleFormAction(formData: FormData) {
@@ -230,6 +282,73 @@ export default function EditToolClient({
                 />
               </div>
             </div>
+          </Field>
+
+          {/* ギャラリー画像（最大5枚、商品詳細ページで矢印で切り替えられる） */}
+          <Field label="紹介画像（最大5枚）">
+            <div className="flex flex-wrap gap-3">
+              {existingGallery.map((url) => (
+                <div key={url} className="group relative h-20 w-20 shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={url}
+                    alt=""
+                    className="h-full w-full rounded-lg border border-border object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeExistingGalleryImage(url)}
+                    aria-label="この画像を削除"
+                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-text-primary text-white shadow-sm"
+                  >
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                      <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+              {newGalleryFiles.map((file, i) => (
+                <GalleryFilePreview
+                  key={`${file.name}-${i}`}
+                  file={file}
+                  onRemove={() => removeNewGalleryImage(i)}
+                />
+              ))}
+
+              {existingGallery.length + newGalleryFiles.length < MAX_GALLERY_IMAGES && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (galleryInputRef.current) galleryInputRef.current.value = "";
+                    galleryInputRef.current?.click();
+                  }}
+                  className="flex h-20 w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border text-text-dim transition hover:border-border-strong hover:text-text-muted"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  <span className="text-[11px]">追加</span>
+                </button>
+              )}
+            </div>
+
+            <input type="hidden" name="existingGalleryUrls" value={existingGallery.join(",")} readOnly />
+            <input
+              ref={galleryInputRef}
+              type="file"
+              name="galleryImages"
+              multiple
+              accept="image/png,image/jpeg,image/webp"
+              onChange={(e) => handleGalleryAdd(e.target.files)}
+              className="hidden"
+            />
+
+            {galleryError && (
+              <p className="mt-2 text-[12px] text-accent-danger">{galleryError}</p>
+            )}
+            <p className="mt-2 text-[12px] text-text-dim">
+              商品詳細ページで、サムネイルと合わせて矢印で切り替えながら見られます（1枚あたり最大{formatFileSize(MAX_THUMBNAIL_FILE_SIZE)}）
+            </p>
           </Field>
 
           <input type="hidden" name="platforms" value={platforms.join(",")} readOnly />
@@ -477,6 +596,31 @@ export default function EditToolClient({
         </div>
       </div>
     </main>
+  );
+}
+
+function GalleryFilePreview({ file, onRemove }: { file: File; onRemove: () => void }) {
+  const preview = useMemo(() => URL.createObjectURL(file), [file]);
+
+  useEffect(() => {
+    return () => URL.revokeObjectURL(preview);
+  }, [preview]);
+
+  return (
+    <div className="group relative h-20 w-20 shrink-0">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={preview} alt="" className="h-full w-full rounded-lg border border-border object-cover" />
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label="この画像を削除"
+        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-text-primary text-white shadow-sm"
+      >
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
   );
 }
 

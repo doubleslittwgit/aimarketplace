@@ -51,6 +51,54 @@ function sanitizeFileName(name: string): string {
 
 const MAX_FILE_SIZE = MAX_TOOL_FILE_SIZE; // 出品フォームに明記している上限と揃える
 const MAX_THUMBNAIL_SIZE = MAX_THUMBNAIL_FILE_SIZE; // storage_limits.sqlのtool-images上限と揃える
+const MAX_GALLERY_IMAGES = 5;
+
+/**
+ * ギャラリー画像（既存の維持分 + 新規アップロード分）をまとめて処理し、
+ * 最終的にDBへ保存するURLの配列を返す。
+ *
+ * createTool（新規出品）と saveDraft（下書き保存）の両方から呼ばれる。
+ * 上限(5枚)は超過分を静かに切り捨てる方針にしている
+ * （下書きの時点で厳密にエラーにすると、保存自体ができず不便なため）。
+ */
+async function processGalleryImages(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  formData: FormData,
+  userId: string,
+  toolId: string
+): Promise<{ urls: string[]; error?: string }> {
+  const existingRaw = String(formData.get("existingGalleryUrls") || "");
+  const existing = existingRaw ? existingRaw.split(",").filter(Boolean) : [];
+
+  const newFiles = formData
+    .getAll("galleryImages")
+    .filter((f): f is File => f instanceof File && f.size > 0);
+
+  for (const file of newFiles) {
+    if (file.size > MAX_THUMBNAIL_SIZE) {
+      return { urls: existing, error: `「${file.name}」は上限(10MB)を超えています` };
+    }
+  }
+
+  const remaining = Math.max(0, MAX_GALLERY_IMAGES - existing.length);
+  const uploadedUrls: string[] = [];
+
+  for (const file of newFiles.slice(0, remaining)) {
+    const key = `${userId}/${toolId}/gallery-${crypto.randomUUID().slice(0, 8)}-${sanitizeFileName(file.name)}`;
+    const { error: uploadError } = await supabase.storage
+      .from("tool-images")
+      .upload(key, file, { upsert: true });
+
+    if (uploadError) {
+      return { urls: existing, error: `画像のアップロードに失敗しました: ${uploadError.message}` };
+    }
+
+    const { data: publicUrlData } = supabase.storage.from("tool-images").getPublicUrl(key);
+    uploadedUrls.push(publicUrlData.publicUrl);
+  }
+
+  return { urls: [...existing, ...uploadedUrls].slice(0, MAX_GALLERY_IMAGES) };
+}
 
 export async function createTool(formData: FormData): Promise<CreateToolResult> {
   const supabase = await createClient();
@@ -194,6 +242,11 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     thumbnailUrl = publicUrlData.publicUrl;
   }
 
+  const galleryResult = await processGalleryImages(supabase, formData, user.id, id);
+  if (galleryResult.error) {
+    return { error: galleryResult.error };
+  }
+
   // AIによる静的レビュー（実行はせず、コードを読んで所見を作るだけ）。
   // 最終判断は必ず人間（管理者）が行うが、明確に危険なものだけは
   // ここで自動的に弾く（「危険なものを弾くのは自動、良いものを通すのは手動」という方針）。
@@ -227,6 +280,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       file_key: fileKey,
       file_size_bytes: fileSizeBytes,
       thumbnail_url: thumbnailUrl,
+      gallery_urls: galleryResult.urls,
       demo_url: demoUrl,
       status: initialStatus,
       ai_review_summary: review.summary,
@@ -391,6 +445,11 @@ export async function saveDraft(
     thumbnailUrl = publicUrlData.publicUrl;
   }
 
+  const galleryResult = await processGalleryImages(supabase, formData, user.id, id);
+  if (galleryResult.error) {
+    return { error: galleryResult.error };
+  }
+
   const { error: upsertError } = await supabase.from("tools").upsert(
     {
       id,
@@ -408,6 +467,7 @@ export async function saveDraft(
       file_key: fileKey,
       file_size_bytes: fileSizeBytes,
       thumbnail_url: thumbnailUrl,
+      gallery_urls: galleryResult.urls,
       status: "draft",
     },
     { onConflict: "id" }

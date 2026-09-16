@@ -17,6 +17,7 @@ export type Tool = {
   updatedAt: string; // ISO date
   runtime: "cloud" | "local";
   thumbnailUrl?: string | null;
+  galleryUrls?: string[];
   fileSizeBytes?: number | null;
 };
 

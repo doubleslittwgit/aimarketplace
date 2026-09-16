@@ -10,6 +10,7 @@ import AuthorCard from "@/components/AuthorCard";
 import ToolCard from "@/components/ToolCard";
 import ToolReviews from "@/components/ToolReviews";
 import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
+import ImageCarousel from "@/components/ImageCarousel";
 import { createClient } from "@/lib/supabase/server";
 import { getToolBySlug, tools as mockTools, formatInstalls, type Tool } from "@/lib/mock-data";
 
@@ -53,6 +54,7 @@ async function loadTool(
       updatedAt: (row.updated_at || "").slice(0, 10),
       runtime: row.runtime,
       thumbnailUrl: row.thumbnail_url || null,
+      galleryUrls: row.gallery_urls || [],
       fileSizeBytes: row.file_size_bytes ?? null,
     };
 
@@ -264,21 +266,14 @@ export default async function ToolDetailPage({
                 </span>
               </div>
 
-              {/* Preview image */}
-              <div className="relative mb-8 aspect-video overflow-hidden rounded-xl border border-border bg-gradient-to-br from-surface-raised to-surface">
-                {tool.thumbnailUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={tool.thumbnailUrl}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="absolute inset-0 flex items-center justify-center font-display text-5xl font-semibold text-text-dim/40">
-                    {tool.name.slice(0, 2).toUpperCase()}
-                  </span>
-                )}
-              </div>
+              {/* Preview image(s) */}
+              <ImageCarousel
+                images={[
+                  ...(tool.thumbnailUrl ? [tool.thumbnailUrl] : []),
+                  ...(tool.galleryUrls ?? []),
+                ]}
+                fallbackLabel={tool.name.slice(0, 2).toUpperCase()}
+              />
 
               {/* Description */}
               <section className="mb-8">

@@ -17,6 +17,7 @@
 | `seller_accounts.sql` | Stripe Connectの連結アカウント情報（出品者の受け取り設定） |
 | `admins.sql` | 管理者一覧と `is_admin()` 判定関数（出品審査などに使用） |
 | `add_thumbnail.sql` | サムネイル列の追加（後から足したもの） |
+| `add_gallery.sql` | 商品詳細ページ用のギャラリー画像列の追加（後から足したもの） |
 | `increment_install.sql` | ダウンロード数を加算する関数 |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
 
@@ -47,8 +48,9 @@
 7. `seller_accounts.sql`
 8. `admins.sql`（実行後、ファイル内のコメントに従って初期管理者を1件登録すること）
 9. `add_thumbnail.sql`
-10. `increment_install.sql`
-11. `grants.sql` ← **必ず最後**
+10. `add_gallery.sql`
+11. `increment_install.sql`
+12. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」

@@ -28,6 +28,52 @@ function sanitizeFileName(name: string): string {
 
 const MAX_FILE_SIZE = MAX_TOOL_FILE_SIZE;
 const MAX_THUMBNAIL_SIZE = MAX_THUMBNAIL_FILE_SIZE;
+const MAX_GALLERY_IMAGES = 5;
+
+/**
+ * ギャラリー画像（既存の維持分 + 新規アップロード分）をまとめて処理し、
+ * 最終的にDBへ保存するURLの配列を返す。
+ * app/submit/actions.ts の同名関数と全く同じロジック
+ * （出品時と編集時でファイルの保存先の考え方を揃えるため）。
+ */
+async function processGalleryImages(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  formData: FormData,
+  userId: string,
+  toolId: string
+): Promise<{ urls: string[]; error?: string }> {
+  const existingRaw = String(formData.get("existingGalleryUrls") || "");
+  const existing = existingRaw ? existingRaw.split(",").filter(Boolean) : [];
+
+  const newFiles = formData
+    .getAll("galleryImages")
+    .filter((f): f is File => f instanceof File && f.size > 0);
+
+  for (const file of newFiles) {
+    if (file.size > MAX_THUMBNAIL_SIZE) {
+      return { urls: existing, error: `「${file.name}」は上限(10MB)を超えています` };
+    }
+  }
+
+  const remaining = Math.max(0, MAX_GALLERY_IMAGES - existing.length);
+  const uploadedUrls: string[] = [];
+
+  for (const file of newFiles.slice(0, remaining)) {
+    const key = `${userId}/${toolId}/gallery-${crypto.randomUUID().slice(0, 8)}-${sanitizeFileName(file.name)}`;
+    const { error: uploadError } = await supabase.storage
+      .from("tool-images")
+      .upload(key, file, { upsert: true });
+
+    if (uploadError) {
+      return { urls: existing, error: `画像のアップロードに失敗しました: ${uploadError.message}` };
+    }
+
+    const { data: publicUrlData } = supabase.storage.from("tool-images").getPublicUrl(key);
+    uploadedUrls.push(publicUrlData.publicUrl);
+  }
+
+  return { urls: [...existing, ...uploadedUrls].slice(0, MAX_GALLERY_IMAGES) };
+}
 
 /** ツール本体を更新する。作者本人以外からの呼び出しはRLSで弾かれる。 */
 export async function updateTool(
@@ -144,6 +190,11 @@ export async function updateTool(
     thumbnailUrl = publicUrlData.publicUrl;
   }
 
+  const galleryResult = await processGalleryImages(supabase, formData, user.id, toolId);
+  if (galleryResult.error) {
+    return { error: galleryResult.error };
+  }
+
   const { error: updateError } = await supabase
     .from("tools")
     .update({
@@ -158,6 +209,7 @@ export async function updateTool(
       file_key: fileKey,
       file_size_bytes: uploadedFile ? uploadedFile.size : undefined,
       thumbnail_url: thumbnailUrl,
+      gallery_urls: galleryResult.urls,
     })
     .eq("id", toolId);
 
