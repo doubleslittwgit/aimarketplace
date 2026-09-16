@@ -28,6 +28,7 @@ async function loadRealTools(): Promise<Tool[]> {
       tagline: r.tagline,
       description: r.description,
       category: r.category,
+      categories: r.categories?.length ? r.categories : [r.category],
       price: r.price,
       version: r.version,
       installs: r.install_count,
@@ -154,7 +155,7 @@ export default async function Home() {
 
         {/* Category rail */}
         <section className="border-y border-border bg-surface/40">
-          <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-6 py-4">
+          <div className="mx-auto flex max-w-7xl flex-wrap gap-2 px-6 py-4">
             <CategoryPill label="すべて" active />
             {categories.map((c) => (
               <CategoryPill key={c} label={c} />
@@ -261,6 +262,25 @@ function FloatingCard({
           {tool.tagline}
         </p>
 
+        {/* カテゴリ */}
+        {tool.categories.length > 0 && (
+          <div className="mt-2 flex flex-wrap items-center gap-1">
+            {tool.categories.slice(0, 2).map((c) => (
+              <span
+                key={c}
+                className="rounded-full bg-surface-raised px-2 py-0.5 text-[10px] text-text-muted"
+              >
+                {c}
+              </span>
+            ))}
+            {tool.categories.length > 2 && (
+              <span className="text-[10px] text-text-dim">
+                +{tool.categories.length - 2}
+              </span>
+            )}
+          </div>
+        )}
+
         {/* 出品者 */}
         <div className="mt-2.5 flex items-center gap-1.5">
           <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-ai-dim text-[9px] font-semibold text-accent-ai">
@@ -287,15 +307,13 @@ function FloatingCard({
                 {tool.likes}
               </span>
             )}
-            {tool.views > 0 && (
-              <span className="flex items-center gap-1">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
-                  <circle cx="12" cy="12" r="2.5" />
-                </svg>
-                {formatInstalls(tool.views)}
-              </span>
-            )}
+            <span className="flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
+                <circle cx="12" cy="12" r="2.5" />
+              </svg>
+              {formatInstalls(tool.views)}
+            </span>
           </span>
           <span className={tool.price === 0 ? "text-text-muted" : "text-accent-signal"}>
             {formatPrice(tool.price)}

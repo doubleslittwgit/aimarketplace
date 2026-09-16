@@ -42,6 +42,7 @@ async function loadTool(
       tagline: row.tagline,
       description: row.description,
       category: row.category,
+      categories: row.categories?.length ? row.categories : [row.category],
       price: row.price,
       version: row.version,
       installs: row.install_count,
@@ -79,6 +80,7 @@ async function loadTool(
         tagline: r.tagline,
         description: r.description,
         category: r.category,
+        categories: r.categories?.length ? r.categories : [r.category],
         price: r.price,
         version: r.version,
         installs: r.install_count,
@@ -242,6 +244,19 @@ export default async function ToolDetailPage({
                   <p className="mt-2 text-[15px] text-text-secondary">
                     {tool.tagline}
                   </p>
+                  {tool.categories.length > 0 && (
+                    <div className="mt-2.5 flex flex-wrap gap-1.5">
+                      {tool.categories.map((c) => (
+                        <Link
+                          key={c}
+                          href={`/browse?category=${encodeURIComponent(c)}`}
+                          className="rounded-full bg-surface px-2.5 py-1 text-[12px] text-text-muted transition hover:bg-surface-raised hover:text-text-secondary"
+                        >
+                          {c}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <span
                   className={`shrink-0 rounded-full px-2.5 py-1 font-mono text-[11px] tracking-wide ${
@@ -254,7 +269,7 @@ export default async function ToolDetailPage({
                 </span>
               </div>
 
-              {/* 実績バー：ダウンロード数・いいね数 */}
+              {/* 実績バー：ダウンロード数・いいね数・閲覧数 */}
               <div className="mb-6 flex flex-wrap items-center gap-2">
                 <span className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-[13px] text-text-secondary">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-ai">
@@ -269,6 +284,13 @@ export default async function ToolDetailPage({
                     <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
                   </svg>
                   いいね {tool.likes}
+                </span>
+                <span className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-[13px] text-text-secondary">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted">
+                    <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </svg>
+                  閲覧 {formatInstalls(tool.views)}
                 </span>
               </div>
 

@@ -12,6 +12,7 @@ export type DraftInitialValues = {
   tagline: string;
   description: string;
   category: string;
+  categories: string[];
   price: number;
   runtime: "cloud" | "local";
   platforms: string[];
@@ -57,6 +58,19 @@ export default function SubmitClient({
   );
   const [newGalleryFiles, setNewGalleryFiles] = useState<File[]>([]);
   const [galleryError, setGalleryError] = useState<string | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    initialDraft?.categories?.length
+      ? initialDraft.categories
+      : initialDraft?.category
+        ? [initialDraft.category]
+        : []
+  );
+
+  function toggleCategory(c: string) {
+    setSelectedCategories((prev) =>
+      prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
+    );
+  }
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isSavingDraft, startSaveDraft] = useTransition();
@@ -157,6 +171,10 @@ export default function SubmitClient({
 
   function handleFormAction(formData: FormData) {
     setError(null);
+    if (selectedCategories.length === 0) {
+      setError("カテゴリを少なくとも1つ選んでください");
+      return;
+    }
     if (fileTooLarge) {
       setError(
         `ファイルサイズが上限(${formatFileSize(MAX_TOOL_FILE_SIZE)})を超えています`
@@ -602,23 +620,35 @@ export default function SubmitClient({
                 />
               </Field>
 
-              {/* カテゴリ */}
-              <Field label="カテゴリ" required>
-                <select
-                  name="category"
-                  required
-                  defaultValue={initialDraft?.category ?? ""}
-                  className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
-                >
-                  <option value="" disabled>
-                    選択してください
-                  </option>
+              {/* カテゴリ（複数選択可） */}
+              <Field label="カテゴリ（複数選択可）" required>
+                <div className="flex flex-wrap gap-2">
                   {categories.map((c) => (
-                    <option key={c} value={c}>
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => toggleCategory(c)}
+                      className={`rounded-full border px-3.5 py-1.5 text-[13px] transition ${
+                        selectedCategories.includes(c)
+                          ? "border-accent-signal/40 bg-accent-signal/10 text-accent-signal"
+                          : "border-border text-text-secondary hover:border-border-strong"
+                      }`}
+                    >
                       {c}
-                    </option>
+                    </button>
                   ))}
-                </select>
+                </div>
+                <input
+                  type="hidden"
+                  name="categories"
+                  value={selectedCategories.join(",")}
+                  readOnly
+                />
+                {selectedCategories.length === 0 && (
+                  <p className="mt-2 text-[12px] text-text-dim">
+                    少なくとも1つ選んでください
+                  </p>
+                )}
               </Field>
 
               {/* 対応環境 */}

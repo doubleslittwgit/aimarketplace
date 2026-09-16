@@ -107,7 +107,9 @@ export async function updateTool(
   const name = String(formData.get("name") || "").trim();
   const tagline = String(formData.get("tagline") || "").trim();
   const description = String(formData.get("description") || "").trim();
-  const category = String(formData.get("category") || "").trim();
+  const categoriesRaw = String(formData.get("categories") || "");
+  const categoriesList = categoriesRaw ? categoriesRaw.split(",").filter(Boolean) : [];
+  const category = categoriesList[0] ?? "";
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)));
   const platformsRaw = String(formData.get("platforms") || "");
@@ -120,7 +122,7 @@ export async function updateTool(
   const uploadedThumbnail =
     thumbnail instanceof File && thumbnail.size > 0 ? thumbnail : null;
 
-  if (!name || !tagline || !description || !category) {
+  if (!name || !tagline || !description || categoriesList.length === 0) {
     return { error: "必須項目が入力されていません" };
   }
   if (Number.isNaN(price)) {
@@ -202,6 +204,7 @@ export async function updateTool(
       tagline,
       description,
       category,
+      categories: categoriesList,
       price,
       platforms,
       min_os_version: minOsVersion,

@@ -56,15 +56,13 @@ export default function ToolCard({ tool }: { tool: Tool }) {
               {tool.likes}
             </span>
           )}
-          {tool.views > 0 && (
-            <span className="flex items-center gap-1 rounded-full bg-bg/90 px-2 py-0.5 text-[11px] font-medium text-text-secondary shadow-sm backdrop-blur-sm">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted">
-                <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
-                <circle cx="12" cy="12" r="2.5" />
-              </svg>
-              {formatInstalls(tool.views)}
-            </span>
-          )}
+          <span className="flex items-center gap-1 rounded-full bg-bg/90 px-2 py-0.5 text-[11px] font-medium text-text-secondary shadow-sm backdrop-blur-sm">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted">
+              <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
+              <circle cx="12" cy="12" r="2.5" />
+            </svg>
+            {formatInstalls(tool.views)}
+          </span>
         </div>
       </div>
 
@@ -85,6 +83,25 @@ export default function ToolCard({ tool }: { tool: Tool }) {
         <p className="line-clamp-2 text-[13px] leading-relaxed text-text-secondary">
           {tool.tagline}
         </p>
+
+        {/* カテゴリ */}
+        {tool.categories.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1">
+            {tool.categories.slice(0, 2).map((c) => (
+              <span
+                key={c}
+                className="rounded-full bg-surface-raised px-2 py-0.5 text-[10px] text-text-muted"
+              >
+                {c}
+              </span>
+            ))}
+            {tool.categories.length > 2 && (
+              <span className="text-[10px] text-text-dim">
+                +{tool.categories.length - 2}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* 出品者 */}
         <div className="mt-1 flex items-center gap-1.5">

@@ -12,6 +12,7 @@ type Tool = {
   tagline: string;
   description: string;
   category: string;
+  categories: string[] | null;
   price: number;
   runtime: "cloud" | "local";
   platforms: string[] | null;
@@ -33,6 +34,15 @@ export default function EditToolClient({
   hasPurchases: boolean;
 }) {
   const [price, setPrice] = useState(String(tool.price));
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    tool.categories?.length ? tool.categories : tool.category ? [tool.category] : []
+  );
+
+  function toggleCategory(c: string) {
+    setSelectedCategories((prev) =>
+      prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
+    );
+  }
   const [platforms, setPlatforms] = useState<string[]>(tool.platforms ?? []);
   const [minOsVersion, setMinOsVersion] = useState(tool.min_os_version ?? "");
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
@@ -139,6 +149,10 @@ export default function EditToolClient({
 
   function handleFormAction(formData: FormData) {
     setError(null);
+    if (selectedCategories.length === 0) {
+      setError("カテゴリを少なくとも1つ選んでください");
+      return;
+    }
     if (fileTooLarge) {
       setError(`ファイルサイズが上限(${formatFileSize(MAX_TOOL_FILE_SIZE)})を超えています`);
       return;
@@ -456,20 +470,35 @@ export default function EditToolClient({
             />
           </Field>
 
-          {/* カテゴリ */}
-          <Field label="カテゴリ" required>
-            <select
-              name="category"
-              required
-              defaultValue={tool.category}
-              className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
-            >
+          {/* カテゴリ（複数選択可） */}
+          <Field label="カテゴリ（複数選択可）" required>
+            <div className="flex flex-wrap gap-2">
               {categories.map((c) => (
-                <option key={c} value={c}>
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => toggleCategory(c)}
+                  className={`rounded-full border px-3.5 py-1.5 text-[13px] transition ${
+                    selectedCategories.includes(c)
+                      ? "border-accent-signal/40 bg-accent-signal/10 text-accent-signal"
+                      : "border-border text-text-secondary hover:border-border-strong"
+                  }`}
+                >
                   {c}
-                </option>
+                </button>
               ))}
-            </select>
+            </div>
+            <input
+              type="hidden"
+              name="categories"
+              value={selectedCategories.join(",")}
+              readOnly
+            />
+            {selectedCategories.length === 0 && (
+              <p className="mt-2 text-[12px] text-text-dim">
+                少なくとも1つ選んでください
+              </p>
+            )}
           </Field>
 
           {/* 対応OS（ローカル実行のみ） */}

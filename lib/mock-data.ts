@@ -5,6 +5,7 @@ export type Tool = {
   tagline: string;
   description: string;
   category: string;
+  categories: string[];
   price: number; // 0 = free
   version: string;
   installs: number;
@@ -69,6 +70,7 @@ export const tools: Tool[] = [
     description:
       "アップロードした請求書PDFをAIが自動解析し、金額・日付・取引先を抽出してCSV/Excelに出力します。経理担当者の月次集計時間を大幅に削減。",
     category: "自動化・ワークフロー",
+    categories: ["自動化・ワークフロー"],
     price: 1200,
     version: "2.4.0",
     installs: 842,
@@ -87,6 +89,7 @@ export const tools: Tool[] = [
     description:
       "長尺動画をアップロードすると、シーンの切り替わりを検出しPremiere Pro / DaVinci Resolve用のマーカーファイルを生成します。",
     category: "動画・画像編集",
+    categories: ["動画・画像編集"],
     price: 0,
     version: "1.9.2",
     installs: 3021,
@@ -105,6 +108,7 @@ export const tools: Tool[] = [
     description:
       "CSVで顧客の利用ログをアップロードすると、解約しそうな顧客を上位順にランキング表示。営業チームの優先順位付けに。",
     category: "データ分析",
+    categories: ["データ分析"],
     price: 2400,
     version: "0.8.1",
     installs: 214,
@@ -123,6 +127,7 @@ export const tools: Tool[] = [
     description:
       "リポジトリを接続すると、コミット履歴からその週の作業内容を自然な日本語でまとめたレポートを自動生成します。週報作成が不要に。",
     category: "開発者ツール",
+    categories: ["開発者ツール"],
     price: 500,
     version: "3.1.0",
     installs: 1508,
@@ -141,6 +146,7 @@ export const tools: Tool[] = [
     description:
       "商品名と特徴を入力するだけで、Meta広告・Google広告向けのコピーをトーン違いで大量生成。A/Bテストの初動を高速化します。",
     category: "マーケティング",
+    categories: ["マーケティング"],
     price: 800,
     version: "1.3.4",
     installs: 967,
@@ -159,6 +165,7 @@ export const tools: Tool[] = [
     description:
       "参考画像をドラッグ＆ドロップすると、主要カラーを抽出しFigma Variables用のJSONとして書き出します。デザインシステム構築を高速化。",
     category: "デザイン",
+    categories: ["デザイン"],
     price: 0,
     version: "2.0.0",
     installs: 4102,

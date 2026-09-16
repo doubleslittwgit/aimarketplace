@@ -18,6 +18,7 @@ type LikedRow = {
     name: string;
     tagline: string;
     category: string;
+    categories: string[] | null;
     price: number;
     runtime: "cloud" | "local";
     thumbnail_url: string | null;
@@ -45,7 +46,7 @@ export default async function LikesPage() {
   const { data } = await supabase
     .from("tool_likes")
     .select(
-      "created_at, tools:tool_id(id, slug, name, tagline, category, price, runtime, thumbnail_url, install_count, like_count, view_count, updated_at, status, author_id, profiles:author_id(display_name, handle))"
+      "created_at, tools:tool_id(id, slug, name, tagline, category, price, runtime, thumbnail_url, install_count, like_count, view_count, categories, updated_at, status, author_id, profiles:author_id(display_name, handle))"
     )
     .order("created_at", { ascending: false });
 
@@ -64,6 +65,7 @@ export default async function LikesPage() {
         tagline: t.tagline,
         description: "",
         category: t.category,
+        categories: t.categories?.length ? t.categories : [t.category],
         price: t.price,
         version: "",
         installs: t.install_count,

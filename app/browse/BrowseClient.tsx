@@ -9,9 +9,11 @@ type SortKey = "new" | "popular" | "price_asc" | "price_desc";
 export default function BrowseClient({
   initialTools,
   initialQuery = "",
+  initialCategory = "すべて",
 }: {
   initialTools: Tool[];
   initialQuery?: string;
+  initialCategory?: string;
 }) {
   const [query, setQuery] = useState(initialQuery);
   // ヘッダーの検索から /browse?q=... に遷移してきた場合に入力欄を追随させる。
@@ -21,7 +23,13 @@ export default function BrowseClient({
     setSyncedQuery(initialQuery);
     setQuery(initialQuery);
   }
-  const [activeCategory, setActiveCategory] = useState<string>("すべて");
+  const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
+  // 商品詳細ページのカテゴリタグから /browse?category=... に遷移してきた場合も同様に追随させる
+  const [syncedCategory, setSyncedCategory] = useState(initialCategory);
+  if (initialCategory !== syncedCategory) {
+    setSyncedCategory(initialCategory);
+    setActiveCategory(initialCategory);
+  }
   const [sort, setSort] = useState<SortKey>("new");
 
   const filtered = useMemo(() => {
@@ -32,7 +40,7 @@ export default function BrowseClient({
         t.tagline.toLowerCase().includes(query.toLowerCase()) ||
         t.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase()));
       const matchesCategory =
-        activeCategory === "すべて" || t.category === activeCategory;
+        activeCategory === "すべて" || t.categories.includes(activeCategory);
       return matchesQuery && matchesCategory;
     });
 

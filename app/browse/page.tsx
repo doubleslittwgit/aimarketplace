@@ -20,6 +20,7 @@ async function loadRealTools(): Promise<Tool[]> {
       tagline: r.tagline,
       description: r.description,
       category: r.category,
+      categories: r.categories?.length ? r.categories : [r.category],
       price: r.price,
       version: r.version,
       installs: r.install_count,
@@ -40,9 +41,9 @@ async function loadRealTools(): Promise<Tool[]> {
 export default async function BrowsePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; category?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, category } = await searchParams;
   const realTools = await loadRealTools();
   // 実際の出品を先頭に、デモ用のツールをその後ろに並べる
   const allTools = [...realTools, ...mockTools];
@@ -51,7 +52,11 @@ export default async function BrowsePage({
     <>
       <Header />
       <main className="flex-1">
-        <BrowseClient initialTools={allTools} initialQuery={q ?? ""} />
+        <BrowseClient
+          initialTools={allTools}
+          initialQuery={q ?? ""}
+          initialCategory={category ?? "すべて"}
+        />
       </main>
       <Footer />
     </>

@@ -113,7 +113,9 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   const name = String(formData.get("name") || "").trim();
   const tagline = String(formData.get("tagline") || "").trim();
   const description = String(formData.get("description") || "").trim();
-  const category = String(formData.get("category") || "").trim();
+  const categoriesRaw = String(formData.get("categories") || "");
+  const categoriesList = categoriesRaw ? categoriesRaw.split(",").filter(Boolean) : [];
+  const category = categoriesList[0] ?? "";
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)));
@@ -126,7 +128,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   const thumbnail = formData.get("thumbnail");
   const uploadedThumbnail = thumbnail instanceof File && thumbnail.size > 0 ? thumbnail : null;
 
-  if (!name || !tagline || !description || !category) {
+  if (!name || !tagline || !description || categoriesList.length === 0) {
     return { error: "必須項目が入力されていません" };
   }
   if (Number.isNaN(price)) {
@@ -273,6 +275,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       tagline,
       description,
       category,
+      categories: categoriesList,
       price,
       runtime,
       platforms,
@@ -365,7 +368,9 @@ export async function saveDraft(
   const name = String(formData.get("name") || "").trim();
   const tagline = String(formData.get("tagline") || "").trim();
   const description = String(formData.get("description") || "").trim();
-  const category = String(formData.get("category") || "").trim();
+  const categoriesRaw = String(formData.get("categories") || "");
+  const categoriesList = categoriesRaw ? categoriesRaw.split(",").filter(Boolean) : [];
+  const category = categoriesList[0] ?? "";
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)) || 0);
@@ -459,6 +464,7 @@ export async function saveDraft(
       tagline,
       description,
       category,
+      categories: categoriesList,
       price,
       runtime,
       platforms,
