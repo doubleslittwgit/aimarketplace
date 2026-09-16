@@ -245,24 +245,8 @@ export default async function ToolDetailPage({
                 </span>
               </div>
 
-              {/* Manifest strip */}
-              <div className="mb-6 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-border bg-surface px-4 py-3 font-mono text-[12px] text-text-muted">
-                <span>
-                  pkg://{tool.slug}
-                  <span className="text-text-secondary">@v{tool.version}</span>
-                </span>
-                <span className="flex items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2 2 7l10 5 10-5-10-5Z" opacity=".5" />
-                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
-                  </svg>
-                  {formatInstalls(tool.installs)} installs
-                </span>
-                <span>♥ {tool.likes}</span>
-              </div>
-
               {/* Preview image */}
-              <div className="mb-8 flex h-72 items-center justify-center overflow-hidden rounded-xl border border-border bg-gradient-to-br from-surface-raised to-surface">
+              <div className="relative mb-8 flex h-72 items-center justify-center overflow-hidden rounded-xl border border-border bg-gradient-to-br from-surface-raised to-surface">
                 {tool.thumbnailUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -275,6 +259,25 @@ export default async function ToolDetailPage({
                     {tool.name.slice(0, 2).toUpperCase()}
                   </span>
                 )}
+
+                {/* 入手実績バッジ（インストール数・いいね数） */}
+                <div className="absolute left-3 top-3 flex items-center gap-2">
+                  <span className="flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 text-[12px] font-medium text-white backdrop-blur-sm">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2 2 7l10 5 10-5-10-5Z" opacity=".5" />
+                      <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                    {formatInstalls(tool.installs)}
+                  </span>
+                  {tool.likes > 0 && (
+                    <span className="flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 text-[12px] font-medium text-white backdrop-blur-sm">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
+                      </svg>
+                      {tool.likes}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Description */}

@@ -32,6 +32,25 @@ export default function ToolCard({ tool }: { tool: Tool }) {
         >
           {tool.runtime === "local" ? "LOCAL" : "CLOUD"}
         </span>
+
+        {/* 入手実績バッジ（インストール数・いいね数） */}
+        <div className="absolute left-3 top-3 flex items-center gap-1.5">
+          <span className="flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2 2 7l10 5 10-5-10-5Z" opacity=".5" />
+              <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+            {formatInstalls(tool.installs)}
+          </span>
+          {tool.likes > 0 && (
+            <span className="flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
+              </svg>
+              {tool.likes}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Body */}
@@ -51,31 +70,6 @@ export default function ToolCard({ tool }: { tool: Tool }) {
         <p className="line-clamp-2 text-[13px] leading-relaxed text-text-secondary">
           {tool.tagline}
         </p>
-      </div>
-
-      {/* Manifest strip — the signature element */}
-      <div className="flex items-center justify-between border-t border-border bg-bg/40 px-4 py-2.5 font-mono text-[11px] text-text-dim">
-        <span className="truncate">
-          pkg://{tool.slug}
-          <span className="text-text-muted">@v{tool.version}</span>
-        </span>
-        <span className="flex shrink-0 items-center gap-2.5 pl-2 text-text-muted">
-          {tool.likes > 0 && (
-            <span className="flex items-center gap-1">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
-              </svg>
-              {tool.likes}
-            </span>
-          )}
-          <span className="flex items-center gap-1">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2 2 7l10 5 10-5-10-5Z" opacity=".5" />
-              <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
-            {formatInstalls(tool.installs)}
-          </span>
-        </span>
       </div>
     </Link>
   );
