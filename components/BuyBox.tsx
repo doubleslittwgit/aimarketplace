@@ -18,6 +18,7 @@ export default function BuyBox({
   isDemo,
 }: Props) {
   const isFree = tool.price === 0;
+  const isCloud = tool.runtime === "cloud";
 
   return (
     <div className="rounded-xl border border-border bg-surface p-5">
@@ -41,13 +42,18 @@ export default function BuyBox({
           isLoggedIn={isLoggedIn}
           isOwner={isOwner}
           isPurchased={isPurchased}
+          isCloud={isCloud}
         />
       )}
 
       <p className="mb-4 text-center text-[12px] text-text-dim">
-        {isPurchased
-          ? "購入済みです。いつでもダウンロードできます"
-          : "購入後、すぐにダウンロードできます"}
+        {isCloud
+          ? isPurchased
+            ? "購入済みです。いつでもブラウザで開けます"
+            : "購入後、すぐにブラウザで使い始められます"
+          : isPurchased
+            ? "購入済みです。いつでもダウンロードできます"
+            : "購入後、すぐにダウンロードできます"}
       </p>
 
       <dl className="space-y-2.5 border-t border-border pt-4 font-mono text-[12px]">

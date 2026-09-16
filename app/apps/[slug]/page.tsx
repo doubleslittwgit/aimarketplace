@@ -254,7 +254,7 @@ export default async function ToolDetailPage({
                     <path d="m7 10 5 5 5-5" />
                     <path d="M5 21h14" />
                   </svg>
-                  ダウンロード {formatInstalls(tool.installs)}
+                  {tool.runtime === "cloud" ? "利用" : "ダウンロード"} {formatInstalls(tool.installs)}
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-[13px] text-text-secondary">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-accent-signal">

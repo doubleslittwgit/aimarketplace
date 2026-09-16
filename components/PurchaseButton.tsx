@@ -11,6 +11,7 @@ type Props = {
   isLoggedIn: boolean;
   isOwner: boolean;
   isPurchased: boolean;
+  isCloud: boolean;
 };
 
 export default function PurchaseButton({
@@ -19,6 +20,7 @@ export default function PurchaseButton({
   isLoggedIn,
   isOwner,
   isPurchased,
+  isCloud,
 }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -37,9 +39,24 @@ export default function PurchaseButton({
     return (
       <a
         href={`/apps/download/${toolId}`}
-        className="mb-3 block w-full rounded-lg bg-accent-success py-3 text-center text-sm font-medium text-white transition hover:brightness-105"
+        // クラウド型は外部サイトへ移動するだけなので、BuildBayのタブは
+        // 残したまま新しいタブで開く（ファイルのダウンロードは同じタブでよい）
+        target={isCloud ? "_blank" : undefined}
+        rel={isCloud ? "noopener noreferrer" : undefined}
+        className="mb-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent-success py-3 text-center text-sm font-medium text-white transition hover:brightness-105"
       >
-        ダウンロード
+        {isCloud ? (
+          <>
+            ブラウザで開く
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <path d="M15 3h6v6" />
+              <path d="M10 14 21 3" />
+            </svg>
+          </>
+        ) : (
+          "ダウンロード"
+        )}
       </a>
     );
   }
@@ -61,6 +78,14 @@ export default function PurchaseButton({
     });
   }
 
+  const actionLabel = isCloud
+    ? isFree
+      ? "無料で使う"
+      : "購入して使う"
+    : isFree
+      ? "無料でダウンロード"
+      : "購入してダウンロード";
+
   return (
     <>
       <button
@@ -69,11 +94,7 @@ export default function PurchaseButton({
         disabled={isPending}
         className="mb-3 w-full rounded-lg bg-accent-signal py-3 text-sm font-medium text-white transition hover:brightness-105 disabled:opacity-60"
       >
-        {isPending
-          ? "処理中..."
-          : isFree
-            ? "無料でダウンロード"
-            : "購入してダウンロード"}
+        {isPending ? "処理中..." : actionLabel}
       </button>
 
       {error && (
