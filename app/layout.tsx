@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import CookieConsentBanner from "@/components/CookieConsentBanner";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -55,7 +56,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="ja"
       className={`${spaceGrotesk.variable} ${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-bg bg-noise">{children}</body>
+      <body className="min-h-full flex flex-col bg-bg bg-noise">
+        {children}
+        <CookieConsentBanner />
+      </body>
     </html>
   );
 }

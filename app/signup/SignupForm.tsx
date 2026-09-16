@@ -2,16 +2,23 @@
 
 import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { signup } from "@/app/auth/actions";
 import GoogleButton from "@/components/GoogleButton";
 
 export default function SignupForm() {
   const [error, setError] = useState<string | null>(null);
+  const [agreed, setAgreed] = useState(false);
+  const [showAgreementError, setShowAgreementError] = useState(false);
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/";
 
   function handleSubmit(formData: FormData) {
+    if (!agreed) {
+      setShowAgreementError(true);
+      return;
+    }
     setError(null);
     startTransition(async () => {
       const result = await signup(formData);
@@ -19,9 +26,40 @@ export default function SignupForm() {
     });
   }
 
+  const agreementCheckbox = (
+    <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-text-secondary">
+      <input
+        type="checkbox"
+        checked={agreed}
+        onChange={(e) => {
+          setAgreed(e.target.checked);
+          if (e.target.checked) setShowAgreementError(false);
+        }}
+        className="mt-0.5 h-4 w-4 shrink-0 rounded border-border text-accent-signal focus:ring-accent-signal"
+      />
+      <span>
+        <Link href="/legal/terms" target="_blank" className="text-accent-ai underline underline-offset-2">
+          利用規約
+        </Link>
+        と
+        <Link href="/legal/privacy" target="_blank" className="text-accent-ai underline underline-offset-2">
+          プライバシーポリシー
+        </Link>
+        に同意します
+      </span>
+    </label>
+  );
+
   return (
     <div className="space-y-5">
-      <GoogleButton next={next} />
+      {agreementCheckbox}
+      {showAgreementError && (
+        <p className="-mt-3 text-[12px] text-accent-danger">
+          登録には利用規約・プライバシーポリシーへの同意が必要です
+        </p>
+      )}
+
+      <GoogleButton next={next} disabled={!agreed} />
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
@@ -86,10 +124,6 @@ export default function SignupForm() {
       >
         {isPending ? "登録中..." : "登録する"}
       </button>
-
-      <p className="text-center text-[11px] leading-relaxed text-text-dim">
-        登録すると、利用規約とプライバシーポリシーに同意したものとみなされます
-      </p>
       </form>
     </div>
   );
