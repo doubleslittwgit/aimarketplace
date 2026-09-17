@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -61,9 +62,19 @@ async function loadTool(
       fileSizeBytes: row.file_size_bytes ?? null,
     };
 
-    // 閲覧数（インプレッション表示用）。失敗しても閲覧自体は成立させたいので、
-    // ページ表示をブロックしない範囲でエラーは無視する。
-    void supabase.rpc("increment_view_count", { p_tool_id: row.id });
+    // 閲覧数（インプレッション表示用）。
+    // 以前は await せず投げっぱなしにしていたが、Vercelのサーバー関数は
+    // レスポンス送信後すぐに環境を止めてしまうことがあり、
+    // 待たない通信は完了する前に消えてしまっていた（実際、全ツールの
+    // 閲覧数が0のままになっていた）。after() はレスポンスを遅らせずに、
+    // かつ実行環境を処理が終わるまで保持してくれるので、これに置き換える。
+    after(async () => {
+      try {
+        await supabase.rpc("increment_view_count", { p_tool_id: row.id });
+      } catch {
+        // 閲覧数の記録に失敗しても、ユーザー体験には影響させない
+      }
+    });
 
     const { data: relatedRows } = await supabase
       .from("tools")
