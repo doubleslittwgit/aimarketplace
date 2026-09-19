@@ -86,7 +86,7 @@ export default async function Home() {
               <FloatingCard
                 tool={floatTools[0]}
                 index={0}
-                className="left-0 top-6 hidden -rotate-3 xl:block"
+                className="left-0 top-16 hidden -rotate-3 xl:block"
                 anim="float-a"
                 duration="9s"
                 tCategories={tCategories}
@@ -97,7 +97,7 @@ export default async function Home() {
               <FloatingCard
                 tool={floatTools[1]}
                 index={1}
-                className="left-2 top-[46%] hidden rotate-2 xl:block"
+                className="left-2 top-[52%] hidden rotate-2 xl:block"
                 anim="float-b"
                 duration="11s"
                 tCategories={tCategories}
@@ -108,7 +108,7 @@ export default async function Home() {
               <FloatingCard
                 tool={floatTools[2]}
                 index={2}
-                className="right-0 top-10 hidden rotate-3 xl:block"
+                className="right-0 top-20 hidden rotate-3 xl:block"
                 anim="float-c"
                 duration="10s"
                 tCategories={tCategories}
@@ -119,7 +119,7 @@ export default async function Home() {
               <FloatingCard
                 tool={floatTools[3]}
                 index={3}
-                className="right-2 top-[50%] hidden -rotate-2 xl:block"
+                className="right-2 top-[56%] hidden -rotate-2 xl:block"
                 anim="float-d"
                 duration="12.5s"
                 tCategories={tCategories}
@@ -127,11 +127,15 @@ export default async function Home() {
               />
             )}
 
-            <div className="mx-auto flex max-w-xl flex-col items-center text-center">
+            <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="BuildBay" className="h-20 w-auto sm:h-28 md:h-32" />
+              <img
+                src="/logo.png"
+                alt="BuildBay"
+                className="h-32 w-auto sm:h-48 md:h-56 lg:h-64"
+              />
 
-              <h1 className="mt-10 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-text-primary sm:text-[4rem] md:text-[4.5rem]">
+              <h1 className="mt-8 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-text-primary sm:text-[4rem] md:text-[4.5rem]">
                 {t("heroLine1")}
                 <br />
                 <span className="text-accent-signal">{t("heroLine2")}</span>
@@ -143,7 +147,7 @@ export default async function Home() {
               <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                 <a
                   href="/submit"
-                  className="flex items-center gap-2 rounded-full bg-accent-signal px-7 py-3.5 text-[15px] font-medium text-white transition hover:brightness-110"
+                  className="flex items-center gap-2 rounded-full bg-accent-signal px-7 py-3.5 text-[15px] font-medium text-white shadow-[0_10px_30px_-6px_rgba(255,107,74,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-6px_rgba(255,107,74,0.65)] hover:brightness-110"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 16V4M12 4 7 9M12 4l5 5" />
@@ -153,7 +157,7 @@ export default async function Home() {
                 </a>
                 <a
                   href="/browse"
-                  className="flex items-center gap-2 rounded-full border border-border bg-bg px-7 py-3.5 text-[15px] font-medium text-text-primary transition hover:border-border-strong hover:bg-surface"
+                  className="flex items-center gap-2 rounded-full border border-border bg-bg px-7 py-3.5 text-[15px] font-medium text-text-primary shadow-[0_10px_30px_-8px_rgba(37,99,180,0.35)] transition hover:-translate-y-0.5 hover:border-border-strong hover:bg-surface hover:shadow-[0_14px_36px_-8px_rgba(37,99,180,0.45)]"
                 >
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <circle cx="11" cy="11" r="7" />
@@ -177,11 +181,11 @@ export default async function Home() {
 
         {/* Category rail */}
         <section className="border-b border-border">
-          <div className="mx-auto max-w-7xl px-6 pb-6">
-            <h2 className="font-display text-2xl font-semibold text-text-primary">
+          <div className="mx-auto max-w-7xl px-6 pb-8 pt-10">
+            <h2 className="font-display text-3xl font-semibold text-text-primary sm:text-4xl">
               {t("browseHeading")}
             </h2>
-            <p className="mt-1 text-[13px] text-text-muted">
+            <p className="mt-2 text-[14px] text-text-muted">
               {t("browseHeadingSub")}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
@@ -200,7 +204,7 @@ export default async function Home() {
         {/* Listing */}
         <section className="mx-auto max-w-7xl px-6 py-14">
           <div className="mb-6 flex items-baseline justify-between">
-            <h2 className="font-display text-xl font-semibold text-text-primary">
+            <h2 className="font-display text-3xl font-semibold text-text-primary sm:text-4xl">
               {t("newTools")}
             </h2>
             <a href="/browse" className="text-[13px] text-text-muted hover:text-text-primary">
@@ -267,7 +271,7 @@ function FloatingCard({
       href={`/apps/${tool.slug}`}
       data-float
       style={{ animation: `${anim} ${duration} ease-in-out infinite` }}
-      className={`absolute z-10 w-72 overflow-hidden rounded-2xl border border-border bg-bg/95 shadow-[0_20px_45px_-16px_rgba(22,35,45,0.22)] backdrop-blur-sm transition hover:border-border-strong ${className}`}
+      className={`absolute z-10 w-72 overflow-hidden rounded-2xl border border-border bg-bg/95 shadow-[0_24px_50px_-14px_rgba(30,78,150,0.38)] backdrop-blur-sm transition hover:border-border-strong hover:shadow-[0_28px_58px_-14px_rgba(30,78,150,0.48)] ${className}`}
     >
       {/* サムネイル */}
       <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-surface-raised to-surface">
