@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { logout } from "@/app/auth/actions";
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export default function UserMenu({ email, displayName, avatarUrl, isAdmin }: Props) {
+  const t = useTranslations("userMenu");
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -67,7 +69,7 @@ export default function UserMenu({ email, displayName, avatarUrl, isAdmin }: Pro
         <div className="absolute right-0 top-[calc(100%+8px)] w-56 rounded-lg border border-border bg-surface py-1.5 shadow-lg">
           <div className="border-b border-border px-3.5 py-2.5">
             <p className="truncate text-[13px] font-medium text-text-primary">
-              {displayName || "未設定のユーザー"}
+              {displayName || t("unnamedUser")}
             </p>
             <p className="truncate text-[12px] text-text-muted">{email}</p>
           </div>
@@ -77,28 +79,28 @@ export default function UserMenu({ email, displayName, avatarUrl, isAdmin }: Pro
             className="block px-3.5 py-2 text-[13px] text-text-secondary hover:bg-surface-raised hover:text-text-primary"
             onClick={() => setOpen(false)}
           >
-            マイページ
+            {t("dashboard")}
           </Link>
           <Link
             href="/submit"
             className="block px-3.5 py-2 text-[13px] text-text-secondary hover:bg-surface-raised hover:text-text-primary"
             onClick={() => setOpen(false)}
           >
-            ツールを公開する
+            {t("publishTool")}
           </Link>
           <Link
             href="/seller"
             className="block px-3.5 py-2 text-[13px] text-text-secondary hover:bg-surface-raised hover:text-text-primary"
             onClick={() => setOpen(false)}
           >
-            売上の受け取り設定
+            {t("sellerSettings")}
           </Link>
           <Link
             href="/mfa"
             className="block px-3.5 py-2 text-[13px] text-text-secondary hover:bg-surface-raised hover:text-text-primary"
             onClick={() => setOpen(false)}
           >
-            二段階認証
+            {t("mfa")}
           </Link>
 
           {isAdmin && (
@@ -109,14 +111,14 @@ export default function UserMenu({ email, displayName, avatarUrl, isAdmin }: Pro
                 className="block px-3.5 py-2 text-[13px] text-accent-ai hover:bg-surface-raised"
                 onClick={() => setOpen(false)}
               >
-                出品の審査（管理者）
+                {t("adminReview")}
               </Link>
               <Link
                 href="/admin/reports"
                 className="block px-3.5 py-2 text-[13px] text-accent-ai hover:bg-surface-raised"
                 onClick={() => setOpen(false)}
               >
-                通報の確認（管理者）
+                {t("adminReports")}
               </Link>
             </>
           )}
@@ -128,7 +130,7 @@ export default function UserMenu({ email, displayName, avatarUrl, isAdmin }: Pro
               type="submit"
               className="block w-full px-3.5 py-2 text-left text-[13px] text-accent-danger hover:bg-surface-raised"
             >
-              ログアウト
+              {t("logout")}
             </button>
           </form>
         </div>

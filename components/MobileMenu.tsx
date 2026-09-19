@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import HeaderSearch from "@/components/HeaderSearch";
 
 /**
@@ -13,6 +14,7 @@ import HeaderSearch from "@/components/HeaderSearch";
  * そのため、このコンポーネントの有無はPC版の見た目に影響しない。
  */
 export default function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const t = useTranslations("header");
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -31,7 +33,7 @@ export default function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label="メニュー"
+        aria-label={t("menuAriaLabel")}
         aria-expanded={open}
         className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-surface hover:text-text-primary"
       >
@@ -57,14 +59,14 @@ export default function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
               onClick={() => setOpen(false)}
               className="rounded-lg px-3 py-2.5 text-text-secondary transition hover:bg-surface hover:text-text-primary"
             >
-              探す
+              {t("browse")}
             </Link>
             <Link
               href="/submit"
               onClick={() => setOpen(false)}
               className="rounded-lg px-3 py-2.5 text-text-secondary transition hover:bg-surface hover:text-text-primary"
             >
-              出品する
+              {t("submit")}
             </Link>
             {!isLoggedIn && (
               <Link
@@ -72,7 +74,7 @@ export default function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-3 py-2.5 text-text-secondary transition hover:bg-surface hover:text-text-primary"
               >
-                ログイン
+                {t("login")}
               </Link>
             )}
           </nav>

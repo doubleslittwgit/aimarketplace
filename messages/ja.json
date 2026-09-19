@@ -1,0 +1,90 @@
+{
+  "common": {
+    "free": "無料"
+  },
+  "header": {
+    "searchPlaceholder": "ツールを検索... 例: 請求書 自動化",
+    "searchAriaLabel": "ツールを検索",
+    "searchButtonAriaLabel": "検索",
+    "browse": "探す",
+    "submit": "出品する",
+    "login": "ログイン",
+    "publish": "公開する",
+    "menuAriaLabel": "メニュー",
+    "languageAriaLabel": "言語を選択"
+  },
+  "userMenu": {
+    "dashboard": "マイページ",
+    "publishTool": "ツールを公開する",
+    "sellerSettings": "売上の受け取り設定",
+    "mfa": "二段階認証",
+    "adminReview": "出品の審査（管理者）",
+    "adminReports": "通報の確認（管理者）",
+    "logout": "ログアウト",
+    "unnamedUser": "未設定のユーザー"
+  },
+  "notifications": {
+    "title": "通知",
+    "markAllRead": "すべて既読にする",
+    "empty": "通知はまだありません。",
+    "justNow": "たった今",
+    "minutesAgo": "{minutes}分前",
+    "hoursAgo": "{hours}時間前",
+    "daysAgo": "{days}日前",
+    "bellAriaLabel": "通知"
+  },
+  "footer": {
+    "tagline": "AIで生まれたツールが集まる港。",
+    "terms": "利用規約",
+    "privacy": "プライバシーポリシー",
+    "tokushoho": "特定商取引法に基づく表記",
+    "contact": "お問い合わせ",
+    "copyright": "© {year} BuildBay"
+  },
+  "home": {
+    "heroLine1": "あなたのアイデアが、",
+    "heroLine2": "世界を変える。",
+    "heroSubcopy": "AIを活用して開発したツールを、無料でも有料でも公開・販売。",
+    "ctaPublish": "ツールを公開する",
+    "ctaBrowse": "マーケットを見る",
+    "statPublished": "公開ツール",
+    "statDevelopers": "開発者",
+    "statDownloads": "累計ダウンロード",
+    "statPayoutRate": "開発者への還元率",
+    "categoryAll": "すべて",
+    "newTools": "新着ツール",
+    "viewAll": "すべて見る →"
+  },
+  "activity": {
+    "purchased": "{by}さんが{tool}を{price}で購入",
+    "published": "{by}さんが{tool}を公開",
+    "updated": "{by}さんが{tool}を{version}に更新"
+  },
+  "categories": {
+    "automation": "自動化・ワークフロー",
+    "devTools": "開発者ツール",
+    "dataAnalysis": "データ分析",
+    "aiChatbot": "AI・チャットボット",
+    "videoPhotoEditing": "動画・画像編集",
+    "photography": "写真",
+    "design": "デザイン",
+    "writing": "文章・ライティング",
+    "music": "音楽・オーディオ",
+    "marketing": "マーケティング",
+    "socialCommunity": "SNS・コミュニティ",
+    "ecommerce": "eコマース・物販",
+    "businessProductivity": "ビジネス・生産性",
+    "finance": "金融・家計管理",
+    "education": "教育・学習",
+    "translation": "翻訳・言語学習",
+    "games": "ゲーム",
+    "lifestyle": "ライフスタイル",
+    "health": "健康・フィットネス",
+    "cooking": "料理・レシピ",
+    "travel": "旅行",
+    "parenting": "子育て・育児",
+    "pets": "ペット",
+    "utilities": "ユーティリティ",
+    "other": "その他"
+  }
+}

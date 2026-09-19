@@ -1,12 +1,15 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import HeaderSearch from "@/components/HeaderSearch";
 import NotificationBell from "@/components/NotificationBell";
 import MobileMenu from "@/components/MobileMenu";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { createClient } from "@/lib/supabase/server";
 import UserMenu from "@/components/UserMenu";
 
 export default async function Header() {
+  const t = await getTranslations("header");
   const supabase = await createClient();
   const {
     data: { user },
@@ -77,14 +80,16 @@ export default async function Header() {
             href="/browse"
             className="hidden text-text-secondary transition hover:text-text-primary sm:block"
           >
-            探す
+            {t("browse")}
           </Link>
           <Link
             href="/submit"
             className="hidden text-text-secondary transition hover:text-text-primary sm:block"
           >
-            出品する
+            {t("submit")}
           </Link>
+
+          <LanguageSwitcher />
 
           {user ? (
             <>
@@ -101,7 +106,7 @@ export default async function Header() {
               href="/login"
               className="text-text-secondary transition hover:text-text-primary"
             >
-              ログイン
+              {t("login")}
             </Link>
           )}
 
@@ -116,7 +121,7 @@ export default async function Header() {
             href="/submit"
             className="hidden rounded-md bg-accent-signal px-3.5 py-2 font-medium text-white transition hover:brightness-110 sm:block"
           >
-            公開する
+            {t("publish")}
           </Link>
 
           {/* スマホ幅でのみ表示するハンバーガーメニュー（検索・探す・出品する・ログイン） */}

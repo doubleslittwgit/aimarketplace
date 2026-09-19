@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 /**
  * 全ページ共通のフッター。
@@ -7,6 +8,8 @@ import Link from "next/link";
  * 3箇所修正する必要があった。ここに集約している。
  */
 export default function Footer({ width = "max-w-7xl" }: { width?: string }) {
+  const t = useTranslations("footer");
+
   return (
     <footer className="border-t border-border">
       <div className={`mx-auto ${width} px-6 py-10 text-[13px] text-text-dim`}>
@@ -15,29 +18,27 @@ export default function Footer({ width = "max-w-7xl" }: { width?: string }) {
             <span className="font-display font-semibold text-text-muted">
               BuildBay
             </span>
-            <p className="mt-1.5 text-text-dim">
-              AIで生まれたツールが集まる港。
-            </p>
+            <p className="mt-1.5 text-text-dim">{t("tagline")}</p>
           </div>
 
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <Link href="/legal/terms" className="hover:text-text-secondary">
-              利用規約
+              {t("terms")}
             </Link>
             <Link href="/legal/privacy" className="hover:text-text-secondary">
-              プライバシーポリシー
+              {t("privacy")}
             </Link>
             <Link href="/legal/tokushoho" className="hover:text-text-secondary">
-              特定商取引法に基づく表記
+              {t("tokushoho")}
             </Link>
             <Link href="/legal/contact" className="hover:text-text-secondary">
-              お問い合わせ
+              {t("contact")}
             </Link>
           </div>
         </div>
 
         <p className="mt-8 font-mono text-[12px] text-text-dim">
-          © {new Date().getFullYear()} BuildBay
+          {t("copyright", { year: new Date().getFullYear() })}
         </p>
       </div>
     </footer>

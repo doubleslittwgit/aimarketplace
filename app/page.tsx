@@ -1,8 +1,10 @@
+import { getTranslations } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ActivityTicker from "@/components/ActivityTicker";
 import ToolCard from "@/components/ToolCard";
 import { createClient } from "@/lib/supabase/server";
+import { categoryToSlug } from "@/lib/category-slugs";
 import {
   tools as mockTools,
   categories,
@@ -47,6 +49,9 @@ async function loadRealTools(): Promise<Tool[]> {
 }
 
 export default async function Home() {
+  const t = await getTranslations("home");
+  const tCategories = await getTranslations("categories");
+  const tCommon = await getTranslations("common");
   const realTools = await loadRealTools();
   // 実際の出品を先頭に、足りない分をデモ用ツールで埋める（最大6件表示）
   const tools = [...realTools, ...mockTools].slice(0, 6);
@@ -77,6 +82,8 @@ export default async function Home() {
                 className="left-0 top-4 hidden -rotate-3 xl:block"
                 anim="float-a"
                 duration="9s"
+                tCategories={tCategories}
+                freeLabel={tCommon("free")}
               />
             )}
             {floatTools[1] && (
@@ -86,6 +93,8 @@ export default async function Home() {
                 className="left-2 bottom-6 hidden rotate-2 xl:block"
                 anim="float-b"
                 duration="11s"
+                tCategories={tCategories}
+                freeLabel={tCommon("free")}
               />
             )}
             {floatTools[2] && (
@@ -95,6 +104,8 @@ export default async function Home() {
                 className="right-0 top-10 hidden rotate-3 xl:block"
                 anim="float-c"
                 duration="10s"
+                tCategories={tCategories}
+                freeLabel={tCommon("free")}
               />
             )}
             {floatTools[3] && (
@@ -104,6 +115,8 @@ export default async function Home() {
                 className="right-2 bottom-0 hidden -rotate-2 xl:block"
                 anim="float-d"
                 duration="12.5s"
+                tCategories={tCategories}
+                freeLabel={tCommon("free")}
               />
             )}
 
@@ -112,12 +125,12 @@ export default async function Home() {
               <img src="/logo.png" alt="BuildBay" className="h-20 w-auto sm:h-28 md:h-32" />
 
               <h1 className="mt-10 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-text-primary sm:text-[4rem] md:text-[4.5rem]">
-                あなたのアイデアが、
+                {t("heroLine1")}
                 <br />
-                <span className="text-accent-signal">世界を変える。</span>
+                <span className="text-accent-signal">{t("heroLine2")}</span>
               </h1>
               <p className="mt-6 max-w-md text-base leading-relaxed text-text-secondary sm:text-lg">
-                AIを活用して開発したツールを、無料でも有料でも公開・販売。
+                {t("heroSubcopy")}
               </p>
 
               <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -129,7 +142,7 @@ export default async function Home() {
                     <path d="M12 16V4M12 4 7 9M12 4l5 5" />
                     <path d="M20 16.5v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2" />
                   </svg>
-                  ツールを公開する
+                  {t("ctaPublish")}
                 </a>
                 <a
                   href="/browse"
@@ -139,16 +152,16 @@ export default async function Home() {
                     <circle cx="11" cy="11" r="7" />
                     <path d="m21 21-4.3-4.3" />
                   </svg>
-                  マーケットを見る
+                  {t("ctaBrowse")}
                 </a>
               </div>
             </div>
 
             <div className="mx-auto mt-24 flex max-w-2xl flex-wrap justify-center gap-x-12 gap-y-5 border-t border-border pt-9 font-mono text-sm">
-              <Stat label="公開ツール" value={`${mockTools.length * 253 + realTools.length}+`} />
-              <Stat label="開発者" value="480+" />
-              <Stat label="累計ダウンロード" value="52.3k" />
-              <Stat label="開発者への還元率" value="80%" accent />
+              <Stat label={t("statPublished")} value={`${mockTools.length * 253 + realTools.length}+`} />
+              <Stat label={t("statDevelopers")} value="480+" />
+              <Stat label={t("statDownloads")} value="52.3k" />
+              <Stat label={t("statPayoutRate")} value="80%" accent />
             </div>
           </div>
         </section>
@@ -156,9 +169,9 @@ export default async function Home() {
         {/* Category rail */}
         <section className="border-y border-border bg-surface/40">
           <div className="mx-auto flex max-w-7xl flex-wrap gap-2 px-6 py-4">
-            <CategoryPill label="すべて" active />
+            <CategoryPill label={t("categoryAll")} active />
             {categories.map((c) => (
-              <CategoryPill key={c} label={c} />
+              <CategoryPill key={c} label={tCategories(categoryToSlug(c))} />
             ))}
           </div>
         </section>
@@ -167,10 +180,10 @@ export default async function Home() {
         <section className="mx-auto max-w-7xl px-6 py-14">
           <div className="mb-6 flex items-baseline justify-between">
             <h2 className="font-display text-xl font-semibold text-text-primary">
-              新着ツール
+              {t("newTools")}
             </h2>
             <a href="/browse" className="text-[13px] text-text-muted hover:text-text-primary">
-              すべて見る →
+              {t("viewAll")}
             </a>
           </div>
 
@@ -211,12 +224,16 @@ function FloatingCard({
   className,
   anim,
   duration,
+  tCategories,
+  freeLabel,
 }: {
   tool: Tool;
   index: number;
   className: string;
   anim: "float-a" | "float-b" | "float-c" | "float-d";
   duration: string;
+  tCategories: Awaited<ReturnType<typeof getTranslations>>;
+  freeLabel: string;
 }) {
   const initials = tool.author.name
     .split(" ")
@@ -270,7 +287,7 @@ function FloatingCard({
                 key={c}
                 className="rounded-full bg-surface-raised px-2 py-0.5 text-[10px] text-text-muted"
               >
-                {c}
+                {tCategories(categoryToSlug(c))}
               </span>
             ))}
             {tool.categories.length > 2 && (
@@ -316,7 +333,7 @@ function FloatingCard({
             </span>
           </span>
           <span className={tool.price === 0 ? "text-text-muted" : "text-accent-signal"}>
-            {formatPrice(tool.price)}
+            {formatPrice(tool.price, freeLabel)}
           </span>
         </div>
       </div>

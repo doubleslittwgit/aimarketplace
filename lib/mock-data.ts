@@ -182,8 +182,8 @@ export function getToolBySlug(slug: string) {
   return tools.find((t) => t.slug === slug);
 }
 
-export function formatPrice(price: number) {
-  return price === 0 ? "無料" : `¥${price.toLocaleString()}`;
+export function formatPrice(price: number, freeLabel = "無料") {
+  return price === 0 ? freeLabel : `¥${price.toLocaleString()}`;
 }
 
 export function formatInstalls(n: number) {

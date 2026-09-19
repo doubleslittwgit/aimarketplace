@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import "./globals.css";
 
@@ -55,15 +57,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="ja"
+      lang={locale}
       className={`${spaceGrotesk.variable} ${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg bg-noise">
-        {children}
-        <CookieConsentBanner />
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          {children}
+          <CookieConsentBanner />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

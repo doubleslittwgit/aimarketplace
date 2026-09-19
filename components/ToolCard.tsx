@@ -1,7 +1,10 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Tool, formatInstalls, formatPrice } from "@/lib/mock-data";
+import { categoryToSlug } from "@/lib/category-slugs";
 
 export default function ToolCard({ tool }: { tool: Tool }) {
+  const t = useTranslations();
   const isFree = tool.price === 0;
   const initials = tool.author.name
     .split(" ")
@@ -77,7 +80,7 @@ export default function ToolCard({ tool }: { tool: Tool }) {
               isFree ? "text-text-muted" : "text-accent-signal"
             }`}
           >
-            {formatPrice(tool.price)}
+            {formatPrice(tool.price, t("common.free"))}
           </span>
         </div>
         <p className="line-clamp-2 text-[13px] leading-relaxed text-text-secondary">
@@ -92,7 +95,7 @@ export default function ToolCard({ tool }: { tool: Tool }) {
                 key={c}
                 className="rounded-full bg-surface-raised px-2 py-0.5 text-[10px] text-text-muted"
               >
-                {c}
+                {t(`categories.${categoryToSlug(c)}`)}
               </span>
             ))}
             {tool.categories.length > 2 && (

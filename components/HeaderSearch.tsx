@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 /**
  * ヘッダーの検索欄。
@@ -9,6 +10,7 @@ import { useState } from "react";
  * 送信すると /browse?q=... に遷移し、BrowseClientが初期クエリとして拾う。
  */
 export default function HeaderSearch() {
+  const t = useTranslations("header");
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("q") ?? "";
@@ -32,7 +34,7 @@ export default function HeaderSearch() {
       <button
         type="button"
         onClick={submit}
-        aria-label="検索"
+        aria-label={t("searchButtonAriaLabel")}
         className="shrink-0 transition hover:text-text-secondary"
       >
         <svg
@@ -57,8 +59,8 @@ export default function HeaderSearch() {
             submit();
           }
         }}
-        placeholder="ツールを検索... 例: 請求書 自動化"
-        aria-label="ツールを検索"
+        placeholder={t("searchPlaceholder")}
+        aria-label={t("searchAriaLabel")}
         className="w-full bg-transparent font-mono text-[13px] text-text-primary outline-none placeholder:text-text-dim"
       />
     </div>

@@ -1,0 +1,90 @@
+{
+  "common": {
+    "free": "免費"
+  },
+  "header": {
+    "searchPlaceholder": "搜尋工具...例如：發票 自動化",
+    "searchAriaLabel": "搜尋工具",
+    "searchButtonAriaLabel": "搜尋",
+    "browse": "探索",
+    "submit": "上架工具",
+    "login": "登入",
+    "publish": "上架工具",
+    "menuAriaLabel": "選單",
+    "languageAriaLabel": "選擇語言"
+  },
+  "userMenu": {
+    "dashboard": "會員中心",
+    "publishTool": "上架工具",
+    "sellerSettings": "收款設定",
+    "mfa": "雙重驗證",
+    "adminReview": "上架審核（管理員）",
+    "adminReports": "檢舉處理（管理員）",
+    "logout": "登出",
+    "unnamedUser": "未設定使用者"
+  },
+  "notifications": {
+    "title": "通知",
+    "markAllRead": "全部標為已讀",
+    "empty": "目前還沒有通知。",
+    "justNow": "剛剛",
+    "minutesAgo": "{minutes} 分鐘前",
+    "hoursAgo": "{hours} 小時前",
+    "daysAgo": "{days} 天前",
+    "bellAriaLabel": "通知"
+  },
+  "footer": {
+    "tagline": "由 AI 打造的工具，齊聚一堂。",
+    "terms": "使用條款",
+    "privacy": "隱私權政策",
+    "tokushoho": "日本特定商業交易法標示",
+    "contact": "聯絡我們",
+    "copyright": "© {year} BuildBay"
+  },
+  "home": {
+    "heroLine1": "你的點子，",
+    "heroLine2": "將改變世界。",
+    "heroSubcopy": "把你用 AI 打造的工具，免費或付費公開販售。",
+    "ctaPublish": "上架工具",
+    "ctaBrowse": "瀏覽市集",
+    "statPublished": "已上架工具",
+    "statDevelopers": "開發者",
+    "statDownloads": "累計下載",
+    "statPayoutRate": "開發者分潤比例",
+    "categoryAll": "全部",
+    "newTools": "最新工具",
+    "viewAll": "查看全部 →"
+  },
+  "activity": {
+    "purchased": "{by} 以 {price} 購買了 {tool}",
+    "published": "{by} 上架了 {tool}",
+    "updated": "{by} 將 {tool} 更新至 {version}"
+  },
+  "categories": {
+    "automation": "自動化與工作流程",
+    "devTools": "開發者工具",
+    "dataAnalysis": "資料分析",
+    "aiChatbot": "AI・聊天機器人",
+    "videoPhotoEditing": "影片・圖像剪輯",
+    "photography": "攝影",
+    "design": "設計",
+    "writing": "文案・寫作",
+    "music": "音樂・音訊",
+    "marketing": "行銷",
+    "socialCommunity": "社群",
+    "ecommerce": "電商・零售",
+    "businessProductivity": "商務・生產力",
+    "finance": "理財・家計",
+    "education": "教育・學習",
+    "translation": "翻譯・語言學習",
+    "games": "遊戲",
+    "lifestyle": "生活風格",
+    "health": "健康・健身",
+    "cooking": "料理・食譜",
+    "travel": "旅遊",
+    "parenting": "育兒",
+    "pets": "寵物",
+    "utilities": "工具程式",
+    "other": "其他"
+  }
+}
