@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { formatPrice } from "@/lib/mock-data";
 import { approveTool, rejectTool, unpublishToolByAdmin } from "./actions";
 
@@ -45,13 +46,6 @@ const RISK_STYLE: Record<string, string> = {
   unknown: "bg-surface-raised text-text-muted",
 };
 
-const RISK_LABEL: Record<string, string> = {
-  low: "AI判定: 低リスク",
-  medium: "AI判定: 要確認",
-  high: "AI判定: 高リスク",
-  unknown: "AI判定: 不明",
-};
-
 export default function AdminReviewClient({
   tools,
   publishedTools,
@@ -59,35 +53,36 @@ export default function AdminReviewClient({
   tools: PendingTool[];
   publishedTools: PublishedTool[];
 }) {
+  const t = useTranslations("admin");
   const [tab, setTab] = useState<"pending" | "published">("pending");
 
   return (
     <main className="flex-1">
       <div className="mx-auto max-w-3xl px-6 py-10">
         <h1 className="mb-1 font-display text-2xl font-semibold text-text-primary">
-          出品の審査
+          {t("reviewTitle")}
         </h1>
         <p className="mb-6 text-[13px] text-text-muted">
-          AIレビューはあくまで参考情報です。最終判断はご自身で行ってください。
+          {t("reviewSubtitle")}
         </p>
 
         <div className="mb-6 flex gap-1 border-b border-border">
           <TabButton
             active={tab === "pending"}
             onClick={() => setTab("pending")}
-            label={`審査待ち (${tools.length})`}
+            label={t("pendingTab", { count: tools.length })}
           />
           <TabButton
             active={tab === "published"}
             onClick={() => setTab("published")}
-            label={`公開中のツール管理 (${publishedTools.length})`}
+            label={t("publishedTab", { count: publishedTools.length })}
           />
         </div>
 
         {tab === "pending" ? (
           tools.length === 0 ? (
             <div className="rounded-xl border border-border bg-surface p-8 text-center text-[13px] text-text-muted">
-              審査待ちのツールはありません。
+              {t("noPending")}
             </div>
           ) : (
             <div className="space-y-5">
@@ -98,7 +93,7 @@ export default function AdminReviewClient({
           )
         ) : publishedTools.length === 0 ? (
           <div className="rounded-xl border border-border bg-surface p-8 text-center text-[13px] text-text-muted">
-            公開中のツールはありません。
+            {t("noPublished")}
           </div>
         ) : (
           <div className="space-y-3">
@@ -137,6 +132,8 @@ function TabButton({
 }
 
 function PublishedToolRow({ tool }: { tool: PublishedTool }) {
+  const t = useTranslations("admin");
+  const tCommon = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [showForm, setShowForm] = useState(false);
   const [reason, setReason] = useState("");
@@ -155,7 +152,7 @@ function PublishedToolRow({ tool }: { tool: PublishedTool }) {
   if (done) {
     return (
       <div className="rounded-xl border border-border bg-surface p-4 text-[13px] text-text-muted">
-        「{tool.name}」を非公開にしました。
+        {t("unpublishedNotice", { name: tool.name })}
       </div>
     );
   }
@@ -169,7 +166,8 @@ function PublishedToolRow({ tool }: { tool: PublishedTool }) {
           </h2>
           <p className="mt-0.5 text-[12px] text-text-muted">{tool.tagline}</p>
           <p className="mt-0.5 font-mono text-[11px] text-text-dim">
-            出品者: {tool.profiles?.display_name ?? "不明"}（@{tool.profiles?.handle}） ・{" "}
+            {t("seller", { name: tool.profiles?.display_name ?? t("unknown") })}
+            （@{tool.profiles?.handle}） ・{" "}
             {formatPrice(tool.price)} ・ {tool.category}
           </p>
         </div>
@@ -179,7 +177,7 @@ function PublishedToolRow({ tool }: { tool: PublishedTool }) {
           rel="noopener noreferrer"
           className="shrink-0 text-[12px] text-text-muted hover:underline"
         >
-          商品ページを見る
+          {t("viewPage")}
         </a>
       </div>
 
@@ -195,7 +193,7 @@ function PublishedToolRow({ tool }: { tool: PublishedTool }) {
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={2}
-            placeholder="非公開にする理由（出品者に表示されます）"
+            placeholder={t("unpublishReasonPlaceholder")}
             className="mb-2 w-full resize-none rounded-lg border border-border bg-bg px-3 py-2 text-[12px] text-text-primary outline-none focus:border-border-strong"
           />
           <div className="flex gap-2">
@@ -205,14 +203,14 @@ function PublishedToolRow({ tool }: { tool: PublishedTool }) {
               disabled={isPending}
               className="rounded-lg bg-accent-danger px-4 py-2 text-[12px] font-medium text-white transition hover:brightness-105 disabled:opacity-60"
             >
-              {isPending ? "処理中..." : "この理由で非公開にする"}
+              {isPending ? tCommon("processing") : t("unpublishConfirm")}
             </button>
             <button
               type="button"
               onClick={() => setShowForm(false)}
               className="rounded-lg border border-border px-4 py-2 text-[12px] text-text-secondary hover:bg-surface-raised"
             >
-              キャンセル
+              {t("cancel")}
             </button>
           </div>
         </div>
@@ -223,7 +221,7 @@ function PublishedToolRow({ tool }: { tool: PublishedTool }) {
             onClick={() => setShowForm(true)}
             className="rounded-lg border border-accent-danger/40 bg-bg px-4 py-2 text-[12px] font-medium text-accent-danger transition hover:bg-accent-danger/10"
           >
-            非公開にする
+            {t("unpublish")}
           </button>
         </div>
       )}
@@ -232,6 +230,8 @@ function PublishedToolRow({ tool }: { tool: PublishedTool }) {
 }
 
 function ReviewCard({ tool }: { tool: PendingTool }) {
+  const t = useTranslations("admin");
+  const tCommon = useTranslations("common");
   const [isApproving, startApprove] = useTransition();
   const [isRejecting, startReject] = useTransition();
   const [showRejectForm, setShowRejectForm] = useState(false);
@@ -260,12 +260,20 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
   if (done) {
     return (
       <div className="rounded-xl border border-border bg-surface p-5 text-[13px] text-text-muted">
-        「{tool.name}」を{done === "approved" ? "承認しました" : "却下しました"}。
+        {done === "approved"
+          ? t("approvedNotice", { name: tool.name })
+          : t("rejectedNotice", { name: tool.name })}
       </div>
     );
   }
 
   const risk = tool.ai_review_risk ?? "unknown";
+  const riskLabel = {
+    low: t("riskLow"),
+    medium: t("riskMedium"),
+    high: t("riskHigh"),
+    unknown: t("riskUnknown"),
+  }[risk];
 
   return (
     <div className="rounded-xl border border-border bg-surface p-5">
@@ -278,14 +286,15 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
             <span
               className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[10px] ${RISK_STYLE[risk]}`}
             >
-              {RISK_LABEL[risk]}
+              {riskLabel}
             </span>
           </div>
           <p className="mt-0.5 text-[12px] text-text-muted">{tool.tagline}</p>
           <p className="mt-0.5 font-mono text-[11px] text-text-dim">
-            出品者: {tool.profiles?.display_name ?? "不明"}（@{tool.profiles?.handle}） ・{" "}
+            {t("seller", { name: tool.profiles?.display_name ?? t("unknown") })}
+            （@{tool.profiles?.handle}） ・{" "}
             {formatPrice(tool.price)} ・ {tool.category} ・{" "}
-            {tool.runtime === "local" ? "ローカル実行" : "クラウド"}
+            {tool.runtime === "local" ? t("runtimeLocal") : t("runtimeCloud")}
           </p>
         </div>
         {tool.thumbnail_url && (
@@ -304,7 +313,7 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
 
       {tool.ai_review_summary && (
         <div className="mb-3 rounded-lg border border-border bg-bg p-3">
-          <p className="mb-1 text-[11px] font-medium text-text-muted">AIレビューの所見</p>
+          <p className="mb-1 text-[11px] font-medium text-text-muted">{t("aiReviewSummary")}</p>
           <p className="whitespace-pre-wrap text-[12px] leading-relaxed text-text-secondary">
             {tool.ai_review_summary}
           </p>
@@ -317,7 +326,7 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
             href={`/apps/download/${tool.id}`}
             className="text-accent-signal hover:underline"
           >
-            ファイルをダウンロードして確認
+            {t("downloadToCheck")}
           </a>
         )}
         {tool.runtime === "cloud" && tool.demo_url && (
@@ -327,7 +336,7 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
             rel="noopener noreferrer"
             className="text-accent-signal hover:underline"
           >
-            デモURLを開く
+            {t("openDemoUrl")}
           </a>
         )}
         <a
@@ -336,7 +345,7 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
           rel="noopener noreferrer"
           className="text-text-muted hover:underline"
         >
-          商品ページのプレビュー
+          {t("previewPage")}
         </a>
       </div>
 
@@ -352,7 +361,7 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={3}
-            placeholder="却下理由（出品者に表示されます）"
+            placeholder={t("rejectReasonPlaceholder")}
             className="mb-2 w-full resize-none rounded-lg border border-border bg-bg px-3 py-2 text-[12px] text-text-primary outline-none focus:border-border-strong"
           />
           <div className="flex gap-2">
@@ -362,14 +371,14 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
               disabled={isRejecting}
               className="rounded-lg bg-accent-danger px-4 py-2 text-[12px] font-medium text-white transition hover:brightness-105 disabled:opacity-60"
             >
-              {isRejecting ? "処理中..." : "この理由で却下する"}
+              {isRejecting ? tCommon("processing") : t("rejectConfirm")}
             </button>
             <button
               type="button"
               onClick={() => setShowRejectForm(false)}
               className="rounded-lg border border-border px-4 py-2 text-[12px] text-text-secondary hover:bg-surface-raised"
             >
-              キャンセル
+              {t("cancel")}
             </button>
           </div>
         </div>
@@ -381,14 +390,14 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
             disabled={isApproving}
             className="rounded-lg bg-accent-success px-4 py-2 text-[12px] font-medium text-white transition hover:brightness-105 disabled:opacity-60"
           >
-            {isApproving ? "処理中..." : "承認して公開"}
+            {isApproving ? tCommon("processing") : t("approve")}
           </button>
           <button
             type="button"
             onClick={() => setShowRejectForm(true)}
             className="rounded-lg border border-accent-danger/40 bg-bg px-4 py-2 text-[12px] font-medium text-accent-danger transition hover:bg-accent-danger/10"
           >
-            却下する
+            {t("reject")}
           </button>
         </div>
       )}
