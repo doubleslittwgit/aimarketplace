@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import OtpInput from "@/components/OtpInput";
 
 export default function MfaVerifyClient() {
+  const t = useTranslations("mfa");
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -60,7 +62,7 @@ export default function MfaVerifyClient() {
       if (verifyError) {
         setError(
           verifyError.message === "Invalid TOTP code"
-            ? "コードが正しくありません。認証アプリの最新の6桁をもう一度入力してください。"
+            ? t("invalidCode")
             : verifyError.message
         );
         setCode("");
@@ -74,8 +76,8 @@ export default function MfaVerifyClient() {
     } catch (err) {
       setError(
         err instanceof Error
-          ? `予期しないエラーが発生しました: ${err.message}`
-          : "予期しないエラーが発生しました。もう一度お試しください。"
+          ? t("unexpectedError", { message: err.message })
+          : t("unexpectedErrorGeneric")
       );
     } finally {
       setSubmitting(false);
@@ -114,21 +116,21 @@ export default function MfaVerifyClient() {
         </div>
 
         <h1 className="mb-1.5 font-display text-lg font-semibold text-text-primary">
-          本人確認が必要です
+          {t("verifyTitle")}
         </h1>
         <p className="mb-1 text-[13px] text-text-secondary">
-          スマートフォンの
+          {t("verifyInstructionPrefix")}
           <span className="mx-1 inline-flex items-center gap-1 rounded bg-accent-ai-dim px-1.5 py-0.5 align-middle text-[12px] font-semibold text-accent-ai">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="5" y="2" width="14" height="20" rx="2" />
               <path d="M12 18h.01" />
             </svg>
-            認証アプリ
+            {t("authApp")}
           </span>
-          を開き、
+          {t("verifyInstructionSuffix")}
         </p>
         <p className="mb-6 text-[13px] text-text-secondary">
-          表示されている<span className="font-semibold text-text-primary">6桁のコード</span>を入力してください。
+          {t("codePrefix")}<span className="font-semibold text-text-primary">{t("codeHighlight")}</span>{t("codeSuffix")}
         </p>
 
         {error && (
@@ -146,7 +148,7 @@ export default function MfaVerifyClient() {
           />
         </div>
         <p className="mb-6 text-[11px] text-text-dim">
-          コードは30秒ごとに更新されます。最新の番号を入力してください。
+          {t("codeRefreshNotice")}
         </p>
 
         <button
@@ -154,7 +156,7 @@ export default function MfaVerifyClient() {
           disabled={code.length !== 6 || submitting}
           className="w-full rounded-lg bg-accent-signal py-2.5 text-[13px] font-medium text-white transition hover:brightness-105 disabled:opacity-50"
         >
-          {submitting ? "確認中..." : "確認する"}
+          {submitting ? t("verifying") : t("verifyButton")}
         </button>
       </form>
     </div>

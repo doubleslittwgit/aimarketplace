@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import OtpInput from "@/components/OtpInput";
 
@@ -59,6 +60,7 @@ function StepNumber({ n }: { n: number }) {
 }
 
 export default function MfaSettingsClient() {
+  const t = useTranslations("mfa");
   const supabase = createClient();
 
   const [loading, setLoading] = useState(true);
@@ -140,7 +142,7 @@ export default function MfaSettingsClient() {
       if (verifyError) {
         setError(
           verifyError.message === "Invalid TOTP code"
-            ? "コードが正しくありません。認証アプリの最新の6桁をもう一度入力してください。"
+            ? t("invalidCode")
             : verifyError.message
         );
         setCode("");
@@ -156,8 +158,8 @@ export default function MfaSettingsClient() {
     } catch (err) {
       setError(
         err instanceof Error
-          ? `予期しないエラーが発生しました: ${err.message}`
-          : "予期しないエラーが発生しました。もう一度お試しください。"
+          ? t("unexpectedError", { message: err.message })
+          : t("unexpectedErrorGeneric")
       );
     } finally {
       setVerifying(false);
@@ -184,14 +186,14 @@ export default function MfaSettingsClient() {
         </div>
         <div>
           <h1 className="font-display text-2xl font-semibold text-text-primary">
-            二段階認証
+            {t("title")}
           </h1>
           <p className="mt-1 text-[13px] text-text-muted">
             <span className="inline-flex items-center gap-1 rounded bg-surface-raised px-1.5 py-0.5 font-semibold text-text-secondary">
               <PhoneIcon />
-              認証アプリ
+              {t("authApp")}
             </span>
-            (Google Authenticator、1Password等)を使って、ログインをもう一段階安全にします。
+            {t("subtitle")}
           </p>
         </div>
       </div>
@@ -203,17 +205,17 @@ export default function MfaSettingsClient() {
       )}
 
       {loading ? (
-        <p className="text-[13px] text-text-muted">読み込み中...</p>
+        <p className="text-[13px] text-text-muted">{t("loading")}</p>
       ) : enrolling ? (
         <div className="rounded-xl border border-border bg-surface p-6">
           <div className="mb-5 flex items-start gap-3">
             <StepNumber n={1} />
             <div className="pt-0.5">
               <p className="text-[13px] font-medium text-text-primary">
-                認証アプリでQRコードを読み取る
+                {t("step1Title")}
               </p>
               <p className="mt-0.5 text-[12px] text-text-muted">
-                スマートフォンの認証アプリを開き、下のQRコードをスキャンしてください。
+                {t("step1Body")}
               </p>
             </div>
           </div>
@@ -222,20 +224,20 @@ export default function MfaSettingsClient() {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={qrCode}
-              alt="QRコード"
+              alt={t("qrAlt")}
               className="mx-auto mb-3 h-44 w-44 rounded-lg border border-border bg-white p-2"
             />
           )}
           {secret && (
             <details className="mb-6 text-center">
               <summary className="cursor-pointer text-[12px] text-accent-ai hover:underline">
-                QRコードを読み取れない場合
+                {t("cantScan")}
               </summary>
               <p className="mt-2 break-all rounded-lg bg-surface-raised px-3 py-2 font-mono text-[12px] text-text-secondary">
                 {secret}
               </p>
               <p className="mt-1 text-[11px] text-text-dim">
-                このキーを認証アプリに手動で入力してください。
+                {t("enterManually")}
               </p>
             </details>
           )}
@@ -244,7 +246,7 @@ export default function MfaSettingsClient() {
             <StepNumber n={2} />
             <div className="w-full pt-0.5">
               <p className="mb-3 text-[13px] font-medium text-text-primary">
-                表示された6桁のコードを入力する
+                {t("step2Title")}
               </p>
               <OtpInput
                 value={code}
@@ -261,13 +263,13 @@ export default function MfaSettingsClient() {
               disabled={code.length !== 6 || verifying}
               className="flex-1 rounded-lg bg-accent-signal py-2.5 text-[13px] font-medium text-white transition hover:brightness-105 disabled:opacity-50"
             >
-              {verifying ? "確認中..." : "確認して有効化"}
+              {verifying ? t("verifying") : t("verifyAndEnable")}
             </button>
             <button
               onClick={cancelEnroll}
               className="rounded-lg border border-border px-4 py-2.5 text-[13px] text-text-secondary hover:bg-surface-raised"
             >
-              キャンセル
+              {t("cancel")}
             </button>
           </div>
         </div>
@@ -281,10 +283,10 @@ export default function MfaSettingsClient() {
             </span>
             <div>
               <p className="text-[14px] font-semibold text-text-primary">
-                二段階認証は有効です
+                {t("enabledTitle")}
               </p>
               <p className="text-[12px] text-text-muted">
-                ログイン時に認証アプリのコード入力が必要になります
+                {t("enabledSubtitle")}
               </p>
             </div>
           </div>
@@ -295,13 +297,13 @@ export default function MfaSettingsClient() {
             >
               <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-text-secondary">
                 <PhoneIcon className="text-text-muted" />
-                認証アプリ
+                {t("authApp")}
               </span>
               <button
                 onClick={() => unenroll(f.id)}
                 className="text-[13px] text-accent-danger hover:underline"
               >
-                解除
+                {t("remove")}
               </button>
             </div>
           ))}
@@ -312,13 +314,13 @@ export default function MfaSettingsClient() {
             <ShieldIcon />
           </div>
           <p className="mb-4 text-[13px] text-text-muted">
-            二段階認証はまだ設定されていません。
+            {t("notSetUp")}
           </p>
           <button
             onClick={startEnroll}
             className="rounded-lg bg-accent-signal px-5 py-2.5 text-[13px] font-medium text-white transition hover:brightness-105"
           >
-            二段階認証を有効にする
+            {t("enable")}
           </button>
         </div>
       )}

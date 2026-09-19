@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import Header from "@/components/Header";
 import SellerOnboardingButton from "@/components/SellerOnboardingButton";
 import { createClient } from "@/lib/supabase/server";
@@ -9,24 +10,20 @@ import {
   sellerAccountFieldsFromStripe,
 } from "@/lib/stripe/seller-account";
 
-/** Stripeが返す要件キーを、出品者に分かる日本語に置き換える */
-const REQUIREMENT_LABELS: Record<string, string> = {
-  "business_profile.url": "事業のウェブサイトURL",
-  "business_profile.product_description": "販売する商品の説明",
-  "business_profile.mcc": "事業カテゴリー",
-  "external_account": "入金先の銀行口座",
-  "individual.verification.document": "本人確認書類",
-  "individual.address.line1": "住所",
-  "individual.dob.day": "生年月日",
-  "individual.first_name": "名前",
-  "individual.last_name": "姓",
-  "individual.phone": "電話番号",
-  "tos_acceptance.date": "利用規約への同意",
+/** Stripeが返す要件キーを、翻訳キーに対応付ける */
+const REQUIREMENT_KEYS: Record<string, string> = {
+  "business_profile.url": "businessUrl",
+  "business_profile.product_description": "productDescription",
+  "business_profile.mcc": "businessCategory",
+  external_account: "bankAccount",
+  "individual.verification.document": "idDocument",
+  "individual.address.line1": "address",
+  "individual.dob.day": "dob",
+  "individual.first_name": "firstName",
+  "individual.last_name": "lastName",
+  "individual.phone": "phone",
+  "tos_acceptance.date": "tosAcceptance",
 };
-
-function requirementLabel(key: string) {
-  return REQUIREMENT_LABELS[key] ?? key;
-}
 
 export default async function SellerPage({
   searchParams,
@@ -34,6 +31,11 @@ export default async function SellerPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const params = await searchParams;
+  const t = await getTranslations("seller");
+  const requirementLabel = (key: string) => {
+    const reqKey = REQUIREMENT_KEYS[key];
+    return reqKey ? t(`requirements.${reqKey}`) : key;
+  };
   const supabase = await createClient();
   const {
     data: { user },
@@ -79,12 +81,10 @@ export default async function SellerPage({
       <main className="flex-1">
         <div className="mx-auto max-w-xl px-6 py-10">
           <h1 className="mb-1 font-display text-2xl font-semibold text-text-primary">
-            売上の受け取り設定
+            {t("title")}
           </h1>
           <p className="mb-8 text-[13px] text-text-muted">
-            有料ツールを販売するには、売上を受け取るための登録が必要です。
-            登録はStripeの画面で行われ、BuildBayが銀行口座や本人確認書類を
-            預かることはありません。
+            {t("subtitle")}
           </p>
 
           {canReceive ? (
@@ -106,25 +106,25 @@ export default async function SellerPage({
                 </span>
                 <div>
                   <p className="text-[14px] font-semibold text-text-primary">
-                    受け取り設定は完了しています
+                    {t("completeTitle")}
                   </p>
                   <p className="text-[12px] text-text-muted">
-                    有料ツールを販売でき、売上は自動で入金されます
+                    {t("completeSubtitle")}
                   </p>
                 </div>
               </div>
 
               <div className="mb-4 rounded-lg border border-border bg-bg px-4 py-3 text-[12px] text-text-muted">
-                販売価格から
+                {t("feeNoticePrefix")}
                 <span className="mx-1 font-semibold text-text-secondary">
-                  プラットフォーム手数料20%
+                  {t("feeNoticeHighlight")}
                 </span>
-                を差し引いた金額が、購入と同時にあなたのStripeアカウントへ送金されます。
+                {t("feeNoticeSuffix")}
               </div>
 
               <SellerOnboardingButton
                 action="dashboard"
-                label="Stripeで売上・入金先を確認する"
+                label={t("checkPayouts")}
                 variant="secondary"
               />
             </div>
@@ -148,10 +148,10 @@ export default async function SellerPage({
                 </span>
                 <div>
                   <p className="text-[14px] font-semibold text-text-primary">
-                    登録がまだ完了していません
+                    {t("inProgressTitle")}
                   </p>
                   <p className="text-[12px] text-text-muted">
-                    完了するまで有料ツールは販売できません
+                    {t("inProgressSubtitle")}
                   </p>
                 </div>
               </div>
@@ -159,7 +159,7 @@ export default async function SellerPage({
               {due.length > 0 && (
                 <div className="mb-4 rounded-lg border border-border bg-bg px-4 py-3">
                   <p className="mb-2 text-[12px] font-medium text-text-secondary">
-                    あと必要な情報
+                    {t("requirementsNeeded")}
                   </p>
                   <ul className="space-y-1">
                     {due.map((key: string) => (
@@ -177,20 +177,16 @@ export default async function SellerPage({
 
               <SellerOnboardingButton
                 action="onboarding"
-                label="登録を続ける"
+                label={t("continueRegistration")}
               />
             </div>
           ) : (
             <div className="rounded-xl border border-border bg-surface p-6">
               <p className="mb-1 text-[13px] font-medium text-text-primary">
-                登録の流れ
+                {t("registrationFlowTitle")}
               </p>
               <ol className="mb-5 space-y-2.5">
-                {[
-                  "Stripeの登録画面に移動します",
-                  "本人確認の情報と、入金先の銀行口座を登録します",
-                  "審査が通ると、有料ツールを販売できるようになります",
-                ].map((text, i) => (
+                {[t("step1"), t("step2"), t("step3")].map((text, i) => (
                   <li key={i} className="flex items-start gap-2.5">
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-signal text-[11px] font-semibold text-white">
                       {i + 1}
@@ -204,10 +200,10 @@ export default async function SellerPage({
 
               <SellerOnboardingButton
                 action="onboarding"
-                label="受け取り設定を始める"
+                label={t("startSetup")}
               />
               <p className="mt-3 text-center text-[11px] text-text-dim">
-                無料ツールの公開だけであれば、この設定は不要です
+                {t("freeNoSetupNeeded")}
               </p>
             </div>
           )}
@@ -217,7 +213,7 @@ export default async function SellerPage({
               href="/dashboard"
               className="text-[13px] text-accent-signal hover:underline"
             >
-              マイページに戻る
+              {t("backToDashboard")}
             </Link>
           </div>
         </div>

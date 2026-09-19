@@ -1,7 +1,8 @@
 {
   "common": {
     "free": "無料",
-    "unnamedDeveloper": "名前未設定の開発者"
+    "unnamedDeveloper": "名前未設定の開発者",
+    "processing": "処理中..."
   },
   "header": {
     "searchPlaceholder": "ツールを検索... 例: 請求書 自動化",
@@ -164,6 +165,71 @@
       "purchaseToReview": "購入すると、このツールのレビューを書けるようになります。",
       "anonymous": "匿名",
       "empty": "まだレビューはありません。"
+    }
+  },
+  "mfa": {
+    "title": "二段階認証",
+    "authApp": "認証アプリ",
+    "subtitle": "(Google Authenticator、1Password等)を使って、ログインをもう一段階安全にします。",
+    "loading": "読み込み中...",
+    "invalidCode": "コードが正しくありません。認証アプリの最新の6桁をもう一度入力してください。",
+    "unexpectedError": "予期しないエラーが発生しました: {message}",
+    "unexpectedErrorGeneric": "予期しないエラーが発生しました。もう一度お試しください。",
+    "step1Title": "認証アプリでQRコードを読み取る",
+    "step1Body": "スマートフォンの認証アプリを開き、下のQRコードをスキャンしてください。",
+    "qrAlt": "QRコード",
+    "cantScan": "QRコードを読み取れない場合",
+    "enterManually": "このキーを認証アプリに手動で入力してください。",
+    "step2Title": "表示された6桁のコードを入力する",
+    "verifying": "確認中...",
+    "verifyAndEnable": "確認して有効化",
+    "cancel": "キャンセル",
+    "enabledTitle": "二段階認証は有効です",
+    "enabledSubtitle": "ログイン時に認証アプリのコード入力が必要になります",
+    "remove": "解除",
+    "notSetUp": "二段階認証はまだ設定されていません。",
+    "enable": "二段階認証を有効にする",
+    "verifyTitle": "本人確認が必要です",
+    "verifyInstructionPrefix": "スマートフォンの",
+    "verifyInstructionSuffix": "を開き、",
+    "codePrefix": "表示されている",
+    "codeHighlight": "6桁のコード",
+    "codeSuffix": "を入力してください。",
+    "codeRefreshNotice": "コードは30秒ごとに更新されます。最新の番号を入力してください。",
+    "verifyButton": "確認する"
+  },
+  "seller": {
+    "title": "売上の受け取り設定",
+    "subtitle": "有料ツールを販売するには、売上を受け取るための登録が必要です。登録はStripeの画面で行われ、BuildBayが銀行口座や本人確認書類を預かることはありません。",
+    "completeTitle": "受け取り設定は完了しています",
+    "completeSubtitle": "有料ツールを販売でき、売上は自動で入金されます",
+    "feeNoticePrefix": "販売価格から",
+    "feeNoticeHighlight": "プラットフォーム手数料20%",
+    "feeNoticeSuffix": "を差し引いた金額が、購入と同時にあなたのStripeアカウントへ送金されます。",
+    "checkPayouts": "Stripeで売上・入金先を確認する",
+    "inProgressTitle": "登録がまだ完了していません",
+    "inProgressSubtitle": "完了するまで有料ツールは販売できません",
+    "requirementsNeeded": "あと必要な情報",
+    "continueRegistration": "登録を続ける",
+    "registrationFlowTitle": "登録の流れ",
+    "step1": "Stripeの登録画面に移動します",
+    "step2": "本人確認の情報と、入金先の銀行口座を登録します",
+    "step3": "審査が通ると、有料ツールを販売できるようになります",
+    "startSetup": "受け取り設定を始める",
+    "freeNoSetupNeeded": "無料ツールの公開だけであれば、この設定は不要です",
+    "backToDashboard": "マイページに戻る",
+    "requirements": {
+      "businessUrl": "事業のウェブサイトURL",
+      "productDescription": "販売する商品の説明",
+      "businessCategory": "事業カテゴリー",
+      "bankAccount": "入金先の銀行口座",
+      "idDocument": "本人確認書類",
+      "address": "住所",
+      "dob": "生年月日",
+      "firstName": "名前",
+      "lastName": "姓",
+      "phone": "電話番号",
+      "tosAcceptance": "利用規約への同意"
     }
   },
   "favorites": {

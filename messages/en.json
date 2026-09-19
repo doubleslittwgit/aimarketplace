@@ -1,7 +1,8 @@
 {
   "common": {
     "free": "Free",
-    "unnamedDeveloper": "Unnamed developer"
+    "unnamedDeveloper": "Unnamed developer",
+    "processing": "Processing..."
   },
   "header": {
     "searchPlaceholder": "Search tools... e.g. invoice automation",
@@ -164,6 +165,71 @@
       "purchaseToReview": "Purchase this tool to leave a review.",
       "anonymous": "Anonymous",
       "empty": "No reviews yet."
+    }
+  },
+  "mfa": {
+    "title": "Two-factor authentication",
+    "authApp": "Authenticator app",
+    "subtitle": "(Google Authenticator, 1Password, etc.) adds an extra layer of security to your login.",
+    "loading": "Loading...",
+    "invalidCode": "That code isn't right. Enter the latest 6-digit code from your authenticator app.",
+    "unexpectedError": "An unexpected error occurred: {message}",
+    "unexpectedErrorGeneric": "An unexpected error occurred. Please try again.",
+    "step1Title": "Scan the QR code with your authenticator app",
+    "step1Body": "Open the authenticator app on your phone and scan the QR code below.",
+    "qrAlt": "QR code",
+    "cantScan": "Can't scan the QR code?",
+    "enterManually": "Enter this key into your authenticator app manually.",
+    "step2Title": "Enter the 6-digit code shown",
+    "verifying": "Verifying...",
+    "verifyAndEnable": "Verify and enable",
+    "cancel": "Cancel",
+    "enabledTitle": "Two-factor authentication is on",
+    "enabledSubtitle": "You'll need a code from your authenticator app to log in",
+    "remove": "Remove",
+    "notSetUp": "Two-factor authentication isn't set up yet.",
+    "enable": "Enable two-factor authentication",
+    "verifyTitle": "Verification required",
+    "verifyInstructionPrefix": "Open your",
+    "verifyInstructionSuffix": "on your phone,",
+    "codePrefix": "and enter the",
+    "codeHighlight": "6-digit code",
+    "codeSuffix": "shown there.",
+    "codeRefreshNotice": "The code refreshes every 30 seconds — enter the latest one.",
+    "verifyButton": "Verify"
+  },
+  "seller": {
+    "title": "Payout setup",
+    "subtitle": "To sell paid tools, you need to register to receive payouts. Registration happens on Stripe's screen — BuildBay never holds your bank details or ID documents.",
+    "completeTitle": "Payout setup is complete",
+    "completeSubtitle": "You can sell paid tools and earnings are deposited automatically",
+    "feeNoticePrefix": "After deducting a",
+    "feeNoticeHighlight": "20% platform fee",
+    "feeNoticeSuffix": "from the sale price, the remainder is transferred to your Stripe account at the moment of purchase.",
+    "checkPayouts": "Check earnings and payout account in Stripe",
+    "inProgressTitle": "Registration isn't complete yet",
+    "inProgressSubtitle": "You can't sell paid tools until it's complete",
+    "requirementsNeeded": "Still needed",
+    "continueRegistration": "Continue registration",
+    "registrationFlowTitle": "How it works",
+    "step1": "Go to Stripe's registration screen",
+    "step2": "Enter your identity verification details and bank account",
+    "step3": "Once approved, you can sell paid tools",
+    "startSetup": "Set up payouts",
+    "freeNoSetupNeeded": "This isn't needed if you only publish free tools",
+    "backToDashboard": "Back to dashboard",
+    "requirements": {
+      "businessUrl": "Business website URL",
+      "productDescription": "Description of products sold",
+      "businessCategory": "Business category",
+      "bankAccount": "Payout bank account",
+      "idDocument": "ID verification document",
+      "address": "Address",
+      "dob": "Date of birth",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone number",
+      "tosAcceptance": "Terms of service acceptance"
     }
   },
   "favorites": {

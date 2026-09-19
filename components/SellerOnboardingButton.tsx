@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { startSellerOnboarding, openSellerDashboard } from "@/app/seller/actions";
 
 type Props = {
@@ -15,6 +16,7 @@ export default function SellerOnboardingButton({
   label,
   variant = "primary",
 }: Props) {
+  const t = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +50,7 @@ export default function SellerOnboardingButton({
         disabled={isPending}
         className={className}
       >
-        {isPending ? "処理中..." : label}
+        {isPending ? t("processing") : label}
       </button>
     </div>
   );

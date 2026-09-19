@@ -1,7 +1,8 @@
 {
   "common": {
     "free": "免費",
-    "unnamedDeveloper": "未具名的開發者"
+    "unnamedDeveloper": "未具名的開發者",
+    "processing": "處理中…"
   },
   "header": {
     "searchPlaceholder": "搜尋工具...例如：發票 自動化",
@@ -164,6 +165,71 @@
       "purchaseToReview": "購買後即可為這個工具留下評論。",
       "anonymous": "匿名用戶",
       "empty": "目前還沒有評論。"
+    }
+  },
+  "mfa": {
+    "title": "雙重驗證",
+    "authApp": "驗證應用程式",
+    "subtitle": "使用（Google Authenticator、1Password 等）驗證應用程式，為登入再多一層保護。",
+    "loading": "載入中…",
+    "invalidCode": "驗證碼不正確，請重新輸入驗證應用程式上最新的6位數字。",
+    "unexpectedError": "發生未預期的錯誤：{message}",
+    "unexpectedErrorGeneric": "發生未預期的錯誤，請再試一次。",
+    "step1Title": "使用驗證應用程式掃描QR code",
+    "step1Body": "請開啟手機上的驗證應用程式，掃描下方的QR code。",
+    "qrAlt": "QR code",
+    "cantScan": "無法掃描QR code？",
+    "enterManually": "請將此金鑰手動輸入至驗證應用程式。",
+    "step2Title": "輸入畫面顯示的6位數驗證碼",
+    "verifying": "驗證中…",
+    "verifyAndEnable": "驗證並啟用",
+    "cancel": "取消",
+    "enabledTitle": "雙重驗證已啟用",
+    "enabledSubtitle": "登入時需要輸入驗證應用程式產生的驗證碼",
+    "remove": "解除",
+    "notSetUp": "尚未設定雙重驗證。",
+    "enable": "啟用雙重驗證",
+    "verifyTitle": "需要進行身分驗證",
+    "verifyInstructionPrefix": "請開啟手機上的",
+    "verifyInstructionSuffix": "，",
+    "codePrefix": "輸入畫面顯示的",
+    "codeHighlight": "6位數驗證碼",
+    "codeSuffix": "。",
+    "codeRefreshNotice": "驗證碼每30秒更新一次，請輸入最新的數字。",
+    "verifyButton": "驗證"
+  },
+  "seller": {
+    "title": "收款設定",
+    "subtitle": "販售付費工具前，需要先完成收款登記。此登記在Stripe的畫面上進行，BuildBay不會保管您的銀行帳戶或身分證明文件。",
+    "completeTitle": "收款設定已完成",
+    "completeSubtitle": "您可以販售付費工具，收入將自動入帳",
+    "feeNoticePrefix": "售價將扣除",
+    "feeNoticeHighlight": "平台手續費20%",
+    "feeNoticeSuffix": "後，於購買當下匯入您的Stripe帳戶。",
+    "checkPayouts": "在Stripe查看收入與入帳帳戶",
+    "inProgressTitle": "登記尚未完成",
+    "inProgressSubtitle": "完成登記前無法販售付費工具",
+    "requirementsNeeded": "還需要以下資訊",
+    "continueRegistration": "繼續登記",
+    "registrationFlowTitle": "登記流程",
+    "step1": "前往Stripe的登記畫面",
+    "step2": "填寫身分驗證資料與收款銀行帳戶",
+    "step3": "審核通過後，即可販售付費工具",
+    "startSetup": "開始收款設定",
+    "freeNoSetupNeeded": "若只上架免費工具，則不需要此設定",
+    "backToDashboard": "返回會員中心",
+    "requirements": {
+      "businessUrl": "事業網站網址",
+      "productDescription": "販售商品的說明",
+      "businessCategory": "事業類別",
+      "bankAccount": "收款銀行帳戶",
+      "idDocument": "身分證明文件",
+      "address": "地址",
+      "dob": "出生日期",
+      "firstName": "名字",
+      "lastName": "姓氏",
+      "phone": "電話號碼",
+      "tosAcceptance": "同意服務條款"
     }
   },
   "favorites": {
