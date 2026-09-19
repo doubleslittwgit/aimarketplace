@@ -29,6 +29,7 @@ type PurchaseRow = {
     name: string;
     thumbnail_url: string | null;
     runtime: "cloud" | "local";
+    demo_url: string | null;
   } | null;
 };
 
@@ -87,7 +88,7 @@ export default async function DashboardPage() {
       supabase
         .from("purchases")
         .select(
-          "id, price_paid, status, created_at, tools(id, slug, name, thumbnail_url, runtime)"
+          "id, price_paid, status, created_at, tools(id, slug, name, thumbnail_url, runtime, demo_url)"
         )
         .eq("buyer_id", user.id)
         .eq("status", "completed")
@@ -236,12 +237,22 @@ export default async function DashboardPage() {
                         </p>
                       </div>
                     </div>
-                    {p.tools && (
+                    {p.tools && p.tools.runtime === "local" && (
                       <a
                         href={`/apps/download/${p.tools.id}`}
                         className="shrink-0 rounded-lg bg-accent-success px-3.5 py-2 text-[13px] font-medium text-white transition hover:brightness-105"
                       >
                         {t("download")}
+                      </a>
+                    )}
+                    {p.tools && p.tools.runtime === "cloud" && p.tools.demo_url && (
+                      <a
+                        href={p.tools.demo_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 rounded-lg bg-accent-success px-3.5 py-2 text-[13px] font-medium text-white transition hover:brightness-105"
+                      >
+                        {t("openTool")}
                       </a>
                     )}
                   </div>
