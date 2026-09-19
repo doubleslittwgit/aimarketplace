@@ -84,3 +84,48 @@ export async function translateTexts(
 }
 
 export const SUPPORTED_TRANSLATION_LOCALES: SupportedLocale[] = ["en", "zh"];
+
+/**
+ * HTML文書を、タグ構造を保ったまま翻訳する（法務ページ用）。
+ * DeepLの tag_handling: "html" オプションにより、タグの中のテキストだけが
+ * 翻訳され、h1/ul/strong等の構造はそのまま保たれる。
+ */
+export async function translateHtml(
+  html: string,
+  targetLocale: SupportedLocale
+): Promise<string | null> {
+  const apiKey = process.env.DEEPL_API_KEY;
+  if (!apiKey) {
+    console.warn("[deepl] DEEPL_API_KEY未設定のため翻訳をスキップ");
+    return null;
+  }
+
+  try {
+    const res = await fetch(`${apiBaseUrl(apiKey)}/v2/translate`, {
+      method: "POST",
+      headers: {
+        Authorization: `DeepL-Auth-Key ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: [html],
+        source_lang: "JA",
+        target_lang: DEEPL_TARGET_LANG[targetLocale],
+        tag_handling: "html",
+      }),
+    });
+
+    if (!res.ok) {
+      const body = await res.text();
+      console.error(`[deepl] HTML翻訳リクエストに失敗 (${res.status}): ${body}`);
+      return null;
+    }
+
+    const data = (await res.json()) as { translations: { text: string }[] };
+    return data.translations[0]?.text ?? null;
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "不明なエラー";
+    console.error("[deepl] HTML翻訳中に例外:", message);
+    return null;
+  }
+}

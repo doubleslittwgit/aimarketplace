@@ -309,6 +309,16 @@
     "agreementText": "<terms>利用規約</terms>と<privacy>プライバシーポリシー</privacy>に同意します",
     "agreementRequired": "登録には利用規約・プライバシーポリシーへの同意が必要です"
   },
+  "legal": {
+    "termsTitle": "利用規約",
+    "termsDescription": "BuildBayの利用規約です。",
+    "privacyTitle": "プライバシーポリシー",
+    "privacyDescription": "BuildBayにおける個人情報の取り扱いについて。",
+    "tokushohoTitle": "特定商取引法に基づく表記",
+    "tokushohoDescription": "BuildBayの特定商取引法に基づく表記です。",
+    "contactTitle": "お問い合わせ",
+    "contactDescription": "BuildBayへのお問い合わせ窓口。"
+  },
   "admin": {
     "reviewTitle": "出品の審査",
     "reviewSubtitle": "AIレビューはあくまで参考情報です。最終判断はご自身で行ってください。",

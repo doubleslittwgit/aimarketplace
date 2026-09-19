@@ -309,6 +309,16 @@
     "agreementText": "I agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>",
     "agreementRequired": "You must agree to the Terms of Service and Privacy Policy to sign up"
   },
+  "legal": {
+    "termsTitle": "Terms of Service",
+    "termsDescription": "BuildBay's Terms of Service.",
+    "privacyTitle": "Privacy Policy",
+    "privacyDescription": "How BuildBay handles your personal information.",
+    "tokushohoTitle": "Specified Commercial Transactions Act Disclosure",
+    "tokushohoDescription": "BuildBay's disclosure under Japan's Specified Commercial Transactions Act.",
+    "contactTitle": "Contact",
+    "contactDescription": "How to reach BuildBay."
+  },
   "admin": {
     "reviewTitle": "Review submissions",
     "reviewSubtitle": "The AI review is a reference only — please make the final call yourself.",

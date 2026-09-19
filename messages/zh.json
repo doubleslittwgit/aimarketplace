@@ -309,6 +309,16 @@
     "agreementText": "我同意<terms>使用條款</terms>與<privacy>隱私權政策</privacy>",
     "agreementRequired": "註冊前請先同意使用條款與隱私權政策"
   },
+  "legal": {
+    "termsTitle": "使用條款",
+    "termsDescription": "BuildBay 的使用條款。",
+    "privacyTitle": "隱私權政策",
+    "privacyDescription": "關於 BuildBay 如何處理個人資料。",
+    "tokushohoTitle": "特定商業交易法標示",
+    "tokushohoDescription": "BuildBay 依據日本特定商業交易法的標示。",
+    "contactTitle": "聯絡我們",
+    "contactDescription": "BuildBay 的聯絡窗口。"
+  },
   "admin": {
     "reviewTitle": "上架審核",
     "reviewSubtitle": "AI審核僅供參考，最終判斷請自行決定。",
