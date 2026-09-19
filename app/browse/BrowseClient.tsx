@@ -1,20 +1,24 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import ToolCard from "@/components/ToolCard";
 import { categories, type Tool } from "@/lib/mock-data";
+import { categoryToSlug, ALL_CATEGORIES_VALUE } from "@/lib/category-slugs";
 
 type SortKey = "new" | "popular" | "price_asc" | "price_desc";
 
 export default function BrowseClient({
   initialTools,
   initialQuery = "",
-  initialCategory = "すべて",
+  initialCategory = ALL_CATEGORIES_VALUE,
 }: {
   initialTools: Tool[];
   initialQuery?: string;
   initialCategory?: string;
 }) {
+  const tBrowse = useTranslations("browse");
+  const tCategories = useTranslations("categories");
   const [query, setQuery] = useState(initialQuery);
   // ヘッダーの検索から /browse?q=... に遷移してきた場合に入力欄を追随させる。
   // useEffectでの同期は再レンダーが連鎖するため、レンダー中に調整する。
@@ -40,7 +44,7 @@ export default function BrowseClient({
         t.tagline.toLowerCase().includes(query.toLowerCase()) ||
         t.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase()));
       const matchesCategory =
-        activeCategory === "すべて" || t.categories.includes(activeCategory);
+        activeCategory === ALL_CATEGORIES_VALUE || t.categories.includes(activeCategory);
       return matchesQuery && matchesCategory;
     });
 
@@ -65,10 +69,10 @@ export default function BrowseClient({
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">
       <h1 className="mb-1 font-display text-2xl font-semibold text-text-primary">
-        ツールを探す
+        {tBrowse("title")}
       </h1>
       <p className="mb-6 text-[13px] text-text-muted">
-        {filtered.length}件のツールが見つかりました
+        {tBrowse("resultsCount", { count: filtered.length })}
       </p>
 
       {/* Search input (page-local, in addition to header search) */}
@@ -89,7 +93,7 @@ export default function BrowseClient({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="キーワードで検索..."
+          placeholder={tBrowse("searchPlaceholder")}
           className="w-full bg-transparent font-mono text-[13px] outline-none placeholder:text-text-dim"
         />
       </div>
@@ -98,14 +102,14 @@ export default function BrowseClient({
         {/* Category pills */}
         <div className="flex flex-wrap gap-2">
           <CategoryPill
-            label="すべて"
-            active={activeCategory === "すべて"}
-            onClick={() => setActiveCategory("すべて")}
+            label={tBrowse("categoryAll")}
+            active={activeCategory === ALL_CATEGORIES_VALUE}
+            onClick={() => setActiveCategory(ALL_CATEGORIES_VALUE)}
           />
           {categories.map((c) => (
             <CategoryPill
               key={c}
-              label={c}
+              label={tCategories(categoryToSlug(c))}
               active={activeCategory === c}
               onClick={() => setActiveCategory(c)}
             />
@@ -118,20 +122,20 @@ export default function BrowseClient({
           onChange={(e) => setSort(e.target.value as SortKey)}
           className="rounded-lg border border-border bg-surface px-3 py-2 text-[13px] text-text-secondary outline-none"
         >
-          <option value="new">新着順</option>
-          <option value="popular">人気順</option>
-          <option value="price_asc">価格が低い順</option>
-          <option value="price_desc">価格が高い順</option>
+          <option value="new">{tBrowse("sortNew")}</option>
+          <option value="popular">{tBrowse("sortPopular")}</option>
+          <option value="price_asc">{tBrowse("sortPriceAsc")}</option>
+          <option value="price_desc">{tBrowse("sortPriceDesc")}</option>
         </select>
       </div>
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20 text-center">
           <p className="mb-1 text-[14px] font-medium text-text-secondary">
-            該当するツールが見つかりませんでした
+            {tBrowse("emptyTitle")}
           </p>
           <p className="text-[13px] text-text-muted">
-            キーワードやカテゴリを変えて、もう一度お試しください
+            {tBrowse("emptyHint")}
           </p>
         </div>
       ) : (

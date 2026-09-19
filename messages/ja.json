@@ -1,6 +1,7 @@
 {
   "common": {
-    "free": "無料"
+    "free": "無料",
+    "unnamedDeveloper": "名前未設定の開発者"
   },
   "header": {
     "searchPlaceholder": "ツールを検索... 例: 請求書 自動化",
@@ -59,6 +60,18 @@
     "purchased": "{by}さんが{tool}を{price}で購入",
     "published": "{by}さんが{tool}を公開",
     "updated": "{by}さんが{tool}を{version}に更新"
+  },
+  "browse": {
+    "title": "ツールを探す",
+    "resultsCount": "{count}件のツールが見つかりました",
+    "searchPlaceholder": "キーワードで検索...",
+    "categoryAll": "すべて",
+    "sortNew": "新着順",
+    "sortPopular": "人気順",
+    "sortPriceAsc": "価格が低い順",
+    "sortPriceDesc": "価格が高い順",
+    "emptyTitle": "該当するツールが見つかりませんでした",
+    "emptyHint": "キーワードやカテゴリを変えて、もう一度お試しください"
   },
   "categories": {
     "automation": "自動化・ワークフロー",

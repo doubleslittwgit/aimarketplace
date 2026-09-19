@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BuyBox from "@/components/BuyBox";
@@ -28,6 +29,7 @@ async function loadTool(
     }
   | null
 > {
+  const tCommon = await getTranslations("common");
   const supabase = await createClient();
 
   const { data: row } = await supabase
@@ -51,7 +53,7 @@ async function loadTool(
       likes: row.like_count,
       views: row.view_count,
       author: {
-        name: row.profiles?.display_name || "名前未設定の開発者",
+        name: row.profiles?.display_name || tCommon("unnamedDeveloper"),
         handle: row.profiles?.handle ? `@${row.profiles.handle}` : "",
       },
       tags: row.tags || [],
@@ -99,7 +101,7 @@ async function loadTool(
         likes: r.like_count,
         views: r.view_count,
         author: {
-          name: r.profiles?.display_name || "名前未設定の開発者",
+          name: r.profiles?.display_name || tCommon("unnamedDeveloper"),
           handle: r.profiles?.handle ? `@${r.profiles.handle}` : "",
         },
         tags: r.tags || [],

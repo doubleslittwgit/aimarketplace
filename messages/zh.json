@@ -1,6 +1,7 @@
 {
   "common": {
-    "free": "免費"
+    "free": "免費",
+    "unnamedDeveloper": "未具名的開發者"
   },
   "header": {
     "searchPlaceholder": "搜尋工具...例如：發票 自動化",
@@ -59,6 +60,18 @@
     "purchased": "{by} 以 {price} 購買了 {tool}",
     "published": "{by} 上架了 {tool}",
     "updated": "{by} 將 {tool} 更新至 {version}"
+  },
+  "browse": {
+    "title": "探索工具",
+    "resultsCount": "找到 {count} 項工具",
+    "searchPlaceholder": "輸入關鍵字搜尋...",
+    "categoryAll": "全部",
+    "sortNew": "最新上架",
+    "sortPopular": "熱門程度",
+    "sortPriceAsc": "價格由低到高",
+    "sortPriceDesc": "價格由高到低",
+    "emptyTitle": "找不到符合條件的工具",
+    "emptyHint": "請試著更換關鍵字或分類再試一次"
   },
   "categories": {
     "automation": "自動化與工作流程",

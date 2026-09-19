@@ -9,6 +9,9 @@ import { categories } from "@/lib/mock-data";
  *
  * categories配列と同じ並び・同じ件数を保つこと。
  */
+/** カテゴリ絞り込みの「すべて」を表す、言語に依存しない内部値（表示ラベルとは別）。 */
+export const ALL_CATEGORIES_VALUE = "__all__";
+
 export const CATEGORY_SLUGS = [
   "automation",
   "devTools",

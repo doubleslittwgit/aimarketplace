@@ -1,10 +1,13 @@
+import { getTranslations } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BrowseClient from "./BrowseClient";
 import { createClient } from "@/lib/supabase/server";
+import { ALL_CATEGORIES_VALUE } from "@/lib/category-slugs";
 import { tools as mockTools, type Tool } from "@/lib/mock-data";
 
 async function loadRealTools(): Promise<Tool[]> {
+  const tCommon = await getTranslations("common");
   const supabase = await createClient();
   const { data } = await supabase
     .from("tools")
@@ -27,7 +30,7 @@ async function loadRealTools(): Promise<Tool[]> {
       likes: r.like_count,
       views: r.view_count,
       author: {
-        name: r.profiles?.display_name || "名前未設定の開発者",
+        name: r.profiles?.display_name || tCommon("unnamedDeveloper"),
         handle: r.profiles?.handle ? `@${r.profiles.handle}` : "",
       },
       tags: r.tags || [],
@@ -55,7 +58,7 @@ export default async function BrowsePage({
         <BrowseClient
           initialTools={allTools}
           initialQuery={q ?? ""}
-          initialCategory={category ?? "すべて"}
+          initialCategory={category ?? ALL_CATEGORIES_VALUE}
         />
       </main>
       <Footer />

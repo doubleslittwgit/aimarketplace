@@ -1,6 +1,7 @@
 {
   "common": {
-    "free": "Free"
+    "free": "Free",
+    "unnamedDeveloper": "Unnamed developer"
   },
   "header": {
     "searchPlaceholder": "Search tools... e.g. invoice automation",
@@ -59,6 +60,18 @@
     "purchased": "{by} bought {tool} for {price}",
     "published": "{by} published {tool}",
     "updated": "{by} updated {tool} to {version}"
+  },
+  "browse": {
+    "title": "Browse tools",
+    "resultsCount": "{count} tools found",
+    "searchPlaceholder": "Search by keyword...",
+    "categoryAll": "All",
+    "sortNew": "Newest",
+    "sortPopular": "Most popular",
+    "sortPriceAsc": "Price: low to high",
+    "sortPriceDesc": "Price: high to low",
+    "emptyTitle": "No matching tools found",
+    "emptyHint": "Try different keywords or categories"
   },
   "categories": {
     "automation": "Automation & Workflows",
