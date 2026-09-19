@@ -125,7 +125,7 @@ export default function LiveVisitorsWave() {
   return (
     <div
       aria-hidden
-      className="relative h-20 w-full overflow-hidden sm:h-24"
+      className="relative h-36 w-full overflow-hidden sm:h-48"
       title={t("liveVisitorsLabel")}
     >
       <WaveLayers />
@@ -141,9 +141,11 @@ export default function LiveVisitorsWave() {
 function WaveLayers() {
   return (
     <div className="absolute inset-0">
-      <WaveLayer className="bottom-0 text-accent-ai/15" duration="22s" amplitude={0} />
-      <WaveLayer className="bottom-0 text-accent-ai/30" duration="16s" amplitude={4} />
-      <WaveLayer className="bottom-0 text-accent-ai/55" duration="11s" amplitude={8} />
+      <WaveLayer className="bottom-0 text-accent-ai/20" duration="28s" baseline={22} amplitude={2} />
+      <WaveLayer className="bottom-0 text-accent-ai/35" duration="22s" baseline={26} amplitude={4} />
+      <WaveLayer className="bottom-0 text-accent-ai/55" duration="17s" baseline={30} amplitude={6} />
+      <WaveLayer className="bottom-0 text-accent-ai/75" duration="13s" baseline={34} amplitude={8} />
+      <WaveLayer className="bottom-0 text-accent-ai/95" duration="9s" baseline={38} amplitude={10} />
     </div>
   );
 }
@@ -151,14 +153,18 @@ function WaveLayers() {
 function WaveLayer({
   className,
   duration,
+  baseline,
   amplitude,
 }: {
   className: string;
   duration: string;
+  baseline: number;
   amplitude: number;
 }) {
   // パスを横に2枚並べ、幅の半分だけ左へ動かし続けることで
   // 途切れなくループする波にしている。
+  // baselineを小さくする（=波の頂点を上に上げる）ほど、
+  // viewBox全体に対して水面下の塗りつぶし面積が増え、海が「厚く」見える。
   return (
     <div
       data-live-wave
@@ -172,7 +178,7 @@ function WaveLayer({
         fill="currentColor"
       >
         <path
-          d={`M0,${55 + amplitude} C100,${35 + amplitude} 200,${75 + amplitude} 300,${55 + amplitude} C400,${35 + amplitude} 500,${75 + amplitude} 600,${55 + amplitude} C700,${35 + amplitude} 800,${75 + amplitude} 800,${55 + amplitude} C900,${35 + amplitude} 1000,${75 + amplitude} 1100,${55 + amplitude} C1200,${35 + amplitude} 1300,${75 + amplitude} 1400,${55 + amplitude} C1500,${35 + amplitude} 1550,${75 + amplitude} 1600,${55 + amplitude} L1600,100 L0,100 Z`}
+          d={`M0,${baseline + amplitude} C100,${baseline - amplitude} 200,${baseline + amplitude * 2} 300,${baseline + amplitude} C400,${baseline - amplitude} 500,${baseline + amplitude * 2} 600,${baseline + amplitude} C700,${baseline - amplitude} 800,${baseline + amplitude * 2} 800,${baseline + amplitude} C900,${baseline - amplitude} 1000,${baseline + amplitude * 2} 1100,${baseline + amplitude} C1200,${baseline - amplitude} 1300,${baseline + amplitude * 2} 1400,${baseline + amplitude} C1500,${baseline - amplitude} 1550,${baseline + amplitude * 2} 1600,${baseline + amplitude} L1600,100 L0,100 Z`}
         />
       </svg>
     </div>
@@ -192,9 +198,10 @@ function Boat({ visitor, guestLabel }: { visitor: Visitor; guestLabel: string })
   return (
     <div
       data-live-wave
-      className="group absolute bottom-1 -translate-x-1/2"
+      className="group absolute -translate-x-1/2"
       style={{
         left: `${leftPercent}%`,
+        top: "36%",
         animation: `buildbay-boat-drift ${driftDuration} ease-in-out infinite alternate`,
       }}
       onMouseEnter={() => setHovered(true)}
