@@ -6,8 +6,8 @@ export async function generateMetadata() {
   return { title: t("contactTitle"), description: t("contactDescription") };
 }
 
-// ★要記入★ 実際の問い合わせ用メールアドレスに置き換えてください
-const CONTACT_EMAIL = "（　記入してください　）";
+// 実際の問い合わせ用メールアドレス
+const CONTACT_EMAIL = "supportbuildbay@gmail.com";
 
 const HTML = `
 <h1>お問い合わせ</h1>

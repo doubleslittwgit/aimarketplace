@@ -15,7 +15,7 @@ const OPERATOR = {
   name: "後藤 周", // 開業届を出す場合は屋号（BuildBay）も併記
   address: "（　記入してください　）",
   phone: "（　記入してください　）",
-  email: "（　記入してください　）",
+  email: "supportbuildbay@gmail.com",
 };
 
 function row(label: string, contentHtml: string): string {
