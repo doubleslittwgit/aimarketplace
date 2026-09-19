@@ -310,6 +310,27 @@
       "tosAcceptance": "利用規約への同意"
     }
   },
+  "profile": {
+    "apps": "公開ツール",
+    "views": "閲覧数",
+    "likes": "いいね",
+    "downloads": "ダウンロード",
+    "editProfile": "プロフィールを編集",
+    "save": "保存する",
+    "cancel": "キャンセル",
+    "saving": "保存中...",
+    "displayNameLabel": "表示名",
+    "bioLabel": "自己紹介",
+    "bioPlaceholder": "自己紹介を書いてみましょう",
+    "noBio": "自己紹介はまだありません",
+    "noTools": "まだ公開しているツールはありません",
+    "publishedTools": "公開中のツール",
+    "changeAvatar": "画像を変更",
+    "notFound": "ユーザーが見つかりませんでした",
+    "backToBrowse": "ツールを探す",
+    "avatarUploadFailed": "画像のアップロードに失敗しました: {message}",
+    "displayNameRequired": "表示名を入力してください"
+  },
   "favorites": {
     "title": "お気に入り",
     "subtitle": "いいねしたツールが並びます",

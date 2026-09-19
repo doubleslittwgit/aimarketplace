@@ -372,7 +372,7 @@ export default async function ToolDetailPage({
                   initialCount={tool.likes}
                 />
               )}
-              <AuthorCard tool={tool} />
+              <AuthorCard tool={tool} isDemo={isDemo} />
               {!isDemo && !isOwner && (
                 <div className="text-center">
                   <ReportButton toolId={tool.id} slug={tool.slug} />

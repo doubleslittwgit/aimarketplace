@@ -310,6 +310,27 @@
       "tosAcceptance": "Terms of service acceptance"
     }
   },
+  "profile": {
+    "apps": "Published tools",
+    "views": "Views",
+    "likes": "Likes",
+    "downloads": "Downloads",
+    "editProfile": "Edit profile",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "displayNameLabel": "Display name",
+    "bioLabel": "Bio",
+    "bioPlaceholder": "Write a short bio",
+    "noBio": "No bio yet.",
+    "noTools": "No published tools yet.",
+    "publishedTools": "Published tools",
+    "changeAvatar": "Change image",
+    "notFound": "User not found",
+    "backToBrowse": "Browse tools",
+    "avatarUploadFailed": "Image upload failed: {message}",
+    "displayNameRequired": "Please enter a display name"
+  },
   "favorites": {
     "title": "Favorites",
     "subtitle": "Tools you've liked",

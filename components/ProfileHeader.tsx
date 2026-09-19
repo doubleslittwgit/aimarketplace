@@ -1,0 +1,211 @@
+"use client";
+
+import { useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
+import { formatInstalls } from "@/lib/mock-data";
+import { updateProfile } from "@/app/u/[handle]/actions";
+
+type Profile = {
+  id: string;
+  handle: string;
+  display_name: string;
+  bio: string | null;
+  avatar_url: string | null;
+  created_at: string;
+};
+
+type Stats = { apps: number; views: number; likes: number; downloads: number };
+
+export default function ProfileHeader({
+  profile,
+  isOwner,
+  stats,
+}: {
+  profile: Profile;
+  isOwner: boolean;
+  stats: Stats;
+}) {
+  const t = useTranslations("profile");
+  const [editing, setEditing] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState(profile.display_name);
+  const [bio, setBio] = useState(profile.bio ?? "");
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar_url);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const initials = profile.display_name
+    .split(" ")
+    .map((s) => s[0])
+    .join("")
+    .slice(0, 2);
+
+  function handleAvatarPick(file: File | undefined) {
+    if (!file) return;
+    setAvatarPreview((prev) => {
+      if (prev && prev.startsWith("blob:")) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+  }
+
+  function handleSubmit(formData: FormData) {
+    setError(null);
+    startTransition(async () => {
+      const result = await updateProfile(profile.handle, formData);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setEditing(false);
+      }
+    });
+  }
+
+  return (
+    <section className="relative overflow-hidden border-b border-border">
+      {/* ホームページと同じ、淡い青×コーラルのブラー背景でトーンを揃える */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 left-[8%] h-72 w-72 rounded-full bg-accent-ai/15 blur-[110px]" />
+        <div className="absolute -top-10 right-[10%] h-72 w-72 rounded-full bg-accent-signal/10 blur-[110px]" />
+      </div>
+
+      <div className="relative mx-auto max-w-7xl px-6 py-14">
+        {editing ? (
+          <form action={handleSubmit} className="mx-auto max-w-lg">
+            <div className="mb-6 flex justify-center">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-surface-raised"
+              >
+                {avatarPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={avatarPreview} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="font-display text-2xl font-semibold text-accent-ai">
+                    {initials}
+                  </span>
+                )}
+                <span className="absolute inset-0 flex items-center justify-center bg-bg/0 text-[11px] font-medium text-white opacity-0 transition group-hover:bg-bg/50 group-hover:opacity-100">
+                  {t("changeAvatar")}
+                </span>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                name="avatar"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(e) => handleAvatarPick(e.target.files?.[0])}
+                className="hidden"
+              />
+            </div>
+
+            <label className="mb-1.5 block text-[12px] font-medium text-text-secondary">
+              {t("displayNameLabel")}
+            </label>
+            <input
+              type="text"
+              name="displayName"
+              required
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="mb-4 w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
+            />
+
+            <label className="mb-1.5 block text-[12px] font-medium text-text-secondary">
+              {t("bioLabel")}
+            </label>
+            <textarea
+              name="bio"
+              rows={3}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder={t("bioPlaceholder")}
+              className="mb-4 w-full resize-none rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
+            />
+
+            {error && (
+              <p className="mb-4 rounded-lg border border-accent-danger/30 bg-accent-danger/10 px-3 py-2 text-[12px] text-accent-danger">
+                {error}
+              </p>
+            )}
+
+            <div className="flex justify-center gap-2">
+              <button
+                type="submit"
+                disabled={isPending}
+                className="rounded-lg bg-accent-signal px-5 py-2.5 text-[13px] font-medium text-white transition hover:brightness-105 disabled:opacity-60"
+              >
+                {isPending ? t("saving") : t("save")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditing(false);
+                  setError(null);
+                  setDisplayName(profile.display_name);
+                  setBio(profile.bio ?? "");
+                  setAvatarPreview(profile.avatar_url);
+                }}
+                className="rounded-lg border border-border px-5 py-2.5 text-[13px] text-text-secondary hover:bg-surface"
+              >
+                {t("cancel")}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="flex flex-col items-center text-center">
+            <div className="mb-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-surface-raised shadow-sm">
+              {profile.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <span className="font-display text-2xl font-semibold text-accent-ai">
+                  {initials}
+                </span>
+              )}
+            </div>
+            <h1 className="font-display text-2xl font-semibold text-text-primary">
+              {profile.display_name}
+            </h1>
+            <p className="mt-1 font-mono text-[13px] text-text-muted">@{profile.handle}</p>
+            <p className="mt-4 max-w-md text-[14px] leading-relaxed text-text-secondary">
+              {profile.bio || t("noBio")}
+            </p>
+
+            {isOwner && (
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className="mt-5 rounded-full border border-border bg-bg px-5 py-2 text-[13px] font-medium text-text-secondary transition hover:border-border-strong hover:bg-surface"
+              >
+                {t("editProfile")}
+              </button>
+            )}
+
+            <div className="mt-10 flex flex-wrap justify-center gap-x-10 gap-y-5 border-t border-border pt-8">
+              <Stat label={t("apps")} value={String(stats.apps)} />
+              <Stat label={t("views")} value={formatInstalls(stats.views)} />
+              <Stat label={t("likes")} value={formatInstalls(stats.likes)} accent />
+              <Stat label={t("downloads")} value={formatInstalls(stats.downloads)} />
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="text-center">
+      <p
+        className={`font-display text-2xl font-semibold ${
+          accent ? "text-accent-signal" : "text-text-primary"
+        }`}
+      >
+        {value}
+      </p>
+      <p className="mt-0.5 text-[12px] text-text-muted">{label}</p>
+    </div>
+  );
+}

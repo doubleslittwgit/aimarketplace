@@ -310,6 +310,27 @@
       "tosAcceptance": "同意服務條款"
     }
   },
+  "profile": {
+    "apps": "已上架工具",
+    "views": "瀏覽數",
+    "likes": "喜歡數",
+    "downloads": "下載數",
+    "editProfile": "編輯個人資料",
+    "save": "儲存",
+    "cancel": "取消",
+    "saving": "儲存中…",
+    "displayNameLabel": "顯示名稱",
+    "bioLabel": "自我介紹",
+    "bioPlaceholder": "寫點自我介紹吧",
+    "noBio": "尚未填寫自我介紹",
+    "noTools": "目前還沒有上架任何工具",
+    "publishedTools": "已上架的工具",
+    "changeAvatar": "更換圖片",
+    "notFound": "找不到這位使用者",
+    "backToBrowse": "探索工具",
+    "avatarUploadFailed": "圖片上傳失敗：{message}",
+    "displayNameRequired": "請輸入顯示名稱"
+  },
   "favorites": {
     "title": "收藏",
     "subtitle": "顯示你按過喜歡的工具",
