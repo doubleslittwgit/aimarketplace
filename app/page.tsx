@@ -1,4 +1,5 @@
 import { getTranslations, getLocale } from "next-intl/server";
+import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ActivityTicker from "@/components/ActivityTicker";
@@ -174,9 +175,13 @@ export default async function Home() {
         {/* Category rail */}
         <section className="border-y border-border bg-surface/40">
           <div className="mx-auto flex max-w-7xl flex-wrap gap-2 px-6 py-4">
-            <CategoryPill label={t("categoryAll")} active />
+            <CategoryPill label={t("categoryAll")} href="/browse" active />
             {categories.map((c) => (
-              <CategoryPill key={c} label={tCategories(categoryToSlug(c))} />
+              <CategoryPill
+                key={c}
+                label={tCategories(categoryToSlug(c))}
+                href={`/browse?category=${encodeURIComponent(c)}`}
+              />
             ))}
           </div>
         </section>
@@ -346,9 +351,18 @@ function FloatingCard({
   );
 }
 
-function CategoryPill({ label, active }: { label: string; active?: boolean }) {
+function CategoryPill({
+  label,
+  active,
+  href,
+}: {
+  label: string;
+  active?: boolean;
+  href: string;
+}) {
   return (
-    <button
+    <Link
+      href={href}
       className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-1.5 text-[13px] transition ${
         active
           ? "border-accent-signal/40 bg-accent-signal-dim text-accent-signal"
@@ -356,6 +370,6 @@ function CategoryPill({ label, active }: { label: string; active?: boolean }) {
       }`}
     >
       {label}
-    </button>
+    </Link>
   );
 }
