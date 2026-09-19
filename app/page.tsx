@@ -176,16 +176,24 @@ export default async function Home() {
         <LiveVisitorsWave />
 
         {/* Category rail */}
-        <section className="border-b border-border bg-surface/40">
-          <div className="mx-auto flex max-w-7xl flex-wrap gap-2 px-6 py-4">
-            <CategoryPill label={t("categoryAll")} href="/browse" active />
-            {categories.map((c) => (
-              <CategoryPill
-                key={c}
-                label={tCategories(categoryToSlug(c))}
-                href={`/browse?category=${encodeURIComponent(c)}`}
-              />
-            ))}
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-7xl px-6 pb-6">
+            <h2 className="font-display text-2xl font-semibold text-text-primary">
+              {t("browseHeading")}
+            </h2>
+            <p className="mt-1 text-[13px] text-text-muted">
+              {t("browseHeadingSub")}
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <CategoryPill label={t("categoryAll")} href="/browse" active />
+              {categories.map((c) => (
+                <CategoryPill
+                  key={c}
+                  label={tCategories(categoryToSlug(c))}
+                  href={`/browse?category=${encodeURIComponent(c)}`}
+                />
+              ))}
+            </div>
           </div>
         </section>
 

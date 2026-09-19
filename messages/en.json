@@ -127,6 +127,8 @@
     "statDownloads": "Total downloads",
     "statPayoutRate": "Developer payout rate",
     "categoryAll": "All",
+    "browseHeading": "Browse tools",
+    "browseHeadingSub": "Find the right tool by category",
     "newTools": "New tools",
     "viewAll": "View all →"
   },

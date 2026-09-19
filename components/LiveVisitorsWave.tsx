@@ -134,18 +134,22 @@ export default function LiveVisitorsWave() {
           <Boat key={key} visitor={visitors[key]} guestLabel={t("guestVisitor")} />
         ))}
       </div>
+      {/* 海の下端を背景色へ溶かし、次のセクションとの境目をなくす */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-bg sm:h-20" />
     </div>
   );
 }
 
 function WaveLayers() {
+  // baselineの差を大きく取ることで、白っぽい奥の波ほど上に離れて配置され、
+  // 上に行くほど白くなるグラデーションの幅が広がって見える。
   return (
     <div className="absolute inset-0">
-      <WaveLayer className="bottom-0 text-accent-ai/20" duration="28s" baseline={22} amplitude={2} />
-      <WaveLayer className="bottom-0 text-accent-ai/35" duration="22s" baseline={26} amplitude={4} />
-      <WaveLayer className="bottom-0 text-accent-ai/55" duration="17s" baseline={30} amplitude={6} />
-      <WaveLayer className="bottom-0 text-accent-ai/75" duration="13s" baseline={34} amplitude={8} />
-      <WaveLayer className="bottom-0 text-accent-ai/95" duration="9s" baseline={38} amplitude={10} />
+      <WaveLayer className="bottom-0 text-accent-ai/15" duration="30s" baseline={8} amplitude={2} />
+      <WaveLayer className="bottom-0 text-accent-ai/30" duration="24s" baseline={20} amplitude={4} />
+      <WaveLayer className="bottom-0 text-accent-ai/50" duration="18s" baseline={32} amplitude={6} />
+      <WaveLayer className="bottom-0 text-accent-ai/72" duration="13s" baseline={44} amplitude={8} />
+      <WaveLayer className="bottom-0 text-accent-ai/95" duration="9s" baseline={56} amplitude={10} />
     </div>
   );
 }
@@ -201,7 +205,7 @@ function Boat({ visitor, guestLabel }: { visitor: Visitor; guestLabel: string })
       className="group absolute -translate-x-1/2"
       style={{
         left: `${leftPercent}%`,
-        top: "36%",
+        top: "52%",
         animation: `buildbay-boat-drift ${driftDuration} ease-in-out infinite alternate`,
       }}
       onMouseEnter={() => setHovered(true)}

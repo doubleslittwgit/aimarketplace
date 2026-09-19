@@ -127,6 +127,8 @@
     "statDownloads": "累計ダウンロード",
     "statPayoutRate": "開発者への還元率",
     "categoryAll": "すべて",
+    "browseHeading": "ツールを探す",
+    "browseHeadingSub": "カテゴリから、目的に合ったツールを見つける",
     "newTools": "新着ツール",
     "viewAll": "すべて見る →"
   },
