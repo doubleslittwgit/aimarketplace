@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
+import { categoryToSlug } from "@/lib/category-slugs";
 import { createTool, saveDraft } from "./actions";
 
 type PriceType = "free" | "paid" | null;
@@ -30,6 +32,8 @@ export default function SubmitClient({
   canReceivePayments: boolean;
   initialDraft?: DraftInitialValues | null;
 }) {
+  const t = useTranslations("submit");
+  const tCategories = useTranslations("categories");
   const [draftId, setDraftId] = useState<string | null>(initialDraft?.id ?? null);
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const [priceType, setPriceType] = useState<PriceType>(
@@ -138,13 +142,16 @@ export default function SubmitClient({
     const incoming = Array.from(selected);
 
     if (incoming.length > remaining) {
-      setGalleryError(`追加できるのはあと${remaining}枚までです`);
+      setGalleryError(t("galleryLimitError", { remaining }));
     }
 
     const oversized = incoming.find((f) => f.size > MAX_THUMBNAIL_FILE_SIZE);
     if (oversized) {
       setGalleryError(
-        `「${oversized.name}」は上限(${formatFileSize(MAX_THUMBNAIL_FILE_SIZE)})を超えています`
+        t("galleryFileTooLargeError", {
+          name: oversized.name,
+          limit: formatFileSize(MAX_THUMBNAIL_FILE_SIZE) ?? "",
+        })
       );
     }
 
@@ -172,18 +179,16 @@ export default function SubmitClient({
   function handleFormAction(formData: FormData) {
     setError(null);
     if (selectedCategories.length === 0) {
-      setError("カテゴリを少なくとも1つ選んでください");
+      setError(t("errorCategoryRequired"));
       return;
     }
     if (fileTooLarge) {
-      setError(
-        `ファイルサイズが上限(${formatFileSize(MAX_TOOL_FILE_SIZE)})を超えています`
-      );
+      setError(t("errorFileTooLarge", { limit: formatFileSize(MAX_TOOL_FILE_SIZE) ?? "" }));
       return;
     }
     if (thumbnailTooLarge) {
       setError(
-        `サムネイル画像のサイズが上限(${formatFileSize(MAX_THUMBNAIL_FILE_SIZE)})を超えています`
+        t("errorThumbnailTooLarge", { limit: formatFileSize(MAX_THUMBNAIL_FILE_SIZE) ?? "" })
       );
       return;
     }
@@ -212,12 +217,10 @@ export default function SubmitClient({
     <main className="flex-1">
       <div className="mx-auto max-w-2xl px-6 py-10">
         <h1 className="mb-1 font-display text-2xl font-semibold text-text-primary">
-          {initialDraft ? "下書きの続きを書く" : "ツールを公開する"}
+          {initialDraft ? t("titleDraft") : t("titleNew")}
         </h1>
         <p className="mb-8 text-[13px] text-text-muted">
-          {initialDraft
-            ? "続きを入力して、公開するか、また後で続きを書くか選べます。"
-            : "まずは無料公開か有料販売かを選んでください。無料公開は登録なしですぐに始められます。"}
+          {initialDraft ? t("subtitleDraft") : t("subtitleNew")}
         </p>
 
         <form ref={formRef} action={handleFormAction} className="space-y-7">
@@ -231,13 +234,13 @@ export default function SubmitClient({
           {/* 無料 / 有料 の選択（一番最初に決める） */}
           <div>
             <label className="mb-2 block text-[13px] font-medium text-text-secondary">
-              公開方法
+              {t("publishMethod")}
               <span className="ml-1 text-accent-signal">*</span>
             </label>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <PriceTypeOption
-                label="無料"
-                description="誰でもすぐにダウンロードできます"
+                label={t("free")}
+                description={t("freeDescription")}
                 active={priceType === "free"}
                 onClick={() => {
                   setPriceType("free");
@@ -245,8 +248,8 @@ export default function SubmitClient({
                 }}
               />
               <PriceTypeOption
-                label="有料"
-                description="購入した人だけがダウンロードできます"
+                label={t("paid")}
+                description={t("paidDescription")}
                 active={priceType === "paid"}
                 onClick={() => {
                   setPriceType("paid");
@@ -259,14 +262,10 @@ export default function SubmitClient({
             {paidBlocked && (
               <div className="mt-4 rounded-lg border border-accent-danger/30 bg-accent-danger/5 p-4">
                 <p className="mb-2 text-[13px] font-semibold text-accent-danger">
-                  先に売上の受け取り設定が必要です
+                  {t("payoutRequiredTitle")}
                 </p>
                 <ol className="mb-3 space-y-1.5">
-                  {[
-                    "「受け取り設定に進む」からStripeの登録画面に移動します",
-                    "本人確認の情報と、入金先の銀行口座を登録します",
-                    "審査が通ると、有料ツールを公開できるようになります",
-                  ].map((text, i) => (
+                  {[t("payoutStep1"), t("payoutStep2"), t("payoutStep3")].map((text, i) => (
                     <li
                       key={i}
                       className="flex items-start gap-2 text-[12px] text-accent-danger/90"
@@ -282,7 +281,7 @@ export default function SubmitClient({
                   href="/seller"
                   className="inline-block rounded-lg bg-accent-danger px-4 py-2 text-[12px] font-medium text-white transition hover:brightness-105"
                 >
-                  受け取り設定に進む
+                  {t("payoutCta")}
                 </a>
               </div>
             )}
@@ -291,7 +290,7 @@ export default function SubmitClient({
             {priceType === "paid" && canReceivePayments && (
               <div className="mt-4">
                 <label className="mb-1.5 block text-[12px] text-text-muted">
-                  価格
+                  {t("price")}
                 </label>
                 <div className="relative">
                   <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xl text-text-muted">
@@ -311,8 +310,11 @@ export default function SubmitClient({
                 </div>
                 <p className="mt-2 text-[12px] text-text-dim">
                   {priceNumber > 0
-                    ? `${priceNumber.toLocaleString()}円で販売されます（手数料20%を差し引いた¥${Math.round(priceNumber * 0.8).toLocaleString()}が売上になります）`
-                    : "1円以上を入力してください"}
+                    ? t("priceHint", {
+                        amount: priceNumber.toLocaleString(),
+                        net: Math.round(priceNumber * 0.8).toLocaleString(),
+                      })
+                    : t("priceHintEmpty")}
                 </p>
               </div>
             )}
@@ -324,17 +326,17 @@ export default function SubmitClient({
 
           {/* 実行環境（無料/有料の次に決める、重要な設定のため） */}
           {(priceType === "free" || (priceType === "paid" && canReceivePayments)) && (
-            <Field label="実行環境" required>
+            <Field label={t("runtime")} required>
               <div className="flex gap-3">
                 <RuntimeOption
-                  label="クラウド（Web）"
-                  description="サーバー上で動作。ブラウザだけで使える"
+                  label={t("runtimeCloud")}
+                  description={t("runtimeCloudDescription")}
                   active={runtime === "cloud"}
                   onClick={() => setRuntime("cloud")}
                 />
                 <RuntimeOption
-                  label="ローカル実行"
-                  description="ダウンロードして使用。データが外に出ない"
+                  label={t("runtimeLocal")}
+                  description={t("runtimeLocalDescription")}
                   active={runtime === "local"}
                   onClick={() => setRuntime("local")}
                 />
@@ -342,9 +344,7 @@ export default function SubmitClient({
 
               {priceType === "paid" && runtime === "cloud" && (
                 <p className="mt-3 text-[12px] font-medium leading-relaxed text-accent-danger">
-                  ご注意：クラウド型はURLを知っている人なら誰でもアクセスできてしまうため、
-                  第三者がURLを流用し、無断で無料公開してしまう恐れがあります。
-                  ログイン必須にする等、アクセス制限をご自身のサービス側で設けることを推奨します。
+                  {t("cloudPaidWarning")}
                 </p>
               )}
             </Field>
@@ -353,7 +353,7 @@ export default function SubmitClient({
           {showForm && (
             <>
               {/* サムネイル画像 */}
-              <Field label="サムネイル画像">
+              <Field label={t("thumbnail")}>
                 <div className="flex items-center gap-4">
                   <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-surface">
                     {thumbnailPreview ? (
@@ -396,7 +396,7 @@ export default function SubmitClient({
                         <path d="M12 3v12m0-12 4 4m-4-4-4 4" />
                         <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
                       </svg>
-                      {thumbnailName ? "画像を変更" : "画像を選択"}
+                      {thumbnailName ? t("changeImage") : t("selectImage")}
                     </button>
                     {thumbnailName && (
                       <p className="mt-1.5 text-[12px] text-text-secondary">
@@ -406,11 +406,11 @@ export default function SubmitClient({
                     )}
                     {thumbnailTooLarge && (
                       <p className="mt-1 text-[12px] text-accent-danger">
-                        上限({formatFileSize(MAX_THUMBNAIL_FILE_SIZE)})を超えています
+                        {t("thumbnailOverLimit", { limit: formatFileSize(MAX_THUMBNAIL_FILE_SIZE) ?? "" })}
                       </p>
                     )}
                     <p className="mt-1.5 text-[12px] text-text-dim">
-                      未設定の場合は、ツール名の頭文字が自動で表示されます（推奨:正方形・PNG/JPEG、最大{formatFileSize(MAX_THUMBNAIL_FILE_SIZE)}）
+                      {t("thumbnailHint", { limit: formatFileSize(MAX_THUMBNAIL_FILE_SIZE) ?? "" })}
                     </p>
                     <input
                       ref={thumbnailInputRef}
@@ -425,7 +425,7 @@ export default function SubmitClient({
               </Field>
 
               {/* ギャラリー画像（最大5枚、商品詳細ページで矢印で切り替えられる） */}
-              <Field label="紹介画像（最大5枚）">
+              <Field label={t("gallery")}>
                 <div className="flex flex-wrap gap-3">
                   {existingGallery.map((url) => (
                     <div key={url} className="group relative h-20 w-20 shrink-0">
@@ -438,7 +438,7 @@ export default function SubmitClient({
                       <button
                         type="button"
                         onClick={() => removeExistingGalleryImage(url)}
-                        aria-label="この画像を削除"
+                        aria-label={t("removeImage")}
                         className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-text-primary text-white shadow-sm"
                       >
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
@@ -452,6 +452,7 @@ export default function SubmitClient({
                       key={`${file.name}-${i}`}
                       file={file}
                       onRemove={() => removeNewGalleryImage(i)}
+                      removeLabel={t("removeImage")}
                     />
                   ))}
 
@@ -469,7 +470,7 @@ export default function SubmitClient({
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                         <path d="M12 5v14M5 12h14" />
                       </svg>
-                      <span className="text-[11px]">追加</span>
+                      <span className="text-[11px]">{t("add")}</span>
                     </button>
                   )}
                 </div>
@@ -489,7 +490,7 @@ export default function SubmitClient({
                   <p className="mt-2 text-[12px] text-accent-danger">{galleryError}</p>
                 )}
                 <p className="mt-2 text-[12px] text-text-dim">
-                  商品詳細ページで、サムネイルと合わせて矢印で切り替えながら見られます（1枚あたり最大{formatFileSize(MAX_THUMBNAIL_FILE_SIZE)}）
+                  {t("galleryHint", { limit: formatFileSize(MAX_THUMBNAIL_FILE_SIZE) ?? "" })}
                 </p>
               </Field>
 
@@ -498,7 +499,7 @@ export default function SubmitClient({
               <input type="hidden" name="platforms" value={platforms.join(",")} readOnly />
 
               {runtime === "local" ? (
-                <Field label="ファイル" required>
+                <Field label={t("file")} required>
                   <div
                     onClick={() => fileInputRef.current?.click()}
                     onDragOver={(e) => {
@@ -542,17 +543,17 @@ export default function SubmitClient({
                           >
                             {formatFileSize(fileSize)}
                             {fileTooLarge &&
-                              `（上限${formatFileSize(MAX_TOOL_FILE_SIZE)}を超えています）`}
+                              t("fileOverLimit", { limit: formatFileSize(MAX_TOOL_FILE_SIZE) ?? "" })}
                           </p>
                         )}
                       </>
                     ) : (
                       <>
                         <p className="text-[13px] text-text-secondary">
-                          ここにファイルをドラッグ、またはクリックして選択
+                          {t("dropHint")}
                         </p>
                         <p className="mt-1 text-[12px] text-text-dim">
-                          ZIP / EXE / APP　最大{formatFileSize(MAX_TOOL_FILE_SIZE)}まで
+                          {t("fileTypeHint", { limit: formatFileSize(MAX_TOOL_FILE_SIZE) ?? "" })}
                         </p>
                       </>
                     )}
@@ -568,7 +569,7 @@ export default function SubmitClient({
                   </div>
                 </Field>
               ) : (
-                <Field label="デモURL" required>
+                <Field label={t("demoUrl")} required>
                   <input
                     type="url"
                     name="demoUrl"
@@ -578,50 +579,50 @@ export default function SubmitClient({
                     className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
                   />
                   <p className="mt-2 text-[12px] text-text-dim">
-                    購入者がアクセスして実際に使うURLを入力してください
+                    {t("demoUrlHint")}
                   </p>
                 </Field>
               )}
 
               {/* ツール名 */}
-              <Field label="ツール名" required>
+              <Field label={t("toolName")} required>
                 <input
                   type="text"
                   name="name"
                   required
                   defaultValue={initialDraft?.name}
-                  placeholder="例：InvoiceParser AI"
+                  placeholder={t("toolNamePlaceholder")}
                   className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
                 />
               </Field>
 
               {/* キャッチコピー */}
-              <Field label="一言説明（キャッチコピー）" required>
+              <Field label={t("tagline")} required>
                 <input
                   type="text"
                   name="tagline"
                   required
                   maxLength={60}
                   defaultValue={initialDraft?.tagline}
-                  placeholder="例：請求書PDFを3秒でスプレッドシートに変換"
+                  placeholder={t("taglinePlaceholder")}
                   className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
                 />
               </Field>
 
               {/* 詳細説明 */}
-              <Field label="詳細説明" required>
+              <Field label={t("description")} required>
                 <textarea
                   name="description"
                   required
                   rows={5}
                   defaultValue={initialDraft?.description}
-                  placeholder="このツールが何を解決するか、どう使うかを説明してください"
+                  placeholder={t("descriptionPlaceholder")}
                   className="w-full resize-none rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
                 />
               </Field>
 
               {/* カテゴリ（複数選択可） */}
-              <Field label="カテゴリ（複数選択可）" required>
+              <Field label={t("categoryLabel")} required>
                 <div className="flex flex-wrap gap-2">
                   {categories.map((c) => (
                     <button
@@ -634,7 +635,7 @@ export default function SubmitClient({
                           : "border-border text-text-secondary hover:border-border-strong"
                       }`}
                     >
-                      {c}
+                      {tCategories(categoryToSlug(c))}
                     </button>
                   ))}
                 </div>
@@ -646,14 +647,14 @@ export default function SubmitClient({
                 />
                 {selectedCategories.length === 0 && (
                   <p className="mt-2 text-[12px] text-text-dim">
-                    少なくとも1つ選んでください
+                    {t("categoryRequired")}
                   </p>
                 )}
               </Field>
 
               {/* 対応環境 */}
               {runtime === "local" ? (
-                <Field label="対応OS" required>
+                <Field label={t("supportedOs")} required>
                   <div className="flex flex-wrap gap-2">
                     {["Windows", "macOS", "Linux"].map((p) => (
                       <button
@@ -675,23 +676,23 @@ export default function SubmitClient({
                     name="minOsVersion"
                     value={minOsVersion}
                     onChange={(e) => setMinOsVersion(e.target.value)}
-                    placeholder="例：Windows 10以降 / macOS 12 Monterey以降"
+                    placeholder={t("minOsPlaceholder")}
                     className="mt-3 w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
                   />
                   <p className="mt-2 text-[12px] text-text-dim">
-                    対応OSと最低バージョンを明記してください。購入者が動作確認できずトラブルになるのを防ぎます
+                    {t("minOsHint")}
                   </p>
                 </Field>
               ) : (
-                <Field label="推奨環境">
+                <Field label={t("recommendedEnv")}>
                   <input
                     type="text"
                     name="minOsVersion"
-                    defaultValue={initialDraft?.minOsVersion || "Chrome / Edge / Safari 最新版"}
+                    defaultValue={initialDraft?.minOsVersion || "Chrome / Edge / Safari"}
                     className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
                   />
                   <p className="mt-2 text-[12px] text-text-dim">
-                    クラウド型でも、推奨ブラウザを記載すると購入者に安心感を与えられます
+                    {t("recommendedEnvHint")}
                   </p>
                 </Field>
               )}
@@ -702,7 +703,7 @@ export default function SubmitClient({
                   disabled={isPending || fileTooLarge || thumbnailTooLarge || !priceValid}
                   className="flex-1 rounded-lg bg-accent-signal py-3 text-sm font-medium text-white transition hover:brightness-105 disabled:opacity-60"
                 >
-                  {isPending ? "公開処理中..." : "公開する"}
+                  {isPending ? t("publishing") : t("publish")}
                 </button>
                 <button
                   type="button"
@@ -710,13 +711,12 @@ export default function SubmitClient({
                   disabled={isSavingDraft}
                   className="rounded-lg border border-border bg-surface px-5 py-3 text-sm font-medium text-text-secondary transition hover:bg-surface-raised disabled:opacity-60"
                 >
-                  {isSavingDraft ? "保存中..." : "下書き保存"}
+                  {isSavingDraft ? t("savingDraft") : t("saveDraft")}
                 </button>
               </div>
               {draftSavedAt && (
                 <p className="text-[12px] text-text-muted">
-                  {draftSavedAt.toLocaleTimeString("ja-JP")}
-                  に下書きを保存しました。マイページからいつでも続きを書けます。
+                  {t("draftSaved", { time: draftSavedAt.toLocaleTimeString() })}
                 </p>
               )}
             </>
@@ -727,7 +727,15 @@ export default function SubmitClient({
   );
 }
 
-function GalleryFilePreview({ file, onRemove }: { file: File; onRemove: () => void }) {
+function GalleryFilePreview({
+  file,
+  onRemove,
+  removeLabel,
+}: {
+  file: File;
+  onRemove: () => void;
+  removeLabel: string;
+}) {
   const preview = useMemo(() => URL.createObjectURL(file), [file]);
 
   useEffect(() => {
@@ -741,7 +749,7 @@ function GalleryFilePreview({ file, onRemove }: { file: File; onRemove: () => vo
       <button
         type="button"
         onClick={onRemove}
-        aria-label="この画像を削除"
+        aria-label={removeLabel}
         className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-text-primary text-white shadow-sm"
       >
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import Header from "@/components/Header";
 import SubmitClient, { type DraftInitialValues } from "./SubmitClient";
 import { createClient } from "@/lib/supabase/server";
@@ -9,6 +10,7 @@ export default async function SubmitPage({
   searchParams: Promise<{ draft?: string }>;
 }) {
   const { draft: draftId } = await searchParams;
+  const t = await getTranslations("auth");
   const supabase = await createClient();
   const {
     data: { user },
@@ -41,10 +43,10 @@ export default async function SubmitPage({
               </div>
 
               <h1 className="mb-1.5 font-display text-lg font-semibold text-text-primary">
-                ログインが必要です
+                {t("loginRequiredTitle")}
               </h1>
               <p className="mb-6 text-[13px] text-text-secondary">
-                ツールを出品するには、ログインまたは新規登録が必要です。
+                {t("loginRequiredBodySubmit")}
               </p>
 
               <div className="flex flex-col gap-2">
@@ -52,13 +54,13 @@ export default async function SubmitPage({
                   href={`/login?next=${encodeURIComponent(nextPath)}`}
                   className="w-full rounded-lg bg-accent-signal py-2.5 text-[13px] font-medium text-white transition hover:brightness-105"
                 >
-                  ログインする
+                  {t("login")}
                 </Link>
                 <Link
                   href={`/signup?next=${encodeURIComponent(nextPath)}`}
                   className="w-full rounded-lg border border-border py-2.5 text-[13px] font-medium text-text-secondary transition hover:bg-surface"
                 >
-                  新規登録する
+                  {t("signup")}
                 </Link>
               </div>
             </div>
