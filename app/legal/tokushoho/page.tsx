@@ -12,9 +12,9 @@ export async function generateMetadata() {
 // 未記入のままでは法令上の表示義務を満たしません。
 // ============================================================
 const OPERATOR = {
-  name: "後藤 周", // 開業届を出す場合は屋号（BuildBay）も併記
-  address: "（　記入してください　）",
-  phone: "（　記入してください　）",
+  name: "後藤 脩", // 開業届を出す場合は屋号（BuildBay）も併記
+  address: "220 台北市板橋區大觀路一段174巷138之2號2樓（台湾）",
+  phone: "+886-983-657006",
   email: "supportbuildbay@gmail.com",
 };
 
