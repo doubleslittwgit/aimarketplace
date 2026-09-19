@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { signInWithGoogle } from "@/app/auth/actions";
 
 export default function GoogleButton({
@@ -9,6 +10,7 @@ export default function GoogleButton({
   next?: string;
   disabled?: boolean;
 }) {
+  const t = useTranslations("auth");
   return (
     <button
       type="button"
@@ -34,7 +36,7 @@ export default function GoogleButton({
           d="M12 4.75c1.76 0 3.34.6 4.59 1.79l3.44-3.44C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.27 6.63l4 3.1C6.22 6.87 8.87 4.75 12 4.75Z"
         />
       </svg>
-      Googleで続ける
+      {t("continueWithGoogle")}
     </button>
   );
 }

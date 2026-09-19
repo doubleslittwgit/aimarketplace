@@ -131,7 +131,11 @@
   "activity": {
     "purchased": "{by} 以 {price} 購買了 {tool}",
     "published": "{by} 上架了 {tool}",
-    "updated": "{by} 將 {tool} 更新至 {version}"
+    "updated": "{by} 將 {tool} 更新至 {version}",
+    "userTaipei": "台北的使用者",
+    "userTokyo": "東京的使用者",
+    "userOsaka": "大阪的使用者",
+    "userTaichung": "台中的使用者"
   },
   "browse": {
     "title": "探索工具",
@@ -160,6 +164,9 @@
       "views": "瀏覽 {count}"
     },
     "description": "簡介",
+    "previousImage": "上一張圖片",
+    "nextImage": "下一張圖片",
+    "viewImageN": "查看第{n}張圖片",
     "relatedTools": "你可能也會喜歡",
     "buyBox": {
       "oneTimePurchase": "一次付費・永久使用",
@@ -366,6 +373,7 @@
     "haveAccount": "已經有帳號了嗎？",
     "loginLink": "登入",
     "or": "或",
+    "continueWithGoogle": "使用 Google 繼續",
     "email": "電子郵件",
     "password": "密碼",
     "passwordPlaceholder": "至少8個字元",

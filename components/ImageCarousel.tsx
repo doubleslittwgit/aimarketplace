@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function ImageCarousel({
   images,
@@ -9,6 +10,7 @@ export default function ImageCarousel({
   images: string[];
   fallbackLabel: string;
 }) {
+  const t = useTranslations("toolDetail");
   const [index, setIndex] = useState(0);
 
   if (images.length === 0) {
@@ -40,7 +42,7 @@ export default function ImageCarousel({
             <button
               type="button"
               onClick={() => goTo(index - 1)}
-              aria-label="前の画像"
+              aria-label={t("previousImage")}
               className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-bg/80 text-text-primary opacity-0 shadow-sm backdrop-blur-sm transition hover:bg-bg group-hover:opacity-100"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -50,7 +52,7 @@ export default function ImageCarousel({
             <button
               type="button"
               onClick={() => goTo(index + 1)}
-              aria-label="次の画像"
+              aria-label={t("nextImage")}
               className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-bg/80 text-text-primary opacity-0 shadow-sm backdrop-blur-sm transition hover:bg-bg group-hover:opacity-100"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -64,7 +66,7 @@ export default function ImageCarousel({
                   key={i}
                   type="button"
                   onClick={() => goTo(i)}
-                  aria-label={`${i + 1}枚目の画像を見る`}
+                  aria-label={t("viewImageN", { n: i + 1 })}
                   className={`h-1.5 rounded-full transition-all ${
                     i === index ? "w-4 bg-bg" : "w-1.5 bg-bg/60"
                   }`}

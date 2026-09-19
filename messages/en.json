@@ -131,7 +131,11 @@
   "activity": {
     "purchased": "{by} bought {tool} for {price}",
     "published": "{by} published {tool}",
-    "updated": "{by} updated {tool} to {version}"
+    "updated": "{by} updated {tool} to {version}",
+    "userTaipei": "a user in Taipei",
+    "userTokyo": "a user in Tokyo",
+    "userOsaka": "a user in Osaka",
+    "userTaichung": "a user in Taichung"
   },
   "browse": {
     "title": "Browse tools",
@@ -160,6 +164,9 @@
       "views": "{count} views"
     },
     "description": "Overview",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "viewImageN": "View image {n}",
     "relatedTools": "You might also like",
     "buyBox": {
       "oneTimePurchase": "One-time purchase, unlimited use",
@@ -366,6 +373,7 @@
     "haveAccount": "Already have an account?",
     "loginLink": "Log in",
     "or": "or",
+    "continueWithGoogle": "Continue with Google",
     "email": "Email address",
     "password": "Password",
     "passwordPlaceholder": "8+ characters",
