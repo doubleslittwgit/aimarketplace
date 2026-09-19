@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthResult = { error: string } | { error: null };
@@ -19,22 +20,23 @@ function safeNextPath(value: FormDataEntryValue | string | null): string {
 }
 
 export async function login(formData: FormData): Promise<AuthResult> {
+  const t = await getTranslations("errors");
   const supabase = await createClient();
 
   const email = String(formData.get("email") || "").trim();
   const password = String(formData.get("password") || "");
 
   if (!email || !password) {
-    return { error: "メールアドレスとパスワードを入力してください" };
+    return { error: t("emailPasswordRequired") };
   }
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    // Supabaseの生のエラーメッセージは英語のため、日本語に置き換える
+    // Supabaseの生のエラーメッセージは英語のため、翻訳済みの文言に置き換える
     const message =
       error.message === "Invalid login credentials"
-        ? "メールアドレスまたはパスワードが正しくありません"
+        ? t("invalidCredentials")
         : error.message;
     return { error: message };
   }
@@ -45,6 +47,7 @@ export async function login(formData: FormData): Promise<AuthResult> {
 }
 
 export async function signup(formData: FormData): Promise<AuthResult> {
+  const t = await getTranslations("errors");
   const supabase = await createClient();
 
   const email = String(formData.get("email") || "").trim();
@@ -52,10 +55,10 @@ export async function signup(formData: FormData): Promise<AuthResult> {
   const displayName = String(formData.get("displayName") || "").trim();
 
   if (!email || !password) {
-    return { error: "メールアドレスとパスワードを入力してください" };
+    return { error: t("emailPasswordRequired") };
   }
   if (password.length < 8) {
-    return { error: "パスワードは8文字以上で設定してください" };
+    return { error: t("passwordTooShort") };
   }
 
   const { error } = await supabase.auth.signUp({
@@ -69,7 +72,7 @@ export async function signup(formData: FormData): Promise<AuthResult> {
   if (error) {
     const message =
       error.message === "User already registered"
-        ? "このメールアドレスはすでに登録されています"
+        ? t("emailAlreadyRegistered")
         : error.message;
     return { error: message };
   }

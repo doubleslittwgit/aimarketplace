@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE } from "@/lib/mock-data";
 import { reviewToolSubmission } from "@/lib/ai/review-tool";
@@ -67,6 +68,7 @@ async function processGalleryImages(
   userId: string,
   toolId: string
 ): Promise<{ urls: string[]; error?: string }> {
+  const t = await getTranslations("errors");
   const existingRaw = String(formData.get("existingGalleryUrls") || "");
   const existing = existingRaw ? existingRaw.split(",").filter(Boolean) : [];
 
@@ -76,7 +78,7 @@ async function processGalleryImages(
 
   for (const file of newFiles) {
     if (file.size > MAX_THUMBNAIL_SIZE) {
-      return { urls: existing, error: `「${file.name}」は上限(10MB)を超えています` };
+      return { urls: existing, error: t("galleryImageTooLarge", { name: file.name }) };
     }
   }
 
@@ -90,7 +92,7 @@ async function processGalleryImages(
       .upload(key, file, { upsert: true });
 
     if (uploadError) {
-      return { urls: existing, error: `画像のアップロードに失敗しました: ${uploadError.message}` };
+      return { urls: existing, error: t("galleryUploadFailed", { message: uploadError.message }) };
     }
 
     const { data: publicUrlData } = supabase.storage.from("tool-images").getPublicUrl(key);
@@ -101,13 +103,14 @@ async function processGalleryImages(
 }
 
 export async function createTool(formData: FormData): Promise<CreateToolResult> {
+  const t = await getTranslations("errors");
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "出品するにはログインが必要です" };
+    return { error: t("submitLoginRequired") };
   }
 
   const name = String(formData.get("name") || "").trim();
@@ -129,10 +132,10 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   const uploadedThumbnail = thumbnail instanceof File && thumbnail.size > 0 ? thumbnail : null;
 
   if (!name || !tagline || !description || categoriesList.length === 0) {
-    return { error: "必須項目が入力されていません" };
+    return { error: t("requiredFieldsMissing") };
   }
   if (Number.isNaN(price)) {
-    return { error: "価格の形式が正しくありません" };
+    return { error: t("invalidPriceFormat") };
   }
   if (price > 0) {
     // 有料ツールは、実際に売上を受け取れる状態の出品者しか出せないようにする。
@@ -143,13 +146,12 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     );
     if (receiveCheckError) {
       return {
-        error: `受け取り設定の確認に失敗しました: ${receiveCheckError.message}`,
+        error: t("payoutCheckFailed", { message: receiveCheckError.message }),
       };
     }
     if (!canReceive) {
       return {
-        error:
-          "有料ツールを出品するには、先に売上の受け取り設定（Stripe登録）を完了してください。マイページの「売上の受け取り設定」から進められます。無料ツールとして出品する場合はこの設定は不要です。",
+        error: t("payoutRequiredForSubmit"),
       };
     }
   }
@@ -157,13 +159,13 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   // ファイルが付いている可能性があるため、ここでは行わない。
   // 実際のチェックは、下書きの既存ファイルと合わせた後（fileKey確定後）に行う。
   if (runtime === "cloud" && !demoUrl) {
-    return { error: "クラウド型ツールにはデモURLの入力が必要です" };
+    return { error: t("demoUrlRequiredForCloud") };
   }
   if (uploadedFile && uploadedFile.size > MAX_FILE_SIZE) {
-    return { error: "ファイルサイズは300MBまでです" };
+    return { error: t("fileSizeLimit300mb") };
   }
   if (uploadedThumbnail && uploadedThumbnail.size > MAX_THUMBNAIL_SIZE) {
-    return { error: "サムネイル画像は10MBまでです" };
+    return { error: t("thumbnailSizeLimit10mb") };
   }
 
   // 下書きから続けて公開する場合は、既存の行をそのまま使う
@@ -184,10 +186,10 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       .maybeSingle();
 
     if (!existing || existing.author_id !== user.id) {
-      return { error: "下書きが見つかりませんでした" };
+      return { error: t("draftNotFound") };
     }
     if (existing.status !== "draft") {
-      return { error: "この出品は既に審査に出されています" };
+      return { error: t("alreadySubmittedForReview") };
     }
     id = existing.id;
     slug = existing.slug;
@@ -215,14 +217,14 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       .upload(fileKey, uploadedFile, { upsert: Boolean(draftId) });
 
     if (uploadError) {
-      return { error: `ファイルのアップロードに失敗しました: ${uploadError.message}` };
+      return { error: t("fileUploadFailed", { message: uploadError.message }) };
     }
     fileSizeBytes = uploadedFile.size;
   }
 
   if (runtime === "local" && !fileKey) {
     // 下書きの時点でファイルを付け忘れ、本文入力時にも付けなかった場合
-    return { error: "ローカル実行ツールにはファイルのアップロードが必要です" };
+    return { error: t("localFileRequired") };
   }
 
   // サムネイルは tool-images（公開バケット）に保存し、公開URLをそのままDBに持たせる
@@ -235,7 +237,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
 
     if (thumbUploadError) {
       if (fileKey && !draftId) await supabase.storage.from("tool-files").remove([fileKey]);
-      return { error: `サムネイルのアップロードに失敗しました: ${thumbUploadError.message}` };
+      return { error: t("thumbnailUploadFailed", { message: thumbUploadError.message }) };
     }
 
     const { data: publicUrlData } = supabase.storage
@@ -302,7 +304,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     if (thumbKey && !draftId) {
       await supabase.storage.from("tool-images").remove([thumbKey]);
     }
-    return { error: `保存に失敗しました: ${upsertError.message}` };
+    return { error: t("saveFailed", { message: upsertError.message }) };
   }
 
   // 出品者の表示名（通知の宛先ではなく、管理者向け通知の文面に使う）
@@ -312,7 +314,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     .eq("id", user.id)
     .maybeSingle();
   const authorName =
-    authorProfile?.display_name || authorProfile?.handle || "名前未設定の出品者";
+    authorProfile?.display_name || authorProfile?.handle || t("unnamedSeller");
 
   if (initialStatus === "rejected") {
     // 危険判定による自動却下: 出品者へ、そして管理者にも念のため知らせる
@@ -356,13 +358,14 @@ export async function saveDraft(
   formData: FormData,
   draftId?: string
 ): Promise<SaveDraftResult> {
+  const t = await getTranslations("errors");
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "下書き保存にはログインが必要です" };
+    return { error: t("draftSaveLoginRequired") };
   }
 
   const name = String(formData.get("name") || "").trim();
@@ -385,10 +388,10 @@ export async function saveDraft(
     thumbnail instanceof File && thumbnail.size > 0 ? thumbnail : null;
 
   if (uploadedFile && uploadedFile.size > MAX_FILE_SIZE) {
-    return { error: "ファイルサイズは300MBまでです" };
+    return { error: t("fileSizeLimit300mb") };
   }
   if (uploadedThumbnail && uploadedThumbnail.size > MAX_THUMBNAIL_SIZE) {
-    return { error: "サムネイル画像は10MBまでです" };
+    return { error: t("thumbnailSizeLimit10mb") };
   }
 
   let id: string;
@@ -405,10 +408,10 @@ export async function saveDraft(
       .maybeSingle();
 
     if (!existing || existing.author_id !== user.id) {
-      return { error: "下書きが見つかりませんでした" };
+      return { error: t("draftNotFound") };
     }
     if (existing.status !== "draft") {
-      return { error: "この出品は既に下書きではありません（審査中または公開済み）" };
+      return { error: t("notADraftAnymore") };
     }
     id = existing.id;
     slug = existing.slug;
@@ -430,7 +433,7 @@ export async function saveDraft(
       .from("tool-files")
       .upload(newKey, uploadedFile, { upsert: true });
     if (uploadError) {
-      return { error: `ファイルのアップロードに失敗しました: ${uploadError.message}` };
+      return { error: t("fileUploadFailed", { message: uploadError.message }) };
     }
     fileKey = newKey;
     fileSizeBytes = uploadedFile.size;
@@ -442,7 +445,7 @@ export async function saveDraft(
       .from("tool-images")
       .upload(newThumbKey, uploadedThumbnail, { upsert: true });
     if (thumbUploadError) {
-      return { error: `サムネイルのアップロードに失敗しました: ${thumbUploadError.message}` };
+      return { error: t("thumbnailUploadFailed", { message: thumbUploadError.message }) };
     }
     const { data: publicUrlData } = supabase.storage
       .from("tool-images")
@@ -460,7 +463,7 @@ export async function saveDraft(
       id,
       slug,
       author_id: user.id,
-      name: name || "無題の下書き",
+      name: name || t("untitledDraft"),
       tagline,
       description,
       category,
@@ -480,7 +483,7 @@ export async function saveDraft(
   );
 
   if (upsertError) {
-    return { error: `下書きの保存に失敗しました: ${upsertError.message}` };
+    return { error: t("saveFailed", { message: upsertError.message }) };
   }
 
   return { error: null, draftId: id, slug };

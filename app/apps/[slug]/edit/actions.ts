@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { after } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE } from "@/lib/mock-data";
 import { translateAndSaveTool } from "@/lib/translate-tool";
@@ -44,6 +45,7 @@ async function processGalleryImages(
   userId: string,
   toolId: string
 ): Promise<{ urls: string[]; error?: string }> {
+  const t = await getTranslations("errors");
   const existingRaw = String(formData.get("existingGalleryUrls") || "");
   const existing = existingRaw ? existingRaw.split(",").filter(Boolean) : [];
 
@@ -53,7 +55,7 @@ async function processGalleryImages(
 
   for (const file of newFiles) {
     if (file.size > MAX_THUMBNAIL_SIZE) {
-      return { urls: existing, error: `「${file.name}」は上限(10MB)を超えています` };
+      return { urls: existing, error: t("galleryImageTooLarge", { name: file.name }) };
     }
   }
 
@@ -67,7 +69,7 @@ async function processGalleryImages(
       .upload(key, file, { upsert: true });
 
     if (uploadError) {
-      return { urls: existing, error: `画像のアップロードに失敗しました: ${uploadError.message}` };
+      return { urls: existing, error: t("galleryUploadFailed", { message: uploadError.message }) };
     }
 
     const { data: publicUrlData } = supabase.storage.from("tool-images").getPublicUrl(key);
@@ -82,13 +84,14 @@ export async function updateTool(
   toolId: string,
   formData: FormData
 ): Promise<EditActionResult> {
+  const t = await getTranslations("errors");
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "編集するにはログインが必要です" };
+    return { error: t("editLoginRequired") };
   }
 
   // 所有権の確認。RLSでも二重に守られているが、ここで確認しておくと
@@ -100,10 +103,10 @@ export async function updateTool(
     .maybeSingle();
 
   if (fetchError || !existing) {
-    return { error: "ツールが見つかりませんでした" };
+    return { error: t("toolNotFound") };
   }
   if (existing.author_id !== user.id) {
-    return { error: "このツールを編集する権限がありません" };
+    return { error: t("noEditPermission") };
   }
 
   const name = String(formData.get("name") || "").trim();
@@ -125,10 +128,10 @@ export async function updateTool(
     thumbnail instanceof File && thumbnail.size > 0 ? thumbnail : null;
 
   if (!name || !tagline || !description || categoriesList.length === 0) {
-    return { error: "必須項目が入力されていません" };
+    return { error: t("requiredFieldsMissing") };
   }
   if (Number.isNaN(price)) {
-    return { error: "価格の形式が正しくありません" };
+    return { error: t("invalidPriceFormat") };
   }
   if (price > 0) {
     // 出品時と同じチェック。既に有料公開中でも、その後Stripe側の状態が
@@ -139,24 +142,23 @@ export async function updateTool(
     );
     if (receiveCheckError) {
       return {
-        error: `受け取り設定の確認に失敗しました: ${receiveCheckError.message}`,
+        error: t("payoutCheckFailed", { message: receiveCheckError.message }),
       };
     }
     if (!canReceive) {
       return {
-        error:
-          "有料で公開し続けるには、売上の受け取り設定（Stripe登録）が必要です。マイページの「売上の受け取り設定」から進められます。",
+        error: t("payoutRequiredForContinuedPublish"),
       };
     }
   }
   if (existing.runtime === "cloud" && !demoUrl) {
-    return { error: "クラウド型ツールにはデモURLの入力が必要です" };
+    return { error: t("demoUrlRequiredForCloud") };
   }
   if (uploadedFile && uploadedFile.size > MAX_FILE_SIZE) {
-    return { error: "ファイルサイズは300MBまでです" };
+    return { error: t("fileSizeLimit300mb") };
   }
   if (uploadedThumbnail && uploadedThumbnail.size > MAX_THUMBNAIL_SIZE) {
-    return { error: "サムネイル画像は10MBまでです" };
+    return { error: t("thumbnailSizeLimit10mb") };
   }
 
   let fileKey = existing.file_key;
@@ -172,7 +174,7 @@ export async function updateTool(
       .upload(newKey, uploadedFile, { upsert: true });
 
     if (uploadError) {
-      return { error: `ファイルのアップロードに失敗しました: ${uploadError.message}` };
+      return { error: t("fileUploadFailed", { message: uploadError.message }) };
     }
     fileKey = newKey;
   }
@@ -185,7 +187,7 @@ export async function updateTool(
 
     if (thumbUploadError) {
       return {
-        error: `サムネイルのアップロードに失敗しました: ${thumbUploadError.message}`,
+        error: t("thumbnailUploadFailed", { message: thumbUploadError.message }),
       };
     }
     const { data: publicUrlData } = supabase.storage
@@ -219,7 +221,7 @@ export async function updateTool(
     .eq("id", toolId);
 
   if (updateError) {
-    return { error: `更新に失敗しました: ${updateError.message}` };
+    return { error: t("updateFailed", { message: updateError.message }) };
   }
 
   // 公開済みのツールを編集した場合、既存の翻訳キャッシュは古い内容のままなので
@@ -236,13 +238,14 @@ export async function setToolPublished(
   toolId: string,
   published: boolean
 ): Promise<EditActionResult> {
+  const t = await getTranslations("errors");
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "ログインが必要です" };
+    return { error: t("loginRequired") };
   }
 
   const { error } = await supabase
@@ -252,7 +255,7 @@ export async function setToolPublished(
     .eq("author_id", user.id); // 念のため二重に所有権を確認
 
   if (error) {
-    return { error: `更新に失敗しました: ${error.message}` };
+    return { error: t("updateFailed", { message: error.message }) };
   }
 
   return { error: null };
@@ -266,13 +269,14 @@ export async function setToolPublished(
  * 1件でもあれば「非公開にする」を案内して、実際の削除は行わない。
  */
 export async function deleteTool(toolId: string): Promise<EditActionResult> {
+  const t = await getTranslations("errors");
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "ログインが必要です" };
+    return { error: t("loginRequired") };
   }
 
   const { data: tool } = await supabase
@@ -282,7 +286,7 @@ export async function deleteTool(toolId: string): Promise<EditActionResult> {
     .maybeSingle();
 
   if (!tool || tool.author_id !== user.id) {
-    return { error: "このツールを削除する権限がありません" };
+    return { error: t("noDeletePermission") };
   }
 
   const { count, error: countError } = await supabase
@@ -291,12 +295,11 @@ export async function deleteTool(toolId: string): Promise<EditActionResult> {
     .eq("tool_id", toolId);
 
   if (countError) {
-    return { error: `購入履歴の確認に失敗しました: ${countError.message}` };
+    return { error: t("purchaseHistoryCheckFailed", { message: countError.message }) };
   }
   if (count && count > 0) {
     return {
-      error:
-        "このツールは購入者がいるため完全には削除できません。代わりに「非公開にする」をお使いください（購入者は引き続きダウンロードできます）。",
+      error: t("cannotDeleteHasPurchases"),
     };
   }
 
@@ -319,7 +322,7 @@ export async function deleteTool(toolId: string): Promise<EditActionResult> {
     .eq("id", toolId);
 
   if (deleteError) {
-    return { error: `削除に失敗しました: ${deleteError.message}` };
+    return { error: t("deleteFailed", { message: deleteError.message }) };
   }
 
   redirect("/dashboard");

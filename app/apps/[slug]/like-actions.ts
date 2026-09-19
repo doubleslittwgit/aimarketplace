@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 
 export type LikeResult =
@@ -19,8 +20,9 @@ export type LikeResult =
  * アプリ側からは書き込まない（書けるようにすると数字を盛れてしまう）。
  */
 export async function toggleLike(toolId: string): Promise<LikeResult> {
+  const t = await getTranslations("errors");
   if (!toolId) {
-    return { ok: false, error: "対象のツールが指定されていません" };
+    return { ok: false, error: t("targetToolMissing") };
   }
 
   const supabase = await createClient();
@@ -31,7 +33,7 @@ export async function toggleLike(toolId: string): Promise<LikeResult> {
   if (!user) {
     return {
       ok: false,
-      error: "いいねするにはログインが必要です",
+      error: t("likeLoginRequired"),
       needsLogin: true,
     };
   }
@@ -45,7 +47,7 @@ export async function toggleLike(toolId: string): Promise<LikeResult> {
     .maybeSingle();
 
   if (lookupError) {
-    return { ok: false, error: "状態の取得に失敗しました" };
+    return { ok: false, error: t("likeStatusFetchFailed") };
   }
 
   let liked: boolean;
@@ -58,7 +60,7 @@ export async function toggleLike(toolId: string): Promise<LikeResult> {
       .eq("user_id", user.id);
 
     if (error) {
-      return { ok: false, error: "いいねの取り消しに失敗しました" };
+      return { ok: false, error: t("unlikeFailed") };
     }
     liked = false;
   } else {
@@ -72,7 +74,7 @@ export async function toggleLike(toolId: string): Promise<LikeResult> {
       if (error.code === "23505") {
         liked = true;
       } else {
-        return { ok: false, error: "いいねに失敗しました" };
+        return { ok: false, error: t("likeFailed") };
       }
     } else {
       liked = true;

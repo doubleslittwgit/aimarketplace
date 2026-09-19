@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { notify } from "@/lib/notifications/create";
 import { newReview } from "@/lib/notifications/content";
@@ -23,16 +24,17 @@ export async function upsertReview(
   rating: number,
   comment: string
 ): Promise<ReviewActionResult> {
+  const t = await getTranslations("errors");
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "レビューを書くにはログインが必要です" };
+    return { error: t("reviewLoginRequired") };
   }
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-    return { error: "評価は1〜5の範囲で選んでください" };
+    return { error: t("ratingRangeInvalid") };
   }
 
   // 新規投稿か上書き編集かを先に判定しておく。
@@ -65,8 +67,8 @@ export async function upsertReview(
   if (error) {
     // RLSに弾かれた場合（＝購入していない）は、分かりやすいメッセージに置き換える
     const message = error.message.toLowerCase().includes("row-level security")
-      ? "このツールを購入した方だけがレビューを書けます"
-      : `投稿に失敗しました: ${error.message}`;
+      ? t("reviewRequiresPurchase")
+      : t("postFailed", { message: error.message });
     return { error: message };
   }
 
@@ -96,13 +98,14 @@ export async function deleteReview(
   reviewId: string,
   slug: string
 ): Promise<ReviewActionResult> {
+  const t = await getTranslations("errors");
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "ログインが必要です" };
+    return { error: t("loginRequired") };
   }
 
   // 対象を自分の投稿に限定しているのはRLS（"users can delete own reviews"）。
@@ -110,7 +113,7 @@ export async function deleteReview(
   const { error } = await supabase.from("reviews").delete().eq("id", reviewId);
 
   if (error) {
-    return { error: `削除に失敗しました: ${error.message}` };
+    return { error: t("deleteFailed", { message: error.message }) };
   }
 
   revalidatePath(`/apps/${slug}`);

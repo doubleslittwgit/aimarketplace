@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { notifyAdmins } from "@/lib/notifications/create";
 import { adminToolReported } from "@/lib/notifications/content";
@@ -19,8 +20,9 @@ export async function reportTool(
   reason: string,
   detail: string
 ): Promise<ReportResult> {
-  if (!toolId) return { ok: false, error: "対象のツールが指定されていません" };
-  if (!REASON_LABELS[reason]) return { ok: false, error: "通報理由を選んでください" };
+  const t = await getTranslations("errors");
+  if (!toolId) return { ok: false, error: t("targetToolMissing") };
+  if (!REASON_LABELS[reason]) return { ok: false, error: t("reportReasonRequired") };
 
   const supabase = await createClient();
   const {
@@ -28,7 +30,7 @@ export async function reportTool(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { ok: false, error: "通報にはログインが必要です", needsLogin: true };
+    return { ok: false, error: t("reportLoginRequired"), needsLogin: true };
   }
 
   const { data: tool } = await supabase
@@ -37,7 +39,7 @@ export async function reportTool(
     .eq("id", toolId)
     .maybeSingle();
 
-  if (!tool) return { ok: false, error: "対象のツールが見つかりません" };
+  if (!tool) return { ok: false, error: t("reportToolNotFound") };
 
   const { error } = await supabase.from("tool_reports").insert({
     tool_id: toolId,
@@ -49,9 +51,9 @@ export async function reportTool(
   if (error) {
     // 既に同じ人が同じツールを通報済み（ユニーク制約違反）
     if (error.code === "23505") {
-      return { ok: false, error: "このツールは既に通報済みです" };
+      return { ok: false, error: t("alreadyReported") };
     }
-    return { ok: false, error: `通報に失敗しました: ${error.message}` };
+    return { ok: false, error: t("reportFailed", { message: error.message }) };
   }
 
   await notifyAdmins(

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { stripe } from "@/lib/stripe/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -28,6 +29,7 @@ async function getOrigin() {
 export async function startSellerOnboarding(): Promise<
   SellerActionResult | never
 > {
+  const t = await getTranslations("errors");
   const supabase = await createClient();
   const {
     data: { user },
@@ -120,8 +122,7 @@ export async function startSellerOnboarding(): Promise<
           insertError.message
         );
         return {
-          error:
-            "登録情報の保存に失敗しました。少し時間をおいて、もう一度お試しください。",
+          error: t("sellerSaveFailed"),
         };
       }
     }
@@ -143,12 +144,12 @@ export async function startSellerOnboarding(): Promise<
 
     onboardingUrl = link.url;
   } catch (e) {
-    const message = e instanceof Error ? e.message : "不明なエラー";
-    return { error: `Stripeの登録準備に失敗しました: ${message}` };
+    const message = e instanceof Error ? e.message : t("unknownError");
+    return { error: t("stripeOnboardingPrepFailed", { message }) };
   }
 
   if (!onboardingUrl) {
-    return { error: "登録画面のURLを取得できませんでした" };
+    return { error: t("onboardingUrlFailed") };
   }
 
   // redirect は try の外で呼ぶ
@@ -163,6 +164,7 @@ export async function startSellerOnboarding(): Promise<
 export async function openSellerDashboard(): Promise<
   SellerActionResult | never
 > {
+  const t = await getTranslations("errors");
   const supabase = await createClient();
   const {
     data: { user },
@@ -183,10 +185,10 @@ export async function openSellerDashboard(): Promise<
       .maybeSingle();
 
     if (!sellerAccount) {
-      return { error: "まだStripeの登録が行われていません" };
+      return { error: t("stripeNotRegisteredYet") };
     }
     if (!sellerAccount.details_submitted) {
-      return { error: "Stripeの登録がまだ完了していません" };
+      return { error: t("stripeRegistrationIncomplete") };
     }
 
     const link = await stripe.accounts.createLoginLink(
@@ -194,12 +196,12 @@ export async function openSellerDashboard(): Promise<
     );
     loginUrl = link.url;
   } catch (e) {
-    const message = e instanceof Error ? e.message : "不明なエラー";
-    return { error: `ダッシュボードを開けませんでした: ${message}` };
+    const message = e instanceof Error ? e.message : t("unknownError");
+    return { error: t("dashboardOpenFailed", { message }) };
   }
 
   if (!loginUrl) {
-    return { error: "ダッシュボードのURLを取得できませんでした" };
+    return { error: t("dashboardUrlFailed") };
   }
 
   redirect(loginUrl);

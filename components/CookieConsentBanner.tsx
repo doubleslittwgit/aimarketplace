@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 const STORAGE_KEY = "buildbay-cookie-notice-ack";
 
@@ -14,6 +15,7 @@ const STORAGE_KEY = "buildbay-cookie-notice-ack";
  * 「使っていることをお知らせし、確認いただく」という告知形式にしている。
  */
 export default function CookieConsentBanner() {
+  const t = useTranslations("cookieNotice");
   const [visible, setVisible] = useState(false);
 
   // localStorageはブラウザにしか無いため、サーバー側のレンダリングでは
@@ -49,19 +51,20 @@ export default function CookieConsentBanner() {
     <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-bg/95 backdrop-blur-sm">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-6 py-4 text-[13px] text-text-secondary sm:flex-row sm:justify-between">
         <p className="leading-relaxed">
-          本サービスは、ログイン状態を維持するために必要なCookieを使用しています。
-          詳しくは
-          <Link href="/legal/privacy" className="text-accent-ai underline underline-offset-2">
-            プライバシーポリシー
-          </Link>
-          をご覧ください。
+          {t.rich("text", {
+            link: (chunks) => (
+              <Link href="/legal/privacy" className="text-accent-ai underline underline-offset-2">
+                {chunks}
+              </Link>
+            ),
+          })}
         </p>
         <button
           type="button"
           onClick={acknowledge}
           className="shrink-0 rounded-lg bg-accent-signal px-4 py-2 text-[13px] font-medium text-white transition hover:brightness-105"
         >
-          確認しました
+          {t("acknowledge")}
         </button>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { stripe, PLATFORM_FEE_RATE } from "@/lib/stripe/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -20,6 +21,7 @@ export type CheckoutResult = { error: string };
  *      （ここで作ると「決済画面を開いただけで購入済み」になってしまう）
  */
 export async function startCheckout(toolId: string): Promise<CheckoutResult | never> {
+  const t = await getTranslations("errors");
   const supabase = await createClient();
   const {
     data: { user },
@@ -37,17 +39,17 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
     .maybeSingle();
 
   if (toolError || !tool) {
-    return { error: "ツールが見つかりませんでした" };
+    return { error: t("toolNotFound") };
   }
   if (tool.status !== "published") {
-    return { error: "このツールは現在購入できません" };
+    return { error: t("toolNotPurchasable") };
   }
   if (tool.price <= 0) {
-    return { error: "無料ツールは購入手続きが不要です" };
+    return { error: t("freeToolNoCheckout") };
   }
   // 自分のツールを自分で買う不正（手数料だけ払って売上を水増しする等）を防ぐ
   if (tool.author_id === user.id) {
-    return { error: "自分が出品したツールは購入できません" };
+    return { error: t("cannotBuyOwnTool") };
   }
 
   // すでに購入済み・処理中のものを二重に買わせない
@@ -78,7 +80,7 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
 
   if (sellerAccountError) {
     return {
-      error: `出品者情報の確認に失敗しました: ${sellerAccountError.message}`,
+      error: t("sellerInfoCheckFailed", { message: sellerAccountError.message }),
     };
   }
   if (
@@ -87,8 +89,7 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
     !sellerAccount.payouts_enabled
   ) {
     return {
-      error:
-        "現在このツールは購入できません（出品者の受け取り設定が完了していません）",
+      error: t("sellerPayoutIncomplete"),
     };
   }
 
@@ -147,12 +148,12 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
 
     checkoutUrl = session.url;
   } catch (e) {
-    const message = e instanceof Error ? e.message : "不明なエラー";
-    return { error: `決済の準備に失敗しました: ${message}` };
+    const message = e instanceof Error ? e.message : t("unknownError");
+    return { error: t("checkoutPreparationFailed", { message }) };
   }
 
   if (!checkoutUrl) {
-    return { error: "決済ページのURLを取得できませんでした" };
+    return { error: t("checkoutUrlFailed") };
   }
 
   // redirect は try の外で呼ぶ。
