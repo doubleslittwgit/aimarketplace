@@ -36,11 +36,11 @@ const HTML = `
 
 <dl class="mt-8 border-t border-border">
   ${row("サービス名", "BuildBay")}
-  ${row("運営者", OPERATOR.name)}
+  ${row("運営者", `<span translate="no">${OPERATOR.name}</span>`)}
   ${row("所在地", OPERATOR.address)}
   ${row(
     "電話番号",
-    `${OPERATOR.phone}<span class="mt-1 block text-[13px] text-text-muted">お問い合わせは原則としてメールにて受け付けております。</span>`
+    `<p>${OPERATOR.phone}</p><p class="mt-1 text-[13px] text-text-muted">お問い合わせは原則としてメールにて受け付けております。</p>`
   )}
   ${row("メールアドレス", OPERATOR.email)}
   ${row("販売価格", "各ツールのページに表示された価格（消費税込み）によります。")}
@@ -63,5 +63,16 @@ const HTML = `
 `;
 
 export default function TokushohoPage() {
-  return <LegalPageContent slug="tokushoho" html={HTML} />;
+  return (
+    <LegalPageContent
+      slug="tokushoho"
+      html={HTML}
+      overrides={{
+        // translate="no"により英語版でも「後藤 脩」のまま残るため、
+        // DeepLのローマ字化（Osamu Goto等）に任せず、ここで確実に固定する。
+        // 繁体字は漢字表記のままで自然なため、上書きしない。
+        en: [[OPERATOR.name, "Shu Goto"]],
+      }}
+    />
+  );
 }

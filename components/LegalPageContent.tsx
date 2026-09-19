@@ -2,6 +2,7 @@ import { after } from "next/server";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { translateAndSaveLegalPage } from "@/lib/translate-legal";
+import type { SupportedLocale } from "@/lib/deepl";
 import type { Locale } from "@/i18n/config";
 
 /**
@@ -14,13 +15,18 @@ import type { Locale } from "@/i18n/config";
  * htmlは常にこのアプリのコード（各法務ページファイル）由来の
  * 固定文字列であり、ユーザー入力ではないため dangerouslySetInnerHTML
  * を使って問題ない。
+ *
+ * overrides: 人名など、DeepLの自動翻訳に任せたくない部分があるページで使う
+ * （translateAndSaveLegalPageにそのまま渡す）。
  */
 export default async function LegalPageContent({
   slug,
   html,
+  overrides,
 }: {
   slug: string;
   html: string;
+  overrides?: Partial<Record<SupportedLocale, [string, string][]>>;
 }) {
   const locale = (await getLocale()) as Locale;
 
@@ -40,6 +46,6 @@ export default async function LegalPageContent({
     return <div dangerouslySetInnerHTML={{ __html: data.html }} />;
   }
 
-  after(() => translateAndSaveLegalPage(slug, html));
+  after(() => translateAndSaveLegalPage(slug, html, overrides));
   return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
