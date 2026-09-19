@@ -2,7 +2,9 @@
 
 import { useState, useTransition, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
+import { categoryToSlug } from "@/lib/category-slugs";
 import { updateTool, setToolPublished, deleteTool } from "./actions";
 
 type Tool = {
@@ -33,6 +35,10 @@ export default function EditToolClient({
   canReceivePayments: boolean;
   hasPurchases: boolean;
 }) {
+  const t = useTranslations("edit");
+  const tSubmit = useTranslations("submit");
+  const tCategories = useTranslations("categories");
+  const tCommon = useTranslations("common");
   const [price, setPrice] = useState(String(tool.price));
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     tool.categories?.length ? tool.categories : tool.category ? [tool.category] : []
@@ -116,13 +122,16 @@ export default function EditToolClient({
     const incoming = Array.from(selected);
 
     if (incoming.length > remaining) {
-      setGalleryError(`追加できるのはあと${remaining}枚までです`);
+      setGalleryError(tSubmit("galleryLimitError", { remaining }));
     }
 
     const oversized = incoming.find((f) => f.size > MAX_THUMBNAIL_FILE_SIZE);
     if (oversized) {
       setGalleryError(
-        `「${oversized.name}」は上限(${formatFileSize(MAX_THUMBNAIL_FILE_SIZE)})を超えています`
+        tSubmit("galleryFileTooLargeError", {
+          name: oversized.name,
+          limit: formatFileSize(MAX_THUMBNAIL_FILE_SIZE) ?? "",
+        })
       );
     }
 
@@ -150,16 +159,16 @@ export default function EditToolClient({
   function handleFormAction(formData: FormData) {
     setError(null);
     if (selectedCategories.length === 0) {
-      setError("カテゴリを少なくとも1つ選んでください");
+      setError(tSubmit("errorCategoryRequired"));
       return;
     }
     if (fileTooLarge) {
-      setError(`ファイルサイズが上限(${formatFileSize(MAX_TOOL_FILE_SIZE)})を超えています`);
+      setError(tSubmit("errorFileTooLarge", { limit: formatFileSize(MAX_TOOL_FILE_SIZE) ?? "" }));
       return;
     }
     if (thumbnailTooLarge) {
       setError(
-        `サムネイル画像のサイズが上限(${formatFileSize(MAX_THUMBNAIL_FILE_SIZE)})を超えています`
+        tSubmit("errorThumbnailTooLarge", { limit: formatFileSize(MAX_THUMBNAIL_FILE_SIZE) ?? "" })
       );
       return;
     }
@@ -179,9 +188,7 @@ export default function EditToolClient({
         setError(result.error);
       } else {
         setStatusMessage(
-          willPublish
-            ? "公開しました。反映まで少し時間がかかる場合があります。"
-            : "非公開にしました。購入済みの方は引き続きダウンロードできます。"
+          willPublish ? t("publishedMessage") : t("unpublishedMessage")
         );
       }
     });
@@ -200,7 +207,7 @@ export default function EditToolClient({
       <div className="mx-auto max-w-2xl px-6 py-10">
         <div className="mb-1 flex items-center justify-between">
           <h1 className="font-display text-2xl font-semibold text-text-primary">
-            ツールを編集
+            {t("title")}
           </h1>
           <span
             className={`rounded-full px-2.5 py-1 font-mono text-[11px] font-medium ${
@@ -209,12 +216,12 @@ export default function EditToolClient({
                 : "bg-surface-raised text-text-muted"
             }`}
           >
-            {tool.status === "published" ? "公開中" : "非公開"}
+            {tool.status === "published" ? t("statusPublished") : t("statusUnpublished")}
           </span>
         </div>
         <p className="mb-6 text-[13px] text-text-muted">
           <Link href={`/apps/${tool.slug}`} className="text-accent-signal hover:underline">
-            商品ページを見る
+            {t("viewPage")}
           </Link>
         </p>
 
@@ -233,10 +240,10 @@ export default function EditToolClient({
         <div className="mb-8 flex items-center justify-between rounded-lg border border-border bg-surface px-4 py-3">
           <div>
             <p className="text-[13px] font-medium text-text-primary">
-              {tool.status === "published" ? "現在、公開されています" : "現在、非公開です"}
+              {tool.status === "published" ? t("currentlyPublished") : t("currentlyUnpublished")}
             </p>
             <p className="text-[12px] text-text-muted">
-              非公開にすると検索・一覧に表示されなくなります（購入済みの方は引き続きダウンロード可能）
+              {t("toggleHint")}
             </p>
           </div>
           <button
@@ -246,16 +253,16 @@ export default function EditToolClient({
             className="shrink-0 rounded-lg border border-border bg-bg px-3.5 py-2 text-[13px] font-medium text-text-secondary transition hover:bg-surface-raised disabled:opacity-60"
           >
             {isTogglingStatus
-              ? "処理中..."
+              ? tCommon("processing")
               : tool.status === "published"
-                ? "非公開にする"
-                : "公開する"}
+                ? t("unpublish")
+                : t("publish")}
           </button>
         </div>
 
         <form action={handleFormAction} className="space-y-7">
           {/* サムネイル画像 */}
-          <Field label="サムネイル画像">
+          <Field label={tSubmit("thumbnail")}>
             <div className="flex items-center gap-4">
               <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-surface">
                 {thumbnailPreview ? (
@@ -273,7 +280,7 @@ export default function EditToolClient({
                   onClick={() => thumbnailInputRef.current?.click()}
                   className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3.5 py-2 text-[13px] font-medium text-text-secondary transition hover:border-border-strong hover:bg-surface-raised"
                 >
-                  画像を変更
+                  {tSubmit("changeImage")}
                 </button>
                 {thumbnailName && (
                   <p className="mt-1.5 text-[12px] text-text-secondary">
@@ -283,7 +290,7 @@ export default function EditToolClient({
                 )}
                 {thumbnailTooLarge && (
                   <p className="mt-1 text-[12px] text-accent-danger">
-                    上限({formatFileSize(MAX_THUMBNAIL_FILE_SIZE)})を超えています
+                    {tSubmit("thumbnailOverLimit", { limit: formatFileSize(MAX_THUMBNAIL_FILE_SIZE) ?? "" })}
                   </p>
                 )}
                 <input
@@ -299,7 +306,7 @@ export default function EditToolClient({
           </Field>
 
           {/* ギャラリー画像（最大5枚、商品詳細ページで矢印で切り替えられる） */}
-          <Field label="紹介画像（最大5枚）">
+          <Field label={tSubmit("gallery")}>
             <div className="flex flex-wrap gap-3">
               {existingGallery.map((url) => (
                 <div key={url} className="group relative h-20 w-20 shrink-0">
@@ -312,7 +319,7 @@ export default function EditToolClient({
                   <button
                     type="button"
                     onClick={() => removeExistingGalleryImage(url)}
-                    aria-label="この画像を削除"
+                    aria-label={tSubmit("removeImage")}
                     className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-text-primary text-white shadow-sm"
                   >
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
@@ -326,6 +333,7 @@ export default function EditToolClient({
                   key={`${file.name}-${i}`}
                   file={file}
                   onRemove={() => removeNewGalleryImage(i)}
+                  removeLabel={tSubmit("removeImage")}
                 />
               ))}
 
@@ -341,7 +349,7 @@ export default function EditToolClient({
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                     <path d="M12 5v14M5 12h14" />
                   </svg>
-                  <span className="text-[11px]">追加</span>
+                  <span className="text-[11px]">{tSubmit("add")}</span>
                 </button>
               )}
             </div>
@@ -361,7 +369,7 @@ export default function EditToolClient({
               <p className="mt-2 text-[12px] text-accent-danger">{galleryError}</p>
             )}
             <p className="mt-2 text-[12px] text-text-dim">
-              商品詳細ページで、サムネイルと合わせて矢印で切り替えながら見られます（1枚あたり最大{formatFileSize(MAX_THUMBNAIL_FILE_SIZE)}）
+              {tSubmit("galleryHint", { limit: formatFileSize(MAX_THUMBNAIL_FILE_SIZE) ?? "" })}
             </p>
           </Field>
 
@@ -369,7 +377,7 @@ export default function EditToolClient({
 
           {/* ファイル / デモURL */}
           {tool.runtime === "local" ? (
-            <Field label="ファイル">
+            <Field label={tSubmit("file")}>
               <div
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={(e) => {
@@ -398,7 +406,7 @@ export default function EditToolClient({
                         }`}
                       >
                         {formatFileSize(fileSize)}
-                        {fileTooLarge && `（上限${formatFileSize(MAX_TOOL_FILE_SIZE)}を超えています）`}
+                        {fileTooLarge && tSubmit("fileOverLimit", { limit: formatFileSize(MAX_TOOL_FILE_SIZE) ?? "" })}
                       </p>
                     )}
                   </>
@@ -406,11 +414,11 @@ export default function EditToolClient({
                   <>
                     <p className="text-[13px] text-text-secondary">
                       {tool.file_key
-                        ? "現在のファイルを維持します（変更する場合はここにドラッグ）"
-                        : "ここにファイルをドラッグ、またはクリックして選択"}
+                        ? t("keepCurrentFile")
+                        : tSubmit("dropHint")}
                     </p>
                     <p className="mt-1 text-[12px] text-text-dim">
-                      ZIP / EXE / APP　最大{formatFileSize(MAX_TOOL_FILE_SIZE)}まで
+                      {tSubmit("fileTypeHint", { limit: formatFileSize(MAX_TOOL_FILE_SIZE) ?? "" })}
                     </p>
                   </>
                 )}
@@ -425,7 +433,7 @@ export default function EditToolClient({
               </div>
             </Field>
           ) : (
-            <Field label="デモURL" required>
+            <Field label={tSubmit("demoUrl")} required>
               <input
                 type="url"
                 name="demoUrl"
@@ -437,7 +445,7 @@ export default function EditToolClient({
           )}
 
           {/* ツール名 */}
-          <Field label="ツール名" required>
+          <Field label={tSubmit("toolName")} required>
             <input
               type="text"
               name="name"
@@ -448,7 +456,7 @@ export default function EditToolClient({
           </Field>
 
           {/* キャッチコピー */}
-          <Field label="一言説明（キャッチコピー）" required>
+          <Field label={tSubmit("tagline")} required>
             <input
               type="text"
               name="tagline"
@@ -460,7 +468,7 @@ export default function EditToolClient({
           </Field>
 
           {/* 詳細説明 */}
-          <Field label="詳細説明" required>
+          <Field label={tSubmit("description")} required>
             <textarea
               name="description"
               required
@@ -471,7 +479,7 @@ export default function EditToolClient({
           </Field>
 
           {/* カテゴリ（複数選択可） */}
-          <Field label="カテゴリ（複数選択可）" required>
+          <Field label={tSubmit("categoryLabel")} required>
             <div className="flex flex-wrap gap-2">
               {categories.map((c) => (
                 <button
@@ -484,7 +492,7 @@ export default function EditToolClient({
                       : "border-border text-text-secondary hover:border-border-strong"
                   }`}
                 >
-                  {c}
+                  {tCategories(categoryToSlug(c))}
                 </button>
               ))}
             </div>
@@ -496,14 +504,14 @@ export default function EditToolClient({
             />
             {selectedCategories.length === 0 && (
               <p className="mt-2 text-[12px] text-text-dim">
-                少なくとも1つ選んでください
+                {tSubmit("categoryRequired")}
               </p>
             )}
           </Field>
 
           {/* 対応OS（ローカル実行のみ） */}
           {tool.runtime === "local" && (
-            <Field label="対応OS" required>
+            <Field label={tSubmit("supportedOs")} required>
               <div className="flex flex-wrap gap-2">
                 {["Windows", "macOS", "Linux"].map((p) => (
                   <button
@@ -531,7 +539,7 @@ export default function EditToolClient({
           )}
 
           {/* 価格 */}
-          <Field label="価格" required>
+          <Field label={tSubmit("price")} required>
             <div className="relative">
               <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] text-text-muted">
                 ¥
@@ -549,23 +557,26 @@ export default function EditToolClient({
             </div>
             <p className="mt-2 text-[12px] text-text-dim">
               {isFree
-                ? "無料ツールとして公開されます"
-                : `${priceNumber.toLocaleString()}円で販売されます（手数料20%を差し引いた¥${Math.round(priceNumber * 0.8).toLocaleString()}が売上になります）`}
+                ? t("freePublishNotice")
+                : tSubmit("priceHint", {
+                    amount: priceNumber.toLocaleString(),
+                    net: Math.round(priceNumber * 0.8).toLocaleString(),
+                  })}
             </p>
             {tool.runtime === "cloud" && !isFree && (
               <p className="mt-2 text-[12px] font-medium leading-relaxed text-accent-danger">
-                ご注意：クラウド型はURLを知っている人なら誰でもアクセスできてしまうため、
-                第三者がURLを流用し、無断で無料公開してしまう恐れがあります。
-                ログイン必須にする等、アクセス制限をご自身のサービス側で設けることを推奨します。
+                {tSubmit("cloudPaidWarning")}
               </p>
             )}
             {priceBlocked && (
               <p className="mt-2 rounded-lg border border-accent-danger/30 bg-accent-danger/5 px-3 py-2 text-[12px] text-accent-danger">
-                有料で公開するには、先に
-                <a href="/seller" className="mx-1 underline">
-                  売上の受け取り設定
-                </a>
-                を完了してください。
+                {t.rich("payoutRequiredNotice", {
+                  link: (chunks) => (
+                    <a href="/seller" className="mx-1 underline">
+                      {chunks}
+                    </a>
+                  ),
+                })}
               </p>
             )}
           </Field>
@@ -575,23 +586,23 @@ export default function EditToolClient({
             disabled={isPending || fileTooLarge || thumbnailTooLarge || priceBlocked}
             className="w-full rounded-lg bg-accent-signal py-3 text-sm font-medium text-white transition hover:brightness-105 disabled:opacity-60"
           >
-            {isPending ? "保存中..." : "変更を保存する"}
+            {isPending ? t("saving") : t("save")}
           </button>
         </form>
 
         {/* 削除 */}
         <div className="mt-10 rounded-lg border border-accent-danger/20 bg-accent-danger/5 p-4">
           <p className="mb-1 text-[13px] font-medium text-accent-danger">
-            このツールを完全に削除する
+            {t("deleteTitle")}
           </p>
           {hasPurchases ? (
             <p className="text-[12px] text-accent-danger/80">
-              購入者がいるため削除できません。上の「非公開にする」をお使いください。
+              {t("deleteBlockedByPurchases")}
             </p>
           ) : (
             <>
               <p className="mb-3 text-[12px] text-accent-danger/80">
-                この操作は取り消せません。ファイルもあわせて削除されます。
+                {t("deleteWarning")}
               </p>
               {confirmingDelete ? (
                 <div className="flex gap-2">
@@ -601,14 +612,14 @@ export default function EditToolClient({
                     disabled={isDeleting}
                     className="rounded-lg bg-accent-danger px-4 py-2 text-[12px] font-medium text-white transition hover:brightness-105 disabled:opacity-60"
                   >
-                    {isDeleting ? "削除中..." : "本当に削除する"}
+                    {isDeleting ? t("deleting") : t("confirmDelete")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setConfirmingDelete(false)}
                     className="rounded-lg border border-border bg-bg px-4 py-2 text-[12px] text-text-secondary hover:bg-surface-raised"
                   >
-                    キャンセル
+                    {t("cancel")}
                   </button>
                 </div>
               ) : (
@@ -617,7 +628,7 @@ export default function EditToolClient({
                   onClick={() => setConfirmingDelete(true)}
                   className="rounded-lg border border-accent-danger/40 bg-bg px-4 py-2 text-[12px] font-medium text-accent-danger transition hover:bg-accent-danger/10"
                 >
-                  削除する
+                  {t("deleteButton")}
                 </button>
               )}
             </>
@@ -628,7 +639,15 @@ export default function EditToolClient({
   );
 }
 
-function GalleryFilePreview({ file, onRemove }: { file: File; onRemove: () => void }) {
+function GalleryFilePreview({
+  file,
+  onRemove,
+  removeLabel,
+}: {
+  file: File;
+  onRemove: () => void;
+  removeLabel: string;
+}) {
   const preview = useMemo(() => URL.createObjectURL(file), [file]);
 
   useEffect(() => {
@@ -642,7 +661,7 @@ function GalleryFilePreview({ file, onRemove }: { file: File; onRemove: () => vo
       <button
         type="button"
         onClick={onRemove}
-        aria-label="この画像を削除"
+        aria-label={removeLabel}
         className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-text-primary text-white shadow-sm"
       >
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
