@@ -115,6 +115,8 @@
     "copyright": "© {year} BuildBay"
   },
   "home": {
+    "liveVisitorsLabel": "People currently viewing this page",
+    "guestVisitor": "Guest",
     "heroLine1": "Your idea",
     "heroLine2": "can change the world.",
     "heroSubcopy": "Publish tools you built with AI — free or paid, your call.",

@@ -3,6 +3,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ActivityTicker from "@/components/ActivityTicker";
+import LiveVisitorsWave from "@/components/LiveVisitorsWave";
 import ToolCard from "@/components/ToolCard";
 import { createClient } from "@/lib/supabase/server";
 import { categoryToSlug } from "@/lib/category-slugs";
@@ -172,8 +173,10 @@ export default async function Home() {
           </div>
         </section>
 
+        <LiveVisitorsWave />
+
         {/* Category rail */}
-        <section className="border-y border-border bg-surface/40">
+        <section className="border-b border-border bg-surface/40">
           <div className="mx-auto flex max-w-7xl flex-wrap gap-2 px-6 py-4">
             <CategoryPill label={t("categoryAll")} href="/browse" active />
             {categories.map((c) => (

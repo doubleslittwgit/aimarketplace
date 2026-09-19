@@ -115,6 +115,8 @@
     "copyright": "© {year} BuildBay"
   },
   "home": {
+    "liveVisitorsLabel": "現在このページを見ている人たち",
+    "guestVisitor": "ゲスト",
     "heroLine1": "あなたのアイデアが、",
     "heroLine2": "世界を変える。",
     "heroSubcopy": "AIを活用して開発したツールを、無料でも有料でも公開・販売。",

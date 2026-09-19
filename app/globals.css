@@ -94,11 +94,28 @@ body {
   50% { transform: translate(8px, 9px) rotate(-4deg); }
 }
 
+/* ホームの「今見ている人」の波・ボート演出用 */
+@keyframes buildbay-wave-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes buildbay-boat-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes buildbay-boat-drift {
+  from { margin-left: -6px; }
+  to { margin-left: 6px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-\[ticker_32s_linear_infinite\] {
     animation: none;
   }
   [data-float] {
+    animation: none !important;
+  }
+  [data-live-wave] {
     animation: none !important;
   }
 }

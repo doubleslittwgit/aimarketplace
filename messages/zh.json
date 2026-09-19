@@ -115,6 +115,8 @@
     "copyright": "© {year} BuildBay"
   },
   "home": {
+    "liveVisitorsLabel": "目前正在瀏覽這個頁面的人",
+    "guestVisitor": "訪客",
     "heroLine1": "你的點子，",
     "heroLine2": "將改變世界。",
     "heroSubcopy": "把你用 AI 打造的工具，免費或付費公開販售。",
