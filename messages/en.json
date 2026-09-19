@@ -529,7 +529,7 @@
     "runtimeCloudDescription": "Runs on a server — usable from the browser alone",
     "runtimeLocal": "Local",
     "runtimeLocalDescription": "Downloaded and run locally — data never leaves the user's machine",
-    "cloudPaidWarning": "Note: anyone with the URL can access a cloud-based tool, so a third party could reshare it for free without your knowledge. We recommend adding your own access control (e.g. requiring login) on your service.",
+    "cloudPaidWarning": "Note: anyone with the URL can access a cloud-based tool, so a third party could reshare it for free without your knowledge. Besides access control like requiring login, we also recommend setting up your own way to verify buyers (e.g. invite-only access, issuing dedicated accounts). Also note that BuildBay does not get involved in any exchange between seller and buyer after listing or after purchase.",
     "thumbnail": "Thumbnail image",
     "changeImage": "Change image",
     "selectImage": "Choose image",

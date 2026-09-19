@@ -529,7 +529,7 @@
     "runtimeCloudDescription": "在伺服器上執行，只需瀏覽器即可使用",
     "runtimeLocal": "本機執行",
     "runtimeLocalDescription": "下載後使用，資料不會外流",
-    "cloudPaidWarning": "請注意：雲端型工具只要知道網址，任何人都能存取，可能被第三方轉發並無償公開。建議您在自己的服務端設置存取限制，例如要求登入。",
+    "cloudPaidWarning": "請注意：雲端型工具只要知道網址，任何人都能存取，可能被第三方轉發並無償公開。除了要求登入等存取限制外，建議您也自行準備判別購買者身分的機制（例如邀請制、發放專屬帳號等）。此外，上架後、購買後買賣雙方之間的往來，BuildBay一概不介入。",
     "thumbnail": "縮圖",
     "changeImage": "更換圖片",
     "selectImage": "選擇圖片",
