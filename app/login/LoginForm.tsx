@@ -2,10 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { login } from "@/app/auth/actions";
 import GoogleButton from "@/components/GoogleButton";
 
 export default function LoginForm() {
+  const t = useTranslations("auth");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
@@ -27,7 +29,7 @@ export default function LoginForm() {
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
-        <span className="text-[12px] text-text-dim">または</span>
+        <span className="text-[12px] text-text-dim">{t("or")}</span>
         <div className="h-px flex-1 bg-border" />
       </div>
 
@@ -35,13 +37,13 @@ export default function LoginForm() {
       <input type="hidden" name="next" value={next} />
       {justSignedUp && (
         <div className="rounded-lg border border-accent-ai/30 bg-accent-ai-dim px-3.5 py-2.5 text-[13px] text-accent-ai">
-          登録が完了しました。届いた確認メールのリンクを開いてから、ログインしてください。
+          {t("signupConfirmedNotice")}
         </div>
       )}
 
       {googleError && (
         <div className="rounded-lg border border-accent-danger/30 bg-accent-danger/10 px-3.5 py-2.5 text-[13px] text-accent-danger">
-          Googleログインに失敗しました。もう一度お試しください。
+          {t("googleError")}
         </div>
       )}
 
@@ -53,7 +55,7 @@ export default function LoginForm() {
 
       <div>
         <label className="mb-1.5 block text-[13px] font-medium text-text-secondary">
-          メールアドレス
+          {t("email")}
         </label>
         <input
           type="email"
@@ -67,7 +69,7 @@ export default function LoginForm() {
 
       <div>
         <label className="mb-1.5 block text-[13px] font-medium text-text-secondary">
-          パスワード
+          {t("password")}
         </label>
         <input
           type="password"
@@ -84,7 +86,7 @@ export default function LoginForm() {
         disabled={isPending}
         className="w-full rounded-lg bg-accent-signal py-2.5 text-sm font-medium text-white transition hover:brightness-105 disabled:opacity-60"
       >
-        {isPending ? "ログイン中..." : "ログイン"}
+        {isPending ? t("loggingIn") : t("loginButton")}
       </button>
       </form>
     </div>

@@ -3,10 +3,12 @@
 import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { signup } from "@/app/auth/actions";
 import GoogleButton from "@/components/GoogleButton";
 
 export default function SignupForm() {
+  const t = useTranslations("auth");
   const [error, setError] = useState<string | null>(null);
   const [agreed, setAgreed] = useState(false);
   const [showAgreementError, setShowAgreementError] = useState(false);
@@ -38,14 +40,18 @@ export default function SignupForm() {
         className="mt-0.5 h-4 w-4 shrink-0 rounded border-border text-accent-signal focus:ring-accent-signal"
       />
       <span>
-        <Link href="/legal/terms" target="_blank" className="text-accent-ai underline underline-offset-2">
-          利用規約
-        </Link>
-        と
-        <Link href="/legal/privacy" target="_blank" className="text-accent-ai underline underline-offset-2">
-          プライバシーポリシー
-        </Link>
-        に同意します
+        {t.rich("agreementText", {
+          terms: (chunks) => (
+            <Link href="/legal/terms" target="_blank" className="text-accent-ai underline underline-offset-2">
+              {chunks}
+            </Link>
+          ),
+          privacy: (chunks) => (
+            <Link href="/legal/privacy" target="_blank" className="text-accent-ai underline underline-offset-2">
+              {chunks}
+            </Link>
+          ),
+        })}
       </span>
     </label>
   );
@@ -55,7 +61,7 @@ export default function SignupForm() {
       {agreementCheckbox}
       {showAgreementError && (
         <p className="-mt-3 text-[12px] text-accent-danger">
-          登録には利用規約・プライバシーポリシーへの同意が必要です
+          {t("agreementRequired")}
         </p>
       )}
 
@@ -63,7 +69,7 @@ export default function SignupForm() {
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-border" />
-        <span className="text-[12px] text-text-dim">または</span>
+        <span className="text-[12px] text-text-dim">{t("or")}</span>
         <div className="h-px flex-1 bg-border" />
       </div>
 
@@ -77,20 +83,20 @@ export default function SignupForm() {
 
       <div>
         <label className="mb-1.5 block text-[13px] font-medium text-text-secondary">
-          表示名
+          {t("displayName")}
         </label>
         <input
           type="text"
           name="displayName"
           autoComplete="name"
-          placeholder="例：Kenji Sato"
+          placeholder={t("displayNamePlaceholder")}
           className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
         />
       </div>
 
       <div>
         <label className="mb-1.5 block text-[13px] font-medium text-text-secondary">
-          メールアドレス
+          {t("email")}
         </label>
         <input
           type="email"
@@ -104,7 +110,7 @@ export default function SignupForm() {
 
       <div>
         <label className="mb-1.5 block text-[13px] font-medium text-text-secondary">
-          パスワード
+          {t("password")}
         </label>
         <input
           type="password"
@@ -112,7 +118,7 @@ export default function SignupForm() {
           required
           minLength={8}
           autoComplete="new-password"
-          placeholder="8文字以上"
+          placeholder={t("passwordPlaceholder")}
           className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
         />
       </div>
@@ -122,7 +128,7 @@ export default function SignupForm() {
         disabled={isPending}
         className="w-full rounded-lg bg-accent-signal py-2.5 text-sm font-medium text-white transition hover:brightness-105 disabled:opacity-60"
       >
-        {isPending ? "登録中..." : "登録する"}
+        {isPending ? t("registering") : t("registerButton")}
       </button>
       </form>
     </div>

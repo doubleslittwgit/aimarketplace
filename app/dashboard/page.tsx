@@ -1,18 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations, getLocale } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SellerOnboardingButton from "@/components/SellerOnboardingButton";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/mock-data";
-
-const STATUS_LABEL: Record<string, string> = {
-  draft: "下書き",
-  pending_review: "審査中",
-  published: "公開中",
-  suspended: "非公開",
-  rejected: "却下",
-};
+import type { Locale } from "@/i18n/config";
 
 const STATUS_STYLE: Record<string, string> = {
   draft: "bg-surface-raised text-text-muted",
@@ -21,6 +15,8 @@ const STATUS_STYLE: Record<string, string> = {
   suspended: "bg-surface-raised text-text-muted",
   rejected: "bg-accent-danger/10 text-accent-danger",
 };
+
+const INTL_LOCALE: Record<string, string> = { ja: "ja-JP", zh: "zh-TW", en: "en-US" };
 
 type PurchaseRow = {
   id: string;
@@ -60,6 +56,18 @@ type SaleRow = {
 };
 
 export default async function DashboardPage() {
+  const t = await getTranslations("dashboard");
+  const locale = (await getLocale()) as Locale;
+  const intlLocale = INTL_LOCALE[locale] ?? "ja-JP";
+  const statusLabel = (status: string) =>
+    ({
+      draft: t("statusDraft"),
+      pending_review: t("statusPendingReview"),
+      published: t("statusPublished"),
+      suspended: t("statusSuspended"),
+      rejected: t("statusRejected"),
+    })[status] ?? status;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -138,10 +146,10 @@ export default async function DashboardPage() {
           <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
             <div>
               <h1 className="font-display text-2xl font-semibold text-text-primary">
-                マイページ
+                {t("title")}
               </h1>
               <p className="mt-1 text-[13px] text-text-muted">
-                {profile?.display_name ?? user.email} としてログイン中
+                {t("loggedInAs", { name: profile?.display_name ?? user.email ?? "" })}
                 {profile?.handle ? ` ・ @${profile.handle}` : ""}
               </p>
             </div>
@@ -152,20 +160,20 @@ export default async function DashboardPage() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
               </svg>
-              お気に入り
+              {t("favorites")}
             </Link>
           </div>
 
           {/* 購入済みツール */}
           <section className="mb-10">
             <h2 className="mb-4 font-display text-lg font-semibold text-text-primary">
-              購入済みツール
+              {t("purchasedTools")}
             </h2>
             {purchases.length === 0 ? (
               <div className="rounded-xl border border-border bg-surface p-6 text-center text-[13px] text-text-muted">
-                まだ購入したツールはありません。
+                {t("noPurchases")}
                 <Link href="/browse" className="ml-1 text-accent-signal hover:underline">
-                  ツールを探す
+                  {t("browseTools")}
                 </Link>
               </div>
             ) : (
@@ -195,11 +203,13 @@ export default async function DashboardPage() {
                           href={p.tools ? `/apps/${p.tools.slug}` : "#"}
                           className="block truncate text-[14px] font-medium text-text-primary hover:text-accent-signal"
                         >
-                          {p.tools?.name ?? "削除されたツール"}
+                          {p.tools?.name ?? t("deletedTool")}
                         </Link>
                         <p className="font-mono text-[11px] text-text-dim">
                           {formatPrice(p.price_paid)} ・{" "}
-                          {new Date(p.created_at).toLocaleDateString("ja-JP")} 購入
+                          {t("purchasedOn", {
+                            date: new Date(p.created_at).toLocaleDateString(intlLocale),
+                          })}
                         </p>
                       </div>
                     </div>
@@ -208,7 +218,7 @@ export default async function DashboardPage() {
                         href={`/apps/download/${p.tools.id}`}
                         className="shrink-0 rounded-lg bg-accent-success px-3.5 py-2 text-[13px] font-medium text-white transition hover:brightness-105"
                       >
-                        ダウンロード
+                        {t("download")}
                       </a>
                     )}
                   </div>
@@ -221,67 +231,67 @@ export default async function DashboardPage() {
           <section className="mb-10">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold text-text-primary">
-                出品したツール
+                {t("myListings")}
               </h2>
               <Link
                 href="/submit"
                 className="text-[13px] text-accent-signal hover:underline"
               >
-                + 新しく出品する
+                {t("newListing")}
               </Link>
             </div>
             {ownTools.length === 0 ? (
               <div className="rounded-xl border border-border bg-surface p-6 text-center text-[13px] text-text-muted">
-                まだ出品したツールはありません。
+                {t("noListings")}
               </div>
             ) : (
               <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
-                {ownTools.map((t) => (
+                {ownTools.map((tool) => (
                   <div
-                    key={t.id}
+                    key={tool.id}
                     className="flex items-center justify-between gap-4 px-5 py-4"
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <Link
-                          href={`/apps/${t.slug}`}
+                          href={`/apps/${tool.slug}`}
                           className="truncate text-[14px] font-medium text-text-primary hover:text-accent-signal"
                         >
-                          {t.name}
+                          {tool.name}
                         </Link>
                         <span
                           className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[10px] tracking-wide ${
-                            STATUS_STYLE[t.status] ?? "bg-surface-raised text-text-muted"
+                            STATUS_STYLE[tool.status] ?? "bg-surface-raised text-text-muted"
                           }`}
                         >
-                          {STATUS_LABEL[t.status] ?? t.status}
+                          {statusLabel(tool.status)}
                         </span>
                       </div>
                       <p className="mt-0.5 font-mono text-[11px] text-text-dim">
-                        {formatPrice(t.price)} ・ {t.install_count.toLocaleString()} installs ・
-                        ♥ {t.like_count}
+                        {formatPrice(tool.price)} ・ {tool.install_count.toLocaleString()} installs ・
+                        ♥ {tool.like_count}
                       </p>
-                      {t.status === "rejected" && t.rejection_reason && (
+                      {tool.status === "rejected" && tool.rejection_reason && (
                         <p className="mt-1.5 max-w-md text-[11px] leading-relaxed text-accent-danger">
-                          却下理由: {t.rejection_reason}
+                          {t("rejectionReason", { reason: tool.rejection_reason })}
                         </p>
                       )}
-                      {t.status === "suspended" && t.rejection_reason && (
+                      {tool.status === "suspended" && tool.rejection_reason && (
                         <p className="mt-1.5 max-w-md text-[11px] leading-relaxed text-accent-danger">
-                          運営により非公開にされました。理由: {t.rejection_reason}
+                          {t("suspendedByAdmin", { reason: tool.rejection_reason })}
                         </p>
                       )}
-                      {t.status === "pending_review" && (
+                      {tool.status === "pending_review" && (
                         <p className="mt-1.5 text-[11px] text-text-dim">
-                          管理者の審査待ちです。承認されると公開されます。
+                          {t("pendingReviewNotice")}
                         </p>
                       )}
                     </div>
                     <Link
-                      href={t.status === "draft" ? `/submit?draft=${t.id}` : `/apps/${t.slug}/edit`}
+                      href={tool.status === "draft" ? `/submit?draft=${tool.id}` : `/apps/${tool.slug}/edit`}
                       className="shrink-0 rounded-lg border border-border px-3 py-1.5 text-[12px] text-text-secondary transition hover:bg-surface-raised"
                     >
-                      {t.status === "draft" ? "続きを書く" : "編集"}
+                      {tool.status === "draft" ? t("continueEditing") : t("edit")}
                     </Link>
                   </div>
                 ))}
@@ -293,7 +303,7 @@ export default async function DashboardPage() {
           <section>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold text-text-primary">
-                売上
+                {t("sales")}
               </h2>
               {sales.length > 0 && (
                 <a
@@ -305,7 +315,7 @@ export default async function DashboardPage() {
                     <path d="m7 10 5 5 5-5" />
                     <path d="M5 21h14" />
                   </svg>
-                  CSVでダウンロード
+                  {t("downloadCsv")}
                 </a>
               )}
             </div>
@@ -314,14 +324,14 @@ export default async function DashboardPage() {
               <div className="flex flex-wrap gap-x-10 gap-y-4">
                 <div>
                   <p className="text-[12px] text-text-muted">
-                    累計売上(手数料差引後)
+                    {t("totalEarnings")}
                   </p>
                   <p className="mt-1 font-display text-2xl font-semibold text-text-primary">
                     {formatPrice(totalEarnings)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] text-text-muted">今月の売上</p>
+                  <p className="text-[12px] text-text-muted">{t("thisMonthEarnings")}</p>
                   <p className="mt-1 font-display text-2xl font-semibold text-text-primary">
                     {formatPrice(thisMonthEarnings)}
                   </p>
@@ -334,16 +344,16 @@ export default async function DashboardPage() {
                     <div className="mb-3 flex items-start gap-2">
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-success" />
                       <p className="text-[13px] text-text-secondary">
-                        売上は登録済みの口座へ自動で入金されます。
+                        {t("payoutAutoNotice")}
                         <span className="block text-text-muted">
-                          入金のタイミングや明細、振込先の変更はStripeの画面から確認できます。
+                          {t("payoutAutoDetail")}
                         </span>
                       </p>
                     </div>
                     <div className="sm:max-w-xs">
                       <SellerOnboardingButton
                         action="dashboard"
-                        label="Stripeで入金・明細を確認する"
+                        label={t("checkPayouts")}
                         variant="secondary"
                       />
                     </div>
@@ -353,9 +363,9 @@ export default async function DashboardPage() {
                     <div className="mb-3 flex items-start gap-2">
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-ai" />
                       <p className="text-[13px] text-text-secondary">
-                        受け取り設定が完了していません。
+                        {t("onboardingIncompleteNotice")}
                         <span className="block text-text-muted">
-                          設定が終わるまで、有料ツールの販売と売上の入金はできません。
+                          {t("onboardingIncompleteDetail")}
                         </span>
                       </p>
                     </div>
@@ -363,22 +373,22 @@ export default async function DashboardPage() {
                       href="/seller"
                       className="inline-block rounded-lg bg-accent-signal px-4 py-2.5 text-[13px] font-medium text-white transition hover:brightness-105"
                     >
-                      設定の続きへ
+                      {t("continueSetup")}
                     </Link>
                   </>
                 ) : (
                   <>
                     <p className="mb-3 text-[13px] text-text-secondary">
-                      有料ツールを販売するには、売上の受け取り設定が必要です。
+                      {t("needsSetupNotice")}
                       <span className="block text-text-muted">
-                        無料ツールの公開には設定は不要です。
+                        {t("needsSetupDetail")}
                       </span>
                     </p>
                     <Link
                       href="/seller"
                       className="inline-block rounded-lg bg-accent-signal px-4 py-2.5 text-[13px] font-medium text-white transition hover:brightness-105"
                     >
-                      受け取り設定を始める
+                      {t("startSetup")}
                     </Link>
                   </>
                 )}
@@ -387,7 +397,7 @@ export default async function DashboardPage() {
 
             {sales.length === 0 ? (
               <div className="rounded-xl border border-border bg-surface p-6 text-center text-[13px] text-text-muted">
-                まだ販売実績はありません。
+                {t("noSales")}
               </div>
             ) : (
               <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
@@ -398,11 +408,11 @@ export default async function DashboardPage() {
                   >
                     <div className="min-w-0">
                       <p className="truncate text-[14px] font-medium text-text-primary">
-                        {s.tools?.name ?? "削除されたツール"}
+                        {s.tools?.name ?? t("deletedTool")}
                       </p>
                       <p className="font-mono text-[11px] text-text-dim">
-                        購入者: {s.profiles?.display_name ?? "不明"} ・{" "}
-                        {new Date(s.created_at).toLocaleDateString("ja-JP")}
+                        {t("buyer", { name: s.profiles?.display_name ?? t("unknown") })} ・{" "}
+                        {new Date(s.created_at).toLocaleDateString(intlLocale)}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">
@@ -410,7 +420,10 @@ export default async function DashboardPage() {
                         +{formatPrice(s.seller_earnings)}
                       </p>
                       <p className="font-mono text-[11px] text-text-dim">
-                        (販売 {formatPrice(s.price_paid)} ・ 手数料 {formatPrice(s.platform_fee)})
+                        {t("saleBreakdown", {
+                          price: formatPrice(s.price_paid),
+                          fee: formatPrice(s.platform_fee),
+                        })}
                       </p>
                     </div>
                   </div>

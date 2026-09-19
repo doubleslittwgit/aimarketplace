@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ToolCard from "@/components/ToolCard";
@@ -33,6 +34,7 @@ type LikedRow = {
 };
 
 export default async function LikesPage() {
+  const t = await getTranslations("favorites");
   const supabase = await createClient();
   const {
     data: { user },
@@ -52,35 +54,44 @@ export default async function LikesPage() {
 
   const rows = (data ?? []) as unknown as LikedRow[];
 
+  const tCommon = await getTranslations("common");
+
   // 出品者が後から非公開・削除したものは一覧に出さない
   // （購入していない限り、非公開ツールを見る権利は無いため）
-  const tools: Tool[] = rows
+  const rawTools: Tool[] = rows
     .filter((r) => r.tools && r.tools.status === "published")
     .map((r) => {
-      const t = r.tools!;
+      const row = r.tools!;
       return {
-        id: t.id,
-        slug: t.slug,
-        name: t.name,
-        tagline: t.tagline,
+        id: row.id,
+        slug: row.slug,
+        name: row.name,
+        tagline: row.tagline,
         description: "",
-        category: t.category,
-        categories: t.categories?.length ? t.categories : [t.category],
-        price: t.price,
+        category: row.category,
+        categories: row.categories?.length ? row.categories : [row.category],
+        price: row.price,
         version: "",
-        installs: t.install_count,
-        likes: t.like_count,
-        views: t.view_count,
+        installs: row.install_count,
+        likes: row.like_count,
+        views: row.view_count,
         author: {
-          name: t.profiles?.display_name || t.profiles?.handle || "不明",
-          handle: t.profiles?.handle || "",
+          name: row.profiles?.display_name || row.profiles?.handle || tCommon("unnamedDeveloper"),
+          handle: row.profiles?.handle || "",
         },
         tags: [],
-        updatedAt: t.updated_at,
-        runtime: t.runtime,
-        thumbnailUrl: t.thumbnail_url,
+        updatedAt: row.updated_at,
+        runtime: row.runtime,
+        thumbnailUrl: row.thumbnail_url,
       };
     });
+
+  // このページのTool情報にはdescriptionを含めていない（ToolCardは使わないため）。
+  // 翻訳キャッシュ（tool_translations）はdescriptionも一緒に保存する設計なので、
+  // ここで空のdescriptionのまま翻訳をかけると、商品詳細ページ用に既にキャッシュ
+  // されている正しい概要文を空文字で上書きしてしまう。そのためここでは
+  // 翻訳を適用せず、日本語のまま表示する（優先度の低い一覧のため許容する）。
+  const tools = rawTools;
 
   return (
     <>
@@ -90,33 +101,33 @@ export default async function LikesPage() {
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="font-display text-2xl font-semibold text-text-primary">
-                お気に入り
+                {t("title")}
               </h1>
               <p className="mt-1 text-[13px] text-text-muted">
-                いいねしたツールが並びます
+                {t("subtitle")}
               </p>
             </div>
             <Link
               href="/dashboard"
               className="text-[13px] text-text-muted hover:text-text-primary"
             >
-              マイページへ戻る
+              {t("backToDashboard")}
             </Link>
           </div>
 
           {tools.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20 text-center">
               <p className="mb-1 text-[14px] font-medium text-text-secondary">
-                まだお気に入りはありません
+                {t("emptyTitle")}
               </p>
               <p className="mb-4 text-[13px] text-text-muted">
-                気になるツールの「いいね」を押すと、ここに表示されます
+                {t("emptyHint")}
               </p>
               <Link
                 href="/browse"
                 className="rounded-lg bg-accent-signal px-4 py-2 text-[13px] font-medium text-white transition hover:brightness-105"
               >
-                ツールを探す
+                {t("browseTools")}
               </Link>
             </div>
           ) : (
