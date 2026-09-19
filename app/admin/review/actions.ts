@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { notify } from "@/lib/notifications/create";
@@ -21,22 +22,25 @@ export type ReviewActionResult = { error: string } | { error: null };
  * （他人の管理者権限を勝手に確認・詐称することはできない）。
  */
 async function requireAdmin() {
+  const t = await getTranslations("errors");
+  const tAdmin = await getTranslations("admin");
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { error: "ログインが必要です" as const, userId: null };
+  if (!user) return { error: t("loginRequired") as string, userId: null };
 
   const { data: isAdminData } = await supabase.rpc("is_admin", {
     p_user_id: user.id,
   });
-  if (!isAdminData) return { error: "管理者権限がありません" as const, userId: null };
+  if (!isAdminData) return { error: tAdmin("noAdminPermission") as string, userId: null };
 
   return { error: null, userId: user.id };
 }
 
 export async function approveTool(toolId: string): Promise<ReviewActionResult> {
+  const tAdmin = await getTranslations("admin");
   const { error: authError, userId } = await requireAdmin();
   if (authError) return { error: authError };
 
@@ -53,7 +57,7 @@ export async function approveTool(toolId: string): Promise<ReviewActionResult> {
     .select("id, name, tagline, description, slug, author_id")
     .maybeSingle();
 
-  if (error) return { error: `承認に失敗しました: ${error.message}` };
+  if (error) return { error: tAdmin("approveFailed", { message: error.message }) };
 
   if (tool) {
     await notify(tool.author_id, "tool_approved", toolApproved(tool.name, tool.slug));
@@ -70,11 +74,12 @@ export async function rejectTool(
   toolId: string,
   reason: string
 ): Promise<ReviewActionResult> {
+  const tAdmin = await getTranslations("admin");
   const { error: authError, userId } = await requireAdmin();
   if (authError) return { error: authError };
 
   if (!reason.trim()) {
-    return { error: "却下理由を入力してください（出品者に表示されます）" };
+    return { error: tAdmin("rejectReasonRequired") };
   }
 
   const admin = createAdminClient();
@@ -90,7 +95,7 @@ export async function rejectTool(
     .select("id, name, author_id")
     .maybeSingle();
 
-  if (error) return { error: `却下に失敗しました: ${error.message}` };
+  if (error) return { error: tAdmin("rejectFailed", { message: error.message }) };
 
   if (tool) {
     await notify(tool.author_id, "tool_rejected", toolRejected(tool.name, reason.trim()));
@@ -110,11 +115,12 @@ export async function unpublishToolByAdmin(
   toolId: string,
   reason: string
 ): Promise<ReviewActionResult> {
+  const tAdmin = await getTranslations("admin");
   const { error: authError, userId } = await requireAdmin();
   if (authError) return { error: authError };
 
   if (!reason.trim()) {
-    return { error: "非公開にする理由を入力してください（出品者に表示されます）" };
+    return { error: tAdmin("unpublishReasonRequired") };
   }
 
   const admin = createAdminClient();
@@ -131,8 +137,8 @@ export async function unpublishToolByAdmin(
     .select("id, name, author_id")
     .maybeSingle();
 
-  if (error) return { error: `非公開化に失敗しました: ${error.message}` };
-  if (!tool) return { error: "対象のツールが見つかりません（既に非公開の可能性があります）" };
+  if (error) return { error: tAdmin("unpublishFailed", { message: error.message }) };
+  if (!tool) return { error: tAdmin("targetToolNotFoundMaybeUnpublished") };
 
   await notify(
     tool.author_id,

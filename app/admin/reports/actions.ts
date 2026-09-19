@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -21,8 +22,9 @@ export async function updateReportStatus(
   reportId: string,
   status: "reviewed" | "dismissed"
 ): Promise<{ error: string | null }> {
+  const tAdmin = await getTranslations("admin");
   const { ok } = await requireAdmin();
-  if (!ok) return { error: "管理者権限がありません" };
+  if (!ok) return { error: tAdmin("noAdminPermission") };
 
   const admin = createAdminClient();
   const { error } = await admin

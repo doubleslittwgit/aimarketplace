@@ -56,6 +56,7 @@
     "onboardingUrlFailed": "登録画面のURLを取得できませんでした",
     "stripeNotRegisteredYet": "まだStripeの登録が行われていません",
     "stripeOnboardingPrepFailed": "Stripeの登録準備に失敗しました: {message}",
+    "registrationStatusCheckFailed": "登録状況の確認に失敗しました: {message}",
     "stripeRegistrationIncomplete": "Stripeの登録がまだ完了していません",
     "dashboardOpenFailed": "ダッシュボードを開けませんでした: {message}",
     "dashboardUrlFailed": "ダッシュボードのURLを取得できませんでした",
@@ -437,7 +438,14 @@
     "reasonMisrepresentation": "説明と実際の内容が大きく異なる",
     "reasonCopyright": "著作権・知的財産権の侵害",
     "reasonSpam": "スパム・詐欺的な出品",
-    "reasonOther": "その他"
+    "reasonOther": "その他",
+    "noAdminPermission": "管理者権限がありません",
+    "approveFailed": "承認に失敗しました: {message}",
+    "rejectReasonRequired": "却下理由を入力してください（出品者に表示されます）",
+    "rejectFailed": "却下に失敗しました: {message}",
+    "unpublishReasonRequired": "非公開にする理由を入力してください（出品者に表示されます）",
+    "unpublishFailed": "非公開化に失敗しました: {message}",
+    "targetToolNotFoundMaybeUnpublished": "対象のツールが見つかりません（既に非公開の可能性があります）"
   },
   "edit": {
     "title": "ツールを編集",

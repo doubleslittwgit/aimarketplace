@@ -69,7 +69,7 @@ export async function startSellerOnboarding(): Promise<
     );
 
     if (lookupError) {
-      return { error: `登録状況の確認に失敗しました: ${lookupError.message}` };
+      return { error: t("registrationStatusCheckFailed", { message: lookupError.message }) };
     }
 
     let accountId = existing?.stripe_account_id ?? null;

@@ -56,6 +56,7 @@
     "onboardingUrlFailed": "Couldn't get the registration page URL",
     "stripeNotRegisteredYet": "Stripe registration hasn't started yet",
     "stripeOnboardingPrepFailed": "Failed to prepare Stripe registration: {message}",
+    "registrationStatusCheckFailed": "Failed to check registration status: {message}",
     "stripeRegistrationIncomplete": "Stripe registration isn't complete yet",
     "dashboardOpenFailed": "Couldn't open the dashboard: {message}",
     "dashboardUrlFailed": "Couldn't get the dashboard URL",
@@ -437,7 +438,14 @@
     "reasonMisrepresentation": "Description doesn't match what it actually does",
     "reasonCopyright": "Copyright or intellectual property infringement",
     "reasonSpam": "Spam or fraudulent listing",
-    "reasonOther": "Other"
+    "reasonOther": "Other",
+    "noAdminPermission": "You don't have admin permission",
+    "approveFailed": "Failed to approve: {message}",
+    "rejectReasonRequired": "Please enter a reason for rejection (shown to the seller)",
+    "rejectFailed": "Failed to reject: {message}",
+    "unpublishReasonRequired": "Please enter a reason for unpublishing (shown to the seller)",
+    "unpublishFailed": "Failed to unpublish: {message}",
+    "targetToolNotFoundMaybeUnpublished": "Tool not found (it may already be unpublished)"
   },
   "edit": {
     "title": "Edit tool",

@@ -56,6 +56,7 @@
     "onboardingUrlFailed": "無法取得登記頁面網址",
     "stripeNotRegisteredYet": "尚未進行Stripe登記",
     "stripeOnboardingPrepFailed": "Stripe登記準備失敗：{message}",
+    "registrationStatusCheckFailed": "登記狀態確認失敗：{message}",
     "stripeRegistrationIncomplete": "Stripe登記尚未完成",
     "dashboardOpenFailed": "無法開啟管理後台：{message}",
     "dashboardUrlFailed": "無法取得管理後台網址",
@@ -437,7 +438,14 @@
     "reasonMisrepresentation": "說明內容與實際情況嚴重不符",
     "reasonCopyright": "侵犯著作權或智慧財產權",
     "reasonSpam": "垃圾或詐欺性上架",
-    "reasonOther": "其他"
+    "reasonOther": "其他",
+    "noAdminPermission": "沒有管理員權限",
+    "approveFailed": "核准失敗：{message}",
+    "rejectReasonRequired": "請輸入拒絕原因（將顯示給上架者）",
+    "rejectFailed": "拒絕失敗：{message}",
+    "unpublishReasonRequired": "請輸入下架原因（將顯示給上架者）",
+    "unpublishFailed": "下架失敗：{message}",
+    "targetToolNotFoundMaybeUnpublished": "找不到目標工具（可能已被下架）"
   },
   "edit": {
     "title": "編輯工具",
