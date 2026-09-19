@@ -85,7 +85,7 @@ export default async function Home() {
               <FloatingCard
                 tool={floatTools[0]}
                 index={0}
-                className="left-0 top-4 hidden -rotate-3 xl:block"
+                className="left-0 top-6 hidden -rotate-3 xl:block"
                 anim="float-a"
                 duration="9s"
                 tCategories={tCategories}
@@ -96,7 +96,7 @@ export default async function Home() {
               <FloatingCard
                 tool={floatTools[1]}
                 index={1}
-                className="left-2 bottom-6 hidden rotate-2 xl:block"
+                className="left-2 top-[46%] hidden rotate-2 xl:block"
                 anim="float-b"
                 duration="11s"
                 tCategories={tCategories}
@@ -118,7 +118,7 @@ export default async function Home() {
               <FloatingCard
                 tool={floatTools[3]}
                 index={3}
-                className="right-2 bottom-0 hidden -rotate-2 xl:block"
+                className="right-2 top-[50%] hidden -rotate-2 xl:block"
                 anim="float-d"
                 duration="12.5s"
                 tCategories={tCategories}
