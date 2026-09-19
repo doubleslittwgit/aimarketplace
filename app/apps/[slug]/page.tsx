@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BuyBox from "@/components/BuyBox";
@@ -15,10 +15,13 @@ import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
 import ImageCarousel from "@/components/ImageCarousel";
 import { createClient } from "@/lib/supabase/server";
 import { categoryToSlug } from "@/lib/category-slugs";
+import { applyToolTranslations, applyReviewTranslations } from "@/lib/apply-translations";
+import type { Locale } from "@/i18n/config";
 import { getToolBySlug, tools as mockTools, formatInstalls, type Tool } from "@/lib/mock-data";
 
 async function loadTool(
-  slug: string
+  slug: string,
+  locale: Locale
 ): Promise<
   | {
       tool: Tool;
@@ -114,9 +117,15 @@ async function loadTool(
     // 実際の出品がまだ少ない間は、デモ用のツールで欄を埋める
     const filler = mockTools.filter((t) => t.slug !== slug).slice(0, 3 - related.length);
 
+    // 翻訳の適用はDBに実体があるもの（tool・related）だけに行う。
+    // filler（デモ用モックデータ）はDBに行が無く、翻訳を保存しようとすると
+    // 外部キー制約に違反するため対象外にする。
+    const [translatedTool] = await applyToolTranslations(supabase, [tool], locale);
+    const translatedRelated = await applyToolTranslations(supabase, related, locale);
+
     return {
-      tool,
-      related: [...related, ...filler],
+      tool: translatedTool,
+      related: [...translatedRelated, ...filler],
       isDemo: false,
       status: row.status,
       rejectionReason: row.rejection_reason ?? null,
@@ -144,7 +153,8 @@ export default async function ToolDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const result = await loadTool(slug);
+  const locale = (await getLocale()) as Locale;
+  const result = await loadTool(slug, locale);
 
   if (!result) notFound();
   const { tool, related, isDemo, status, rejectionReason, authorId } = result;
@@ -194,7 +204,7 @@ export default async function ToolDetailPage({
   const isPurchased = Boolean(purchase);
   const isLiked = Boolean(like);
 
-  const reviews = (reviewRows ?? []).map((r) => {
+  const rawReviews = (reviewRows ?? []).map((r) => {
     const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
     return {
       id: r.id,
@@ -205,6 +215,8 @@ export default async function ToolDetailPage({
       author_name: profile?.display_name || (profile?.handle ? `@${profile.handle}` : t("reviews.anonymous")),
     };
   });
+
+  const reviews = await applyReviewTranslations(supabase, rawReviews, locale);
 
   return (
     <>

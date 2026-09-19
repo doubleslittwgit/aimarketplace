@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { notify } from "@/lib/notifications/create";
+import { translateAndSaveTool } from "@/lib/translate-tool";
 import {
   toolApproved,
   toolRejected,
@@ -48,13 +50,16 @@ export async function approveTool(toolId: string): Promise<ReviewActionResult> {
       rejection_reason: null,
     })
     .eq("id", toolId)
-    .select("id, name, slug, author_id")
+    .select("id, name, tagline, description, slug, author_id")
     .maybeSingle();
 
   if (error) return { error: `承認に失敗しました: ${error.message}` };
 
   if (tool) {
     await notify(tool.author_id, "tool_approved", toolApproved(tool.name, tool.slug));
+    // 公開直後の最初の訪問者を待たせないよう、この場で翻訳しておく
+    // （閲覧時にも無ければ翻訳する仕組みがあるので、ここが失敗しても実害は無い）。
+    after(() => translateAndSaveTool(tool.id, tool.name, tool.tagline, tool.description));
   }
 
   revalidatePath("/admin/review");

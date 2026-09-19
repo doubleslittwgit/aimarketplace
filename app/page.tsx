@@ -1,10 +1,12 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ActivityTicker from "@/components/ActivityTicker";
 import ToolCard from "@/components/ToolCard";
 import { createClient } from "@/lib/supabase/server";
 import { categoryToSlug } from "@/lib/category-slugs";
+import { applyToolTranslations } from "@/lib/apply-translations";
+import type { Locale } from "@/i18n/config";
 import {
   tools as mockTools,
   categories,
@@ -13,7 +15,7 @@ import {
   type Tool,
 } from "@/lib/mock-data";
 
-async function loadRealTools(): Promise<Tool[]> {
+async function loadRealTools(locale: Locale): Promise<Tool[]> {
   const tCommon = await getTranslations("common");
   const supabase = await createClient();
   const { data } = await supabase
@@ -23,7 +25,7 @@ async function loadRealTools(): Promise<Tool[]> {
     .order("created_at", { ascending: false })
     .limit(6);
 
-  return (
+  const tools =
     data?.map((r) => ({
       id: r.id,
       slug: r.slug,
@@ -45,15 +47,17 @@ async function loadRealTools(): Promise<Tool[]> {
       updatedAt: (r.updated_at || "").slice(0, 10),
       runtime: r.runtime,
       thumbnailUrl: r.thumbnail_url || null,
-    })) || []
-  );
+    })) || [];
+
+  return applyToolTranslations(supabase, tools, locale);
 }
 
 export default async function Home() {
   const t = await getTranslations("home");
   const tCategories = await getTranslations("categories");
   const tCommon = await getTranslations("common");
-  const realTools = await loadRealTools();
+  const locale = (await getLocale()) as Locale;
+  const realTools = await loadRealTools(locale);
   // 実際の出品を先頭に、足りない分をデモ用ツールで埋める（最大6件表示）
   const tools = [...realTools, ...mockTools].slice(0, 6);
   // ヒーローで浮かせる4件（新着ツールと重複してよい紹介枠）

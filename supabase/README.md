@@ -20,6 +20,7 @@
 | `add_gallery.sql` | 商品詳細ページ用のギャラリー画像列の追加（後から足したもの） |
 | `add_view_count.sql` | 閲覧数（インプレッション表示用）の追加（後から足したもの） |
 | `add_categories_array.sql` | 複数カテゴリ対応（後から足したもの） |
+| `translations.sql` | 商品・レビューの多言語翻訳キャッシュ（後から足したもの） |
 | `increment_install.sql` | ダウンロード数を加算する関数 |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
 
@@ -53,8 +54,9 @@
 10. `add_gallery.sql`
 11. `add_view_count.sql`
 12. `add_categories_array.sql`
-13. `increment_install.sql`
-14. `grants.sql` ← **必ず最後**
+13. `translations.sql`
+14. `increment_install.sql`
+15. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」

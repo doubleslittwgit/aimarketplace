@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { notify } from "@/lib/notifications/create";
 import { newReview } from "@/lib/notifications/content";
+import { translateAndSaveReview } from "@/lib/translate-review";
 
 export type ReviewActionResult = { error: string } | { error: null };
 
@@ -44,15 +46,21 @@ export async function upsertReview(
     .maybeSingle();
   const isNewReview = !existing;
 
-  const { error } = await supabase.from("reviews").upsert(
-    {
-      tool_id: toolId,
-      author_id: user.id,
-      rating,
-      comment: comment.trim() || null,
-    },
-    { onConflict: "tool_id,author_id" }
-  );
+  const trimmedComment = comment.trim() || null;
+
+  const { data: savedReview, error } = await supabase
+    .from("reviews")
+    .upsert(
+      {
+        tool_id: toolId,
+        author_id: user.id,
+        rating,
+        comment: trimmedComment,
+      },
+      { onConflict: "tool_id,author_id" }
+    )
+    .select("id")
+    .single();
 
   if (error) {
     // RLSに弾かれた場合（＝購入していない）は、分かりやすいメッセージに置き換える
@@ -60,6 +68,10 @@ export async function upsertReview(
       ? "このツールを購入した方だけがレビューを書けます"
       : `投稿に失敗しました: ${error.message}`;
     return { error: message };
+  }
+
+  if (savedReview) {
+    after(() => translateAndSaveReview(savedReview.id, trimmedComment));
   }
 
   if (isNewReview) {

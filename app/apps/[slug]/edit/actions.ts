@@ -1,8 +1,10 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE } from "@/lib/mock-data";
+import { translateAndSaveTool } from "@/lib/translate-tool";
 
 export type EditActionResult = { error: string } | { error: null };
 
@@ -93,7 +95,7 @@ export async function updateTool(
   // 「他人のツールを編集しようとした」という分かりやすいエラーを返せる。
   const { data: existing, error: fetchError } = await supabase
     .from("tools")
-    .select("id, slug, author_id, runtime, file_key, thumbnail_url")
+    .select("id, slug, author_id, runtime, file_key, thumbnail_url, status")
     .eq("id", toolId)
     .maybeSingle();
 
@@ -218,6 +220,12 @@ export async function updateTool(
 
   if (updateError) {
     return { error: `更新に失敗しました: ${updateError.message}` };
+  }
+
+  // 公開済みのツールを編集した場合、既存の翻訳キャッシュは古い内容のままなので
+  // 更新しておく（下書き・審査待ちの間は、まだ誰にも見えていないので不要）。
+  if (existing.status === "published") {
+    after(() => translateAndSaveTool(toolId, name, tagline, description));
   }
 
   redirect(`/apps/${existing.slug}`);

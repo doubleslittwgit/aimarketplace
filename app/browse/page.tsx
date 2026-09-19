@@ -1,12 +1,14 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BrowseClient from "./BrowseClient";
 import { createClient } from "@/lib/supabase/server";
 import { ALL_CATEGORIES_VALUE } from "@/lib/category-slugs";
+import { applyToolTranslations } from "@/lib/apply-translations";
+import type { Locale } from "@/i18n/config";
 import { tools as mockTools, type Tool } from "@/lib/mock-data";
 
-async function loadRealTools(): Promise<Tool[]> {
+async function loadRealTools(locale: Locale): Promise<Tool[]> {
   const tCommon = await getTranslations("common");
   const supabase = await createClient();
   const { data } = await supabase
@@ -15,7 +17,7 @@ async function loadRealTools(): Promise<Tool[]> {
     .eq("status", "published")
     .order("created_at", { ascending: false });
 
-  return (
+  const tools =
     data?.map((r) => ({
       id: r.id,
       slug: r.slug,
@@ -37,8 +39,10 @@ async function loadRealTools(): Promise<Tool[]> {
       updatedAt: (r.updated_at || "").slice(0, 10),
       runtime: r.runtime,
       thumbnailUrl: r.thumbnail_url || null,
-    })) || []
-  );
+    })) || [];
+
+  // デモ用のmockToolsはDBに実体が無いので、この時点（実データのみ）で翻訳を適用する
+  return applyToolTranslations(supabase, tools, locale);
 }
 
 export default async function BrowsePage({
@@ -47,7 +51,8 @@ export default async function BrowsePage({
   searchParams: Promise<{ q?: string; category?: string }>;
 }) {
   const { q, category } = await searchParams;
-  const realTools = await loadRealTools();
+  const locale = (await getLocale()) as Locale;
+  const realTools = await loadRealTools(locale);
   // 実際の出品を先頭に、デモ用のツールをその後ろに並べる
   const allTools = [...realTools, ...mockTools];
 
