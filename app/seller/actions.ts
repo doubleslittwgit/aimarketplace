@@ -8,6 +8,17 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { withRetrySupabase } from "@/lib/retry";
 
+/**
+ * 自動出金の最低残高（円）。
+ *
+ * 出金1回ごとにStripe側の手数料がかかるため、数百円程度の売上のたびに
+ * 出金が発生すると、その手数料だけでプラットフォームの取り分（20%）を
+ * 上回ってしまい赤字になりかねない。この金額に達するまでは自動出金せず
+ * Stripe残高に留め、複数件の売上をまとめて出金することで、
+ * 1回あたりの手数料負担を薄める。
+ */
+const MIN_PAYOUT_BALANCE_JPY = 1000;
+
 export type SellerActionResult = { error: string };
 
 async function getOrigin() {
@@ -102,6 +113,19 @@ export async function startSellerOnboarding(): Promise<
       });
 
       accountId = account.id;
+
+      // 最低出金額を設定する。失敗しても登録フロー自体は止めない
+      // （設定できなくても、Stripeの初期値である「毎回全額出金」に
+      //  なるだけで、致命的な問題にはならないため）。
+      try {
+        await stripe.balanceSettings.update(
+          { payments: { payouts: { minimum_balance_by_currency: { jpy: MIN_PAYOUT_BALANCE_JPY } } } },
+          { stripeAccount: accountId }
+        );
+      } catch (e) {
+        const message = e instanceof Error ? e.message : "不明なエラー";
+        console.error(`[seller] 最低出金額の設定に失敗: ${accountId}`, message);
+      }
 
       // 作成直後はどの項目も未完了。実際の状態は、登録完了後の同期処理と
       // account.updated Webhook が埋める（列のデフォルトは全て false）。
