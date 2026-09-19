@@ -343,6 +343,7 @@
     "title": "會員中心",
     "loggedInAs": "以 {name} 身分登入中",
     "favorites": "收藏",
+    "viewProfile": "查看個人資料",
     "purchasedTools": "已購買的工具",
     "noPurchases": "目前還沒有購買任何工具。",
     "browseTools": "探索工具",

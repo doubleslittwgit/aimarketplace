@@ -144,14 +144,37 @@ export default async function DashboardPage() {
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-6 py-10">
           <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h1 className="font-display text-2xl font-semibold text-text-primary">
-                {t("title")}
-              </h1>
-              <p className="mt-1 text-[13px] text-text-muted">
-                {t("loggedInAs", { name: profile?.display_name ?? user.email ?? "" })}
-                {profile?.handle ? ` ・ @${profile.handle}` : ""}
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-surface-raised">
+                {profile?.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="font-display text-[13px] font-semibold text-accent-ai">
+                    {(profile?.display_name ?? user.email ?? "?").slice(0, 2).toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div>
+                <h1 className="font-display text-2xl font-semibold text-text-primary">
+                  {t("title")}
+                </h1>
+                <p className="mt-1 text-[13px] text-text-muted">
+                  {t("loggedInAs", { name: profile?.display_name ?? user.email ?? "" })}
+                  {profile?.handle ? (
+                    <>
+                      {" ・ "}
+                      <Link href={`/u/${profile.handle}`} className="text-accent-signal hover:underline">
+                        @{profile.handle}
+                      </Link>
+                      {" ・ "}
+                      <Link href={`/u/${profile.handle}`} className="text-accent-signal hover:underline">
+                        {t("viewProfile")}
+                      </Link>
+                    </>
+                  ) : null}
+                </p>
+              </div>
             </div>
             <Link
               href="/dashboard/likes"

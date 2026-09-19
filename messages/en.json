@@ -343,6 +343,7 @@
     "title": "Dashboard",
     "loggedInAs": "Logged in as {name}",
     "favorites": "Favorites",
+    "viewProfile": "View profile",
     "purchasedTools": "Purchased tools",
     "noPurchases": "You haven't purchased any tools yet.",
     "browseTools": "Browse tools",

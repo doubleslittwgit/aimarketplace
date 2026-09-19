@@ -343,6 +343,7 @@
     "title": "マイページ",
     "loggedInAs": "{name} としてログイン中",
     "favorites": "お気に入り",
+    "viewProfile": "プロフィールを見る",
     "purchasedTools": "購入済みツール",
     "noPurchases": "まだ購入したツールはありません。",
     "browseTools": "ツールを探す",
