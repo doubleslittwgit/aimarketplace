@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { LOCALE_COOKIE, isValidLocale, type Locale } from "@/i18n/request";
+import { LOCALE_COOKIE, isValidLocale, type Locale } from "@/i18n/config";
 
 export async function setLocale(locale: Locale): Promise<void> {
   if (!isValidLocale(locale)) return;

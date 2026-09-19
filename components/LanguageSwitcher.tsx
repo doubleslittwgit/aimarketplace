@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { setLocale } from "@/app/locale-actions";
-import { locales, type Locale } from "@/i18n/request";
+import { locales, type Locale } from "@/i18n/config";
 
 const LABELS: Record<Locale, string> = {
   ja: "日本語",
