@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { startCheckout } from "@/app/apps/[slug]/checkout-actions";
 import { claimFreeTool } from "@/app/apps/[slug]/free-actions";
 
@@ -22,6 +23,7 @@ export default function PurchaseButton({
   isPurchased,
   isCloud,
 }: Props) {
+  const t = useTranslations("toolDetail.purchaseButton");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -30,7 +32,7 @@ export default function PurchaseButton({
   if (isOwner) {
     return (
       <div className="mb-3 w-full rounded-lg border border-border bg-surface-raised py-3 text-center text-sm text-text-muted">
-        あなたが出品したツールです
+        {t("ownerNotice")}
       </div>
     );
   }
@@ -47,7 +49,7 @@ export default function PurchaseButton({
       >
         {isCloud ? (
           <>
-            ブラウザで開く
+            {t("openInBrowser")}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
               <path d="M15 3h6v6" />
@@ -55,7 +57,7 @@ export default function PurchaseButton({
             </svg>
           </>
         ) : (
-          "ダウンロード"
+          t("download")
         )}
       </a>
     );
@@ -80,11 +82,11 @@ export default function PurchaseButton({
 
   const actionLabel = isCloud
     ? isFree
-      ? "無料で使う"
-      : "購入して使う"
+      ? t("useFree")
+      : t("usePaid")
     : isFree
-      ? "無料でダウンロード"
-      : "購入してダウンロード";
+      ? t("downloadFree")
+      : t("downloadPaid");
 
   return (
     <>
@@ -94,7 +96,7 @@ export default function PurchaseButton({
         disabled={isPending}
         className="mb-3 w-full rounded-lg bg-accent-signal py-3 text-sm font-medium text-white transition hover:brightness-105 disabled:opacity-60"
       >
-        {isPending ? "処理中..." : actionLabel}
+        {isPending ? t("processing") : actionLabel}
       </button>
 
       {error && (

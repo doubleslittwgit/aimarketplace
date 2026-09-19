@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { upsertReview, deleteReview } from "@/app/apps/[slug]/reviews-actions";
+
+const INTL_LOCALE: Record<string, string> = { ja: "ja-JP", zh: "zh-TW", en: "en-US" };
 
 type Review = {
   id: string;
@@ -66,6 +69,8 @@ export default function ToolReviews({
   currentUserId: string | null;
   isPurchased: boolean;
 }) {
+  const t = useTranslations("toolDetail.reviews");
+  const locale = useLocale();
   const ownReview = reviews.find((r) => r.author_id === currentUserId) ?? null;
   const [editing, setEditing] = useState(false);
   const [rating, setRating] = useState(ownReview?.rating ?? 5);
@@ -105,12 +110,12 @@ export default function ToolReviews({
   return (
     <section className="mb-8">
       <div className="mb-4 flex items-center gap-3">
-        <h2 className="font-display text-lg font-semibold text-text-primary">レビュー</h2>
+        <h2 className="font-display text-lg font-semibold text-text-primary">{t("title")}</h2>
         {avg !== null && (
           <div className="flex items-center gap-1.5">
             <Stars value={Math.round(avg)} size={14} />
             <span className="text-[13px] text-text-muted">
-              {avg.toFixed(1)}（{reviews.length}件）
+              {avg.toFixed(1)}{t("countSuffix", { count: reviews.length })}
             </span>
           </div>
         )}
@@ -128,7 +133,7 @@ export default function ToolReviews({
           {!editing && ownReview ? (
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="mb-1 text-[12px] text-text-muted">あなたのレビュー</p>
+                <p className="mb-1 text-[12px] text-text-muted">{t("yourReview")}</p>
                 <Stars value={ownReview.rating} size={14} />
                 {ownReview.comment && (
                   <p className="mt-2 text-[13px] text-text-secondary">{ownReview.comment}</p>
@@ -140,7 +145,7 @@ export default function ToolReviews({
                   onClick={() => setEditing(true)}
                   className="text-accent-signal hover:underline"
                 >
-                  編集
+                  {t("edit")}
                 </button>
                 <button
                   type="button"
@@ -148,14 +153,14 @@ export default function ToolReviews({
                   disabled={isDeleting}
                   className="text-accent-danger hover:underline disabled:opacity-60"
                 >
-                  {isDeleting ? "削除中..." : "削除"}
+                  {isDeleting ? t("deleting") : t("delete")}
                 </button>
               </div>
             </div>
           ) : (
             <div>
               <p className="mb-2 text-[12px] text-text-muted">
-                {ownReview ? "レビューを編集" : "このツールのレビューを書く"}
+                {ownReview ? t("editReview") : t("writeReview")}
               </p>
               <div className="mb-3">
                 <Stars value={rating} onChange={setRating} size={22} />
@@ -164,7 +169,7 @@ export default function ToolReviews({
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={3}
-                placeholder="使ってみた感想（任意）"
+                placeholder={t("commentPlaceholder")}
                 className="mb-3 w-full resize-none rounded-lg border border-border bg-bg px-3 py-2 text-[13px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
               />
               <div className="flex gap-2">
@@ -174,7 +179,7 @@ export default function ToolReviews({
                   disabled={isSaving}
                   className="rounded-lg bg-accent-signal px-4 py-2 text-[12px] font-medium text-white transition hover:brightness-105 disabled:opacity-60"
                 >
-                  {isSaving ? "投稿中..." : "投稿する"}
+                  {isSaving ? t("submitting") : t("submit")}
                 </button>
                 {ownReview && (
                   <button
@@ -187,7 +192,7 @@ export default function ToolReviews({
                     }}
                     className="rounded-lg border border-border px-4 py-2 text-[12px] text-text-secondary hover:bg-surface-raised"
                   >
-                    キャンセル
+                    {t("cancel")}
                   </button>
                 )}
               </div>
@@ -198,13 +203,13 @@ export default function ToolReviews({
 
       {!isPurchased && currentUserId && (
         <p className="mb-6 text-[12px] text-text-dim">
-          購入すると、このツールのレビューを書けるようになります。
+          {t("purchaseToReview")}
         </p>
       )}
 
       {/* レビュー一覧（自分のもの以外） */}
       {reviews.filter((r) => r.author_id !== currentUserId).length === 0 && !ownReview ? (
-        <p className="text-[13px] text-text-muted">まだレビューはありません。</p>
+        <p className="text-[13px] text-text-muted">{t("empty")}</p>
       ) : (
         <div className="space-y-4">
           {reviews
@@ -217,7 +222,7 @@ export default function ToolReviews({
                   </span>
                   <Stars value={r.rating} size={13} />
                   <span className="text-[11px] text-text-dim">
-                    {new Date(r.created_at).toLocaleDateString("ja-JP")}
+                    {new Date(r.created_at).toLocaleDateString(INTL_LOCALE[locale] ?? "ja-JP")}
                   </span>
                 </div>
                 {r.comment && (

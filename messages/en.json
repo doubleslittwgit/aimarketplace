@@ -73,6 +73,99 @@
     "emptyTitle": "No matching tools found",
     "emptyHint": "Try different keywords or categories"
   },
+  "toolDetail": {
+    "status": {
+      "pendingReview": "This tool is under review. It will go live once approved (only you can see this preview).",
+      "rejected": "This tool was rejected. Check the reason in your dashboard (only you can see this preview).",
+      "suspendedWithReason": "This tool has been unpublished by the BuildBay team. Reason: {reason} (only you can see this preview).",
+      "suspended": "This tool is currently unpublished (only you can see this preview).",
+      "draft": "This tool is a draft (only you can see this preview)."
+    },
+    "stats": {
+      "use": "Uses",
+      "download": "Downloads",
+      "likes": "{count} likes",
+      "views": "{count} views"
+    },
+    "description": "Overview",
+    "relatedTools": "You might also like",
+    "buyBox": {
+      "oneTimePurchase": "One-time purchase, unlimited use",
+      "demoNotice": "This is a sample listing and can't be purchased",
+      "cloudPurchasedNotice": "Purchased — open it in your browser anytime",
+      "cloudUnpurchasedNotice": "Start using it in your browser right after purchase",
+      "purchasedNotice": "Purchased — download it anytime",
+      "unpurchasedNotice": "Download it right after purchase",
+      "version": "Version",
+      "runtime": "Runtime",
+      "runtimeLocal": "Local",
+      "runtimeCloud": "Cloud (Web)",
+      "installs": "Installs",
+      "updatedAt": "Last updated",
+      "fileSize": "File size"
+    },
+    "purchaseButton": {
+      "ownerNotice": "This is your own listing",
+      "openInBrowser": "Open in browser",
+      "download": "Download",
+      "processing": "Processing...",
+      "useFree": "Use for free",
+      "usePaid": "Purchase to use",
+      "downloadFree": "Download for free",
+      "downloadPaid": "Purchase to download"
+    },
+    "likeButton": {
+      "liked": "Liked",
+      "like": "Like",
+      "ariaLike": "Like this tool",
+      "ariaUnlike": "Remove like"
+    },
+    "reportButton": {
+      "trigger": "Report this tool",
+      "modalTitle": "Report this tool",
+      "reasonRequired": "Please choose a reason",
+      "detailPlaceholder": "Additional details (optional)",
+      "submit": "Submit report",
+      "submitting": "Submitting...",
+      "cancel": "Cancel",
+      "doneTitle": "Report submitted",
+      "doneBody": "Thanks for letting us know — our team will review it.",
+      "close": "Close",
+      "reasons": {
+        "malware": "Suspected malware or dangerous code",
+        "misrepresentation": "Description doesn't match what it actually does",
+        "copyright": "Copyright or intellectual property infringement",
+        "spam": "Spam or fraudulent listing",
+        "other": "Other"
+      }
+    },
+    "authorCard": {
+      "label": "Developer"
+    },
+    "purchaseModal": {
+      "title": "Thanks for your purchase!",
+      "body": "You can download it anytime from your dashboard.",
+      "toDashboard": "Go to dashboard",
+      "close": "Close"
+    },
+    "reviews": {
+      "title": "Reviews",
+      "countSuffix": " ({count})",
+      "yourReview": "Your review",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "editReview": "Edit your review",
+      "writeReview": "Write a review for this tool",
+      "commentPlaceholder": "Share your experience (optional)",
+      "submit": "Post review",
+      "submitting": "Posting...",
+      "cancel": "Cancel",
+      "purchaseToReview": "Purchase this tool to leave a review.",
+      "anonymous": "Anonymous",
+      "empty": "No reviews yet."
+    }
+  },
   "categories": {
     "automation": "Automation & Workflows",
     "devTools": "Developer Tools",

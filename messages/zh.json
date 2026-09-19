@@ -73,6 +73,99 @@
     "emptyTitle": "找不到符合條件的工具",
     "emptyHint": "請試著更換關鍵字或分類再試一次"
   },
+  "toolDetail": {
+    "status": {
+      "pendingReview": "此工具正在審核中，通過後將會公開上架（此預覽畫面僅您本人可見）。",
+      "rejected": "此工具已被拒絕上架，請在會員中心查看拒絕原因（此預覽畫面僅您本人可見）。",
+      "suspendedWithReason": "此工具已被平台下架。原因：{reason}（此預覽畫面僅您本人可見）",
+      "suspended": "此工具目前為非公開狀態（此預覽畫面僅您本人可見）。",
+      "draft": "此工具為草稿狀態（此預覽畫面僅您本人可見）。"
+    },
+    "stats": {
+      "use": "使用",
+      "download": "下載",
+      "likes": "喜歡 {count}",
+      "views": "瀏覽 {count}"
+    },
+    "description": "簡介",
+    "relatedTools": "你可能也會喜歡",
+    "buyBox": {
+      "oneTimePurchase": "一次付費・永久使用",
+      "demoNotice": "此為範例展示，無法購買",
+      "cloudPurchasedNotice": "已購買，隨時可以在瀏覽器開啟",
+      "cloudUnpurchasedNotice": "購買後即可立即在瀏覽器中使用",
+      "purchasedNotice": "已購買，隨時可以下載",
+      "unpurchasedNotice": "購買後即可立即下載",
+      "version": "版本",
+      "runtime": "執行環境",
+      "runtimeLocal": "本機執行",
+      "runtimeCloud": "雲端（Web）",
+      "installs": "安裝次數",
+      "updatedAt": "最後更新",
+      "fileSize": "所需容量"
+    },
+    "purchaseButton": {
+      "ownerNotice": "這是您上架的工具",
+      "openInBrowser": "在瀏覽器中開啟",
+      "download": "下載",
+      "processing": "處理中…",
+      "useFree": "免費使用",
+      "usePaid": "購買後使用",
+      "downloadFree": "免費下載",
+      "downloadPaid": "購買並下載"
+    },
+    "likeButton": {
+      "liked": "已喜歡",
+      "like": "喜歡",
+      "ariaLike": "喜歡這個工具",
+      "ariaUnlike": "取消喜歡"
+    },
+    "reportButton": {
+      "trigger": "檢舉此工具",
+      "modalTitle": "檢舉此工具",
+      "reasonRequired": "請選擇檢舉原因",
+      "detailPlaceholder": "補充說明（選填）",
+      "submit": "送出檢舉",
+      "submitting": "送出中…",
+      "cancel": "取消",
+      "doneTitle": "已收到您的檢舉",
+      "doneBody": "感謝您的協助，我們會盡快確認。",
+      "close": "關閉",
+      "reasons": {
+        "malware": "疑似含有惡意程式碼",
+        "misrepresentation": "說明內容與實際情況嚴重不符",
+        "copyright": "侵犯著作權或智慧財產權",
+        "spam": "垃圾或詐欺性上架",
+        "other": "其他"
+      }
+    },
+    "authorCard": {
+      "label": "開發者"
+    },
+    "purchaseModal": {
+      "title": "感謝您的購買",
+      "body": "隨時可以在會員中心下載。",
+      "toDashboard": "前往會員中心",
+      "close": "關閉"
+    },
+    "reviews": {
+      "title": "評論",
+      "countSuffix": "（{count} 則）",
+      "yourReview": "你的評論",
+      "edit": "編輯",
+      "delete": "刪除",
+      "deleting": "刪除中…",
+      "editReview": "編輯評論",
+      "writeReview": "寫下這個工具的評論",
+      "commentPlaceholder": "分享你的使用心得（選填）",
+      "submit": "送出",
+      "submitting": "送出中…",
+      "cancel": "取消",
+      "purchaseToReview": "購買後即可為這個工具留下評論。",
+      "anonymous": "匿名用戶",
+      "empty": "目前還沒有評論。"
+    }
+  },
   "categories": {
     "automation": "自動化與工作流程",
     "devTools": "開發者工具",

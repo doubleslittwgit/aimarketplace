@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const CONFETTI_COLORS = [
   "var(--accent-signal)",
@@ -36,6 +37,7 @@ function makeConfetti(count: number): ConfettiPiece[] {
 }
 
 export default function PurchaseSuccessModal() {
+  const t = useTranslations("toolDetail.purchaseModal");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -90,10 +92,10 @@ export default function PurchaseSuccessModal() {
         </div>
 
         <h2 className="mb-2 font-display text-lg font-semibold text-text-primary">
-          ご購入ありがとうございます
+          {t("title")}
         </h2>
         <p className="mb-6 text-[13px] leading-relaxed text-text-muted">
-          マイページからいつでもダウンロードできます。
+          {t("body")}
         </p>
 
         <div className="flex flex-col gap-2">
@@ -101,14 +103,14 @@ export default function PurchaseSuccessModal() {
             href="/dashboard"
             className="w-full rounded-lg bg-accent-signal py-2.5 text-[13px] font-medium text-white transition hover:brightness-105"
           >
-            マイページへ
+            {t("toDashboard")}
           </Link>
           <button
             type="button"
             onClick={close}
             className="w-full rounded-lg border border-border py-2.5 text-[13px] font-medium text-text-secondary transition hover:bg-surface"
           >
-            閉じる
+            {t("close")}
           </button>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Tool, formatPrice, formatFileSize } from "@/lib/mock-data";
 import PurchaseButton from "@/components/PurchaseButton";
 
@@ -17,6 +18,8 @@ export default function BuyBox({
   isPurchased,
   isDemo,
 }: Props) {
+  const t = useTranslations("toolDetail.buyBox");
+  const tCommon = useTranslations("common");
   const isFree = tool.price === 0;
   const isCloud = tool.runtime === "cloud";
 
@@ -24,16 +27,16 @@ export default function BuyBox({
     <div className="rounded-xl border border-border bg-surface p-5">
       <div className="mb-4 flex items-baseline justify-between">
         <span className="font-display text-2xl font-semibold text-text-primary">
-          {formatPrice(tool.price)}
+          {formatPrice(tool.price, tCommon("free"))}
         </span>
         {!isFree && (
-          <span className="text-[12px] text-text-muted">買い切り・永続利用</span>
+          <span className="text-[12px] text-text-muted">{t("oneTimePurchase")}</span>
         )}
       </div>
 
       {isDemo ? (
         <div className="mb-3 w-full rounded-lg border border-border bg-surface-raised py-3 text-center text-sm text-text-muted">
-          サンプル表示のため購入できません
+          {t("demoNotice")}
         </div>
       ) : (
         <PurchaseButton
@@ -49,23 +52,23 @@ export default function BuyBox({
       <p className="mb-4 text-center text-[12px] text-text-dim">
         {isCloud
           ? isPurchased
-            ? "購入済みです。いつでもブラウザで開けます"
-            : "購入後、すぐにブラウザで使い始められます"
+            ? t("cloudPurchasedNotice")
+            : t("cloudUnpurchasedNotice")
           : isPurchased
-            ? "購入済みです。いつでもダウンロードできます"
-            : "購入後、すぐにダウンロードできます"}
+            ? t("purchasedNotice")
+            : t("unpurchasedNotice")}
       </p>
 
       <dl className="space-y-2.5 border-t border-border pt-4 font-mono text-[12px]">
-        <Row label="バージョン" value={`v${tool.version}`} />
+        <Row label={t("version")} value={`v${tool.version}`} />
         <Row
-          label="実行環境"
-          value={tool.runtime === "local" ? "ローカル実行" : "クラウド(Web)"}
+          label={t("runtime")}
+          value={tool.runtime === "local" ? t("runtimeLocal") : t("runtimeCloud")}
         />
-        <Row label="インストール数" value={tool.installs.toLocaleString()} />
-        <Row label="最終更新" value={tool.updatedAt} />
+        <Row label={t("installs")} value={tool.installs.toLocaleString()} />
+        <Row label={t("updatedAt")} value={tool.updatedAt} />
         {tool.runtime === "local" && formatFileSize(tool.fileSizeBytes) && (
-          <Row label="必要容量" value={formatFileSize(tool.fileSizeBytes)!} />
+          <Row label={t("fileSize")} value={formatFileSize(tool.fileSizeBytes)!} />
         )}
       </dl>
     </div>

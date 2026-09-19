@@ -14,6 +14,7 @@ import ToolReviews from "@/components/ToolReviews";
 import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
 import ImageCarousel from "@/components/ImageCarousel";
 import { createClient } from "@/lib/supabase/server";
+import { categoryToSlug } from "@/lib/category-slugs";
 import { getToolBySlug, tools as mockTools, formatInstalls, type Tool } from "@/lib/mock-data";
 
 async function loadTool(
@@ -147,6 +148,8 @@ export default async function ToolDetailPage({
 
   if (!result) notFound();
   const { tool, related, isDemo, status, rejectionReason, authorId } = result;
+  const t = await getTranslations("toolDetail");
+  const tCategories = await getTranslations("categories");
 
   // ログイン状態と購入状態を取得する
   const supabase = await createClient();
@@ -199,7 +202,7 @@ export default async function ToolDetailPage({
       comment: r.comment,
       created_at: r.created_at,
       author_id: r.author_id,
-      author_name: profile?.display_name || (profile?.handle ? `@${profile.handle}` : "匿名"),
+      author_name: profile?.display_name || (profile?.handle ? `@${profile.handle}` : t("reviews.anonymous")),
     };
   });
 
@@ -214,16 +217,13 @@ export default async function ToolDetailPage({
         <div className="mx-auto max-w-6xl px-6 py-8">
           {isOwner && status !== "published" && (
             <div className="mb-6 rounded-lg border border-accent-ai/30 bg-accent-ai-dim px-4 py-3 text-[13px] text-accent-ai">
-              {status === "pending_review" &&
-                "このツールは審査中です。承認されると一般公開されます（このプレビューはあなただけに見えています）。"}
-              {status === "rejected" &&
-                "このツールは却下されました。マイページで却下理由を確認してください（このプレビューはあなただけに見えています）。"}
+              {status === "pending_review" && t("status.pendingReview")}
+              {status === "rejected" && t("status.rejected")}
               {status === "suspended" &&
                 (rejectionReason
-                  ? `このツールは運営により非公開にされています。理由: ${rejectionReason}（このプレビューはあなただけに見えています）`
-                  : "このツールは現在非公開です（このプレビューはあなただけに見えています）。")}
-              {status === "draft" &&
-                "このツールは下書きです（このプレビューはあなただけに見えています）。"}
+                  ? t("status.suspendedWithReason", { reason: rejectionReason })
+                  : t("status.suspended"))}
+              {status === "draft" && t("status.draft")}
             </div>
           )}
           {/* Breadcrumb */}
@@ -233,7 +233,7 @@ export default async function ToolDetailPage({
             </Link>
             <span>/</span>
             <Link href="/browse" className="hover:text-text-secondary">
-              {tool.category}
+              {tCategories(categoryToSlug(tool.category))}
             </Link>
           </nav>
 
@@ -256,7 +256,7 @@ export default async function ToolDetailPage({
                           href={`/browse?category=${encodeURIComponent(c)}`}
                           className="rounded-full bg-surface px-2.5 py-1 text-[12px] text-text-muted transition hover:bg-surface-raised hover:text-text-secondary"
                         >
-                          {c}
+                          {tCategories(categoryToSlug(c))}
                         </Link>
                       ))}
                     </div>
@@ -281,20 +281,20 @@ export default async function ToolDetailPage({
                     <path d="m7 10 5 5 5-5" />
                     <path d="M5 21h14" />
                   </svg>
-                  {tool.runtime === "cloud" ? "利用" : "ダウンロード"} {formatInstalls(tool.installs)}
+                  {tool.runtime === "cloud" ? t("stats.use") : t("stats.download")} {formatInstalls(tool.installs)}
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-[13px] text-text-secondary">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-accent-signal">
                     <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
                   </svg>
-                  いいね {tool.likes}
+                  {t("stats.likes", { count: tool.likes })}
                 </span>
                 <span className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-[13px] text-text-secondary">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted">
                     <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
                     <circle cx="12" cy="12" r="2.5" />
                   </svg>
-                  閲覧 {formatInstalls(tool.views)}
+                  {t("stats.views", { count: formatInstalls(tool.views) })}
                 </span>
               </div>
 
@@ -310,7 +310,7 @@ export default async function ToolDetailPage({
               {/* Description */}
               <section className="mb-8">
                 <h2 className="mb-3 font-display text-lg font-semibold text-text-primary">
-                  概要
+                  {t("description")}
                 </h2>
                 <p className="whitespace-pre-line text-[14px] leading-relaxed text-text-secondary">
                   {tool.description}
@@ -372,7 +372,7 @@ export default async function ToolDetailPage({
           {/* Related tools */}
           <section className="mt-16 border-t border-border pt-10">
             <h2 className="mb-5 font-display text-lg font-semibold text-text-primary">
-              こちらもおすすめ
+              {t("relatedTools")}
             </h2>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
               {related.map((t) => (

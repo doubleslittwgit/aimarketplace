@@ -73,6 +73,99 @@
     "emptyTitle": "該当するツールが見つかりませんでした",
     "emptyHint": "キーワードやカテゴリを変えて、もう一度お試しください"
   },
+  "toolDetail": {
+    "status": {
+      "pendingReview": "このツールは審査中です。承認されると一般公開されます（このプレビューはあなただけに見えています）。",
+      "rejected": "このツールは却下されました。マイページで却下理由を確認してください（このプレビューはあなただけに見えています）。",
+      "suspendedWithReason": "このツールは運営により非公開にされています。理由: {reason}（このプレビューはあなただけに見えています）",
+      "suspended": "このツールは現在非公開です（このプレビューはあなただけに見えています）。",
+      "draft": "このツールは下書きです（このプレビューはあなただけに見えています）。"
+    },
+    "stats": {
+      "use": "利用",
+      "download": "ダウンロード",
+      "likes": "いいね {count}",
+      "views": "閲覧 {count}"
+    },
+    "description": "概要",
+    "relatedTools": "こちらもおすすめ",
+    "buyBox": {
+      "oneTimePurchase": "買い切り・永続利用",
+      "demoNotice": "サンプル表示のため購入できません",
+      "cloudPurchasedNotice": "購入済みです。いつでもブラウザで開けます",
+      "cloudUnpurchasedNotice": "購入後、すぐにブラウザで使い始められます",
+      "purchasedNotice": "購入済みです。いつでもダウンロードできます",
+      "unpurchasedNotice": "購入後、すぐにダウンロードできます",
+      "version": "バージョン",
+      "runtime": "実行環境",
+      "runtimeLocal": "ローカル実行",
+      "runtimeCloud": "クラウド(Web)",
+      "installs": "インストール数",
+      "updatedAt": "最終更新",
+      "fileSize": "必要容量"
+    },
+    "purchaseButton": {
+      "ownerNotice": "あなたが出品したツールです",
+      "openInBrowser": "ブラウザで開く",
+      "download": "ダウンロード",
+      "processing": "処理中...",
+      "useFree": "無料で使う",
+      "usePaid": "購入して使う",
+      "downloadFree": "無料でダウンロード",
+      "downloadPaid": "購入してダウンロード"
+    },
+    "likeButton": {
+      "liked": "いいね済み",
+      "like": "いいね",
+      "ariaLike": "いいねする",
+      "ariaUnlike": "いいねを取り消す"
+    },
+    "reportButton": {
+      "trigger": "このツールを通報する",
+      "modalTitle": "このツールを通報する",
+      "reasonRequired": "通報理由を選んでください",
+      "detailPlaceholder": "補足（任意）",
+      "submit": "通報する",
+      "submitting": "送信中...",
+      "cancel": "キャンセル",
+      "doneTitle": "通報を受け付けました",
+      "doneBody": "ご協力ありがとうございます。運営が確認します。",
+      "close": "閉じる",
+      "reasons": {
+        "malware": "危険なコード・マルウェアの疑い",
+        "misrepresentation": "説明と実際の内容が大きく異なる",
+        "copyright": "著作権・知的財産権の侵害",
+        "spam": "スパム・詐欺的な出品",
+        "other": "その他"
+      }
+    },
+    "authorCard": {
+      "label": "開発者"
+    },
+    "purchaseModal": {
+      "title": "ご購入ありがとうございます",
+      "body": "マイページからいつでもダウンロードできます。",
+      "toDashboard": "マイページへ",
+      "close": "閉じる"
+    },
+    "reviews": {
+      "title": "レビュー",
+      "countSuffix": "（{count}件）",
+      "yourReview": "あなたのレビュー",
+      "edit": "編集",
+      "delete": "削除",
+      "deleting": "削除中...",
+      "editReview": "レビューを編集",
+      "writeReview": "このツールのレビューを書く",
+      "commentPlaceholder": "使ってみた感想（任意）",
+      "submit": "投稿する",
+      "submitting": "投稿中...",
+      "cancel": "キャンセル",
+      "purchaseToReview": "購入すると、このツールのレビューを書けるようになります。",
+      "anonymous": "匿名",
+      "empty": "まだレビューはありません。"
+    }
+  },
   "categories": {
     "automation": "自動化・ワークフロー",
     "devTools": "開発者ツール",

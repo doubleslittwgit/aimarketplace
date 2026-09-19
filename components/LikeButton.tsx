@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toggleLike } from "@/app/apps/[slug]/like-actions";
 
 type Props = {
@@ -17,6 +18,7 @@ export default function LikeButton({
   initialLiked,
   initialCount,
 }: Props) {
+  const t = useTranslations("toolDetail.likeButton");
   const router = useRouter();
   const [liked, setLiked] = useState(initialLiked);
   const [count, setCount] = useState(initialCount);
@@ -60,7 +62,7 @@ export default function LikeButton({
         onClick={handleClick}
         disabled={isPending}
         aria-pressed={liked}
-        aria-label={liked ? "いいねを取り消す" : "いいねする"}
+        aria-label={liked ? t("ariaUnlike") : t("ariaLike")}
         className={`flex w-full items-center justify-center gap-2 rounded-lg border py-2.5 text-[13px] font-medium transition disabled:opacity-60 ${
           liked
             ? "border-accent-signal/40 bg-accent-signal/10 text-accent-signal"
@@ -80,7 +82,7 @@ export default function LikeButton({
         >
           <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
         </svg>
-        {liked ? "いいね済み" : "いいね"}
+        {liked ? t("liked") : t("like")}
         {count > 0 && (
           <span className="font-mono text-[12px] opacity-80">{count}</span>
         )}
