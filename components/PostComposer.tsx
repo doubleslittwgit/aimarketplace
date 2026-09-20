@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { createPost, type PostItem } from "@/app/feed/actions";
 import { MAX_POST_IMAGES } from "@/app/feed/constants";
-import { compressImage, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
+import { compressImagesSequentially, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
 
 export default function PostComposer({
   onPosted,
@@ -31,9 +31,7 @@ export default function PostComposer({
 
     const toAccept = incoming.slice(0, Math.max(remaining, 0));
     if (toAccept.length === 0) return;
-    const accepted = await Promise.all(
-      toAccept.map((f) => compressImage(f, COMPRESS_PRESET_GALLERY))
-    );
+    const accepted = await compressImagesSequentially(toAccept, COMPRESS_PRESET_GALLERY);
 
     setImages((prev) => [...prev, ...accepted]);
     setPreviews((prev) => [...prev, ...accepted.map((f) => URL.createObjectURL(f))]);

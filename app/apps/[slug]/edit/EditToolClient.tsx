@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
-import { compressImage, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
+import { compressImage, compressImagesSequentially, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
 import { updateTool, setToolPublished, deleteTool } from "./actions";
 
 type Tool = {
@@ -145,9 +145,7 @@ export default function EditToolClient({
     const toAccept = incoming
       .filter((f) => f.size <= MAX_THUMBNAIL_FILE_SIZE)
       .slice(0, Math.max(0, remaining));
-    const accepted = await Promise.all(
-      toAccept.map((f) => compressImage(f, COMPRESS_PRESET_GALLERY))
-    );
+    const accepted = await compressImagesSequentially(toAccept, COMPRESS_PRESET_GALLERY);
 
     const next = [...newGalleryFiles, ...accepted];
     setNewGalleryFiles(next);
