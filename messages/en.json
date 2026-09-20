@@ -402,6 +402,26 @@
     "emptyHint": "Like a tool you're interested in and it'll show up here",
     "browseTools": "Browse tools"
   },
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "See how all your published tools are performing at a glance",
+    "viewAnalytics": "View analytics",
+    "totalViews": "Total views",
+    "totalLikes": "Total likes",
+    "totalDownloads": "Total downloads",
+    "last30DaysEarnings": "Last 30 days' earnings",
+    "earningsChartTitle": "Daily earnings (last 30 days)",
+    "noEarningsYet": "No sales data yet.",
+    "perToolBreakdown": "Per-tool breakdown",
+    "tableName": "Tool",
+    "tableViews": "Views",
+    "tableLikes": "Likes",
+    "tableDownloads": "Downloads",
+    "tableSales": "Sales",
+    "tableEarnings": "Earnings",
+    "noTools": "You haven't published any tools yet.",
+    "backToDashboard": "Back to dashboard"
+  },
   "dashboard": {
     "title": "Dashboard",
     "loggedInAs": "Logged in as {name}",

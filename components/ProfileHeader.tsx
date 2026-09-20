@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { formatInstalls } from "@/lib/mock-data";
 import { compressImage, COMPRESS_PRESET_AVATAR } from "@/lib/compress-image";
@@ -36,6 +37,7 @@ export default function ProfileHeader({
   followingCount: number;
 }) {
   const t = useTranslations("profile");
+  const tAnalytics = useTranslations("analytics");
   const [editing, setEditing] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -226,13 +228,21 @@ export default function ProfileHeader({
             </p>
 
             {isOwner ? (
-              <button
-                type="button"
-                onClick={() => setEditing(true)}
-                className="mt-5 rounded-full border border-border bg-bg px-5 py-2 text-[13px] font-medium text-text-secondary transition hover:border-border-strong hover:bg-surface"
-              >
-                {t("editProfile")}
-              </button>
+              <div className="mt-5 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditing(true)}
+                  className="rounded-full border border-border bg-bg px-5 py-2 text-[13px] font-medium text-text-secondary transition hover:border-border-strong hover:bg-surface"
+                >
+                  {t("editProfile")}
+                </button>
+                <Link
+                  href="/dashboard/analytics"
+                  className="rounded-full border border-border bg-bg px-5 py-2 text-[13px] font-medium text-text-secondary transition hover:border-border-strong hover:bg-surface"
+                >
+                  {tAnalytics("viewAnalytics")}
+                </Link>
+              </div>
             ) : isLoggedIn ? (
               <button
                 type="button"

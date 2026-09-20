@@ -402,6 +402,26 @@
     "emptyHint": "按下喜歡的工具的「喜歡」按鈕，就會顯示在這裡",
     "browseTools": "探索工具"
   },
+  "analytics": {
+    "title": "數據分析",
+    "subtitle": "一次查看所有上架工具的整體表現",
+    "viewAnalytics": "查看分析",
+    "totalViews": "累計瀏覽數",
+    "totalLikes": "累計喜歡數",
+    "totalDownloads": "累計下載數",
+    "last30DaysEarnings": "近30天收入",
+    "earningsChartTitle": "每日收入趨勢（近30天）",
+    "noEarningsYet": "目前還沒有銷售資料。",
+    "perToolBreakdown": "各工具表現",
+    "tableName": "工具名稱",
+    "tableViews": "瀏覽數",
+    "tableLikes": "喜歡數",
+    "tableDownloads": "下載數",
+    "tableSales": "銷售數",
+    "tableEarnings": "收入",
+    "noTools": "目前還沒有上架任何工具。",
+    "backToDashboard": "返回會員中心"
+  },
   "dashboard": {
     "title": "會員中心",
     "loggedInAs": "以 {name} 身分登入中",

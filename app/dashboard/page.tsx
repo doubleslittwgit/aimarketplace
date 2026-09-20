@@ -58,6 +58,7 @@ type SaleRow = {
 
 export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
+  const tAnalytics = await getTranslations("analytics");
   const locale = (await getLocale()) as Locale;
   const intlLocale = INTL_LOCALE[locale] ?? "ja-JP";
   const statusLabel = (status: string) =>
@@ -177,15 +178,27 @@ export default async function DashboardPage() {
                 </p>
               </div>
             </div>
-            <Link
-              href="/dashboard/likes"
-              className="flex items-center gap-1.5 text-[13px] text-text-muted hover:text-text-primary"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
-              </svg>
-              {t("favorites")}
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/dashboard/analytics"
+                className="flex items-center gap-1.5 text-[13px] text-text-muted hover:text-text-primary"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 3v18h18" />
+                  <path d="M18.4 8.6 12 15l-3.5-3.5L4 16" />
+                </svg>
+                {tAnalytics("viewAnalytics")}
+              </Link>
+              <Link
+                href="/dashboard/likes"
+                className="flex items-center gap-1.5 text-[13px] text-text-muted hover:text-text-primary"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
+                </svg>
+                {t("favorites")}
+              </Link>
+            </div>
           </div>
 
           {/* 購入済みツール */}

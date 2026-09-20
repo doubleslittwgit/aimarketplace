@@ -402,6 +402,26 @@
     "emptyHint": "気になるツールの「いいね」を押すと、ここに表示されます",
     "browseTools": "ツールを探す"
   },
+  "analytics": {
+    "title": "分析",
+    "subtitle": "出品したツール全体の実績をまとめて見られます",
+    "viewAnalytics": "分析を見る",
+    "totalViews": "累計閲覧数",
+    "totalLikes": "累計いいね",
+    "totalDownloads": "累計ダウンロード",
+    "last30DaysEarnings": "直近30日間の売上",
+    "earningsChartTitle": "日別の売上推移（直近30日間）",
+    "noEarningsYet": "まだ売上データがありません。",
+    "perToolBreakdown": "ツールごとの実績",
+    "tableName": "ツール名",
+    "tableViews": "閲覧数",
+    "tableLikes": "いいね",
+    "tableDownloads": "ダウンロード",
+    "tableSales": "販売数",
+    "tableEarnings": "売上",
+    "noTools": "まだ出品したツールはありません。",
+    "backToDashboard": "マイページへ戻る"
+  },
   "dashboard": {
     "title": "マイページ",
     "loggedInAs": "{name} としてログイン中",
