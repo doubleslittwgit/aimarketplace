@@ -361,13 +361,13 @@ export default async function DashboardPage() {
                     {t("totalEarnings")}
                   </p>
                   <p className="mt-1 font-display text-2xl font-semibold text-text-primary">
-                    {formatPrice(totalEarnings)}
+                    ¥{totalEarnings.toLocaleString()}
                   </p>
                 </div>
                 <div>
                   <p className="text-[12px] text-text-muted">{t("thisMonthEarnings")}</p>
                   <p className="mt-1 font-display text-2xl font-semibold text-text-primary">
-                    {formatPrice(thisMonthEarnings)}
+                    ¥{thisMonthEarnings.toLocaleString()}
                   </p>
                 </div>
               </div>

@@ -14,6 +14,16 @@
  * 単純に描画すると横倒しになることがある。createImageBitmapの
  * imageOrientation: "from-image" オプションが、主要ブラウザで
  * 自動的に正しい向きに補正してくれるため、追加のライブラリなしで対応できる。
+ *
+ * 【メモリの使い方について（重要）】
+ * 最近のiPhone等は4000万画素を超える写真を撮れる。これをそのまま
+ * createImageBitmapでフルサイズのままビットマップ化すると、それだけで
+ * 200MB近いメモリを一時的に消費し、モバイルSafariではタブごと
+ * クラッシュすることがある（実際に発生した不具合）。
+ * そのため、事前に軽量な<img>読み込みで元画像のピクセルサイズだけを把握し、
+ * createImageBitmapの resizeWidth/resizeHeight オプションで
+ * 「縮小しながらデコードする」ことで、フルサイズを一度もメモリに
+ * 展開しないようにしている。
  */
 export type CompressImageOptions = {
   /** 長辺の最大ピクセル数。これを超える場合は縮小する */
@@ -24,6 +34,23 @@ export type CompressImageOptions = {
 
 const OUTPUT_MIME = "image/webp";
 
+/** <img>で読み込むだけで、フルサイズのデコードを避けつつ元画像のピクセルサイズを取得する */
+function readImageSize(file: File): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("画像サイズの取得に失敗しました"));
+    };
+    img.src = url;
+  });
+}
+
 export async function compressImage(
   file: File,
   { maxDimension = 1920, quality = 0.82 }: CompressImageOptions = {}
@@ -33,21 +60,31 @@ export async function compressImage(
     return file;
   }
 
+  let bitmap: ImageBitmap | null = null;
   try {
-    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    const { width: srcWidth, height: srcHeight } = await readImageSize(file);
+    const scale = Math.min(1, maxDimension / Math.max(srcWidth, srcHeight));
+    const width = Math.max(1, Math.round(srcWidth * scale));
+    const height = Math.max(1, Math.round(srcHeight * scale));
 
-    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
-    const width = Math.max(1, Math.round(bitmap.width * scale));
-    const height = Math.max(1, Math.round(bitmap.height * scale));
+    // resizeWidth/resizeHeightを渡すことで、ブラウザに縮小しながら
+    // デコードさせる（フルサイズのビットマップを経由しない）
+    bitmap = await createImageBitmap(file, {
+      imageOrientation: "from-image",
+      resizeWidth: width,
+      resizeHeight: height,
+      resizeQuality: "medium",
+    });
 
     const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
     const ctx = canvas.getContext("2d");
     if (!ctx) return file;
 
-    ctx.drawImage(bitmap, 0, 0, width, height);
+    ctx.drawImage(bitmap, 0, 0);
     bitmap.close();
+    bitmap = null;
 
     const blob = await new Promise<Blob | null>((resolve) =>
       canvas.toBlob(resolve, OUTPUT_MIME, quality)
@@ -64,6 +101,8 @@ export async function compressImage(
     // 圧縮に失敗しても致命的にはせず、元のファイルのままアップロードを続ける
     console.error("[compressImage] 圧縮に失敗、元のファイルを使用します:", e);
     return file;
+  } finally {
+    bitmap?.close();
   }
 }
 
