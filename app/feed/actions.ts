@@ -4,8 +4,8 @@ import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { notifyAdmins } from "@/lib/notifications/create";
-import { adminPostReported } from "@/lib/notifications/content";
+import { notifyAdmins, notify } from "@/lib/notifications/create";
+import { adminPostReported, postLiked, newPostComment } from "@/lib/notifications/content";
 import { FEED_PAGE_SIZE, MAX_POST_IMAGES } from "./constants";
 
 const MAX_POST_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
@@ -307,6 +307,29 @@ export async function togglePostLike(
 
   const { error } = await supabase.from("post_likes").insert({ post_id: postId, user_id: user.id });
   if (error) return { error: t("likeFailed"), liked: false };
+
+  after(async () => {
+    const { data: post } = await supabase
+      .from("posts")
+      .select("author_id, content")
+      .eq("id", postId)
+      .maybeSingle();
+    if (!post || post.author_id === user.id) return; // 自分の投稿への「いいね」は通知しない
+
+    const { data: likerProfile } = await supabase
+      .from("profiles")
+      .select("display_name, handle")
+      .eq("id", user.id)
+      .maybeSingle();
+    const name = likerProfile?.display_name || likerProfile?.handle || "";
+    await notify(
+      post.author_id,
+      "post_liked",
+      postLiked(name, post.content.slice(0, 60), postId),
+      { email: false } // いいねは頻度が高くなりうるため、アプリ内通知のみ
+    );
+  });
+
   return { error: null, liked: true };
 }
 
@@ -334,6 +357,23 @@ export async function addComment(
   if (error || !inserted) {
     return { error: t("postFailed", { message: error?.message ?? "" }) };
   }
+
+  after(async () => {
+    const { data: post } = await supabase
+      .from("posts")
+      .select("author_id")
+      .eq("id", postId)
+      .maybeSingle();
+    if (!post || post.author_id === user.id) return; // 自分の投稿への自分のコメントは通知しない
+
+    const commenterName = inserted.profiles?.display_name || inserted.profiles?.handle || "";
+    await notify(
+      post.author_id,
+      "new_post_comment",
+      newPostComment(commenterName, trimmed.slice(0, 60), postId),
+      { email: true }
+    );
+  });
 
   revalidatePath("/feed");
   return {

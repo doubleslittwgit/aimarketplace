@@ -1,8 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { notify } from "@/lib/notifications/create";
+import { newFollower } from "@/lib/notifications/content";
 
 export type FollowResult = { error: string | null; following: boolean };
 
@@ -54,6 +57,17 @@ export async function toggleFollow(
     .insert({ follower_id: user.id, following_id: targetProfileId });
 
   if (error) return { error: t("updateFailed", { message: error.message }), following: false };
+
+  after(async () => {
+    const { data: followerProfile } = await supabase
+      .from("profiles")
+      .select("display_name, handle")
+      .eq("id", user.id)
+      .maybeSingle();
+    const name = followerProfile?.display_name || followerProfile?.handle || "";
+    const handle = followerProfile?.handle || "";
+    await notify(targetProfileId, "new_follower", newFollower(name, handle), { email: true });
+  });
 
   revalidatePath(`/u/${targetHandle}`);
   return { error: null, following: true };

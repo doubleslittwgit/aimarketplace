@@ -16,7 +16,10 @@ export type NotificationType =
   | "purchase_receipt"
   | "admin_new_pending_review"
   | "admin_high_risk_flagged"
-  | "admin_post_reported";
+  | "admin_post_reported"
+  | "new_follower"
+  | "post_liked"
+  | "new_post_comment";
 
 export type NotificationContent = {
   title: string;
@@ -157,5 +160,33 @@ export function adminPostReported(
     title: `🚩 投稿が通報されました`,
     body: `投稿者: ${authorName}。理由: ${reasonLabel}`,
     linkUrl: `${SITE_URL}/admin/post-reports`,
+  };
+}
+
+export function newFollower(followerName: string, followerHandle: string): NotificationContent {
+  return {
+    title: `${followerName}さんにフォローされました`,
+    body: "プロフィールを見てみましょう。",
+    linkUrl: `${SITE_URL}/u/${followerHandle}`,
+  };
+}
+
+export function postLiked(likerName: string, postExcerpt: string, postId: string): NotificationContent {
+  return {
+    title: `${likerName}さんが投稿にいいねしました`,
+    body: postExcerpt ? `「${postExcerpt}」` : "あなたの投稿にいいねがつきました。",
+    linkUrl: `${SITE_URL}/feed/${postId}`,
+  };
+}
+
+export function newPostComment(
+  commenterName: string,
+  commentExcerpt: string,
+  postId: string
+): NotificationContent {
+  return {
+    title: `${commenterName}さんが投稿にコメントしました`,
+    body: `「${commentExcerpt}」`,
+    linkUrl: `${SITE_URL}/feed/${postId}`,
   };
 }
