@@ -28,6 +28,7 @@ export type PostItem = {
   author: PostAuthor;
   likedByMe: boolean;
   isOwn: boolean;
+  relevantComment: RelevantComment | null;
 };
 
 const REASON_LABELS: Record<string, string> = {
@@ -84,25 +85,126 @@ async function hydratePosts(
     },
     likedByMe: likedIds.has(r.id),
     isOwn: user?.id === r.author_id,
+    relevantComment: null,
   }));
 }
 
-export async function loadMorePosts(
-  beforeCreatedAt: string
-): Promise<{ posts: PostItem[]; hasMore: boolean }> {
+/** 投稿詳細ページ用に、1件だけ取得する */
+export async function getPost(postId: string): Promise<PostItem | null> {
   const supabase = await createClient();
-  const { data: rows } = await supabase
+  const { data: row } = await supabase
     .from("posts")
-    .select(
-      "*, profiles:author_id(display_name, handle, avatar_url)"
-    )
-    .lt("created_at", beforeCreatedAt)
+    .select("*, profiles:author_id(display_name, handle, avatar_url)")
+    .eq("id", postId)
+    .maybeSingle();
+
+  if (!row) return null;
+  const [post] = await hydratePosts(supabase, [row]);
+  return post;
+}
+
+export type RelevantComment = {
+  id: string;
+  content: string;
+  author: PostAuthor;
+};
+
+/**
+ * フィード一覧向けに、各投稿につき「自分がフォローしている人によるコメント」を
+ * 1件ずつ添える（Xのような、関係のある返信をその場でプレビューする挙動）。
+ * 未ログイン、または誰もフォローしていない場合は全件nullを返す。
+ */
+export async function getRelevantComments(
+  postIds: string[]
+): Promise<Record<string, RelevantComment | null>> {
+  const empty: Record<string, RelevantComment | null> = Object.fromEntries(
+    postIds.map((id) => [id, null])
+  );
+  if (postIds.length === 0) return empty;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return empty;
+
+  const { data: following } = await supabase
+    .from("follows")
+    .select("following_id")
+    .eq("follower_id", user.id);
+  const followingIds = (following ?? []).map((f) => f.following_id);
+  if (followingIds.length === 0) return empty;
+
+  const { data: comments } = await supabase
+    .from("post_comments")
+    .select("*, profiles:author_id(display_name, handle, avatar_url)")
+    .in("post_id", postIds)
+    .in("author_id", followingIds)
+    .order("created_at", { ascending: false });
+
+  const result = { ...empty };
+  for (const c of comments ?? []) {
+    // 投稿ごとに一番新しいものだけを採用する（既に別のコメントが入っていればスキップ）
+    if (result[c.post_id]) continue;
+    result[c.post_id] = {
+      id: c.id,
+      content: c.content,
+      author: {
+        display_name: c.profiles?.display_name ?? null,
+        handle: c.profiles?.handle ?? "",
+        avatar_url: c.profiles?.avatar_url ?? null,
+      },
+    };
+  }
+  return result;
+}
+
+/**
+ * フィードの投稿を取得する（初回表示・もっと見る・「フォロー中」タブの
+ * 切り替え、すべてこの1つの関数でまかなう）。
+ */
+export async function fetchFeedPosts(params: {
+  mode: "all" | "following";
+  /** これより古い投稿を取得する（「もっと見る」用）。省略時は先頭から */
+  before?: string;
+}): Promise<{ posts: PostItem[]; hasMore: boolean }> {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("posts")
+    .select("*, profiles:author_id(display_name, handle, avatar_url)")
     .order("created_at", { ascending: false })
     .limit(PAGE_SIZE + 1);
 
+  if (params.before) {
+    query = query.lt("created_at", params.before);
+  }
+
+  if (params.mode === "following") {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { posts: [], hasMore: false };
+
+    const { data: following } = await supabase
+      .from("follows")
+      .select("following_id")
+      .eq("follower_id", user.id);
+    const followingIds = (following ?? []).map((f) => f.following_id);
+    if (followingIds.length === 0) return { posts: [], hasMore: false };
+
+    query = query.in("author_id", followingIds);
+  }
+
+  const { data: rows } = await query;
   const hasMore = (rows?.length ?? 0) > PAGE_SIZE;
   const page = (rows ?? []).slice(0, PAGE_SIZE);
-  return { posts: await hydratePosts(supabase, page), hasMore };
+  const posts = await hydratePosts(supabase, page);
+  const relevant = await getRelevantComments(posts.map((p) => p.id));
+  return {
+    posts: posts.map((p) => ({ ...p, relevantComment: relevant[p.id] ?? null })),
+    hasMore,
+  };
 }
 
 export async function createPost(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
@@ -30,10 +30,16 @@ export default function PostCard({
   post,
   isLoggedIn,
   onDeleted,
+  initialComments,
+  disableCardClick,
 }: {
   post: PostItem;
   isLoggedIn: boolean;
   onDeleted: (id: string) => void;
+  /** 投稿詳細ページ用: 最初からコメント一覧を展開した状態で渡す */
+  initialComments?: Comment[];
+  /** 投稿詳細ページ用: カード自体のクリックでの遷移を無効にする（既にそのページにいるため） */
+  disableCardClick?: boolean;
 }) {
   const t = useTranslations("feed");
   const tErrors = useTranslations("errors");
@@ -44,8 +50,8 @@ export default function PostCard({
   const [likeCount, setLikeCount] = useState(post.like_count);
   const [isLikePending, startLikeTransition] = useTransition();
 
-  const [showComments, setShowComments] = useState(false);
-  const [comments, setComments] = useState<Comment[] | null>(null);
+  const [showComments, setShowComments] = useState(Boolean(initialComments));
+  const [comments, setComments] = useState<Comment[] | null>(initialComments ?? null);
   const [commentCount, setCommentCount] = useState(post.comment_count);
   const [commentDraft, setCommentDraft] = useState("");
   const [isCommentPending, startCommentTransition] = useTransition();
@@ -58,8 +64,11 @@ export default function PostCard({
   const [isReportPending, startReportTransition] = useTransition();
 
   const [isDeletePending, startDeleteTransition] = useTransition();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const cardRef = useRef<HTMLDivElement>(null);
+  const postUrl = `/feed/${post.id}`;
 
   // フィード上に一定時間表示されたら1回だけ閲覧数を加算する
   useEffect(() => {
@@ -165,12 +174,33 @@ export default function PostCard({
     });
   }
 
+  function goToPost() {
+    if (disableCardClick) return;
+    router.push(postUrl);
+  }
+
+  // カード全体をクリック可能にしつつ、ボタン・リンク・画像など
+  // 個別に振る舞いを持つ要素ではナビゲーションを起こさないようにする
+  function stop(e: MouseEvent) {
+    e.stopPropagation();
+  }
+
   const initials = (post.author.display_name || "?").slice(0, 1).toUpperCase();
 
   return (
-    <div ref={cardRef} className="rounded-xl border border-border bg-surface p-4">
+    <div
+      ref={cardRef}
+      onClick={goToPost}
+      className={`rounded-xl border border-border bg-surface p-4 ${
+        disableCardClick ? "" : "cursor-pointer transition hover:border-border-strong"
+      }`}
+    >
       <div className="flex items-start justify-between gap-2">
-        <Link href={`/u/${post.author.handle}`} className="flex min-w-0 items-center gap-2.5">
+        <Link
+          href={`/u/${post.author.handle}`}
+          onClick={stop}
+          className="flex min-w-0 items-center gap-2.5"
+        >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-surface-raised">
             {post.author.avatar_url ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -191,24 +221,43 @@ export default function PostCard({
           </div>
         </Link>
 
-        {post.isOwn ? (
+        <div className="relative shrink-0" onClick={stop}>
           <button
             type="button"
-            onClick={handleDelete}
-            disabled={isDeletePending}
-            className="shrink-0 text-[12px] text-text-dim transition hover:text-accent-danger"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label={t("moreMenu")}
+            className="flex h-7 w-7 items-center justify-center rounded-full text-text-dim transition hover:bg-surface-raised hover:text-text-secondary"
           >
-            {t("deletePost")}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="5" cy="12" r="1.8" />
+              <circle cx="12" cy="12" r="1.8" />
+              <circle cx="19" cy="12" r="1.8" />
+            </svg>
           </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setReportOpen(true)}
-            className="shrink-0 text-[12px] text-text-dim transition hover:text-accent-danger"
-          >
-            {t("reportPost")}
-          </button>
-        )}
+
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+              <div className="absolute right-0 top-8 z-50 w-56 overflow-hidden rounded-xl border border-border bg-bg shadow-lg">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    if (post.isOwn) handleDelete();
+                    else setReportOpen(true);
+                  }}
+                  disabled={isDeletePending}
+                  className="block w-full px-4 py-2.5 text-left text-[13px] text-accent-danger transition hover:bg-surface-raised"
+                >
+                  {post.isOwn ? t("deleteThisPost") : t("reportThisPost")}
+                </button>
+                <p className="border-t border-border px-4 py-2.5 text-[11px] text-text-dim">
+                  {t("moreFeaturesComing")}
+                </p>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {post.content && (
@@ -222,19 +271,27 @@ export default function PostCard({
         <img
           src={post.image_urls[0]}
           alt=""
-          className="mt-3 max-h-96 w-full rounded-lg border border-border object-cover"
+          onClick={(e) => {
+            stop(e);
+            setLightboxIndex(0);
+          }}
+          className="mt-3 max-h-96 w-full cursor-zoom-in rounded-lg border border-border object-cover"
         />
       )}
 
       {post.image_urls.length > 1 && (
         <div className="mt-3 grid grid-cols-2 gap-1.5">
-          {post.image_urls.map((url) => (
+          {post.image_urls.map((url, i) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               key={url}
               src={url}
               alt=""
-              className="aspect-square w-full rounded-lg border border-border object-cover"
+              onClick={(e) => {
+                stop(e);
+                setLightboxIndex(i);
+              }}
+              className="aspect-square w-full cursor-zoom-in rounded-lg border border-border object-cover"
             />
           ))}
         </div>
@@ -243,7 +300,10 @@ export default function PostCard({
       <div className="mt-3 flex items-center gap-5 border-t border-border pt-3">
         <button
           type="button"
-          onClick={handleLike}
+          onClick={(e) => {
+            stop(e);
+            handleLike();
+          }}
           disabled={isLikePending}
           className={`flex items-center gap-1.5 text-[13px] transition ${
             liked ? "text-accent-signal" : "text-text-muted hover:text-text-primary"
@@ -256,7 +316,11 @@ export default function PostCard({
         </button>
         <button
           type="button"
-          onClick={handleToggleComments}
+          onClick={(e) => {
+            stop(e);
+            if (disableCardClick) handleToggleComments();
+            else goToPost();
+          }}
           className="flex items-center gap-1.5 text-[13px] text-text-muted transition hover:text-text-primary"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -273,8 +337,38 @@ export default function PostCard({
         </span>
       </div>
 
+      {/* フォロー中の人によるコメントは、展開しなくてもここにプレビューされる（X風） */}
+      {!showComments && post.relevantComment && (
+        <div className="mt-3 flex items-start gap-2 rounded-lg bg-surface-raised px-3 py-2">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-bg">
+            {post.relevantComment.author.avatar_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={post.relevantComment.author.avatar_url}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="font-display text-[9px] font-semibold text-accent-ai">
+                {(post.relevantComment.author.display_name || "?").slice(0, 1).toUpperCase()}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] text-text-dim">
+              {t("relevantCommentNote", {
+                name: post.relevantComment.author.display_name || t("unnamedUser"),
+              })}
+            </p>
+            <p className="truncate text-[13px] text-text-secondary">
+              {post.relevantComment.content}
+            </p>
+          </div>
+        </div>
+      )}
+
       {showComments && (
-        <div className="mt-3 space-y-2.5 border-t border-border pt-3">
+        <div className="mt-3 space-y-2.5 border-t border-border pt-3" onClick={stop}>
           {comments === null ? (
             <p className="text-[12px] text-text-dim">{t("loadingComments")}</p>
           ) : comments.length === 0 ? (
@@ -327,11 +421,14 @@ export default function PostCard({
       {reportOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
-          onClick={() => !isReportPending && setReportOpen(false)}
+          onClick={(e) => {
+            stop(e);
+            if (!isReportPending) setReportOpen(false);
+          }}
         >
           <div
             className="w-full max-w-sm rounded-xl border border-border bg-bg p-5 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
+            onClick={stop}
           >
             {reportDone ? (
               <div className="py-4 text-center">
@@ -401,6 +498,67 @@ export default function PostCard({
               </>
             )}
           </div>
+        </div>
+      )}
+
+      {lightboxIndex !== null && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4"
+          onClick={(e) => {
+            stop(e);
+            setLightboxIndex(null);
+          }}
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              stop(e);
+              setLightboxIndex(null);
+            }}
+            aria-label={t("closeLightbox")}
+            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+
+          {post.image_urls.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={(e) => {
+                  stop(e);
+                  setLightboxIndex((i) => ((i ?? 0) - 1 + post.image_urls.length) % post.image_urls.length);
+                }}
+                className="absolute left-2 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 sm:left-4"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  stop(e);
+                  setLightboxIndex((i) => ((i ?? 0) + 1) % post.image_urls.length);
+                }}
+                className="absolute right-2 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 sm:right-4"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
+            </>
+          )}
+
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={post.image_urls[lightboxIndex]}
+            alt=""
+            onClick={stop}
+            className="max-h-full max-w-full rounded-lg object-contain"
+          />
         </div>
       )}
     </div>
