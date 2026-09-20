@@ -168,6 +168,18 @@ export default async function Home() {
               </div>
             </div>
 
+            {/* xl未満（スマホ・タブレット）専用: PC版の浮遊カードの代わりに、
+                横スクロールできる帯で寂しさを埋める。PC版の表示には一切影響しない */}
+            {floatTools.length > 0 && (
+              <div className="mt-10 -mx-6 xl:hidden">
+                <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {floatTools.map((tool) => (
+                    <MobileToolPeek key={tool.id} tool={tool} freeLabel={tCommon("free")} />
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="mx-auto mt-24 flex max-w-2xl flex-wrap justify-center gap-x-12 gap-y-5 border-t border-border pt-9 font-mono text-sm">
               <Stat label={t("statPublished")} value={`${mockTools.length * 253 + realTools.length}+`} />
               <Stat label={t("statDevelopers")} value="480+" />
@@ -242,6 +254,32 @@ const FLOAT_ICON_STYLES = [
   "bg-accent-ai-dim text-accent-ai",
   "bg-surface-raised text-text-secondary",
 ];
+
+function MobileToolPeek({ tool, freeLabel }: { tool: Tool; freeLabel: string }) {
+  return (
+    <a
+      href={`/apps/${tool.slug}`}
+      className="w-36 shrink-0 snap-start overflow-hidden rounded-xl border border-border bg-bg shadow-[0_10px_24px_-10px_rgba(30,78,150,0.3)] transition active:scale-[0.98]"
+    >
+      <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-surface-raised to-surface">
+        {tool.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={tool.thumbnailUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <span className="flex h-full w-full items-center justify-center font-display text-lg font-semibold text-accent-ai">
+            {tool.name.slice(0, 1)}
+          </span>
+        )}
+      </div>
+      <div className="p-2.5">
+        <p className="truncate text-[12px] font-semibold text-text-primary">{tool.name}</p>
+        <p className="mt-0.5 text-[11px] text-text-muted">
+          {tool.price === 0 ? freeLabel : `¥${tool.price.toLocaleString()}`}
+        </p>
+      </div>
+    </a>
+  );
+}
 
 function FloatingCard({
   tool,
