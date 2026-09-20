@@ -22,6 +22,15 @@
  * その要素をcanvasに描画する」方式に変更した。この方式は、WebKit側で
  * EXIFの向きが正しく反映されることが確認できており（<img>表示時点で
  * 補正されるため）、何年も前から使われている実績のある手法でもある。
+ * 【出力形式について（Safari向けの補足）】
+ * SafariはWebPの「表示」には対応しているが、canvas経由のWebP「書き出し」
+ * には対応していない。非対応のまま指定すると、仕様上ブラウザが黙って
+ * PNG（無圧縮）にフォールバックしてしまい、画質指定が効かず圧縮効果も
+ * 得られない。そのため、書き出し前に「このブラウザはWebPを書き出せるか」
+ * を一度だけ判定し、対応していればWebP（透過も保持）、非対応であれば
+ * 画質指定が効くJPEGを使う（JPEGは透過を扱えないため、その場合のみ
+ * 先に白背景を敷いてから描画する）。ファイル名・MIMEタイプも
+ * 実際に書き出した形式に合わせて決定する。
  */
 export type CompressImageOptions = {
   /** 長辺の最大ピクセル数。これを超える場合は縮小する */
@@ -30,7 +39,12 @@ export type CompressImageOptions = {
   quality?: number;
 };
 
-const OUTPUT_MIME = "image/webp";
+const PREFERRED_MIME = "image/webp";
+const FALLBACK_MIME = "image/jpeg";
+const EXTENSION_BY_MIME: Record<string, string> = {
+  "image/webp": ".webp",
+  "image/jpeg": ".jpg",
+};
 
 /** ObjectURL経由で<img>要素として読み込む（Safariでも向き情報が正しく反映される） */
 function loadImageElement(url: string): Promise<HTMLImageElement> {
@@ -40,6 +54,21 @@ function loadImageElement(url: string): Promise<HTMLImageElement> {
     img.onerror = () => reject(new Error("画像の読み込みに失敗しました"));
     img.src = url;
   });
+}
+
+// このブラウザがcanvas経由でWebPを書き出せるかどうかは、端末・セッション中は
+// 変わらないので、1度判定した結果をキャッシュして使い回す。
+let webpEncodeSupport: Promise<boolean> | null = null;
+function supportsWebpEncode(): Promise<boolean> {
+  if (!webpEncodeSupport) {
+    webpEncodeSupport = new Promise((resolve) => {
+      const testCanvas = document.createElement("canvas");
+      testCanvas.width = 1;
+      testCanvas.height = 1;
+      testCanvas.toBlob((blob) => resolve(blob?.type === PREFERRED_MIME), PREFERRED_MIME);
+    });
+  }
+  return webpEncodeSupport;
 }
 
 export async function compressImage(
@@ -53,6 +82,13 @@ export async function compressImage(
 
   let objectUrl: string | null = null;
   try {
+    // Safari等、canvas経由のWebP書き出しに対応していないブラウザでは
+    // JPEGを使う。JPEGは透過を扱えないため、その場合だけ先に白背景を
+    // 敷いておく（透過PNGのロゴ等が黒背景になってしまうのを防ぐため）。
+    // WebP書き出しに対応しているブラウザでは、透過はそのまま保持される。
+    const canUseWebp = await supportsWebpEncode();
+    const outputMime = canUseWebp ? PREFERRED_MIME : FALLBACK_MIME;
+
     objectUrl = URL.createObjectURL(file);
     const img = await loadImageElement(objectUrl);
 
@@ -68,10 +104,14 @@ export async function compressImage(
     const ctx = canvas.getContext("2d");
     if (!ctx) return file;
 
+    if (!canUseWebp) {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+    }
     ctx.drawImage(img, 0, 0, width, height);
 
     const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, OUTPUT_MIME, quality)
+      canvas.toBlob(resolve, outputMime, quality)
     );
     if (!blob) return file;
 
@@ -79,8 +119,9 @@ export async function compressImage(
     // （既に軽い画像や、小さいアイコン画像などで起こりうる）
     if (blob.size >= file.size) return file;
 
-    const newName = file.name.replace(/\.[^./]+$/, "") + ".webp";
-    return new File([blob], newName, { type: OUTPUT_MIME, lastModified: Date.now() });
+    const ext = EXTENSION_BY_MIME[blob.type] ?? ".jpg";
+    const newName = file.name.replace(/\.[^./]+$/, "") + ext;
+    return new File([blob], newName, { type: blob.type, lastModified: Date.now() });
   } catch (e) {
     // 圧縮に失敗しても致命的にはせず、元のファイルのままアップロードを続ける
     console.error("[compressImage] 圧縮に失敗、元のファイルを使用します:", e);
