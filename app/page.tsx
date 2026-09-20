@@ -158,14 +158,14 @@ export default async function Home() {
             {floatTools[1] && (
               <MobileFloatingCard
                 tool={floatTools[1]}
-                className="left-2 top-[57%] rotate-2 xl:hidden"
+                className="left-2 top-[33%] rotate-2 xl:hidden"
                 freeLabel={tCommon("free")}
               />
             )}
             {floatTools[3] && (
               <MobileFloatingCard
                 tool={floatTools[3]}
-                className="right-2 top-[63%] -rotate-2 xl:hidden"
+                className="right-2 top-[38%] -rotate-2 xl:hidden"
                 freeLabel={tCommon("free")}
               />
             )}
@@ -211,7 +211,7 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="relative z-10 mx-auto mt-6 flex max-w-2xl flex-wrap justify-center gap-x-8 gap-y-4 font-mono text-sm xl:mt-24 xl:gap-x-12 xl:gap-y-5 xl:border-t xl:border-border xl:pt-9">
+            <div className="relative z-10 mx-auto mt-6 grid max-w-2xl grid-cols-4 gap-x-2 font-mono text-sm xl:flex xl:max-w-none xl:flex-wrap xl:justify-center xl:gap-x-12 xl:gap-y-5 xl:border-t xl:border-border xl:pt-9 xl:mt-24">
               <Stat label={t("statPublished")} value={`${mockTools.length * 253 + realTools.length}+`} />
               <Stat label={t("statDevelopers")} value="480+" />
               <Stat label={t("statDownloads")} value="52.3k" />
@@ -270,11 +270,11 @@ export default async function Home() {
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className={`text-lg font-medium ${accent ? "text-accent-signal" : "text-text-primary"}`}>
+    <div className="flex flex-col items-center gap-1 text-center xl:items-start xl:text-left">
+      <span className={`text-base xl:text-lg font-medium ${accent ? "text-accent-signal" : "text-text-primary"}`}>
         {value}
       </span>
-      <span className="text-text-dim">{label}</span>
+      <span className="text-[11px] leading-tight text-text-dim xl:text-sm">{label}</span>
     </div>
   );
 }
