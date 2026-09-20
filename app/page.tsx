@@ -81,7 +81,7 @@ export default async function Home() {
           </div>
 
           <div className="relative mx-auto max-w-7xl px-6 py-16 sm:py-36">
-            {/* 実際に出品されているツールを浮かせて紹介（十分な余白が取れる画面幅のみ） */}
+            {/* PC版（xl以上）: 実際に出品されているツールを浮かせて紹介 */}
             {floatTools[0] && (
               <FloatingCard
                 tool={floatTools[0]}
@@ -127,7 +127,50 @@ export default async function Home() {
               />
             )}
 
-            <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
+            {/* xl未満（スマホ・タブレット）専用: 背景にBuildBayカラーのすりガラス調の
+                四角を散らして「他にもまだツールがある」感を出しつつ、4隅に実際の
+                ツールを小さく配置する。PC版の表示・コードには一切影響しない */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden xl:hidden">
+              <div className="absolute left-[10%] top-[4%] h-11 w-11 rotate-[-15deg] rounded-xl bg-accent-ai/20 backdrop-blur-sm" />
+              <div className="absolute right-[16%] top-[2%] h-7 w-7 rotate-[20deg] rounded-lg bg-accent-signal/25 backdrop-blur-sm" />
+              <div className="absolute left-[4%] top-[24%] h-6 w-6 rotate-[12deg] rounded-lg bg-accent-signal/20 backdrop-blur-sm" />
+              <div className="absolute right-[6%] top-[30%] h-9 w-9 rotate-[-18deg] rounded-xl bg-accent-ai/20 backdrop-blur-sm" />
+              <div className="absolute left-[18%] top-[46%] h-7 w-7 rotate-[8deg] rounded-lg bg-accent-ai/15 backdrop-blur-sm" />
+              <div className="absolute right-[22%] top-[52%] h-5 w-5 rotate-[-10deg] rounded-md bg-accent-signal/20 backdrop-blur-sm" />
+              <div className="absolute left-[8%] top-[68%] h-10 w-10 rotate-[16deg] rounded-xl bg-accent-signal/15 backdrop-blur-sm" />
+              <div className="absolute right-[10%] top-[74%] h-6 w-6 rotate-[-14deg] rounded-lg bg-accent-ai/20 backdrop-blur-sm" />
+            </div>
+
+            {floatTools[0] && (
+              <MobileFloatingCard
+                tool={floatTools[0]}
+                className="left-2 top-[1%] -rotate-3 xl:hidden"
+                freeLabel={tCommon("free")}
+              />
+            )}
+            {floatTools[2] && (
+              <MobileFloatingCard
+                tool={floatTools[2]}
+                className="right-2 top-[7%] rotate-3 xl:hidden"
+                freeLabel={tCommon("free")}
+              />
+            )}
+            {floatTools[1] && (
+              <MobileFloatingCard
+                tool={floatTools[1]}
+                className="left-2 top-[57%] rotate-2 xl:hidden"
+                freeLabel={tCommon("free")}
+              />
+            )}
+            {floatTools[3] && (
+              <MobileFloatingCard
+                tool={floatTools[3]}
+                className="right-2 top-[63%] -rotate-2 xl:hidden"
+                freeLabel={tCommon("free")}
+              />
+            )}
+
+            <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center text-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo.png"
@@ -140,7 +183,7 @@ export default async function Home() {
                 <br />
                 <span className="text-accent-signal">{t("heroLine2")}</span>
               </h1>
-              <p className="mt-6 max-w-md text-base leading-relaxed text-text-secondary sm:text-lg">
+              <p className="mt-6 max-w-[15rem] text-base leading-relaxed text-text-secondary sm:max-w-md sm:text-lg">
                 {t("heroSubcopy")}
               </p>
 
@@ -168,19 +211,7 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* xl未満（スマホ・タブレット）専用: PC版の浮遊カードの代わりに、
-                横スクロールできる帯で寂しさを埋める。PC版の表示には一切影響しない */}
-            {floatTools.length > 0 && (
-              <div className="mt-10 -mx-6 xl:hidden">
-                <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {floatTools.map((tool) => (
-                    <MobileToolPeek key={tool.id} tool={tool} freeLabel={tCommon("free")} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="mx-auto mt-24 flex max-w-2xl flex-wrap justify-center gap-x-12 gap-y-5 border-t border-border pt-9 font-mono text-sm">
+            <div className="relative z-10 mx-auto mt-6 flex max-w-2xl flex-wrap justify-center gap-x-8 gap-y-4 font-mono text-sm xl:mt-24 xl:gap-x-12 xl:gap-y-5 xl:border-t xl:border-border xl:pt-9">
               <Stat label={t("statPublished")} value={`${mockTools.length * 253 + realTools.length}+`} />
               <Stat label={t("statDevelopers")} value="480+" />
               <Stat label={t("statDownloads")} value="52.3k" />
@@ -255,27 +286,58 @@ const FLOAT_ICON_STYLES = [
   "bg-surface-raised text-text-secondary",
 ];
 
-function MobileToolPeek({ tool, freeLabel }: { tool: Tool; freeLabel: string }) {
+function MobileFloatingCard({
+  tool,
+  className,
+  freeLabel,
+}: {
+  tool: Tool;
+  className: string;
+  freeLabel: string;
+}) {
   return (
     <a
       href={`/apps/${tool.slug}`}
-      className="w-36 shrink-0 snap-start overflow-hidden rounded-xl border border-border bg-bg shadow-[0_10px_24px_-10px_rgba(30,78,150,0.3)] transition active:scale-[0.98]"
+      className={`absolute z-[5] w-40 rounded-2xl border border-border bg-bg/95 p-3 shadow-[0_16px_34px_-12px_rgba(30,78,150,0.35)] backdrop-blur-sm transition active:scale-[0.97] ${className}`}
     >
-      <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-surface-raised to-surface">
+      <span
+        className={`absolute right-2.5 top-2.5 rounded-full px-1.5 py-0.5 font-mono text-[9px] tracking-wide ${
+          tool.runtime === "local"
+            ? "bg-accent-ai-dim text-accent-ai"
+            : "bg-surface-raised text-text-muted"
+        }`}
+      >
+        {tool.runtime === "local" ? "LOCAL" : "CLOUD"}
+      </span>
+
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-surface-raised to-surface">
         {tool.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={tool.thumbnailUrl} alt="" className="h-full w-full object-cover" />
         ) : (
-          <span className="flex h-full w-full items-center justify-center font-display text-lg font-semibold text-accent-ai">
+          <span className="font-display text-[13px] font-semibold text-accent-ai">
             {tool.name.slice(0, 1)}
           </span>
         )}
       </div>
-      <div className="p-2.5">
-        <p className="truncate text-[12px] font-semibold text-text-primary">{tool.name}</p>
-        <p className="mt-0.5 text-[11px] text-text-muted">
+
+      <p className="mt-2 truncate pr-8 text-[13px] font-semibold leading-tight text-text-primary">
+        {tool.name}
+      </p>
+      <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-text-secondary">
+        {tool.tagline}
+      </p>
+
+      <div className="mt-2 flex items-center justify-between">
+        <span className="flex items-center gap-1 text-[11px] text-text-muted">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 19h16" />
+          </svg>
+          {formatInstalls(tool.installs)}
+        </span>
+        <span className="text-[11px] font-semibold text-accent-signal">
           {tool.price === 0 ? freeLabel : `¥${tool.price.toLocaleString()}`}
-        </p>
+        </span>
       </div>
     </a>
   );
