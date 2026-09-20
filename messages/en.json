@@ -155,6 +155,27 @@
     "emptyTitle": "No matching tools found",
     "emptyHint": "Try different keywords or categories"
   },
+  "qa": {
+    "title": "Questions & Answers",
+    "subtitle": "Ask the seller a question before you buy",
+    "askPlaceholder": "Ask something you'd like to know...",
+    "askButton": "Ask",
+    "asking": "Sending...",
+    "askLoginPrompt": "Log in to ask a question",
+    "questionRequired": "Please enter your question",
+    "answerRequired": "Please enter your answer",
+    "noAnswerPermission": "You don't have permission to answer this question",
+    "noQuestions": "No questions yet.",
+    "unanswered": "Not answered yet",
+    "answered": "Answered",
+    "answerLabel": "Seller's answer",
+    "answerPlaceholder": "Write your answer...",
+    "answerButton": "Answer",
+    "answering": "Sending...",
+    "answerAsSeller": "Answer as the seller",
+    "cancel": "Cancel",
+    "unnamedUser": "Unnamed user"
+  },
   "toolDetail": {
     "status": {
       "pendingReview": "This tool is under review. It will go live once approved (only you can see this preview).",

@@ -155,6 +155,27 @@
     "emptyTitle": "該当するツールが見つかりませんでした",
     "emptyHint": "キーワードやカテゴリを変えて、もう一度お試しください"
   },
+  "qa": {
+    "title": "質問と回答",
+    "subtitle": "購入前に、出品者へ質問できます",
+    "askPlaceholder": "気になることを質問してみましょう...",
+    "askButton": "質問する",
+    "asking": "送信中...",
+    "askLoginPrompt": "質問するにはログインしてください",
+    "questionRequired": "質問内容を入力してください",
+    "answerRequired": "回答内容を入力してください",
+    "noAnswerPermission": "この質問に回答する権限がありません",
+    "noQuestions": "まだ質問はありません。",
+    "unanswered": "未回答",
+    "answered": "回答済み",
+    "answerLabel": "出品者からの回答",
+    "answerPlaceholder": "回答を入力...",
+    "answerButton": "回答する",
+    "answering": "送信中...",
+    "answerAsSeller": "出品者として回答する",
+    "cancel": "キャンセル",
+    "unnamedUser": "名前未設定のユーザー"
+  },
   "toolDetail": {
     "status": {
       "pendingReview": "このツールは審査中です。承認されると一般公開されます（このプレビューはあなただけに見えています）。",

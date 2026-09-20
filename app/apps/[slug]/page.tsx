@@ -9,6 +9,7 @@ import BuyBox from "@/components/BuyBox";
 import LikeButton from "@/components/LikeButton";
 import ReportButton from "@/components/ReportButton";
 import AuthorCard from "@/components/AuthorCard";
+import ToolQA from "@/components/ToolQA";
 import ToolCard from "@/components/ToolCard";
 import ToolReviews from "@/components/ToolReviews";
 import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
@@ -172,7 +173,8 @@ export default async function ToolDetailPage({
   // 以下の3つは互いに依存しないので同時に問い合わせる
   // （DBが東京リージョンにあり、1回の往復にも時間がかかるため、
   //  直列にすると表示速度に直結する）。
-  const [{ data: purchase }, { data: like }, { data: reviewRows }] = await Promise.all([
+  const [{ data: purchase }, { data: like }, { data: reviewRows }, { data: questionRows }] =
+    await Promise.all([
     user && !isDemo
       ? supabase
           .from("purchases")
@@ -199,6 +201,14 @@ export default async function ToolDetailPage({
           .eq("tool_id", tool.id)
           .order("created_at", { ascending: false })
       : Promise.resolve({ data: null }),
+    // Q&A一覧（同じくデモ用ツールはスキップ）
+    !isDemo
+      ? supabase
+          .from("tool_questions")
+          .select("*, profiles:asker_id(display_name, handle, avatar_url)")
+          .eq("tool_id", tool.id)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: null }),
   ]);
 
   const isPurchased = Boolean(purchase);
@@ -217,6 +227,19 @@ export default async function ToolDetailPage({
   });
 
   const reviews = await applyReviewTranslations(supabase, rawReviews, locale);
+
+  const questions = (questionRows ?? []).map((q) => ({
+    id: q.id,
+    question: q.question,
+    answer: q.answer,
+    answered_at: q.answered_at,
+    created_at: q.created_at,
+    asker: {
+      display_name: q.profiles?.display_name ?? null,
+      handle: q.profiles?.handle ?? "",
+      avatar_url: q.profiles?.avatar_url ?? null,
+    },
+  }));
 
   return (
     <>
@@ -351,6 +374,18 @@ export default async function ToolDetailPage({
                   currentUserId={user?.id ?? null}
                   isPurchased={isPurchased}
                 />
+              )}
+
+              {!isDemo && (
+                <div className="mt-8">
+                  <ToolQA
+                    toolId={tool.id}
+                    slug={tool.slug}
+                    initialItems={questions}
+                    isLoggedIn={Boolean(user)}
+                    isOwner={isOwner}
+                  />
+                </div>
               )}
             </div>
 

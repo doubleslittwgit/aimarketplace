@@ -19,7 +19,9 @@ export type NotificationType =
   | "admin_post_reported"
   | "new_follower"
   | "post_liked"
-  | "new_post_comment";
+  | "new_post_comment"
+  | "new_question"
+  | "question_answered";
 
 export type NotificationContent = {
   title: string;
@@ -188,5 +190,26 @@ export function newPostComment(
     title: `${commenterName}さんが投稿にコメントしました`,
     body: `「${commentExcerpt}」`,
     linkUrl: `${SITE_URL}/feed/${postId}`,
+  };
+}
+
+export function newQuestion(
+  askerName: string,
+  toolName: string,
+  questionExcerpt: string,
+  slug: string
+): NotificationContent {
+  return {
+    title: `「${toolName}」に質問が届きました`,
+    body: `${askerName}さん: 「${questionExcerpt}」`,
+    linkUrl: `${SITE_URL}/apps/${slug}#qa`,
+  };
+}
+
+export function questionAnswered(toolName: string, slug: string): NotificationContent {
+  return {
+    title: `「${toolName}」への質問に回答がありました`,
+    body: "商品ページで回答を確認できます。",
+    linkUrl: `${SITE_URL}/apps/${slug}#qa`,
   };
 }

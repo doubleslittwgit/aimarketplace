@@ -155,6 +155,27 @@
     "emptyTitle": "找不到符合條件的工具",
     "emptyHint": "請試著更換關鍵字或分類再試一次"
   },
+  "qa": {
+    "title": "問與答",
+    "subtitle": "購買前可以先向上架者提問",
+    "askPlaceholder": "有什麼想問的嗎……",
+    "askButton": "送出提問",
+    "asking": "送出中…",
+    "askLoginPrompt": "請登入後再提問",
+    "questionRequired": "請輸入問題內容",
+    "answerRequired": "請輸入回答內容",
+    "noAnswerPermission": "您沒有回答這則問題的權限",
+    "noQuestions": "目前還沒有任何提問。",
+    "unanswered": "尚未回答",
+    "answered": "已回答",
+    "answerLabel": "上架者的回答",
+    "answerPlaceholder": "輸入回答…",
+    "answerButton": "送出回答",
+    "answering": "送出中…",
+    "answerAsSeller": "以上架者身分回答",
+    "cancel": "取消",
+    "unnamedUser": "未具名的使用者"
+  },
   "toolDetail": {
     "status": {
       "pendingReview": "此工具正在審核中，通過後將會公開上架（此預覽畫面僅您本人可見）。",
