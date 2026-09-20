@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { formatInstalls } from "@/lib/mock-data";
 import { updateProfile } from "@/app/u/[handle]/actions";
+import { toggleFollow } from "@/app/u/[handle]/follow-actions";
 
 type Profile = {
   id: string;
@@ -20,10 +21,18 @@ export default function ProfileHeader({
   profile,
   isOwner,
   stats,
+  isLoggedIn,
+  initialIsFollowing,
+  followerCount,
+  followingCount,
 }: {
   profile: Profile;
   isOwner: boolean;
   stats: Stats;
+  isLoggedIn: boolean;
+  initialIsFollowing: boolean;
+  followerCount: number;
+  followingCount: number;
 }) {
   const t = useTranslations("profile");
   const [editing, setEditing] = useState(false);
@@ -33,6 +42,11 @@ export default function ProfileHeader({
   const [bio, setBio] = useState(profile.bio ?? "");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar_url);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
+  const [followers, setFollowers] = useState(followerCount);
+  const [isFollowPending, startFollowTransition] = useTransition();
+  const [followHovered, setFollowHovered] = useState(false);
 
   const initials = profile.display_name
     .split(" ")
@@ -56,6 +70,22 @@ export default function ProfileHeader({
         setError(result.error);
       } else {
         setEditing(false);
+      }
+    });
+  }
+
+  function handleFollowClick() {
+    // 押した瞬間に見た目を先に更新し、失敗したら戻す（体感速度優先）
+    const optimisticFollowing = !isFollowing;
+    setIsFollowing(optimisticFollowing);
+    setFollowers((n) => n + (optimisticFollowing ? 1 : -1));
+    startFollowTransition(async () => {
+      const result = await toggleFollow(profile.handle, profile.id);
+      if (result.error) {
+        setIsFollowing(!optimisticFollowing);
+        setFollowers((n) => n - (optimisticFollowing ? 1 : -1));
+      } else {
+        setIsFollowing(result.following);
       }
     });
   }
@@ -168,11 +198,27 @@ export default function ProfileHeader({
               {profile.display_name}
             </h1>
             <p className="mt-1 font-mono text-[13px] text-text-muted">@{profile.handle}</p>
+
+            <div className="mt-3 flex items-center gap-4 text-[13px]">
+              <span>
+                <span className="font-display font-semibold text-text-primary">
+                  {formatInstalls(followers)}
+                </span>{" "}
+                <span className="text-text-muted">{t("followers")}</span>
+              </span>
+              <span>
+                <span className="font-display font-semibold text-text-primary">
+                  {formatInstalls(followingCount)}
+                </span>{" "}
+                <span className="text-text-muted">{t("following")}</span>
+              </span>
+            </div>
+
             <p className="mt-4 max-w-md text-[14px] leading-relaxed text-text-secondary">
               {profile.bio || t("noBio")}
             </p>
 
-            {isOwner && (
+            {isOwner ? (
               <button
                 type="button"
                 onClick={() => setEditing(true)}
@@ -180,7 +226,24 @@ export default function ProfileHeader({
               >
                 {t("editProfile")}
               </button>
-            )}
+            ) : isLoggedIn ? (
+              <button
+                type="button"
+                onClick={handleFollowClick}
+                disabled={isFollowPending}
+                onMouseEnter={() => setFollowHovered(true)}
+                onMouseLeave={() => setFollowHovered(false)}
+                className={`mt-5 min-w-[128px] rounded-full px-5 py-2 text-[13px] font-medium transition disabled:opacity-60 ${
+                  isFollowing
+                    ? followHovered
+                      ? "border border-accent-danger/40 bg-accent-danger/5 text-accent-danger"
+                      : "border border-border bg-bg text-text-secondary hover:border-border-strong"
+                    : "bg-accent-signal text-white hover:brightness-105"
+                }`}
+              >
+                {isFollowing ? (followHovered ? t("unfollowHover") : t("unfollow")) : t("follow")}
+              </button>
+            ) : null}
 
             <div className="mt-10 flex flex-wrap justify-center gap-x-10 gap-y-5 border-t border-border pt-8">
               <Stat label={t("apps")} value={String(stats.apps)} />

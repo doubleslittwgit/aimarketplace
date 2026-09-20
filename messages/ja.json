@@ -316,6 +316,11 @@
   },
   "profile": {
     "apps": "公開ツール",
+    "followers": "フォロワー",
+    "following": "フォロー中",
+    "follow": "フォローする",
+    "unfollow": "フォロー中",
+    "unfollowHover": "フォロー解除",
     "views": "閲覧数",
     "likes": "いいね",
     "downloads": "ダウンロード",

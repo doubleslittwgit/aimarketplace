@@ -316,6 +316,11 @@
   },
   "profile": {
     "apps": "Published tools",
+    "followers": "Followers",
+    "following": "Following",
+    "follow": "Follow",
+    "unfollow": "Following",
+    "unfollowHover": "Unfollow",
     "views": "Views",
     "likes": "Likes",
     "downloads": "Downloads",

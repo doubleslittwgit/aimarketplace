@@ -33,12 +33,32 @@ export default async function ProfilePage({
   } = await supabase.auth.getUser();
   const isOwner = user?.id === profile.id;
 
-  const { data: rows } = await supabase
-    .from("tools")
-    .select("*, profiles:author_id(display_name, handle)")
-    .eq("author_id", profile.id)
-    .eq("status", "published")
-    .order("created_at", { ascending: false });
+  const [{ count: followerCount }, { count: followingCount }, followingRow, { data: rows }] =
+    await Promise.all([
+      supabase
+        .from("follows")
+        .select("follower_id", { count: "exact", head: true })
+        .eq("following_id", profile.id),
+      supabase
+        .from("follows")
+        .select("following_id", { count: "exact", head: true })
+        .eq("follower_id", profile.id),
+      user && !isOwner
+        ? supabase
+            .from("follows")
+            .select("follower_id")
+            .eq("follower_id", user.id)
+            .eq("following_id", profile.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+      supabase
+        .from("tools")
+        .select("*, profiles:author_id(display_name, handle)")
+        .eq("author_id", profile.id)
+        .eq("status", "published")
+        .order("created_at", { ascending: false }),
+    ]);
+  const isFollowing = Boolean(followingRow?.data);
 
   const rawTools: Tool[] = (rows ?? []).map((r) => ({
     id: r.id,
@@ -76,7 +96,15 @@ export default async function ProfilePage({
     <>
       <Header />
       <main className="flex-1">
-        <ProfileHeader profile={profile} isOwner={isOwner} stats={stats} />
+        <ProfileHeader
+          profile={profile}
+          isOwner={isOwner}
+          stats={stats}
+          isLoggedIn={Boolean(user)}
+          initialIsFollowing={isFollowing}
+          followerCount={followerCount ?? 0}
+          followingCount={followingCount ?? 0}
+        />
 
         <section className="mx-auto max-w-7xl px-6 pb-16">
           <h2 className="mb-5 font-display text-lg font-semibold text-text-primary">
