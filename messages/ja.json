@@ -157,7 +157,7 @@
   },
   "qa": {
     "title": "質問と回答",
-    "subtitle": "購入前に、出品者へ質問できます",
+    "subtitle": "出品者へ直接質問できます。やりとりは非公開で、あなたと出品者以外には見えません",
     "askPlaceholder": "気になることを質問してみましょう...",
     "askButton": "質問する",
     "asking": "送信中...",
@@ -166,6 +166,8 @@
     "answerRequired": "回答内容を入力してください",
     "noAnswerPermission": "この質問に回答する権限がありません",
     "noQuestions": "まだ質問はありません。",
+    "noQuestionsOwner": "まだ質問は届いていません。",
+    "noQuestionsAsker": "まだこのツールについて質問していません。",
     "unanswered": "未回答",
     "answered": "回答済み",
     "answerLabel": "出品者からの回答",

@@ -157,7 +157,7 @@
   },
   "qa": {
     "title": "Questions & Answers",
-    "subtitle": "Ask the seller a question before you buy",
+    "subtitle": "Ask the seller directly. This exchange is private — only you and the seller can see it",
     "askPlaceholder": "Ask something you'd like to know...",
     "askButton": "Ask",
     "asking": "Sending...",
@@ -166,6 +166,8 @@
     "answerRequired": "Please enter your answer",
     "noAnswerPermission": "You don't have permission to answer this question",
     "noQuestions": "No questions yet.",
+    "noQuestionsOwner": "No questions received yet.",
+    "noQuestionsAsker": "You haven't asked about this tool yet.",
     "unanswered": "Not answered yet",
     "answered": "Answered",
     "answerLabel": "Seller's answer",

@@ -2,8 +2,13 @@
 -- tool_questions
 -- ============================================================
 -- 商品詳細ページの「購入前に質問できる」Q&A機能。
--- Amazon等の商品Q&Aと同じ考え方で、質問・回答は誰でも閲覧できる
--- （既に同じ質問をした人がいれば、新たに聞き直す必要が無くなるため）。
+--
+-- プライバシーへの配慮から、質問・回答は「質問した本人」と
+-- 「そのツールの出品者」だけが閲覧できる非公開の設計にしている
+-- （Amazon等の商品Q&Aのように全員に公開する形にはしていない）。
+-- 管理者は、このプロジェクトの他の管理機能と同様、service_role
+-- （RLSを経由しない管理者用クライアント）を通してアクセスする想定のため、
+-- ここには管理者用の特別なポリシーは設けていない。
 -- 回答できるのは、そのツールの出品者本人のみ。
 -- ============================================================
 
@@ -21,10 +26,19 @@ create index if not exists tool_questions_tool_id_idx on public.tool_questions(t
 
 alter table public.tool_questions enable row level security;
 
+-- 閲覧できるのは「質問した本人」と「そのツールの出品者」だけ
 drop policy if exists "tool questions are viewable by everyone" on public.tool_questions;
-create policy "tool questions are viewable by everyone"
+drop policy if exists "tool questions are viewable by asker and seller" on public.tool_questions;
+create policy "tool questions are viewable by asker and seller"
   on public.tool_questions for select
-  using (true);
+  using (
+    auth.uid() = asker_id
+    or exists (
+      select 1 from public.tools
+      where tools.id = tool_questions.tool_id
+        and tools.author_id = auth.uid()
+    )
+  );
 
 drop policy if exists "users can ask questions as themselves" on public.tool_questions;
 create policy "users can ask questions as themselves"

@@ -92,7 +92,9 @@ export default function ToolQA({
 
       <div className="mt-5 space-y-4 border-t border-border pt-4">
         {items.length === 0 ? (
-          <p className="text-[13px] text-text-muted">{t("noQuestions")}</p>
+          <p className="text-[13px] text-text-muted">
+            {isOwner ? t("noQuestionsOwner") : t("noQuestionsAsker")}
+          </p>
         ) : (
           items.map((item) => (
             <QARow

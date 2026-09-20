@@ -157,7 +157,7 @@
   },
   "qa": {
     "title": "問與答",
-    "subtitle": "購買前可以先向上架者提問",
+    "subtitle": "可以直接向上架者提問。此對話為非公開，僅您與上架者可見",
     "askPlaceholder": "有什麼想問的嗎……",
     "askButton": "送出提問",
     "asking": "送出中…",
@@ -166,6 +166,8 @@
     "answerRequired": "請輸入回答內容",
     "noAnswerPermission": "您沒有回答這則問題的權限",
     "noQuestions": "目前還沒有任何提問。",
+    "noQuestionsOwner": "目前還沒有收到任何提問。",
+    "noQuestionsAsker": "您尚未對這個工具提出過問題。",
     "unanswered": "尚未回答",
     "answered": "已回答",
     "answerLabel": "上架者的回答",
