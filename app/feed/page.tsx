@@ -43,7 +43,7 @@ export default async function FeedPage() {
   const initialPosts = page.map((r) => ({
     id: r.id,
     content: r.content,
-    image_url: r.image_url,
+    image_urls: r.image_urls ?? [],
     view_count: r.view_count,
     like_count: r.like_count,
     comment_count: r.comment_count,

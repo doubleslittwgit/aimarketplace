@@ -6,7 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { notifyAdmins } from "@/lib/notifications/create";
 import { adminPostReported } from "@/lib/notifications/content";
-import { FEED_PAGE_SIZE } from "./constants";
+import { FEED_PAGE_SIZE, MAX_POST_IMAGES } from "./constants";
 
 const MAX_POST_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
 const PAGE_SIZE = FEED_PAGE_SIZE;
@@ -20,7 +20,7 @@ export type PostAuthor = {
 export type PostItem = {
   id: string;
   content: string;
-  image_url: string | null;
+  image_urls: string[];
   view_count: number;
   like_count: number;
   comment_count: number;
@@ -43,7 +43,7 @@ async function hydratePosts(
   rows: {
     id: string;
     content: string;
-    image_url: string | null;
+    image_urls: string[] | null;
     view_count: number;
     like_count: number;
     comment_count: number;
@@ -72,7 +72,7 @@ async function hydratePosts(
   return rows.map((r) => ({
     id: r.id,
     content: r.content,
-    image_url: r.image_url,
+    image_urls: r.image_urls ?? [],
     view_count: r.view_count,
     like_count: r.like_count,
     comment_count: r.comment_count,
@@ -118,32 +118,35 @@ export async function createPost(
   if (!user) return { error: t("loginRequired") };
 
   const content = String(formData.get("content") || "").trim();
-  const image = formData.get("image");
-  const uploadedImage = image instanceof File && image.size > 0 ? image : null;
+  const images = formData
+    .getAll("images")
+    .filter((f): f is File => f instanceof File && f.size > 0);
 
-  if (!content && !uploadedImage) {
+  if (!content && images.length === 0) {
     return { error: tFeed("contentRequired") };
   }
-  if (uploadedImage && uploadedImage.size > MAX_POST_IMAGE_SIZE) {
+  if (images.length > MAX_POST_IMAGES) {
+    return { error: tFeed("tooManyImages", { max: MAX_POST_IMAGES }) };
+  }
+  const oversized = images.find((f) => f.size > MAX_POST_IMAGE_SIZE);
+  if (oversized) {
     return { error: tFeed("imageTooLarge") };
   }
 
-  let imageUrl: string | null = null;
-  if (uploadedImage) {
-    const ext = uploadedImage.name.split(".").pop()?.replace(/[^a-zA-Z0-9]/g, "") || "png";
-    const key = `${user.id}/post-${Date.now()}.${ext}`;
-    const { error: uploadError } = await supabase.storage
-      .from("tool-images")
-      .upload(key, uploadedImage);
+  const imageUrls: string[] = [];
+  for (const image of images) {
+    const ext = image.name.split(".").pop()?.replace(/[^a-zA-Z0-9]/g, "") || "png";
+    const key = `${user.id}/post-${Date.now()}-${imageUrls.length}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("tool-images").upload(key, image);
     if (uploadError) {
       return { error: tFeed("imageUploadFailed", { message: uploadError.message }) };
     }
-    imageUrl = supabase.storage.from("tool-images").getPublicUrl(key).data.publicUrl;
+    imageUrls.push(supabase.storage.from("tool-images").getPublicUrl(key).data.publicUrl);
   }
 
   const { data: inserted, error } = await supabase
     .from("posts")
-    .insert({ author_id: user.id, content, image_url: imageUrl })
+    .insert({ author_id: user.id, content, image_urls: imageUrls })
     .select(
       "*, profiles:author_id(display_name, handle, avatar_url)"
     )

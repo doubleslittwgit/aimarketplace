@@ -352,6 +352,8 @@
     "posting": "發布中…",
     "contentRequired": "請輸入文字或選擇圖片",
     "imageTooLarge": "圖片大小上限為8MB",
+    "tooManyImages": "最多可新增{max}張圖片",
+    "removeImage": "刪除這張圖片",
     "imageUploadFailed": "圖片上傳失敗：{message}",
     "empty": "目前還沒有貼文，來發第一篇吧！",
     "loadMore": "載入更多",

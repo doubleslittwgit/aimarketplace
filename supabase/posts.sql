@@ -14,7 +14,7 @@ create table if not exists public.posts (
   id uuid primary key default gen_random_uuid(),
   author_id uuid not null references public.profiles(id) on delete cascade,
   content text not null,
-  image_url text,
+  image_urls text[] not null default '{}',
   view_count integer not null default 0,
   like_count integer not null default 0,
   comment_count integer not null default 0,

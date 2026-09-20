@@ -352,6 +352,8 @@
     "posting": "Posting...",
     "contentRequired": "Add some text or an image",
     "imageTooLarge": "Image must be under 8MB",
+    "tooManyImages": "You can add up to {max} images",
+    "removeImage": "Remove this image",
     "imageUploadFailed": "Image upload failed: {message}",
     "empty": "No posts yet. Be the first to post!",
     "loadMore": "Load more",

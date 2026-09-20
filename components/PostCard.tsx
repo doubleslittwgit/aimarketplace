@@ -217,13 +217,27 @@ export default function PostCard({
         </p>
       )}
 
-      {post.image_url && (
+      {post.image_urls.length === 1 && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={post.image_url}
+          src={post.image_urls[0]}
           alt=""
           className="mt-3 max-h-96 w-full rounded-lg border border-border object-cover"
         />
+      )}
+
+      {post.image_urls.length > 1 && (
+        <div className="mt-3 grid grid-cols-2 gap-1.5">
+          {post.image_urls.map((url) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={url}
+              src={url}
+              alt=""
+              className="aspect-square w-full rounded-lg border border-border object-cover"
+            />
+          ))}
+        </div>
       )}
 
       <div className="mt-3 flex items-center gap-5 border-t border-border pt-3">

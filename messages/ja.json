@@ -352,6 +352,8 @@
     "posting": "投稿中...",
     "contentRequired": "本文か画像のどちらかを入力してください",
     "imageTooLarge": "画像サイズは8MBまでです",
+    "tooManyImages": "画像は{max}枚まで追加できます",
+    "removeImage": "この画像を削除",
     "imageUploadFailed": "画像のアップロードに失敗しました: {message}",
     "empty": "まだ投稿がありません。最初の投稿をしてみましょう！",
     "loadMore": "もっと見る",
