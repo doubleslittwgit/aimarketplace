@@ -23,6 +23,7 @@
 | `translations.sql` | 商品・レビューの多言語翻訳キャッシュ（後から足したもの） |
 | `legal_translations.sql` | 法務ページのHTML翻訳キャッシュ（後から足したもの） |
 | `follows.sql` | ユーザー間のフォロー機能（後から足したもの） |
+| `posts.sql` | 投稿フィード機能（文章・画像・いいね・コメント・通報）（後から足したもの） |
 | `increment_install.sql` | ダウンロード数を加算する関数 |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
 
@@ -59,8 +60,9 @@
 13. `translations.sql`
 14. `legal_translations.sql`
 15. `follows.sql`
-16. `increment_install.sql`
-17. `grants.sql` ← **必ず最後**
+16. `posts.sql`
+17. `increment_install.sql`
+18. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」

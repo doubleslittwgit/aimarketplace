@@ -15,7 +15,8 @@ export type NotificationType =
   | "seller_account_status_changed"
   | "purchase_receipt"
   | "admin_new_pending_review"
-  | "admin_high_risk_flagged";
+  | "admin_high_risk_flagged"
+  | "admin_post_reported";
 
 export type NotificationContent = {
   title: string;
@@ -145,5 +146,16 @@ export function adminToolReported(
     title: `🚩 通報がありました: ${toolName}`,
     body: `理由: ${reasonLabel}`,
     linkUrl: `${SITE_URL}/admin/reports`,
+  };
+}
+
+export function adminPostReported(
+  authorName: string,
+  reasonLabel: string
+): NotificationContent {
+  return {
+    title: `🚩 投稿が通報されました`,
+    body: `投稿者: ${authorName}。理由: ${reasonLabel}`,
+    linkUrl: `${SITE_URL}/admin/post-reports`,
   };
 }

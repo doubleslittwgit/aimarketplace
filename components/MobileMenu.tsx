@@ -62,6 +62,13 @@ export default function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
               {t("browse")}
             </Link>
             <Link
+              href="/feed"
+              onClick={() => setOpen(false)}
+              className="rounded-lg px-3 py-2.5 text-text-secondary transition hover:bg-surface hover:text-text-primary"
+            >
+              {t("feed")}
+            </Link>
+            <Link
               href="/submit"
               onClick={() => setOpen(false)}
               className="rounded-lg px-3 py-2.5 text-text-secondary transition hover:bg-surface hover:text-text-primary"
