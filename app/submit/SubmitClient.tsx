@@ -4,6 +4,7 @@ import { useState, useTransition, useRef, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
+import { compressImage, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
 import { createTool, saveDraft } from "./actions";
 
 type PriceType = "free" | "paid" | null;
@@ -117,13 +118,21 @@ export default function SubmitClient({
     }
   }
 
-  function handleThumbnail(file: File | undefined) {
+  async function handleThumbnail(file: File | undefined) {
     if (!file) return;
-    setThumbnailName(file.name);
-    setThumbnailSize(file.size);
+    const compressed = await compressImage(file, COMPRESS_PRESET_THUMBNAIL);
+    // 圧縮後のファイルをinput要素の中身にも反映する
+    // （そうしないと、フォーム送信時に圧縮前の元ファイルが送られてしまう）
+    if (thumbnailInputRef.current) {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(compressed);
+      thumbnailInputRef.current.files = dataTransfer.files;
+    }
+    setThumbnailName(compressed.name);
+    setThumbnailSize(compressed.size);
     setThumbnailPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
-      return URL.createObjectURL(file);
+      return URL.createObjectURL(compressed);
     });
   }
 
@@ -135,7 +144,7 @@ export default function SubmitClient({
     galleryInputRef.current.files = dataTransfer.files;
   }
 
-  function handleGalleryAdd(selected: FileList | null) {
+  async function handleGalleryAdd(selected: FileList | null) {
     if (!selected) return;
     setGalleryError(null);
     const remaining = MAX_GALLERY_IMAGES - existingGallery.length - newGalleryFiles.length;
@@ -155,9 +164,12 @@ export default function SubmitClient({
       );
     }
 
-    const accepted = incoming
+    const toAccept = incoming
       .filter((f) => f.size <= MAX_THUMBNAIL_FILE_SIZE)
       .slice(0, Math.max(0, remaining));
+    const accepted = await Promise.all(
+      toAccept.map((f) => compressImage(f, COMPRESS_PRESET_GALLERY))
+    );
 
     const next = [...newGalleryFiles, ...accepted];
     setNewGalleryFiles(next);

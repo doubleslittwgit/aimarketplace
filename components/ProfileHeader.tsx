@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { formatInstalls } from "@/lib/mock-data";
+import { compressImage, COMPRESS_PRESET_AVATAR } from "@/lib/compress-image";
 import { updateProfile } from "@/app/u/[handle]/actions";
 import { toggleFollow } from "@/app/u/[handle]/follow-actions";
 
@@ -54,11 +55,17 @@ export default function ProfileHeader({
     .join("")
     .slice(0, 2);
 
-  function handleAvatarPick(file: File | undefined) {
+  async function handleAvatarPick(file: File | undefined) {
     if (!file) return;
+    const compressed = await compressImage(file, COMPRESS_PRESET_AVATAR);
+    if (fileInputRef.current) {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(compressed);
+      fileInputRef.current.files = dataTransfer.files;
+    }
     setAvatarPreview((prev) => {
       if (prev && prev.startsWith("blob:")) URL.revokeObjectURL(prev);
-      return URL.createObjectURL(file);
+      return URL.createObjectURL(compressed);
     });
   }
 

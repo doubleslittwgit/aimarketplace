@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
+import { compressImage, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
 import { updateTool, setToolPublished, deleteTool } from "./actions";
 
 type Tool = {
@@ -97,13 +98,19 @@ export default function EditToolClient({
     }
   }
 
-  function handleThumbnail(file: File | undefined) {
+  async function handleThumbnail(file: File | undefined) {
     if (!file) return;
-    setThumbnailName(file.name);
-    setThumbnailSize(file.size);
+    const compressed = await compressImage(file, COMPRESS_PRESET_THUMBNAIL);
+    if (thumbnailInputRef.current) {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(compressed);
+      thumbnailInputRef.current.files = dataTransfer.files;
+    }
+    setThumbnailName(compressed.name);
+    setThumbnailSize(compressed.size);
     setThumbnailPreview((prev) => {
       if (prev && prev.startsWith("blob:")) URL.revokeObjectURL(prev);
-      return URL.createObjectURL(file);
+      return URL.createObjectURL(compressed);
     });
   }
 
@@ -115,7 +122,7 @@ export default function EditToolClient({
     galleryInputRef.current.files = dataTransfer.files;
   }
 
-  function handleGalleryAdd(selected: FileList | null) {
+  async function handleGalleryAdd(selected: FileList | null) {
     if (!selected) return;
     setGalleryError(null);
     const remaining = MAX_GALLERY_IMAGES - existingGallery.length - newGalleryFiles.length;
@@ -135,9 +142,12 @@ export default function EditToolClient({
       );
     }
 
-    const accepted = incoming
+    const toAccept = incoming
       .filter((f) => f.size <= MAX_THUMBNAIL_FILE_SIZE)
       .slice(0, Math.max(0, remaining));
+    const accepted = await Promise.all(
+      toAccept.map((f) => compressImage(f, COMPRESS_PRESET_GALLERY))
+    );
 
     const next = [...newGalleryFiles, ...accepted];
     setNewGalleryFiles(next);
