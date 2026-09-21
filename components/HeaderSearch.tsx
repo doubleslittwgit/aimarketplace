@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useTypingRotator } from "@/lib/use-typing-rotator";
 
 /**
  * ヘッダーの検索欄。
@@ -23,6 +24,10 @@ export default function HeaderSearch() {
     setSyncedQuery(urlQuery);
     setValue(urlQuery);
   }
+
+  // 何か入力されている間は、アニメーションで気が散らないよう素のプレースホルダーに戻す
+  const searchExamples = t.raw("searchExamples") as string[];
+  const { displayed: typedExample } = useTypingRotator(searchExamples);
 
   function submit() {
     const q = value.trim();
@@ -59,7 +64,7 @@ export default function HeaderSearch() {
             submit();
           }
         }}
-        placeholder={t("searchPlaceholder")}
+        placeholder={`${t("searchExamplePrefix")}${typedExample}`}
         aria-label={t("searchAriaLabel")}
         className="w-full bg-transparent font-mono text-[13px] text-text-primary outline-none placeholder:text-text-dim"
       />

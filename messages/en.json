@@ -78,6 +78,8 @@
   },
   "header": {
     "searchPlaceholder": "Search tools... e.g. invoice automation",
+    "searchExamplePrefix": "Search tools... e.g. ",
+    "searchExamples": ["invoice", "travel", "video editing", "game", "habit", "design"],
     "searchAriaLabel": "Search tools",
     "searchButtonAriaLabel": "Search",
     "browse": "Browse",
@@ -120,8 +122,10 @@
   "home": {
     "liveVisitorsLabel": "People currently viewing this page",
     "guestVisitor": "Guest",
-    "heroLine1": "Your idea",
-    "heroLine2": "can change the world.",
+    "heroPrefix": "Your ",
+    "heroHighlight": "idea",
+    "heroConnector": "",
+    "heroRepertoire": ["can make a difference.", "becomes value.", "changes the way we work.", "sparks excitement.", "reaches the world.", "changes the world."],
     "heroSubcopy": "Publish tools you built with AI — free or paid, your call.",
     "ctaPublish": "Publish a tool",
     "ctaBrowse": "Browse the market",

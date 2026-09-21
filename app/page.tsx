@@ -7,6 +7,7 @@ import LiveVisitorsWave from "@/components/LiveVisitorsWave";
 import ToolCard from "@/components/ToolCard";
 import HomeFeedPreview from "@/components/HomeFeedPreview";
 import HomeRequestsPreview from "@/components/HomeRequestsPreview";
+import HeroHeading from "@/components/HeroHeading";
 import { createClient } from "@/lib/supabase/server";
 import { categoryToSlug } from "@/lib/category-slugs";
 import { applyToolTranslations } from "@/lib/apply-translations";
@@ -223,11 +224,7 @@ export default async function Home() {
                 className="h-32 w-auto drop-shadow-[0_0_18px_rgba(255,255,255,0.9)] sm:h-48 sm:drop-shadow-none md:h-56 lg:h-64"
               />
 
-              <h1 className="mt-8 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-text-primary [text-shadow:0_0_20px_rgba(255,255,255,0.95),0_0_36px_rgba(255,255,255,0.85)] sm:text-[4rem] sm:[text-shadow:none] md:text-[4.5rem]">
-                {t("heroLine1")}
-                <br />
-                <span className="text-accent-signal">{t("heroLine2")}</span>
-              </h1>
+              <HeroHeading />
               <p className="mt-6 max-w-[15rem] text-base leading-relaxed text-text-secondary [text-shadow:0_0_14px_rgba(255,255,255,0.95)] sm:max-w-md sm:text-lg sm:[text-shadow:none]">
                 {t("heroSubcopy")}
               </p>

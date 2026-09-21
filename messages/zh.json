@@ -78,6 +78,8 @@
   },
   "header": {
     "searchPlaceholder": "搜尋工具...例如：發票 自動化",
+    "searchExamplePrefix": "搜尋工具... 例如：",
+    "searchExamples": ["發票", "旅行", "影片剪輯", "遊戲", "習慣", "設計"],
     "searchAriaLabel": "搜尋工具",
     "searchButtonAriaLabel": "搜尋",
     "browse": "探索",
@@ -120,8 +122,10 @@
   "home": {
     "liveVisitorsLabel": "目前正在瀏覽這個頁面的人",
     "guestVisitor": "訪客",
-    "heroLine1": "你的點子，",
-    "heroLine2": "將改變世界。",
+    "heroPrefix": "你的",
+    "heroHighlight": "想法",
+    "heroConnector": "，",
+    "heroRepertoire": ["能派上用場。", "化為價值。", "改變工作的方式。", "點燃期待。", "走向世界。", "改變世界。"],
     "heroSubcopy": "把你用 AI 打造的工具，免費或付費公開販售。",
     "ctaPublish": "上架工具",
     "ctaBrowse": "瀏覽市集",
