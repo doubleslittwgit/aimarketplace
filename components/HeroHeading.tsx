@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useTypingRotator } from "@/lib/use-typing-rotator";
 
@@ -33,14 +33,46 @@ export default function HeroHeading() {
       <HighlightWord text={t("heroHighlight")} active={isEmpty} />
       {t("heroConnector")}
       <br />
-      <span className="text-accent-signal">
-        {displayed}
-        <span
-          aria-hidden
-          className="ml-0.5 inline-block h-[0.85em] w-[3px] animate-pulse bg-accent-signal align-middle"
-        />
-      </span>
+      <FitOneLine text={displayed} />
     </h1>
+  );
+}
+
+/**
+ * 下の句を、どれだけ長い言い回しが来ても改行させず、必ず1行に収める。
+ * 入りきらない場合は、文字を縮小して幅に合わせる（縦横比は保ったまま縮小するので
+ * 潰れて見えることはない）。
+ */
+function FitOneLine({ text }: { text: string }) {
+  const containerRef = useRef<HTMLSpanElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const textEl = textRef.current;
+    if (!container || !textEl) return;
+
+    textEl.style.transform = "scale(1)";
+    const containerWidth = container.clientWidth;
+    const textWidth = textEl.scrollWidth;
+    if (containerWidth > 0 && textWidth > containerWidth) {
+      setScale(containerWidth / textWidth);
+    } else {
+      setScale(1);
+    }
+  }, [text]);
+
+  return (
+    <span ref={containerRef} className="block w-full overflow-hidden text-accent-signal">
+      <span
+        ref={textRef}
+        className="inline-block origin-left whitespace-nowrap"
+        style={{ transform: `scale(${scale})` }}
+      >
+        {text}
+      </span>
+    </span>
   );
 }
 
