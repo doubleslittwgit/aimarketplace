@@ -4,6 +4,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SellerOnboardingButton from "@/components/SellerOnboardingButton";
+import OnboardingChecklist from "@/components/OnboardingChecklist";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/mock-data";
 import type { Locale } from "@/i18n/config";
@@ -79,35 +80,41 @@ export default async function DashboardPage() {
     redirect("/login?next=/dashboard");
   }
 
-  const [{ data: profile }, { data: purchasesData }, { data: ownToolsData }, { data: salesData }] =
-    await Promise.all([
-      supabase
-        .from("profiles")
-        .select("display_name, handle, avatar_url")
-        .eq("id", user.id)
-        .single(),
-      supabase
-        .from("purchases")
-        .select(
-          "id, price_paid, status, created_at, tools(id, slug, name, thumbnail_url, runtime, demo_url)"
-        )
-        .eq("buyer_id", user.id)
-        .eq("status", "completed")
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("tools")
-        .select("id, slug, name, price, status, install_count, like_count, updated_at, rejection_reason")
-        .eq("author_id", user.id)
-        .order("updated_at", { ascending: false }),
-      supabase
-        .from("purchases")
-        .select(
-          "id, price_paid, seller_earnings, platform_fee, status, created_at, tools(name, slug), profiles:buyer_id(display_name, handle)"
-        )
-        .eq("seller_id", user.id)
-        .eq("status", "completed")
-        .order("created_at", { ascending: false }),
-    ]);
+  const [
+    { data: profile },
+    { data: purchasesData },
+    { data: ownToolsData },
+    { data: salesData },
+    { count: postCount },
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("display_name, handle, avatar_url, bio")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("purchases")
+      .select(
+        "id, price_paid, status, created_at, tools(id, slug, name, thumbnail_url, runtime, demo_url)"
+      )
+      .eq("buyer_id", user.id)
+      .eq("status", "completed")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("tools")
+      .select("id, slug, name, price, status, install_count, like_count, updated_at, rejection_reason")
+      .eq("author_id", user.id)
+      .order("updated_at", { ascending: false }),
+    supabase
+      .from("purchases")
+      .select(
+        "id, price_paid, seller_earnings, platform_fee, status, created_at, tools(name, slug), profiles:buyer_id(display_name, handle)"
+      )
+      .eq("seller_id", user.id)
+      .eq("status", "completed")
+      .order("created_at", { ascending: false }),
+    supabase.from("posts").select("*", { count: "exact", head: true }).eq("author_id", user.id),
+  ]);
 
   const purchases = (purchasesData ?? []) as unknown as PurchaseRow[];
   const ownTools = (ownToolsData ?? []) as OwnToolRow[];
@@ -139,6 +146,13 @@ export default async function DashboardPage() {
     sellerAccount?.transfers_enabled && sellerAccount?.payouts_enabled
   );
   const onboardingStarted = Boolean(sellerAccount);
+
+  const onboardingSteps = {
+    profile: Boolean(profile?.bio?.trim() || profile?.avatar_url),
+    firstListing: ownTools.length > 0,
+    payout: canReceive,
+    firstPost: (postCount ?? 0) > 0,
+  };
 
   return (
     <>
@@ -200,6 +214,8 @@ export default async function DashboardPage() {
               </Link>
             </div>
           </div>
+
+          <OnboardingChecklist steps={onboardingSteps} handle={profile?.handle ?? null} />
 
           {/* 購入済みツール */}
           <section className="mb-10">

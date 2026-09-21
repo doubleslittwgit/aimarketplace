@@ -18,11 +18,13 @@ type Profile = {
 };
 
 type Stats = { apps: number; views: number; likes: number; downloads: number };
+type Badges = { firstListing: boolean; tenSales: boolean; fastResponder: boolean };
 
 export default function ProfileHeader({
   profile,
   isOwner,
   stats,
+  badges,
   isLoggedIn,
   initialIsFollowing,
   followerCount,
@@ -31,6 +33,7 @@ export default function ProfileHeader({
   profile: Profile;
   isOwner: boolean;
   stats: Stats;
+  badges: Badges;
   isLoggedIn: boolean;
   initialIsFollowing: boolean;
   followerCount: number;
@@ -208,6 +211,18 @@ export default function ProfileHeader({
             </h1>
             <p className="mt-1 font-mono text-[13px] text-text-muted">@{profile.handle}</p>
 
+            {(badges.firstListing || badges.tenSales || badges.fastResponder) && (
+              <div className="mt-2.5 flex flex-wrap items-center justify-center gap-1.5">
+                {badges.firstListing && (
+                  <BadgeChip icon="rocket" label={t("badgeFirstListing")} />
+                )}
+                {badges.tenSales && <BadgeChip icon="star" label={t("badgeTenSales")} />}
+                {badges.fastResponder && (
+                  <BadgeChip icon="bolt" label={t("badgeFastResponder")} />
+                )}
+              </div>
+            )}
+
             <div className="mt-3 flex items-center gap-4 text-[13px]">
               <span>
                 <span className="font-display font-semibold text-text-primary">
@@ -287,5 +302,26 @@ function Stat({ label, value, accent }: { label: string; value: string; accent?:
       </p>
       <p className="mt-0.5 text-[12px] text-text-muted">{label}</p>
     </div>
+  );
+}
+
+const BADGE_ICONS: Record<string, React.ReactNode> = {
+  rocket: (
+    <path d="M12 2c-1.5 3-2 6-2 9 0 1 .2 2 .5 3l-2.5 2.5V19h2.5L13 16.5c1 .3 2 .5 3 .5 3 0 6-.5 9-2-3-3-6-4-9-4s-6 1-9 4c1.5-1.5 3-3 5-4" />
+  ),
+  star: (
+    <path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21.1 7 14.2l-5-4.9 6.9-1L12 2Z" />
+  ),
+  bolt: <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />,
+};
+
+function BadgeChip({ icon, label }: { icon: keyof typeof BADGE_ICONS; label: string }) {
+  return (
+    <span className="flex items-center gap-1 rounded-full bg-accent-signal-dim px-2.5 py-1 text-[11px] font-medium text-accent-signal">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+        {BADGE_ICONS[icon]}
+      </svg>
+      {label}
+    </span>
   );
 }

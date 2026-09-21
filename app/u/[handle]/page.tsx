@@ -33,7 +33,7 @@ export default async function ProfilePage({
   } = await supabase.auth.getUser();
   const isOwner = user?.id === profile.id;
 
-  const [{ count: followerCount }, { count: followingCount }, followingRow, { data: rows }] =
+  const [{ count: followerCount }, { count: followingCount }, followingRow, { data: rows }, { data: badgeStatsRows }] =
     await Promise.all([
       supabase
         .from("follows")
@@ -57,8 +57,14 @@ export default async function ProfilePage({
         .eq("author_id", profile.id)
         .eq("status", "published")
         .order("created_at", { ascending: false }),
+      supabase.rpc("get_seller_badge_stats", { p_user_id: profile.id }),
     ]);
   const isFollowing = Boolean(followingRow?.data);
+  const badgeStats = badgeStatsRows?.[0] ?? {
+    completed_sales_count: 0,
+    qa_answered_count: 0,
+    qa_avg_response_hours: null,
+  };
 
   const rawTools: Tool[] = (rows ?? []).map((r) => ({
     id: r.id,
@@ -92,6 +98,15 @@ export default async function ProfilePage({
     downloads: tools.reduce((sum, t) => sum + t.installs, 0),
   };
 
+  const badges = {
+    firstListing: stats.apps > 0,
+    tenSales: badgeStats.completed_sales_count >= 10,
+    fastResponder:
+      badgeStats.qa_answered_count >= 3 &&
+      badgeStats.qa_avg_response_hours !== null &&
+      badgeStats.qa_avg_response_hours <= 24,
+  };
+
   return (
     <>
       <Header />
@@ -100,6 +115,7 @@ export default async function ProfilePage({
           profile={profile}
           isOwner={isOwner}
           stats={stats}
+          badges={badges}
           isLoggedIn={Boolean(user)}
           initialIsFollowing={isFollowing}
           followerCount={followerCount ?? 0}

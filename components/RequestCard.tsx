@@ -103,14 +103,15 @@ export default function RequestCard({
           type="button"
           onClick={handleUpvote}
           disabled={isUpvotePending}
+          aria-label={t("upvote")}
           className={`flex shrink-0 flex-col items-center rounded-lg border px-3 py-1.5 transition ${
             upvoted
               ? "border-accent-signal/40 bg-accent-signal-dim text-accent-signal"
               : "border-border text-text-muted hover:border-border-strong hover:text-text-primary"
           }`}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill={upvoted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 19V5M5 12l7-7 7 7" />
+          <svg width="15" height="15" viewBox="0 0 24 24" fill={upvoted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1L12 21l7.7-7.7 1.1-1a5.5 5.5 0 0 0 0-7.8Z" />
           </svg>
           <span className="mt-0.5 text-[12px] font-semibold">{upvoteCount}</span>
         </button>
