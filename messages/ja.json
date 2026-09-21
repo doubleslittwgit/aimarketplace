@@ -133,6 +133,10 @@
     "browseHeading": "ツールを探す",
     "browseHeadingSub": "カテゴリから、目的に合ったツールを見つける",
     "newTools": "新着ツール",
+    "feedSectionHeading": "フィード",
+    "feedSectionSub": "開発者たちの近況や、作ったものの紹介",
+    "requestsSectionHeading": "リクエスト",
+    "requestsSectionSub": "「こんなツールが欲しい」に、出品者が応える場所",
     "viewAll": "すべて見る →"
   },
   "activity": {

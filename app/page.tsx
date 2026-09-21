@@ -5,9 +5,13 @@ import Footer from "@/components/Footer";
 import ActivityTicker from "@/components/ActivityTicker";
 import LiveVisitorsWave from "@/components/LiveVisitorsWave";
 import ToolCard from "@/components/ToolCard";
+import HomeFeedPreview from "@/components/HomeFeedPreview";
+import HomeRequestsPreview from "@/components/HomeRequestsPreview";
 import { createClient } from "@/lib/supabase/server";
 import { categoryToSlug } from "@/lib/category-slugs";
 import { applyToolTranslations } from "@/lib/apply-translations";
+import { fetchFeedPosts } from "@/app/feed/actions";
+import { fetchRequests } from "@/app/requests/actions";
 import type { Locale } from "@/i18n/config";
 import {
   tools as mockTools,
@@ -59,11 +63,27 @@ export default async function Home() {
   const tCategories = await getTranslations("categories");
   const tCommon = await getTranslations("common");
   const locale = (await getLocale()) as Locale;
-  const realTools = await loadRealTools(locale);
+
+  const [realTools, feedResult, requestsResult] = await Promise.all([
+    loadRealTools(locale),
+    fetchFeedPosts({ mode: "all" }),
+    fetchRequests({ sort: "top" }),
+  ]);
+  const feedPreview = feedResult.posts.slice(0, 3);
+  const requestsPreview = requestsResult.requests.slice(0, 3);
+
   // 実際の出品を先頭に、足りない分をデモ用ツールで埋める（最大6件表示）
   const tools = [...realTools, ...mockTools].slice(0, 6);
   // ヒーローで浮かせる4件（新着ツールと重複してよい紹介枠）
   const floatTools = tools.slice(0, 4);
+
+  // プレビューの投稿・リクエストの投稿者/出品者が、実際にログイン中の本人かどうかは
+  // ここでは判定しない（isLoggedInは各カード内のいいね・投稿導線の出し分け用）
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isLoggedIn = Boolean(user);
 
   return (
     <>
@@ -286,6 +306,48 @@ export default async function Home() {
             ))}
           </div>
         </section>
+
+        {/* Feed preview */}
+        {feedPreview.length > 0 && (
+          <section className="border-t border-border bg-surface/40">
+            <div className="mx-auto max-w-2xl px-6 py-14">
+              <div className="mb-6 flex items-baseline justify-between">
+                <div>
+                  <h2 className="font-display text-3xl font-semibold text-text-primary sm:text-4xl">
+                    {t("feedSectionHeading")}
+                  </h2>
+                  <p className="mt-1 text-[13px] text-text-muted">{t("feedSectionSub")}</p>
+                </div>
+                <Link href="/feed" className="shrink-0 text-[13px] text-text-muted hover:text-text-primary">
+                  {t("viewAll")}
+                </Link>
+              </div>
+
+              <HomeFeedPreview initialPosts={feedPreview} isLoggedIn={isLoggedIn} />
+            </div>
+          </section>
+        )}
+
+        {/* Requests preview */}
+        {requestsPreview.length > 0 && (
+          <section className="border-t border-border">
+            <div className="mx-auto max-w-2xl px-6 py-14">
+              <div className="mb-6 flex items-baseline justify-between">
+                <div>
+                  <h2 className="font-display text-3xl font-semibold text-text-primary sm:text-4xl">
+                    {t("requestsSectionHeading")}
+                  </h2>
+                  <p className="mt-1 text-[13px] text-text-muted">{t("requestsSectionSub")}</p>
+                </div>
+                <Link href="/requests" className="shrink-0 text-[13px] text-text-muted hover:text-text-primary">
+                  {t("viewAll")}
+                </Link>
+              </div>
+
+              <HomeRequestsPreview initialRequests={requestsPreview} isLoggedIn={isLoggedIn} />
+            </div>
+          </section>
+        )}
       </main>
 
       <Footer />

@@ -133,6 +133,10 @@
     "browseHeading": "探索工具",
     "browseHeadingSub": "從分類中，找到最適合你的工具",
     "newTools": "最新工具",
+    "feedSectionHeading": "動態",
+    "feedSectionSub": "開發者們的近況與作品分享",
+    "requestsSectionHeading": "需求",
+    "requestsSectionSub": "上架者回應「想要這樣的工具」的地方",
     "viewAll": "查看全部 →"
   },
   "activity": {

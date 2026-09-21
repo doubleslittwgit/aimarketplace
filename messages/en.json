@@ -133,6 +133,10 @@
     "browseHeading": "Browse tools",
     "browseHeadingSub": "Find the right tool by category",
     "newTools": "New tools",
+    "feedSectionHeading": "Feed",
+    "feedSectionSub": "What developers are building and sharing",
+    "requestsSectionHeading": "Requests",
+    "requestsSectionSub": "Where sellers answer 'I wish this tool existed'",
     "viewAll": "View all →"
   },
   "activity": {
