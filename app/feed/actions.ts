@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { notifyAdmins, notify } from "@/lib/notifications/create";
 import { adminPostReported, postLiked, newPostComment } from "@/lib/notifications/content";
+import { isRateLimited } from "@/lib/rate-limit";
 import { FEED_PAGE_SIZE, MAX_POST_IMAGES } from "./constants";
 
 const MAX_POST_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
@@ -239,6 +240,11 @@ export async function createPost(
 
   if (!user) return { error: t("loginRequired") };
 
+  // 荒らし・スパム対策: 直近10分間に5件以上投稿している場合は弾く
+  if (await isRateLimited(supabase, "posts", "author_id", user.id, 10, 5)) {
+    return { error: t("rateLimited") };
+  }
+
   const content = String(formData.get("content") || "").trim();
   const toolId = String(formData.get("toolId") || "").trim() || null;
   const images = formData
@@ -399,6 +405,11 @@ export async function addComment(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: t("loginRequired") };
+
+  // 荒らし・スパム対策: 直近5分間に10件以上コメントしている場合は弾く
+  if (await isRateLimited(supabase, "post_comments", "author_id", user.id, 5, 10)) {
+    return { error: t("rateLimited") };
+  }
 
   const trimmed = content.trim();
   if (!trimmed) return { error: tFeed("commentRequired") };

@@ -47,6 +47,8 @@
     "likeStatusFetchFailed": "取得狀態失敗",
     "unlikeFailed": "取消喜歡失敗",
     "likeFailed": "按讚失敗",
+    "rateLimited": "您發佈的頻率有點高，請稍後再試。",
+    "aiSearchQueryRequired": "請描述一下您遇到的困擾",
     "reportReasonRequired": "請選擇檢舉原因",
     "reportLoginRequired": "檢舉需要登入",
     "reportToolNotFound": "找不到要檢舉的工具",
@@ -163,6 +165,16 @@
     "sortPriceDesc": "價格由高到低",
     "emptyTitle": "找不到符合條件的工具",
     "emptyHint": "請試著更換關鍵字或分類再試一次"
+  },
+  "aiSearch": {
+    "title": "問AI找工具",
+    "subtitle": "直接寫下您遇到的困擾，AI會為您推薦相關的工具",
+    "placeholder": "例如：每個月的請款處理很麻煩……",
+    "submitButton": "詢問AI",
+    "searching": "搜尋中…",
+    "resultsTitle": "AI推薦的工具",
+    "noResults": "沒有找到合適的工具，試著換個說法看看。",
+    "clear": "關閉"
   },
   "requests": {
     "pageTitle": "需求佈告欄",

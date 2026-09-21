@@ -47,6 +47,8 @@
     "likeStatusFetchFailed": "Failed to fetch status",
     "unlikeFailed": "Failed to remove like",
     "likeFailed": "Failed to like",
+    "rateLimited": "You're posting a bit too quickly. Please wait a moment and try again.",
+    "aiSearchQueryRequired": "Please describe what you're trying to do",
     "reportReasonRequired": "Please choose a reason",
     "reportLoginRequired": "You need to log in to report this",
     "reportToolNotFound": "The tool being reported wasn't found",
@@ -163,6 +165,16 @@
     "sortPriceDesc": "Price: high to low",
     "emptyTitle": "No matching tools found",
     "emptyHint": "Try different keywords or categories"
+  },
+  "aiSearch": {
+    "title": "Ask AI to find a tool",
+    "subtitle": "Describe what's bothering you and AI will suggest matching tools",
+    "placeholder": "e.g. My monthly invoicing is a hassle...",
+    "submitButton": "Ask AI",
+    "searching": "Searching...",
+    "resultsTitle": "Tools AI picked",
+    "noResults": "Couldn't find a good match. Try describing it differently.",
+    "clear": "Close"
   },
   "requests": {
     "pageTitle": "Request board",

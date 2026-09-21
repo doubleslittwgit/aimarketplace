@@ -9,6 +9,7 @@ export type NotificationType =
   | "tool_approved"
   | "tool_rejected"
   | "tool_auto_rejected_risk"
+  | "tool_edit_triggered_review"
   | "tool_unpublished_by_admin"
   | "sale"
   | "new_review"
@@ -54,6 +55,14 @@ export function toolAutoRejectedRisk(toolName: string, reason: string): Notifica
   return {
     title: `「${toolName}」が自動的に却下されました`,
     body: `内容の自動チェックにより却下されました。理由: ${reason}`,
+    linkUrl: `${SITE_URL}/dashboard`,
+  };
+}
+
+export function toolEditTriggeredReview(toolName: string): NotificationContent {
+  return {
+    title: `「${toolName}」が再審査待ちになりました`,
+    body: "価格の値上げ・サムネイル・ファイルの変更があったため、公開を一時停止し再審査しています。審査が終わるまで、新規購入者には表示されません（既に購入済みの方はダウンロードを継続できます）。",
     linkUrl: `${SITE_URL}/dashboard`,
   };
 }

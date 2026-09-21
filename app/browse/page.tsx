@@ -2,6 +2,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BrowseClient from "./BrowseClient";
+import AISearchPanel from "@/components/AISearchPanel";
 import { createClient } from "@/lib/supabase/server";
 import { ALL_CATEGORIES_VALUE } from "@/lib/category-slugs";
 import { applyToolTranslations } from "@/lib/apply-translations";
@@ -60,6 +61,9 @@ export default async function BrowsePage({
     <>
       <Header />
       <main className="flex-1">
+        <div className="mx-auto max-w-7xl px-6 pt-8">
+          <AISearchPanel />
+        </div>
         <BrowseClient
           initialTools={allTools}
           initialQuery={q ?? ""}

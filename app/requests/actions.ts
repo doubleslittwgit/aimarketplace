@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { notify } from "@/lib/notifications/create";
 import { newRequestLink } from "@/lib/notifications/content";
+import { isRateLimited } from "@/lib/rate-limit";
 
 const PAGE_SIZE = 20;
 
@@ -142,6 +143,11 @@ export async function createRequest(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: t("loginRequired") };
+
+  // 荒らし・スパム対策: 直近10分間に3件以上リクエストしている場合は弾く
+  if (await isRateLimited(supabase, "tool_requests", "requester_id", user.id, 10, 3)) {
+    return { error: t("rateLimited") };
+  }
 
   const trimmedTitle = title.trim();
   const trimmedDesc = description.trim();

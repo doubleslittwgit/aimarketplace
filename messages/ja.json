@@ -47,6 +47,8 @@
     "likeStatusFetchFailed": "状態の取得に失敗しました",
     "unlikeFailed": "いいねの取り消しに失敗しました",
     "likeFailed": "いいねに失敗しました",
+    "rateLimited": "少し投稿しすぎています。しばらく時間をおいてからもう一度お試しください。",
+    "aiSearchQueryRequired": "どんなことでお困りか、書いてみてください",
     "reportReasonRequired": "通報理由を選んでください",
     "reportLoginRequired": "通報にはログインが必要です",
     "reportToolNotFound": "対象のツールが見つかりません",
@@ -163,6 +165,16 @@
     "sortPriceDesc": "価格が高い順",
     "emptyTitle": "該当するツールが見つかりませんでした",
     "emptyHint": "キーワードやカテゴリを変えて、もう一度お試しください"
+  },
+  "aiSearch": {
+    "title": "AIに相談して探す",
+    "subtitle": "困っていることをそのまま書くと、AIが近いツールを提案します",
+    "placeholder": "例：毎月の請求書処理が面倒...",
+    "submitButton": "AIに聞く",
+    "searching": "探しています...",
+    "resultsTitle": "AIが選んだツール",
+    "noResults": "それらしいツールが見つかりませんでした。言葉を変えて試してみてください。",
+    "clear": "閉じる"
   },
   "requests": {
     "pageTitle": "リクエスト掲示板",

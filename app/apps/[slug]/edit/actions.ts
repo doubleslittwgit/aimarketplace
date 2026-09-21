@@ -6,6 +6,14 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE } from "@/lib/mock-data";
 import { translateAndSaveTool } from "@/lib/translate-tool";
+import { reviewToolSubmission } from "@/lib/ai/review-tool";
+import { notify, notifyAdmins } from "@/lib/notifications/create";
+import {
+  toolAutoRejectedRisk,
+  toolEditTriggeredReview,
+  adminNewPendingReview,
+  adminHighRiskFlagged,
+} from "@/lib/notifications/content";
 
 export type EditActionResult = { error: string } | { error: null };
 
@@ -98,7 +106,7 @@ export async function updateTool(
   // 「他人のツールを編集しようとした」という分かりやすいエラーを返せる。
   const { data: existing, error: fetchError } = await supabase
     .from("tools")
-    .select("id, slug, author_id, runtime, file_key, thumbnail_url, status")
+    .select("id, slug, author_id, runtime, file_key, thumbnail_url, status, price")
     .eq("id", toolId)
     .maybeSingle();
 
@@ -201,6 +209,63 @@ export async function updateTool(
     return { error: galleryResult.error };
   }
 
+  // 公開中のツールが、詐欺的な差し替え（値上げ・サムネイル差し替え・
+  // ファイル差し替え）で再審査を回避できてしまわないよう、これらの変更が
+  // あった場合は、出品時と同じAI審査をもう一度通し、一時的に「審査待ち」に戻す。
+  // 説明文の修正など、それ以外の変更では今まで通り即座に反映される。
+  const priceIncreased = price > existing.price;
+  const needsReReview =
+    existing.status === "published" &&
+    (priceIncreased || Boolean(uploadedThumbnail) || Boolean(uploadedFile));
+
+  let nextStatus: string | undefined;
+  let reviewSummary: string | undefined;
+  let reviewRisk: string | undefined;
+  if (needsReReview) {
+    const thumbnailBufferForReview = uploadedThumbnail
+      ? Buffer.from(await uploadedThumbnail.arrayBuffer())
+      : null;
+    const fileBufferForReview = uploadedFile
+      ? Buffer.from(await uploadedFile.arrayBuffer())
+      : null;
+
+    const review = await reviewToolSubmission({
+      toolName: name,
+      tagline,
+      description,
+      price,
+      fileBuffer: fileBufferForReview,
+      fileName: uploadedFile?.name ?? null,
+      thumbnailBuffer: thumbnailBufferForReview,
+      thumbnailMediaType: uploadedThumbnail?.type ?? null,
+    });
+
+    nextStatus = review.risk === "high" ? "rejected" : "pending_review";
+    reviewSummary = review.summary;
+    reviewRisk = review.risk;
+
+    after(async () => {
+      const { data: authorProfile } = await supabase
+        .from("profiles")
+        .select("display_name, handle")
+        .eq("id", user.id)
+        .maybeSingle();
+      const authorName =
+        authorProfile?.display_name || authorProfile?.handle || "出品者";
+
+      if (nextStatus === "rejected") {
+        await notify(user.id, "tool_auto_rejected_risk", toolAutoRejectedRisk(name, review.summary));
+        await notifyAdmins(
+          "admin_high_risk_flagged",
+          adminHighRiskFlagged(name, authorName, review.summary)
+        );
+      } else {
+        await notify(user.id, "tool_edit_triggered_review", toolEditTriggeredReview(name));
+        await notifyAdmins("admin_new_pending_review", adminNewPendingReview(name, authorName));
+      }
+    });
+  }
+
   const { error: updateError } = await supabase
     .from("tools")
     .update({
@@ -217,6 +282,14 @@ export async function updateTool(
       file_size_bytes: uploadedFile ? uploadedFile.size : undefined,
       thumbnail_url: thumbnailUrl,
       gallery_urls: galleryResult.urls,
+      ...(nextStatus
+        ? {
+            status: nextStatus,
+            ai_review_summary: reviewSummary ?? null,
+            ai_review_risk: reviewRisk ?? null,
+            rejection_reason: nextStatus === "rejected" ? (reviewSummary ?? null) : null,
+          }
+        : {}),
     })
     .eq("id", toolId);
 
@@ -226,7 +299,7 @@ export async function updateTool(
 
   // 公開済みのツールを編集した場合、既存の翻訳キャッシュは古い内容のままなので
   // 更新しておく（下書き・審査待ちの間は、まだ誰にも見えていないので不要）。
-  if (existing.status === "published") {
+  if (existing.status === "published" && !needsReReview) {
     after(() => translateAndSaveTool(toolId, name, tagline, description));
   }
 
