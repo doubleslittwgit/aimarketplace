@@ -171,10 +171,12 @@ export default async function Home() {
             )}
 
             {/* 文字の後ろにだけ、輪郭のはっきりしない柔らかい光を敷いて、
-                背後のカードとの境界を曖昧にする（四角いパネルにはしない） */}
+                背後のカードとの境界を曖昧にする（四角いパネルにはしない）。
+                z-indexをカード(z-5)より上・文字(z-10)より下にすることで、
+                「カードの上に光が乗り、その上に文字が乗る」順序にする */}
             <div
               aria-hidden
-              className="pointer-events-none absolute left-1/2 top-[8%] h-[30rem] w-[26rem] -translate-x-1/2 rounded-full bg-bg/85 blur-[70px] xl:hidden"
+              className="pointer-events-none absolute left-1/2 top-[6%] z-[8] h-[34rem] w-[30rem] -translate-x-1/2 rounded-full bg-bg/90 blur-[80px] xl:hidden"
             />
 
             <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center text-center">
