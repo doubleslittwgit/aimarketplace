@@ -17,6 +17,13 @@ export type PostAuthor = {
   avatar_url: string | null;
 };
 
+export type LinkedTool = {
+  id: string;
+  name: string;
+  slug: string;
+  thumbnail_url: string | null;
+};
+
 export type PostItem = {
   id: string;
   content: string;
@@ -29,6 +36,7 @@ export type PostItem = {
   likedByMe: boolean;
   isOwn: boolean;
   relevantComment: RelevantComment | null;
+  linkedTool: LinkedTool | null;
 };
 
 const REASON_LABELS: Record<string, string> = {
@@ -50,6 +58,7 @@ async function hydratePosts(
     comment_count: number;
     created_at: string;
     author_id: string;
+    tool_id: string | null;
     profiles: { display_name: string | null; handle: string; avatar_url: string | null } | null;
   }[]
 ): Promise<PostItem[]> {
@@ -70,6 +79,16 @@ async function hydratePosts(
     likedIds = new Set((likes ?? []).map((l) => l.post_id));
   }
 
+  const toolIds = [...new Set(rows.map((r) => r.tool_id).filter((id): id is string => Boolean(id)))];
+  let toolsById = new Map<string, LinkedTool>();
+  if (toolIds.length > 0) {
+    const { data: linkedTools } = await supabase
+      .from("tools")
+      .select("id, name, slug, thumbnail_url")
+      .in("id", toolIds);
+    toolsById = new Map((linkedTools ?? []).map((t) => [t.id, t]));
+  }
+
   return rows.map((r) => ({
     id: r.id,
     content: r.content,
@@ -86,6 +105,7 @@ async function hydratePosts(
     likedByMe: likedIds.has(r.id),
     isOwn: user?.id === r.author_id,
     relevantComment: null,
+    linkedTool: r.tool_id ? toolsById.get(r.tool_id) ?? null : null,
   }));
 }
 
@@ -220,6 +240,7 @@ export async function createPost(
   if (!user) return { error: t("loginRequired") };
 
   const content = String(formData.get("content") || "").trim();
+  const toolId = String(formData.get("toolId") || "").trim() || null;
   const images = formData
     .getAll("images")
     .filter((f): f is File => f instanceof File && f.size > 0);
@@ -235,6 +256,20 @@ export async function createPost(
     return { error: tFeed("imageTooLarge") };
   }
 
+  // ビルドログとして紐付けるツールは、自分自身が出品したものだけに限定する
+  // （他人のツールを勝手に紐付けて宣伝できてしまわないようにするため）
+  if (toolId) {
+    const { data: tool } = await supabase
+      .from("tools")
+      .select("id")
+      .eq("id", toolId)
+      .eq("author_id", user.id)
+      .maybeSingle();
+    if (!tool) {
+      return { error: tFeed("buildLogToolNotOwned") };
+    }
+  }
+
   const imageUrls: string[] = [];
   for (const image of images) {
     const ext = image.name.split(".").pop()?.replace(/[^a-zA-Z0-9]/g, "") || "png";
@@ -248,7 +283,7 @@ export async function createPost(
 
   const { data: inserted, error } = await supabase
     .from("posts")
-    .insert({ author_id: user.id, content, image_urls: imageUrls })
+    .insert({ author_id: user.id, content, image_urls: imageUrls, tool_id: toolId })
     .select(
       "*, profiles:author_id(display_name, handle, avatar_url)"
     )
@@ -261,6 +296,26 @@ export async function createPost(
   revalidatePath("/feed");
   const [post] = await hydratePosts(supabase, [inserted]);
   return { error: null, post };
+}
+
+/** 投稿作成フォームで「ビルドログとして紐付けるツール」の選択肢に使う、自分の公開中ツール一覧 */
+export async function getMyPublishedTools(): Promise<
+  { id: string; name: string; thumbnail_url: string | null }[]
+> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data } = await supabase
+    .from("tools")
+    .select("id, name, thumbnail_url")
+    .eq("author_id", user.id)
+    .eq("status", "published")
+    .order("created_at", { ascending: false });
+
+  return data ?? [];
 }
 
 export async function deletePost(postId: string): Promise<{ error: string | null }> {

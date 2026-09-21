@@ -15,11 +15,17 @@ create table if not exists public.posts (
   author_id uuid not null references public.profiles(id) on delete cascade,
   content text not null,
   image_urls text[] not null default '{}',
+  -- ビルドログ機能: 出品者が「このツールを作った過程」として投稿する場合、
+  -- 自分の（公開中の）ツールを1つだけ紐付けられる。他人のツールは選べない
+  -- （選択肢の絞り込みはアプリ側で行い、ここではnullを許容するだけ）。
+  tool_id uuid references public.tools(id) on delete set null,
   view_count integer not null default 0,
   like_count integer not null default 0,
   comment_count integer not null default 0,
   created_at timestamptz not null default now()
 );
+
+create index if not exists posts_tool_id_idx on public.posts(tool_id);
 
 create index if not exists posts_created_at_idx on public.posts(created_at desc);
 create index if not exists posts_author_id_idx on public.posts(author_id);

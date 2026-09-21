@@ -266,6 +266,36 @@ export default function PostCard({
         </p>
       )}
 
+      {post.linkedTool && (
+        <Link
+          href={`/apps/${post.linkedTool.slug}`}
+          onClick={stop}
+          className="mt-3 flex items-center gap-2.5 rounded-lg border border-border bg-surface-raised p-2 transition hover:border-border-strong"
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-surface to-bg">
+            {post.linkedTool.thumbnail_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={post.linkedTool.thumbnail_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="font-display text-[12px] font-semibold text-accent-ai">
+                {post.linkedTool.name.slice(0, 1)}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-medium uppercase tracking-wide text-accent-signal">
+              {t("buildLogLabel")}
+            </p>
+            <p className="truncate text-[13px] font-medium text-text-primary">
+              {post.linkedTool.name}
+            </p>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-text-dim">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </Link>
+      )}
+
       {post.image_urls.length === 1 && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
