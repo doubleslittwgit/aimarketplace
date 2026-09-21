@@ -170,20 +170,27 @@ export default async function Home() {
               />
             )}
 
-            <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center rounded-[2rem] bg-bg/80 px-5 py-8 text-center shadow-[0_8px_40px_-12px_rgba(30,78,150,0.15)] backdrop-blur-md xl:rounded-none xl:bg-transparent xl:px-0 xl:py-0 xl:shadow-none xl:backdrop-blur-none">
+            {/* 文字の後ろにだけ、輪郭のはっきりしない柔らかい光を敷いて、
+                背後のカードとの境界を曖昧にする（四角いパネルにはしない） */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-[8%] h-[30rem] w-[26rem] -translate-x-1/2 rounded-full bg-bg/85 blur-[70px] xl:hidden"
+            />
+
+            <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center text-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo.png"
                 alt="BuildBay"
-                className="h-32 w-auto sm:h-48 md:h-56 lg:h-64"
+                className="h-32 w-auto drop-shadow-[0_0_18px_rgba(255,255,255,0.9)] sm:h-48 sm:drop-shadow-none md:h-56 lg:h-64"
               />
 
-              <h1 className="mt-8 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-text-primary sm:text-[4rem] md:text-[4.5rem]">
+              <h1 className="mt-8 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-text-primary [text-shadow:0_0_20px_rgba(255,255,255,0.95),0_0_36px_rgba(255,255,255,0.85)] sm:text-[4rem] sm:[text-shadow:none] md:text-[4.5rem]">
                 {t("heroLine1")}
                 <br />
                 <span className="text-accent-signal">{t("heroLine2")}</span>
               </h1>
-              <p className="mt-6 max-w-[15rem] text-base leading-relaxed text-text-secondary sm:max-w-md sm:text-lg">
+              <p className="mt-6 max-w-[15rem] text-base leading-relaxed text-text-secondary [text-shadow:0_0_14px_rgba(255,255,255,0.95)] sm:max-w-md sm:text-lg sm:[text-shadow:none]">
                 {t("heroSubcopy")}
               </p>
 
@@ -298,7 +305,7 @@ function MobileFloatingCard({
   return (
     <a
       href={`/apps/${tool.slug}`}
-      className={`absolute z-[5] w-32 rounded-2xl border border-border bg-bg/95 p-2.5 shadow-[0_16px_34px_-12px_rgba(30,78,150,0.35)] backdrop-blur-sm transition active:scale-[0.97] ${className}`}
+      className={`absolute z-[5] w-40 rounded-2xl border border-border bg-bg/95 p-3 shadow-[0_16px_34px_-12px_rgba(30,78,150,0.35)] backdrop-blur-sm transition active:scale-[0.97] ${className}`}
     >
       <span
         className={`absolute right-2.5 top-2.5 rounded-full px-1.5 py-0.5 font-mono text-[9px] tracking-wide ${
