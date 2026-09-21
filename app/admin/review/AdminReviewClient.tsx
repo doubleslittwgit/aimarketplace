@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { formatPrice } from "@/lib/mock-data";
+import { HIGH_PRICE_REVIEW_THRESHOLD } from "@/lib/ai/review-tool";
 import { approveTool, rejectTool, unpublishToolByAdmin } from "./actions";
 
 type PendingTool = {
@@ -288,6 +289,11 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
             >
               {riskLabel}
             </span>
+            {tool.price >= HIGH_PRICE_REVIEW_THRESHOLD && (
+              <span className="shrink-0 rounded-full bg-accent-signal-dim px-2 py-0.5 font-mono text-[10px] text-accent-signal">
+                {t("highPriceFlag")}
+              </span>
+            )}
           </div>
           <p className="mt-0.5 text-[12px] text-text-muted">{tool.tagline}</p>
           <p className="mt-0.5 font-mono text-[11px] text-text-dim">

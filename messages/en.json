@@ -592,6 +592,7 @@
     "riskMedium": "AI: Needs review",
     "riskHigh": "AI: High risk",
     "riskUnknown": "AI: Unknown",
+    "highPriceFlag": "⚠️ High price",
     "runtimeLocal": "Local",
     "runtimeCloud": "Cloud",
     "aiReviewSummary": "AI review notes",

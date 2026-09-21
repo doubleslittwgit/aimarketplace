@@ -251,19 +251,25 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     return { error: galleryResult.error };
   }
 
-  // AIによる静的レビュー（実行はせず、コードを読んで所見を作るだけ）。
+  // AIによる静的レビュー（実行はせず、コードを読み・画像を見て所見を作るだけ）。
   // 最終判断は必ず人間（管理者）が行うが、明確に危険なものだけは
   // ここで自動的に弾く（「危険なものを弾くのは自動、良いものを通すのは手動」という方針）。
   const fileBuffer = uploadedFile
     ? Buffer.from(await uploadedFile.arrayBuffer())
+    : null;
+  const thumbnailBuffer = uploadedThumbnail
+    ? Buffer.from(await uploadedThumbnail.arrayBuffer())
     : null;
 
   const review = await reviewToolSubmission({
     toolName: name,
     tagline,
     description,
+    price,
     fileBuffer,
     fileName: uploadedFile?.name ?? null,
+    thumbnailBuffer,
+    thumbnailMediaType: uploadedThumbnail?.type ?? null,
   });
 
   const initialStatus = review.risk === "high" ? "rejected" : "pending_review";

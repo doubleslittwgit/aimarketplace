@@ -592,6 +592,7 @@
     "riskMedium": "AI判定：需確認",
     "riskHigh": "AI判定：高風險",
     "riskUnknown": "AI判定：不明",
+    "highPriceFlag": "⚠️ 高價商品",
     "runtimeLocal": "本機執行",
     "runtimeCloud": "雲端",
     "aiReviewSummary": "AI審核意見",

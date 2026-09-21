@@ -6,6 +6,9 @@ export type ToolReview = {
   summary: string;
 };
 
+/** 「要確認」として管理者に強調表示する価格のしきい値（円） */
+export const HIGH_PRICE_REVIEW_THRESHOLD = 10000;
+
 // このAIレビューが目を通すファイルの拡張子（実行ファイル本体やバイナリの中身は読めないため対象外）
 const READABLE_EXTENSIONS = [
   ".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs",
@@ -92,8 +95,11 @@ export async function reviewToolSubmission(params: {
   toolName: string;
   tagline: string;
   description: string;
+  price: number;
   fileBuffer: Buffer | null;
   fileName: string | null;
+  thumbnailBuffer: Buffer | null;
+  thumbnailMediaType: string | null;
 }): Promise<ToolReview> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -110,13 +116,16 @@ export async function reviewToolSubmission(params: {
 
   const client = new Anthropic({ apiKey });
 
+  const isHighPrice = params.price >= HIGH_PRICE_REVIEW_THRESHOLD;
+
   const prompt = `あなたはソフトウェア配布マーケットプレイスの出品審査を補助するAIです。
-以下に出品されたツールについて、実行はせず「コードを読むだけ」で分かる範囲のリスクを評価してください。
+以下に出品されたツールについて、実行はせず「コードを読み、画像を見るだけ」で分かる範囲のリスクを評価してください。
 
 【出品情報】
 ツール名: ${params.toolName}
 キャッチコピー: ${params.tagline}
 詳細説明: ${params.description}
+価格: ${params.price === 0 ? "無料" : `¥${params.price.toLocaleString()}`}
 
 【ファイル一覧】
 ${extracted?.fileList.join("\n") ?? "（ファイルなし、またはURL提供型）"}
@@ -127,21 +136,47 @@ ${extracted?.hasBinary ? "【注記】実行可能なバイナリファイルが
 【読み取れたコードの中身（一部）】
 ${extracted?.textContent || "（読み取れるテキストファイルがありませんでした）"}
 
+${
+  params.thumbnailBuffer
+    ? "【サムネイル画像】このメッセージに添付されている画像が、出品時のサムネイルです。"
+    : "【サムネイル画像】サムネイルが登録されていません。"
+}
+
 以下の観点で確認し、日本語で簡潔に（400字程度で）報告してください:
 - 悪意あるコードの兆候（外部への不審な通信、認証情報の窃取、難読化、バックドア等）
 - 出品時の説明文と、実際のコードの内容が一致しているか
 - コードの品質・完成度について気づいた点
+- サムネイル画像が、説明されているツールの内容と一致しているように見えるか（無関係な画像、明らかなストック画像の使い回し、中身が全く想像できない画像等は懸念点として指摘する）
+${
+  isHighPrice
+    ? `- この価格（¥${params.price.toLocaleString()}）は、しきい値（¥${HIGH_PRICE_REVIEW_THRESHOLD.toLocaleString()}）を超える高額出品です。説明文・コードの完成度・サムネイルの内容から見て、この価格に見合う内容と言えるか、特に注意して評価してください。`
+    : ""
+}
 
 最後に必ず1行、以下のいずれかの形式で総合判定を書いてください:
 RISK: low   （明確な問題は見当たらない）
 RISK: medium（気になる点があり、人間の確認を推奨）
 RISK: high  （悪意のある可能性が高く、公開すべきでない）`;
 
+  const content: Anthropic.MessageParam["content"] = params.thumbnailBuffer && params.thumbnailMediaType
+    ? [
+        { type: "text", text: prompt },
+        {
+          type: "image",
+          source: {
+            type: "base64",
+            media_type: params.thumbnailMediaType as "image/jpeg" | "image/png" | "image/webp" | "image/gif",
+            data: params.thumbnailBuffer.toString("base64"),
+          },
+        },
+      ]
+    : prompt;
+
   try {
     const response = await client.messages.create({
       model: "claude-sonnet-5",
       max_tokens: 1024,
-      messages: [{ role: "user", content: prompt }],
+      messages: [{ role: "user", content }],
     });
 
     const text = response.content

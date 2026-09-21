@@ -592,6 +592,7 @@
     "riskMedium": "AI判定: 要確認",
     "riskHigh": "AI判定: 高リスク",
     "riskUnknown": "AI判定: 不明",
+    "highPriceFlag": "⚠️ 高額出品",
     "runtimeLocal": "ローカル実行",
     "runtimeCloud": "クラウド",
     "aiReviewSummary": "AIレビューの所見",
