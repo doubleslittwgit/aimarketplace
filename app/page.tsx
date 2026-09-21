@@ -170,7 +170,7 @@ export default async function Home() {
               />
             )}
 
-            <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center text-center">
+            <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center rounded-[2rem] bg-bg/80 px-5 py-8 text-center shadow-[0_8px_40px_-12px_rgba(30,78,150,0.15)] backdrop-blur-md xl:rounded-none xl:bg-transparent xl:px-0 xl:py-0 xl:shadow-none xl:backdrop-blur-none">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo.png"
@@ -298,7 +298,7 @@ function MobileFloatingCard({
   return (
     <a
       href={`/apps/${tool.slug}`}
-      className={`absolute z-[5] w-40 rounded-2xl border border-border bg-bg/95 p-3 shadow-[0_16px_34px_-12px_rgba(30,78,150,0.35)] backdrop-blur-sm transition active:scale-[0.97] ${className}`}
+      className={`absolute z-[5] w-32 rounded-2xl border border-border bg-bg/95 p-2.5 shadow-[0_16px_34px_-12px_rgba(30,78,150,0.35)] backdrop-blur-sm transition active:scale-[0.97] ${className}`}
     >
       <span
         className={`absolute right-2.5 top-2.5 rounded-full px-1.5 py-0.5 font-mono text-[9px] tracking-wide ${
