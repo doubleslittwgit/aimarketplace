@@ -21,7 +21,8 @@ export type NotificationType =
   | "post_liked"
   | "new_post_comment"
   | "new_question"
-  | "question_answered";
+  | "question_answered"
+  | "new_request_link";
 
 export type NotificationContent = {
   title: string;
@@ -211,5 +212,17 @@ export function questionAnswered(toolName: string, slug: string): NotificationCo
     title: `「${toolName}」への質問に回答がありました`,
     body: "商品ページで回答を確認できます。",
     linkUrl: `${SITE_URL}/apps/${slug}#qa`,
+  };
+}
+
+export function newRequestLink(
+  toolName: string,
+  requestTitle: string,
+  requestId: string
+): NotificationContent {
+  return {
+    title: `リクエストに回答するツールが見つかりました`,
+    body: `「${requestTitle}」に「${toolName}」が紐付けられました。`,
+    linkUrl: `${SITE_URL}/requests#${requestId}`,
   };
 }

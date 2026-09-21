@@ -89,6 +89,12 @@ export default async function Header() {
             {t("feed")}
           </Link>
           <Link
+            href="/requests"
+            className="hidden text-text-secondary transition hover:text-text-primary sm:block"
+          >
+            {t("requests")}
+          </Link>
+          <Link
             href="/submit"
             className="hidden text-text-secondary transition hover:text-text-primary sm:block"
           >

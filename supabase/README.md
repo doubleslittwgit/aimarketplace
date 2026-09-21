@@ -25,6 +25,7 @@
 | `follows.sql` | ユーザー間のフォロー機能（後から足したもの） |
 | `posts.sql` | 投稿フィード機能（文章・画像・いいね・コメント・通報）（後から足したもの） |
 | `tool_questions.sql` | 商品詳細ページのQ&A機能（後から足したもの） |
+| `tool_requests.sql` | 「欲しいツール」リクエスト掲示板（後から足したもの） |
 | `increment_install.sql` | ダウンロード数を加算する関数 |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
 
@@ -63,8 +64,9 @@
 15. `follows.sql`
 16. `posts.sql`
 17. `tool_questions.sql`
-18. `increment_install.sql`
-19. `grants.sql` ← **必ず最後**
+18. `tool_requests.sql`
+19. `increment_install.sql`
+20. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」
