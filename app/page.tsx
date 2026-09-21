@@ -73,11 +73,27 @@ export default async function Home() {
       <main className="flex-1">
         {/* Hero */}
         <section className="relative overflow-hidden">
-          {/* 淡い青のブラー */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+          {/* 淡い青のブラー。下端で急に途切れて見えないよう、マスクで自然にフェードアウトさせる */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 overflow-hidden [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
+          >
             <div className="absolute -top-24 left-[12%] h-96 w-96 rounded-full bg-accent-ai/20 blur-[120px]" />
             <div className="absolute top-4 right-[10%] h-[26rem] w-[26rem] rounded-full bg-accent-ai/15 blur-[130px]" />
             <div className="absolute bottom-[-6rem] left-1/2 h-80 w-[44rem] -translate-x-1/2 rounded-full bg-accent-signal/10 blur-[130px]" />
+          </div>
+
+          {/* PC版（xl以上）専用: 背景にBuildBayカラーの四角を浮かせて、
+              「商品がたくさんある」感を演出する（モバイル版と同じ考え方） */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 hidden overflow-hidden xl:block">
+            <div className="absolute left-[6%] top-[8%] h-14 w-14 rotate-[-15deg] rounded-2xl bg-accent-ai/15 backdrop-blur-sm" />
+            <div className="absolute right-[10%] top-[5%] h-9 w-9 rotate-[20deg] rounded-xl bg-accent-signal/20 backdrop-blur-sm" />
+            <div className="absolute left-[22%] top-[14%] h-7 w-7 rotate-[10deg] rounded-lg bg-accent-signal/15 backdrop-blur-sm" />
+            <div className="absolute right-[24%] top-[10%] h-10 w-10 rotate-[-12deg] rounded-xl bg-accent-ai/15 backdrop-blur-sm" />
+            <div className="absolute left-[8%] top-[62%] h-11 w-11 rotate-[14deg] rounded-xl bg-accent-signal/15 backdrop-blur-sm" />
+            <div className="absolute right-[6%] top-[58%] h-8 w-8 rotate-[-16deg] rounded-lg bg-accent-ai/20 backdrop-blur-sm" />
+            <div className="absolute left-[16%] top-[80%] h-6 w-6 rotate-[8deg] rounded-md bg-accent-ai/15 backdrop-blur-sm" />
+            <div className="absolute right-[18%] top-[84%] h-9 w-9 rotate-[-10deg] rounded-lg bg-accent-signal/15 backdrop-blur-sm" />
           </div>
 
           <div className="relative mx-auto max-w-7xl px-6 py-16 sm:py-36">
