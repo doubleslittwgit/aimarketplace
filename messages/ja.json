@@ -521,7 +521,10 @@
     "tableSales": "販売数",
     "tableEarnings": "売上",
     "noTools": "まだ出品したツールはありません。",
-    "backToDashboard": "マイページへ戻る"
+    "backToDashboard": "マイページへ戻る",
+    "salesReportLabel": "年間売上レポート",
+    "yearOption": "{year}年",
+    "downloadCsv": "CSVをダウンロード"
   },
   "dashboard": {
     "title": "マイページ",

@@ -521,7 +521,10 @@
     "tableSales": "Sales",
     "tableEarnings": "Earnings",
     "noTools": "You haven't published any tools yet.",
-    "backToDashboard": "Back to dashboard"
+    "backToDashboard": "Back to dashboard",
+    "salesReportLabel": "Annual sales report",
+    "yearOption": "{year}",
+    "downloadCsv": "Download CSV"
   },
   "dashboard": {
     "title": "Dashboard",

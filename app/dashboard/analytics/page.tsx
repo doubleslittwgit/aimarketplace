@@ -4,6 +4,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SimpleBarChart from "@/components/SimpleBarChart";
+import SalesReportDownload from "@/components/SalesReportDownload";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice, formatInstalls } from "@/lib/mock-data";
 import type { Locale } from "@/i18n/config";
@@ -110,6 +111,8 @@ export default async function AnalyticsPage() {
             {t("title")}
           </h1>
           <p className="mb-8 text-[13px] text-text-muted">{t("subtitle")}</p>
+
+          <SalesReportDownload currentYear={new Date().getFullYear()} />
 
           <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <StatCard label={t("totalViews")} value={formatInstalls(totalViews)} />

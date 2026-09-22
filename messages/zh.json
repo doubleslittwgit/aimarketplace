@@ -521,7 +521,10 @@
     "tableSales": "銷售數",
     "tableEarnings": "收入",
     "noTools": "目前還沒有上架任何工具。",
-    "backToDashboard": "返回會員中心"
+    "backToDashboard": "返回會員中心",
+    "salesReportLabel": "年度銷售報表",
+    "yearOption": "{year}年",
+    "downloadCsv": "下載 CSV"
   },
   "dashboard": {
     "title": "會員中心",
