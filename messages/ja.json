@@ -570,7 +570,13 @@
     "noSales": "まだ販売実績はありません。",
     "buyer": "購入者: {name}",
     "unknown": "不明",
-    "saleBreakdown": "(販売 {price} ・ 手数料 {fee})"
+    "saleBreakdown": "(販売 {price} ・ 手数料 {fee})",
+    "submitSuccessModal": {
+      "title": "出品完了！！",
+      "body": "審査が完了し次第、マーケットに並びます。内容はマイページからいつでも編集できます。",
+      "close": "閉じる",
+      "submitAnother": "もう1つ出品する"
+    }
   },
   "auth": {
     "loginRequiredTitle": "ログインが必要です",

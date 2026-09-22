@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SellerOnboardingButton from "@/components/SellerOnboardingButton";
 import OnboardingChecklist from "@/components/OnboardingChecklist";
+import SubmitSuccessModal from "@/components/SubmitSuccessModal";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/mock-data";
 import type { Locale } from "@/i18n/config";
@@ -157,6 +158,7 @@ export default async function DashboardPage() {
   return (
     <>
       <Header />
+      <SubmitSuccessModal />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-6 py-10">
           <div className="mb-8 flex flex-wrap items-end justify-between gap-3">

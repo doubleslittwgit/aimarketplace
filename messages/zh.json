@@ -570,7 +570,13 @@
     "noSales": "目前還沒有銷售紀錄。",
     "buyer": "購買者：{name}",
     "unknown": "不明",
-    "saleBreakdown": "（售價 {price} ・ 手續費 {fee}）"
+    "saleBreakdown": "（售價 {price} ・ 手續費 {fee}）",
+    "submitSuccessModal": {
+      "title": "上架完成！！",
+      "body": "審核通過後就會出現在市集中。內容隨時都能從會員中心編輯。",
+      "close": "關閉",
+      "submitAnother": "再上架一個"
+    }
   },
   "auth": {
     "loginRequiredTitle": "需要登入",
