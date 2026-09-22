@@ -13,6 +13,7 @@ import { categoryToSlug } from "@/lib/category-slugs";
 import { applyToolTranslations } from "@/lib/apply-translations";
 import { fetchFeedPosts } from "@/app/feed/actions";
 import { fetchRequests } from "@/app/requests/actions";
+import { CREATIVE_APPS } from "@/lib/creative-apps";
 import type { Locale } from "@/i18n/config";
 import {
   tools as mockTools,
@@ -301,6 +302,64 @@ export default async function Home() {
             {tools.map((tool) => (
               <ToolCard key={tool.id} tool={tool} />
             ))}
+          </div>
+        </section>
+
+        {/* BuildBay Creativeへの導線。メインサイトとは別のダークテーマを
+            そのまま持ち込むことで、「この先に別の専用空間がある」ことを
+            視覚的に伝える狙い */}
+        <section className="relative overflow-hidden bg-[#0a0a14]">
+          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -left-16 -top-24 h-80 w-80 rounded-full bg-purple-600/25 blur-[110px]" />
+            <div className="absolute -right-10 bottom-[-6rem] h-72 w-72 rounded-full bg-blue-500/20 blur-[110px]" />
+          </div>
+
+          <div className="relative mx-auto max-w-7xl px-6 py-16">
+            <div className="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-xl">
+                <span className="inline-block rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-medium tracking-wide text-white/70">
+                  NEW
+                </span>
+                <h2 className="mt-4 font-display text-2xl font-bold leading-tight text-white sm:text-3xl">
+                  Blender、After Effects…
+                  <br />
+                  <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-blue-400 bg-clip-text text-transparent">
+                    プラグインだけを集めた場所、あります。
+                  </span>
+                </h2>
+                <p className="mt-3 text-[14px] leading-relaxed text-white/60">
+                  BuildBay Creativeは、映像制作・3DCG・ライブビジュアルのためのプラグイン・拡張機能専用のハブです。
+                </p>
+                <Link
+                  href="/creative"
+                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-3 text-[14px] font-medium text-white shadow-[0_10px_30px_-8px_rgba(168,85,247,0.55)] transition hover:brightness-110"
+                >
+                  BuildBay Creativeを見る
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </Link>
+              </div>
+
+              <div className="grid w-full grid-cols-5 gap-3 lg:w-auto">
+                {CREATIVE_APPS.map((app) => (
+                  <div
+                    key={app.slug}
+                    className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-4"
+                  >
+                    <span
+                      className="flex h-9 w-9 items-center justify-center rounded-full text-[11px] font-bold text-white"
+                      style={{ backgroundColor: app.color }}
+                    >
+                      {app.shortLabel}
+                    </span>
+                    <span className="text-center text-[10px] leading-tight text-white/50">
+                      {app.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 

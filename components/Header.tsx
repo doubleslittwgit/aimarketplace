@@ -95,6 +95,12 @@ export default async function Header() {
             {t("requests")}
           </Link>
           <Link
+            href="/creative"
+            className="hidden bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text font-medium text-transparent transition hover:brightness-110 sm:block"
+          >
+            {t("creative")}
+          </Link>
+          <Link
             href="/submit"
             className="hidden text-text-secondary transition hover:text-text-primary sm:block"
           >
