@@ -29,8 +29,9 @@ export default function SimpleBarChart({
     return `¥${n.toLocaleString()}`;
   }
 
-  // 横軸のラベルは、全部出すと潰れるので等間隔で数本だけ出す
-  const labelStep = Math.max(1, Math.ceil(data.length / 6));
+  // 横軸のラベルは、全部出すと潰れるので等間隔で数本だけ出す。
+  // スマホの横幅では4〜5本が限界なので、それを基準にする。
+  const labelStep = Math.max(1, Math.ceil(data.length / 5));
 
   return (
     <div className="flex gap-3">
@@ -85,12 +86,17 @@ export default function SimpleBarChart({
           </div>
         </div>
 
-        {/* 横軸（日付） */}
-        <div className="mt-1.5 flex gap-[3px]">
+        {/* 横軸（日付）。
+            1本分の幅は数文字ぶんしかないため、ラベルをその幅に収めようとすると
+            「10月」が「10」「月」に折り返されてしまう。折り返しを禁止した上で、
+            棒の中心を基準に左右へはみ出して表示する。 */}
+        <div className="mt-1.5 flex h-4 gap-[3px]">
           {data.map((d, i) => (
-            <div key={i} className="min-w-0 flex-1 text-center">
+            <div key={i} className="relative flex-1">
               {i % labelStep === 0 && (
-                <span className="font-mono text-[10px] text-text-dim">{d.label}</span>
+                <span className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap font-mono text-[10px] text-text-dim">
+                  {d.label}
+                </span>
               )}
             </div>
           ))}
