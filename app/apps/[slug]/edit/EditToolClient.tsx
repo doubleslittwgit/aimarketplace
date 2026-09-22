@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
 import { CREATIVE_APPS } from "@/lib/creative-apps";
+import { TOOL_FILE_ACCEPT, isAllowedToolFile } from "@/lib/tool-file-types";
 import { compressImage, compressImagesSequentially, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
 import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
 import { createClient as createBrowserSupabase } from "@/lib/supabase/client";
@@ -111,6 +112,12 @@ export default function EditToolClient({
 
   function handleFile(file: File | undefined) {
     if (!file) return;
+    // 出品時と同じく、acceptを素通りした場合に備えてここでも形式を確認する
+    if (!isAllowedToolFile(file.name)) {
+      setError(tSubmit("errorUnsupportedFileType"));
+      return;
+    }
+    setError(null);
     setFileName(file.name);
     setFileSize(file.size);
     if (fileInputRef.current) {
@@ -524,6 +531,7 @@ export default function EditToolClient({
                   ref={fileInputRef}
                   type="file"
                   name="file"
+                  accept={TOOL_FILE_ACCEPT}
                   onClick={(e) => e.stopPropagation()}
                   onChange={(e) => handleFile(e.target.files?.[0])}
                   className="hidden"

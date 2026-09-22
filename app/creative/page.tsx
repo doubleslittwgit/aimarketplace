@@ -125,7 +125,7 @@ export default async function CreativePage({
           <h2 className="font-display text-xl font-semibold">対応アプリケーション</h2>
           <p className="mt-1 text-[13px] text-white/50">お気に入りのツールで、もっとクリエイティブに。</p>
 
-          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {CREATIVE_APPS.map((app) => (
               <Link
                 key={app.slug}

@@ -5,6 +5,7 @@ import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE, formatPrice } from "@/lib/mock-data";
+import { isAllowedToolFile } from "@/lib/tool-file-types";
 import { translateAndSaveTool } from "@/lib/translate-tool";
 import { notify, notifyAdmins } from "@/lib/notifications/create";
 import {
@@ -139,6 +140,10 @@ export async function updateTool(
   if (existing.runtime === "local" && uploadedFileKey) {
     if (!uploadedFileKey.startsWith(`${user.id}/`)) {
       return { error: t("fileUploadFailed", { message: "invalid path" }) };
+    }
+    // ブラウザ側のacceptは回避できてしまうため、サーバー側でも形式を確認する
+    if (!isAllowedToolFile(uploadedFileKey)) {
+      return { error: t("unsupportedFileType") };
     }
     fileKey = uploadedFileKey;
   }

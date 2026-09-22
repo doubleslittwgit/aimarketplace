@@ -409,7 +409,7 @@ export default async function Home() {
                 </Link>
               </div>
 
-              <div className="grid w-full grid-cols-5 gap-3 lg:w-auto">
+              <div className="grid w-full grid-cols-4 gap-3 lg:w-auto">
                 {CREATIVE_APPS.map((app) => (
                   <div
                     key={app.slug}

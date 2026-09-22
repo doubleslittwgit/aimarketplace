@@ -67,7 +67,8 @@
     "ratingRangeInvalid": "Please choose a rating between 1 and 5",
     "reviewRequiresPurchase": "Only buyers of this tool can leave a review",
     "postFailed": "Failed to post: {message}",
-    "claimFailed": "Failed to claim: {message}"
+    "claimFailed": "Failed to claim: {message}",
+    "unsupportedFileType": "Unsupported file type"
   },
   "cookieNotice": {
     "text": "This site uses cookies required to keep you logged in. See our <link>Privacy Policy</link> for details.",
@@ -787,7 +788,8 @@
     "saleEnable": "Set a limited-time sale price",
     "salePriceLabel": "Sale price",
     "saleEndsAtLabel": "Sale ends at",
-    "saleHint": "It automatically reverts to the regular price once this time passes."
+    "saleHint": "It automatically reverts to the regular price once this time passes.",
+    "errorUnsupportedFileType": "That file type can't be uploaded. Please choose an archive (like ZIP) or a supported plugin format."
   },
   "categories": {
     "automation": "Automation & Workflows",

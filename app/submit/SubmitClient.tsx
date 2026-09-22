@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
 import { CREATIVE_APPS } from "@/lib/creative-apps";
+import { TOOL_FILE_ACCEPT, isAllowedToolFile } from "@/lib/tool-file-types";
 import { compressImage, compressImagesSequentially, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
 import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
 import { createClient as createBrowserSupabase } from "@/lib/supabase/client";
@@ -119,6 +120,13 @@ export default function SubmitClient({
 
   function handleFile(file: File | undefined) {
     if (!file) return;
+    // ドラッグ&ドロップや、選択画面で「すべてのファイル」に切り替えた場合は
+    // acceptを素通りしてしまうので、ここでも形式を確認する
+    if (!isAllowedToolFile(file.name)) {
+      setError(t("errorUnsupportedFileType"));
+      return;
+    }
+    setError(null);
     setFileName(file.name);
     setFileSize(file.size);
 
@@ -673,6 +681,7 @@ export default function SubmitClient({
                       ref={fileInputRef}
                       type="file"
                       name="file"
+                      accept={TOOL_FILE_ACCEPT}
                       required={!fileName}
                       onClick={(e) => e.stopPropagation()}
                       onChange={(e) => handleFile(e.target.files?.[0])}

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE } from "@/lib/mock-data";
+import { isAllowedToolFile } from "@/lib/tool-file-types";
 import { notifyAdmins } from "@/lib/notifications/create";
 import { adminNewPendingReview } from "@/lib/notifications/content";
 
@@ -167,6 +168,10 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     // （Storage側のRLSでも防がれているが、DBに不正なパスを記録させないための二重の防御）
     if (!uploadedFileKey.startsWith(`${user.id}/`)) {
       return { error: t("fileUploadFailed", { message: "invalid path" }) };
+    }
+    // ブラウザ側のacceptは回避できてしまうため、サーバー側でも形式を確認する
+    if (!isAllowedToolFile(uploadedFileKey)) {
+      return { error: t("unsupportedFileType") };
     }
     fileKey = uploadedFileKey;
     fileSizeBytes = uploadedFileSize;
@@ -337,6 +342,10 @@ export async function saveDraft(
   if (runtime === "local" && uploadedFileKey) {
     if (!uploadedFileKey.startsWith(`${user.id}/`)) {
       return { error: t("fileUploadFailed", { message: "invalid path" }) };
+    }
+    // ブラウザ側のacceptは回避できてしまうため、サーバー側でも形式を確認する
+    if (!isAllowedToolFile(uploadedFileKey)) {
+      return { error: t("unsupportedFileType") };
     }
     fileKey = uploadedFileKey;
     fileSizeBytes = uploadedFileSize;

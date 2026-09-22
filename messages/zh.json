@@ -67,7 +67,8 @@
     "ratingRangeInvalid": "評分請選擇1到5之間",
     "reviewRequiresPurchase": "只有購買過此工具的使用者才能撰寫評論",
     "postFailed": "送出失敗：{message}",
-    "claimFailed": "取得失敗：{message}"
+    "claimFailed": "取得失敗：{message}",
+    "unsupportedFileType": "不支援的檔案格式"
   },
   "cookieNotice": {
     "text": "本服務使用維持登入狀態所必需的Cookie。詳情請參閱<link>隱私權政策</link>。",
@@ -787,7 +788,8 @@
     "saleEnable": "設定限時促銷價格",
     "salePriceLabel": "促銷價格",
     "saleEndsAtLabel": "促銷結束時間",
-    "saleHint": "超過結束時間後，會自動恢復為原價。"
+    "saleHint": "超過結束時間後，會自動恢復為原價。",
+    "errorUnsupportedFileType": "無法上傳此格式的檔案。請選擇 ZIP 等發布格式，或支援的外掛格式。"
   },
   "categories": {
     "automation": "自動化與工作流程",

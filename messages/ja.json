@@ -67,7 +67,8 @@
     "ratingRangeInvalid": "評価は1〜5の範囲で選んでください",
     "reviewRequiresPurchase": "このツールを購入した方だけがレビューを書けます",
     "postFailed": "投稿に失敗しました: {message}",
-    "claimFailed": "取得に失敗しました: {message}"
+    "claimFailed": "取得に失敗しました: {message}",
+    "unsupportedFileType": "対応していないファイル形式です"
   },
   "cookieNotice": {
     "text": "本サービスは、ログイン状態を維持するために必要なCookieを使用しています。詳しくは<link>プライバシーポリシー</link>をご覧ください。",
@@ -787,7 +788,8 @@
     "saleEnable": "期間限定のセール価格を設定する",
     "salePriceLabel": "セール価格",
     "saleEndsAtLabel": "セール終了日時",
-    "saleHint": "終了日時を過ぎると、自動的に通常価格に戻ります。"
+    "saleHint": "終了日時を過ぎると、自動的に通常価格に戻ります。",
+    "errorUnsupportedFileType": "この形式のファイルはアップロードできません。ZIPなどの配布形式か、対応するプラグイン形式を選んでください。"
   },
   "categories": {
     "automation": "自動化・ワークフロー",
