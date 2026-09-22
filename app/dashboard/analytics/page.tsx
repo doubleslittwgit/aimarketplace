@@ -78,9 +78,11 @@ export default async function AnalyticsPage() {
     const d = new Date(since);
     d.setDate(d.getDate() + i);
     const key = d.toISOString().slice(0, 10);
+    const value = earningsByDay.get(key) ?? 0;
     return {
       label: d.toLocaleDateString(INTL_LOCALE[locale] ?? "ja-JP", { month: "numeric", day: "numeric" }),
-      value: earningsByDay.get(key) ?? 0,
+      value,
+      displayValue: `¥${value.toLocaleString()}`,
     };
   });
 
@@ -128,7 +130,7 @@ export default async function AnalyticsPage() {
             {sales.length === 0 ? (
               <p className="py-8 text-center text-[13px] text-text-muted">{t("noEarningsYet")}</p>
             ) : (
-              <SimpleBarChart data={chartData} formatValue={(n) => `¥${n.toLocaleString()}`} />
+              <SimpleBarChart data={chartData} />
             )}
           </section>
 
