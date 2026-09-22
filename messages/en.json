@@ -572,8 +572,9 @@
     "unknown": "Unknown",
     "saleBreakdown": "(Sold for {price} · fee {fee})",
     "submitSuccessModal": {
-      "title": "You're all set!!",
-      "body": "Once it's reviewed, it'll appear in the marketplace. You can edit it anytime from your dashboard.",
+      "title": "Upload complete!",
+      "status": "Under review...",
+      "body": "We'll let you know once it's reviewed. You can edit it anytime from your dashboard.",
       "close": "Close",
       "submitAnother": "Submit another"
     }

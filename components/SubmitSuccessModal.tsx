@@ -90,9 +90,13 @@ export default function SubmitSuccessModal() {
           </svg>
         </div>
 
-        <h2 className="mb-2 font-display text-2xl font-bold text-text-primary">
+        <h2 className="mb-1.5 font-display text-2xl font-bold text-text-primary">
           {t("title")}
         </h2>
+        <p className="mb-4 flex items-center justify-center gap-1.5 text-[13px] font-medium text-accent-ai">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-ai" />
+          {t("status")}
+        </p>
         <p className="mb-6 text-[13px] leading-relaxed text-text-muted">
           {t("body")}
         </p>

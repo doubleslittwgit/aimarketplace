@@ -572,8 +572,9 @@
     "unknown": "不明",
     "saleBreakdown": "（售價 {price} ・ 手續費 {fee}）",
     "submitSuccessModal": {
-      "title": "上架完成！！",
-      "body": "審核通過後就會出現在市集中。內容隨時都能從會員中心編輯。",
+      "title": "上傳完成！",
+      "status": "審核中…",
+      "body": "審核完成後會通知您。內容隨時都能從會員中心編輯。",
       "close": "關閉",
       "submitAnother": "再上架一個"
     }
