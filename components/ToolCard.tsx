@@ -2,10 +2,16 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Tool, formatInstalls, formatPrice } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
+import { isSaleActive } from "@/lib/sale-price";
 
 export default function ToolCard({ tool }: { tool: Tool }) {
   const t = useTranslations();
   const isFree = tool.price === 0;
+  const onSale = isSaleActive({
+    price: tool.price,
+    sale_price: tool.salePrice,
+    sale_ends_at: tool.saleEndsAt,
+  });
   const initials = tool.author.name
     .split(" ")
     .map((s) => s[0])
@@ -19,6 +25,11 @@ export default function ToolCard({ tool }: { tool: Tool }) {
     >
       {/* Preview area */}
       <div className="relative aspect-video overflow-hidden border-b border-border bg-gradient-to-br from-surface-raised to-bg">
+        {onSale && (
+          <span className="absolute left-3 top-3 z-10 rounded-full bg-accent-danger px-2 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-white">
+            SALE
+          </span>
+        )}
         {tool.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -75,13 +86,24 @@ export default function ToolCard({ tool }: { tool: Tool }) {
           <h3 className="font-display text-[15px] font-semibold leading-tight text-text-primary">
             {tool.name}
           </h3>
-          <span
-            className={`shrink-0 font-mono text-[13px] font-medium ${
-              isFree ? "text-text-muted" : "text-accent-signal"
-            }`}
-          >
-            {formatPrice(tool.price, t("common.free"))}
-          </span>
+          {onSale ? (
+            <span className="flex shrink-0 flex-col items-end font-mono text-[13px] font-medium">
+              <span className="text-[11px] text-text-dim line-through">
+                {formatPrice(tool.price, t("common.free"))}
+              </span>
+              <span className="text-accent-danger">
+                {formatPrice(tool.salePrice as number, t("common.free"))}
+              </span>
+            </span>
+          ) : (
+            <span
+              className={`shrink-0 font-mono text-[13px] font-medium ${
+                isFree ? "text-text-muted" : "text-accent-signal"
+              }`}
+            >
+              {formatPrice(tool.price, t("common.free"))}
+            </span>
+          )}
         </div>
         <p className="line-clamp-2 text-[13px] leading-relaxed text-text-secondary">
           {tool.tagline}

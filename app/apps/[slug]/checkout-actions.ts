@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { stripe, PLATFORM_FEE_RATE } from "@/lib/stripe/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getEffectivePrice } from "@/lib/sale-price";
 
 export type CheckoutResult = { error: string };
 
@@ -34,7 +35,7 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
   // 価格は必ずDBから取得する（ブラウザからの金額は信用しない）
   const { data: tool, error: toolError } = await supabase
     .from("tools")
-    .select("id, slug, name, tagline, price, author_id, status, thumbnail_url")
+    .select("id, slug, name, tagline, price, sale_price, sale_ends_at, author_id, status, thumbnail_url")
     .eq("id", toolId)
     .maybeSingle();
 
@@ -47,6 +48,9 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
   if (tool.price <= 0) {
     return { error: t("freeToolNoCheckout") };
   }
+  // セール中なら、実際に請求する額をセール価格に差し替える
+  // （ここでもサーバー側のDB値だけを根拠にする。ブラウザからは一切受け取らない）
+  const chargedPrice = getEffectivePrice(tool);
   // 自分のツールを自分で買う不正（手数料だけ払って売上を水増しする等）を防ぐ
   if (tool.author_id === user.id) {
     return { error: t("cannotBuyOwnTool") };
@@ -98,7 +102,7 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
     headerList.get("origin") ||
     (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000");
 
-  const platformFee = Math.round(tool.price * PLATFORM_FEE_RATE);
+  const platformFee = Math.round(chargedPrice * PLATFORM_FEE_RATE);
 
   let checkoutUrl: string | null = null;
 
@@ -111,7 +115,7 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
         {
           price_data: {
             currency: "jpy",
-            unit_amount: tool.price, // JPYは最小単位が「円」なので、そのままの数値でよい
+            unit_amount: chargedPrice, // JPYは最小単位が「円」なので、そのままの数値でよい
             product_data: {
               name: tool.name,
               description: tool.tagline,
@@ -140,9 +144,9 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
         tool_id: tool.id,
         buyer_id: user.id,
         seller_id: tool.author_id,
-        price: String(tool.price),
+        price: String(chargedPrice),
         platform_fee: String(platformFee),
-        seller_earnings: String(tool.price - platformFee),
+        seller_earnings: String(chargedPrice - platformFee),
       },
     });
 

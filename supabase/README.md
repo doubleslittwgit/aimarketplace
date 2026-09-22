@@ -30,6 +30,7 @@
 | `add_host_apps.sql` | 「BuildBay Creative」用のhost_appsカラム（後から足したもの） |
 | `add_profile_locale.sql` | メール通知を出品時の言語で送るためのlocaleカラム（後から足したもの） |
 | `add_notification_prefs.sql` | 通知の種類ごとのオン/オフ設定（後から足したもの） |
+| `add_sale_pricing.sql` | 出品者が設定するセール価格・期限（後から足したもの） |
 | `increment_install.sql` | ダウンロード数を加算する関数 |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
 
@@ -73,8 +74,9 @@
 20. `add_host_apps.sql`
 21. `add_profile_locale.sql`
 22. `add_notification_prefs.sql`
-23. `increment_install.sql`
-24. `grants.sql` ← **必ず最後**
+23. `add_sale_pricing.sql`
+24. `increment_install.sql`
+25. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」

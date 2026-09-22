@@ -14,7 +14,6 @@ export async function generateMetadata() {
 const OPERATOR = {
   name: "後藤 脩", // 開業届を出す場合は屋号（BuildBay）も併記
   address: "220 台北市板橋區大觀路一段174巷138之2號2樓（台湾）",
-  phone: "+886-983-657006",
   email: "supportbuildbay@gmail.com",
 };
 
@@ -40,7 +39,7 @@ const HTML = `
   ${row("所在地", OPERATOR.address)}
   ${row(
     "電話番号",
-    `<p>${OPERATOR.phone}</p><p class="mt-1 text-[13px] text-text-muted">お問い合わせは原則としてメールにて受け付けております。</p>`
+    `<p>ご請求をいただいた場合、遅滞なく開示いたします。</p><p class="mt-1 text-[13px] text-text-muted">お問い合わせは原則としてメールにて受け付けております。</p>`
   )}
   ${row("メールアドレス", OPERATOR.email)}
   ${row("販売価格", "各ツールのページに表示された価格（消費税込み）によります。")}

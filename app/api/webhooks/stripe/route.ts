@@ -187,7 +187,7 @@ export async function POST(request: Request) {
   // ブラウザ経由の値ではなく、DBの正規の価格を信頼する。
   const { data: tool, error: toolFetchError } = await supabase
     .from("tools")
-    .select("id, name, slug, price, author_id")
+    .select("id, name, slug, price, sale_price, author_id")
     .eq("id", toolId)
     .maybeSingle();
 
@@ -204,12 +204,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "ツールが見つかりません" }, { status: 400 });
   }
 
-  // 実際にStripeで支払われた金額と、DB上の価格が一致するか確認する
+  // 実際にStripeで支払われた金額と、DB上の価格が一致するか確認する。
+  // 通常価格・セール価格のどちらでの購入も正当としたい。「決済開始時点では
+  // セール中だったが、Webhook処理までの間にセールが終了していた」という
+  // タイミングのズレでも正規の購入を弾いてしまわないよう、sale_priceは
+  // 期限を問わず「設定されていれば許容する価格」として扱う
+  // （sale_priceの値自体はDBの正規の値であり、ブラウザからは改変できないため安全）。
   const amountPaid = session.amount_total ?? 0;
-  if (amountPaid !== tool.price) {
+  const validAmounts = [tool.price, tool.sale_price].filter(
+    (v): v is number => v != null
+  );
+  if (!validAmounts.includes(amountPaid)) {
     // 一致しない場合は記録せず、調査できるようログに残す
     console.error(
-      `[webhook] 金額の不一致を検出: 支払額=${amountPaid}, DB価格=${tool.price}, tool=${toolId}`
+      `[webhook] 金額の不一致を検出: 支払額=${amountPaid}, DB価格=${tool.price}, セール価格=${tool.sale_price}, tool=${toolId}`
     );
     return NextResponse.json(
       { error: "支払金額が商品価格と一致しません" },
@@ -223,16 +231,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "出品者情報が一致しません" }, { status: 400 });
   }
 
-  // 手数料はここで再計算する（metadataの値をそのまま信用しない）
-  const platformFee = Math.round(tool.price * 0.2);
-  const sellerEarnings = tool.price - platformFee;
+  // 手数料はここで再計算する（metadataの値をそのまま信用しない）。
+  // 「DBの現在価格」ではなく「実際にStripeで支払われた金額」を基準にする
+  // （セール価格での購入の場合、tool.priceは通常価格のままなので、
+  //  これを基準にすると手数料も出品者の取り分もズレてしまう）。
+  const platformFee = Math.round(amountPaid * 0.2);
+  const sellerEarnings = amountPaid - platformFee;
 
   // --- 4. 購入記録の作成 ---
   const { error: insertError } = await supabase.from("purchases").insert({
     tool_id: tool.id,
     buyer_id: buyerId,
     seller_id: sellerId,
-    price_paid: tool.price,
+    price_paid: amountPaid,
     platform_fee: platformFee,
     seller_earnings: sellerEarnings,
     stripe_payment_intent_id: paymentIntentId,
@@ -297,7 +308,7 @@ export async function POST(request: Request) {
   await notify(
     buyerId,
     "purchase_receipt",
-    (locale) => purchaseReceipt(tool.name, formatPrice(tool.price), tool.slug, locale),
+    (locale) => purchaseReceipt(tool.name, formatPrice(amountPaid), tool.slug, locale),
     { email: true }
   );
 

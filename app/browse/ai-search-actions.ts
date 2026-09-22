@@ -68,6 +68,8 @@ export async function aiSearchTools(
       updatedAt: (r.updated_at || "").slice(0, 10),
       runtime: r.runtime,
       thumbnailUrl: r.thumbnail_url || null,
+      salePrice: r.sale_price ?? null,
+      saleEndsAt: r.sale_ends_at ?? null,
     }));
 
   const translated = await applyToolTranslations(supabase, orderedTools, locale);

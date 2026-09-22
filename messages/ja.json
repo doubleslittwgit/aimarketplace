@@ -159,7 +159,8 @@
     "feedSectionSub": "開発者たちの近況や、作ったものの紹介",
     "requestsSectionHeading": "リクエスト",
     "requestsSectionSub": "「こんなツールが欲しい」に、出品者が応える場所",
-    "viewAll": "すべて見る →"
+    "viewAll": "すべて見る →",
+    "onSale": "セール中"
   },
   "activity": {
     "purchased": "{by}さんが{tool}を{price}で購入",
@@ -276,7 +277,8 @@
       "runtimeCloud": "クラウド(Web)",
       "installs": "インストール数",
       "updatedAt": "最終更新",
-      "fileSize": "必要容量"
+      "fileSize": "必要容量",
+      "saleEndsAt": "セール終了まで: {date}"
     },
     "purchaseButton": {
       "ownerNotice": "あなたが出品したツールです",
@@ -776,7 +778,12 @@
     "uploadingFile": "ツール本体をアップロード中...",
     "uploadingThumbnail": "サムネイルをアップロード中...",
     "uploadingGallery": "紹介画像をアップロード中... ({current}/{total})",
-    "errorSessionExpired": "ログインの有効期限が切れています。再度ログインしてください。"
+    "errorSessionExpired": "ログインの有効期限が切れています。再度ログインしてください。",
+    "saleLabel": "セール設定（任意）",
+    "saleEnable": "期間限定のセール価格を設定する",
+    "salePriceLabel": "セール価格",
+    "saleEndsAtLabel": "セール終了日時",
+    "saleHint": "終了日時を過ぎると、自動的に通常価格に戻ります。"
   },
   "categories": {
     "automation": "自動化・ワークフロー",

@@ -65,6 +65,8 @@ async function loadTool(
       updatedAt: (row.updated_at || "").slice(0, 10),
       runtime: row.runtime,
       thumbnailUrl: row.thumbnail_url || null,
+      salePrice: row.sale_price ?? null,
+      saleEndsAt: row.sale_ends_at ?? null,
       galleryUrls: row.gallery_urls || [],
       fileSizeBytes: row.file_size_bytes ?? null,
     };
@@ -113,6 +115,8 @@ async function loadTool(
         updatedAt: (r.updated_at || "").slice(0, 10),
         runtime: r.runtime,
         thumbnailUrl: r.thumbnail_url || null,
+        salePrice: r.sale_price ?? null,
+        saleEndsAt: r.sale_ends_at ?? null,
       })) || [];
 
     // 実際の出品がまだ少ない間は、デモ用のツールで欄を埋める

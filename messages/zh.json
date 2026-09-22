@@ -159,7 +159,8 @@
     "feedSectionSub": "開發者們的近況與作品分享",
     "requestsSectionHeading": "需求",
     "requestsSectionSub": "上架者回應「想要這樣的工具」的地方",
-    "viewAll": "查看全部 →"
+    "viewAll": "查看全部 →",
+    "onSale": "限時促銷"
   },
   "activity": {
     "purchased": "{by} 以 {price} 購買了 {tool}",
@@ -276,7 +277,8 @@
       "runtimeCloud": "雲端（Web）",
       "installs": "安裝次數",
       "updatedAt": "最後更新",
-      "fileSize": "所需容量"
+      "fileSize": "所需容量",
+      "saleEndsAt": "促銷截止：{date}"
     },
     "purchaseButton": {
       "ownerNotice": "這是您上架的工具",
@@ -776,7 +778,12 @@
     "uploadingFile": "正在上傳工具檔案…",
     "uploadingThumbnail": "正在上傳縮圖…",
     "uploadingGallery": "正在上傳介紹圖片…（{current}/{total}）",
-    "errorSessionExpired": "登入已逾時，請重新登入。"
+    "errorSessionExpired": "登入已逾時，請重新登入。",
+    "saleLabel": "促銷設定（選填）",
+    "saleEnable": "設定限時促銷價格",
+    "salePriceLabel": "促銷價格",
+    "saleEndsAtLabel": "促銷結束時間",
+    "saleHint": "超過結束時間後，會自動恢復為原價。"
   },
   "categories": {
     "automation": "自動化與工作流程",

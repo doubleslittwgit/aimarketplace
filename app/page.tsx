@@ -55,6 +55,49 @@ async function loadRealTools(locale: Locale): Promise<Tool[]> {
       updatedAt: (r.updated_at || "").slice(0, 10),
       runtime: r.runtime,
       thumbnailUrl: r.thumbnail_url || null,
+      salePrice: r.sale_price ?? null,
+      saleEndsAt: r.sale_ends_at ?? null,
+    })) || [];
+
+  return applyToolTranslations(supabase, tools, locale);
+}
+
+async function loadSaleTools(locale: Locale): Promise<Tool[]> {
+  const tCommon = await getTranslations("common");
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("tools")
+    .select("*, profiles:author_id(display_name, handle)")
+    .eq("status", "published")
+    .not("sale_price", "is", null)
+    .gt("sale_ends_at", new Date().toISOString())
+    .order("sale_ends_at", { ascending: true })
+    .limit(6);
+
+  const tools =
+    data?.map((r) => ({
+      id: r.id,
+      slug: r.slug,
+      name: r.name,
+      tagline: r.tagline,
+      description: r.description,
+      category: r.category,
+      categories: r.categories?.length ? r.categories : [r.category],
+      price: r.price,
+      version: r.version,
+      installs: r.install_count,
+      likes: r.like_count,
+      views: r.view_count,
+      author: {
+        name: r.profiles?.display_name || tCommon("unnamedDeveloper"),
+        handle: r.profiles?.handle ? `@${r.profiles.handle}` : "",
+      },
+      tags: r.tags || [],
+      updatedAt: (r.updated_at || "").slice(0, 10),
+      runtime: r.runtime,
+      thumbnailUrl: r.thumbnail_url || null,
+      salePrice: r.sale_price ?? null,
+      saleEndsAt: r.sale_ends_at ?? null,
     })) || [];
 
   return applyToolTranslations(supabase, tools, locale);
@@ -66,8 +109,9 @@ export default async function Home() {
   const tCommon = await getTranslations("common");
   const locale = (await getLocale()) as Locale;
 
-  const [realTools, feedResult, requestsResult] = await Promise.all([
+  const [realTools, saleTools, feedResult, requestsResult] = await Promise.all([
     loadRealTools(locale),
+    loadSaleTools(locale),
     fetchFeedPosts({ mode: "all" }),
     fetchRequests({ sort: "top" }),
   ]);
@@ -286,6 +330,30 @@ export default async function Home() {
             </div>
           </div>
         </section>
+
+        {/* セール中 */}
+        {saleTools.length > 0 && (
+          <section className="border-y border-border bg-accent-danger/[0.03]">
+            <div className="mx-auto max-w-7xl px-6 py-14">
+              <div className="mb-6 flex items-center gap-2.5">
+                <span className="flex items-center gap-1 rounded-full bg-accent-danger px-2.5 py-1 font-mono text-[11px] font-semibold text-white">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+                  </svg>
+                  SALE
+                </span>
+                <h2 className="font-display text-2xl font-semibold text-text-primary sm:text-3xl">
+                  {t("onSale")}
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {saleTools.map((tool) => (
+                  <ToolCard key={tool.id} tool={tool} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Listing */}
         <section className="mx-auto max-w-7xl px-6 py-14">

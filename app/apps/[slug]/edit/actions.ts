@@ -77,6 +77,20 @@ export async function updateTool(
   const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)));
+
+  // セール価格（任意）。saleEnabledがオフなら、他の値に関わらずnull（=セール無し）にする。
+  const saleEnabled = formData.get("saleEnabled") === "1";
+  const salePriceRaw = String(formData.get("salePrice") || "").trim();
+  const saleEndsAtRaw = String(formData.get("saleEndsAt") || "").trim();
+  let salePrice: number | null = null;
+  let saleEndsAt: string | null = null;
+  if (saleEnabled && salePriceRaw && saleEndsAtRaw) {
+    const parsed = Math.max(0, Math.round(Number(salePriceRaw)));
+    if (!Number.isNaN(parsed) && parsed < price) {
+      salePrice = parsed;
+      saleEndsAt = new Date(saleEndsAtRaw).toISOString();
+    }
+  }
   const platformsRaw = String(formData.get("platforms") || "");
   const platforms = platformsRaw ? platformsRaw.split(",").filter(Boolean) : [];
   const minOsVersion = String(formData.get("minOsVersion") || "").trim() || null;
@@ -174,6 +188,8 @@ export async function updateTool(
       categories: categoriesList,
       host_apps: hostAppsList,
       price,
+      sale_price: salePrice,
+      sale_ends_at: saleEndsAt,
       platforms,
       min_os_version: minOsVersion,
       demo_url: demoUrl,

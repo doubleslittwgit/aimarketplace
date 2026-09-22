@@ -21,6 +21,9 @@ export type Tool = {
   thumbnailUrl?: string | null;
   galleryUrls?: string[];
   fileSizeBytes?: number | null;
+  /** 期間限定のセール価格（任意）。lib/sale-price.tsで実効価格を計算する */
+  salePrice?: number | null;
+  saleEndsAt?: string | null;
 };
 
 // 出品フォームの上限（サーバー側 app/submit/actions.ts のチェックと必ず揃えること）

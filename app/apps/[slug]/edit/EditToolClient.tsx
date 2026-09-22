@@ -21,6 +21,8 @@ type Tool = {
   categories: string[] | null;
   host_apps: string[] | null;
   price: number;
+  sale_price: number | null;
+  sale_ends_at: string | null;
   runtime: "cloud" | "local";
   platforms: string[] | null;
   min_os_version: string | null;
@@ -45,6 +47,13 @@ export default function EditToolClient({
   const tCategories = useTranslations("categories");
   const tCommon = useTranslations("common");
   const [price, setPrice] = useState(String(tool.price));
+  const [salePrice, setSalePrice] = useState(
+    tool.sale_price != null ? String(tool.sale_price) : ""
+  );
+  const [saleEndsAt, setSaleEndsAt] = useState(
+    tool.sale_ends_at ? tool.sale_ends_at.slice(0, 16) : ""
+  );
+  const [saleEnabled, setSaleEnabled] = useState(tool.sale_price != null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     tool.categories?.length ? tool.categories : tool.category ? [tool.category] : []
   );
@@ -690,6 +699,55 @@ export default function EditToolClient({
               </p>
             )}
           </Field>
+
+          {!isFree && (
+            <Field label={tSubmit("saleLabel")}>
+              <input type="hidden" name="saleEnabled" value={saleEnabled ? "1" : "0"} />
+              <label className="flex cursor-pointer items-center gap-2.5 text-[13px] text-text-secondary">
+                <input
+                  type="checkbox"
+                  checked={saleEnabled}
+                  onChange={(e) => setSaleEnabled(e.target.checked)}
+                  className="h-4 w-4 rounded border-border"
+                />
+                {tSubmit("saleEnable")}
+              </label>
+
+              {saleEnabled && (
+                <div className="mt-3 space-y-3">
+                  <div>
+                    <p className="mb-1.5 text-[12px] text-text-dim">{tSubmit("salePriceLabel")}</p>
+                    <div className="relative">
+                      <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] text-text-muted">
+                        ¥
+                      </span>
+                      <input
+                        type="number"
+                        name="salePrice"
+                        min={0}
+                        step={100}
+                        max={Math.max(0, priceNumber - 1)}
+                        value={salePrice}
+                        onChange={(e) => setSalePrice(e.target.value)}
+                        className="w-full rounded-lg border border-border bg-surface py-2.5 pl-8 pr-3.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mb-1.5 text-[12px] text-text-dim">{tSubmit("saleEndsAtLabel")}</p>
+                    <input
+                      type="datetime-local"
+                      name="saleEndsAt"
+                      value={saleEndsAt}
+                      onChange={(e) => setSaleEndsAt(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
+                    />
+                  </div>
+                  <p className="text-[12px] text-text-dim">{tSubmit("saleHint")}</p>
+                </div>
+              )}
+            </Field>
+          )}
 
           {uploadLabel && (
             <div className="rounded-lg border border-border bg-surface p-3.5">
