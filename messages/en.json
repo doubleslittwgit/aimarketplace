@@ -81,7 +81,14 @@
   "header": {
     "searchPlaceholder": "Search tools... e.g. invoice automation",
     "searchExamplePrefix": "Search tools... e.g. ",
-    "searchExamples": ["invoice", "travel", "video editing", "game", "habit", "design"],
+    "searchExamples": [
+      "invoice",
+      "travel",
+      "video editing",
+      "game",
+      "habit",
+      "design"
+    ],
     "searchAriaLabel": "Search tools",
     "searchButtonAriaLabel": "Search",
     "browse": "Browse",
@@ -128,7 +135,14 @@
     "heroPrefix": "Your ",
     "heroHighlight": "idea",
     "heroConnector": "",
-    "heroRepertoire": ["can make a difference.", "becomes value.", "changes the way we work.", "sparks excitement.", "reaches the world.", "changes the world."],
+    "heroRepertoire": [
+      "can make a difference.",
+      "becomes value.",
+      "changes the way we work.",
+      "sparks excitement.",
+      "reaches the world.",
+      "changes the world."
+    ],
     "heroSubcopy": "Publish tools you built with AI — free or paid, your call.",
     "ctaPublish": "Publish a tool",
     "ctaBrowse": "Browse the market",
@@ -750,7 +764,11 @@
     "publishing": "Publishing...",
     "saveDraft": "Save draft",
     "savingDraft": "Saving...",
-    "draftSaved": "Draft saved at {time}. You can continue anytime from your dashboard."
+    "draftSaved": "Draft saved at {time}. You can continue anytime from your dashboard.",
+    "uploadingFile": "Uploading tool file...",
+    "uploadingThumbnail": "Uploading thumbnail...",
+    "uploadingGallery": "Uploading gallery images... ({current}/{total})",
+    "errorSessionExpired": "Your session has expired. Please log in again."
   },
   "categories": {
     "automation": "Automation & Workflows",

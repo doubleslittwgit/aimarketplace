@@ -6,6 +6,8 @@ import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize
 import { categoryToSlug } from "@/lib/category-slugs";
 import { CREATIVE_APPS } from "@/lib/creative-apps";
 import { compressImage, compressImagesSequentially, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
+import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
+import { createClient as createBrowserSupabase } from "@/lib/supabase/client";
 import { createTool, saveDraft } from "./actions";
 
 type PriceType = "free" | "paid" | null;
@@ -85,6 +87,11 @@ export default function SubmitClient({
   }
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  // アップロードの進捗表示用。大きなファイルは時間がかかるため、
+  // 「今どの段階で、何%進んでいるか」が見えないと不安になる。
+  const [uploadLabel, setUploadLabel] = useState<string | null>(null);
+  const [uploadPercent, setUploadPercent] = useState(0);
+  const supabaseBrowser = useMemo(() => createBrowserSupabase(), []);
   const [isSavingDraft, startSaveDraft] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
@@ -193,6 +200,82 @@ export default function SubmitClient({
     setGalleryError(null);
   }
 
+  /**
+   * 送信前に、ファイル・画像をブラウザから直接Supabaseへアップロードし、
+   * FormDataの中身を「ファイル本体」から「アップロード済みのパス」に差し替える。
+   *
+   * Vercelのサーバー関数には1リクエスト4.5MBという回避不能な上限があるため、
+   * ファイル本体をServer Actionに渡すと、大きいファイルで必ず失敗してしまう。
+   */
+  async function prepareUploads(formData: FormData): Promise<string | null> {
+    // ツールIDは、アップロード先のパスに含める必要があるので先に決めておく
+    // （サーバー側もこのIDをそのまま使うため、下書きがあればそれを引き継ぐ）
+    const toolId = draftId ?? crypto.randomUUID();
+    formData.set("draftId", draftId ?? "");
+    formData.set("newToolId", toolId);
+
+    const {
+      data: { user },
+    } = await supabaseBrowser.auth.getUser();
+    if (!user) return t("errorSessionExpired");
+
+    // 1. ツール本体（ローカル実行の場合のみ）
+    const file = fileInputRef.current?.files?.[0];
+    if (runtime === "local" && file) {
+      setUploadLabel(t("uploadingFile"));
+      setUploadPercent(0);
+      const result = await uploadToStorage({
+        bucket: "tool-files",
+        key: `${user.id}/${toolId}/${sanitizeFileName(file.name)}`,
+        file,
+        onProgress: ({ percent }) => setUploadPercent(percent),
+      });
+      if (!result.ok) return result.error;
+      formData.set("uploadedFileKey", result.key);
+      formData.set("uploadedFileSize", String(file.size));
+    }
+
+    // 2. サムネイル
+    const thumb = thumbnailInputRef.current?.files?.[0];
+    if (thumb) {
+      setUploadLabel(t("uploadingThumbnail"));
+      setUploadPercent(0);
+      const result = await uploadToStorage({
+        bucket: "tool-images",
+        key: `${user.id}/${toolId}/${sanitizeFileName(thumb.name)}`,
+        file: thumb,
+        onProgress: ({ percent }) => setUploadPercent(percent),
+      });
+      if (!result.ok) return result.error;
+      formData.set("uploadedThumbnailUrl", result.publicUrl ?? "");
+    }
+
+    // 3. ギャラリー画像
+    const galleryUrls: string[] = [];
+    for (let i = 0; i < newGalleryFiles.length; i++) {
+      const image = newGalleryFiles[i];
+      setUploadLabel(t("uploadingGallery", { current: i + 1, total: newGalleryFiles.length }));
+      setUploadPercent(0);
+      const result = await uploadToStorage({
+        bucket: "tool-images",
+        key: `${user.id}/${toolId}/gallery-${crypto.randomUUID().slice(0, 8)}-${sanitizeFileName(image.name)}`,
+        file: image,
+        onProgress: ({ percent }) => setUploadPercent(percent),
+      });
+      if (!result.ok) return result.error;
+      if (result.publicUrl) galleryUrls.push(result.publicUrl);
+    }
+    formData.set("uploadedGalleryUrls", galleryUrls.join(","));
+
+    // ファイル本体はサーバーに送らない（4.5MBの上限に引っかかるため）
+    formData.delete("file");
+    formData.delete("thumbnail");
+    formData.delete("galleryImages");
+
+    setUploadLabel(null);
+    return null;
+  }
+
   function handleFormAction(formData: FormData) {
     setError(null);
     if (selectedCategories.length === 0) {
@@ -210,6 +293,12 @@ export default function SubmitClient({
       return;
     }
     startTransition(async () => {
+      const uploadError = await prepareUploads(formData);
+      if (uploadError) {
+        setUploadLabel(null);
+        setError(uploadError);
+        return;
+      }
       const result = await createTool(formData);
       if (result?.error) setError(result.error);
     });
@@ -220,6 +309,12 @@ export default function SubmitClient({
     setError(null);
     const formData = new FormData(formRef.current);
     startSaveDraft(async () => {
+      const uploadError = await prepareUploads(formData);
+      if (uploadError) {
+        setUploadLabel(null);
+        setError(uploadError);
+        return;
+      }
       const result = await saveDraft(formData, draftId ?? undefined);
       if (result.error !== null) {
         setError(result.error);
@@ -738,6 +833,21 @@ export default function SubmitClient({
                     {t("recommendedEnvHint")}
                   </p>
                 </Field>
+              )}
+
+              {uploadLabel && (
+                <div className="rounded-lg border border-border bg-surface p-3.5">
+                  <div className="mb-2 flex items-center justify-between text-[12px]">
+                    <span className="text-text-secondary">{uploadLabel}</span>
+                    <span className="font-mono text-text-muted">{uploadPercent}%</span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-surface-raised">
+                    <div
+                      className="h-full rounded-full bg-accent-signal transition-[width] duration-200"
+                      style={{ width: `${uploadPercent}%` }}
+                    />
+                  </div>
+                </div>
               )}
 
               <div className="flex flex-wrap items-center gap-3">

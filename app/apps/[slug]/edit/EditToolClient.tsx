@@ -7,6 +7,8 @@ import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize
 import { categoryToSlug } from "@/lib/category-slugs";
 import { CREATIVE_APPS } from "@/lib/creative-apps";
 import { compressImage, compressImagesSequentially, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
+import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
+import { createClient as createBrowserSupabase } from "@/lib/supabase/client";
 import { updateTool, setToolPublished, deleteTool } from "./actions";
 
 type Tool = {
@@ -52,6 +54,9 @@ export default function EditToolClient({
       prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
     );
   }
+  const [uploadLabel, setUploadLabel] = useState<string | null>(null);
+  const [uploadPercent, setUploadPercent] = useState(0);
+  const supabaseBrowser = useMemo(() => createBrowserSupabase(), []);
   const [selectedHostApps, setSelectedHostApps] = useState<string[]>(tool.host_apps ?? []);
   function toggleHostApp(slug: string) {
     setSelectedHostApps((prev) =>
@@ -172,6 +177,66 @@ export default function EditToolClient({
     setGalleryError(null);
   }
 
+  /** 送信前に、ファイル・画像をブラウザから直接Supabaseへアップロードする */
+  async function prepareUploads(formData: FormData): Promise<string | null> {
+    const {
+      data: { user },
+    } = await supabaseBrowser.auth.getUser();
+    if (!user) return tSubmit("errorSessionExpired");
+
+    const file = fileInputRef.current?.files?.[0];
+    if (tool.runtime === "local" && file) {
+      setUploadLabel(tSubmit("uploadingFile"));
+      setUploadPercent(0);
+      const result = await uploadToStorage({
+        bucket: "tool-files",
+        key: `${user.id}/${tool.id}/${sanitizeFileName(file.name)}`,
+        file,
+        onProgress: ({ percent }) => setUploadPercent(percent),
+      });
+      if (!result.ok) return result.error;
+      formData.set("uploadedFileKey", result.key);
+      formData.set("uploadedFileSize", String(file.size));
+    }
+
+    const thumb = thumbnailInputRef.current?.files?.[0];
+    if (thumb) {
+      setUploadLabel(tSubmit("uploadingThumbnail"));
+      setUploadPercent(0);
+      const result = await uploadToStorage({
+        bucket: "tool-images",
+        key: `${user.id}/${tool.id}/${sanitizeFileName(thumb.name)}`,
+        file: thumb,
+        onProgress: ({ percent }) => setUploadPercent(percent),
+      });
+      if (!result.ok) return result.error;
+      formData.set("uploadedThumbnailUrl", result.publicUrl ?? "");
+    }
+
+    const galleryUrls: string[] = [];
+    for (let i = 0; i < newGalleryFiles.length; i++) {
+      const image = newGalleryFiles[i];
+      setUploadLabel(tSubmit("uploadingGallery", { current: i + 1, total: newGalleryFiles.length }));
+      setUploadPercent(0);
+      const result = await uploadToStorage({
+        bucket: "tool-images",
+        key: `${user.id}/${tool.id}/gallery-${crypto.randomUUID().slice(0, 8)}-${sanitizeFileName(image.name)}`,
+        file: image,
+        onProgress: ({ percent }) => setUploadPercent(percent),
+      });
+      if (!result.ok) return result.error;
+      if (result.publicUrl) galleryUrls.push(result.publicUrl);
+    }
+    formData.set("uploadedGalleryUrls", galleryUrls.join(","));
+
+    formData.delete("file");
+    formData.delete("thumbnail");
+    formData.delete("galleryImages");
+
+    setUploadLabel(null);
+    return null;
+  }
+
   function handleFormAction(formData: FormData) {
     setError(null);
     if (selectedCategories.length === 0) {
@@ -189,6 +254,14 @@ export default function EditToolClient({
       return;
     }
     startTransition(async () => {
+      // 出品時と同じく、ファイル本体はブラウザから直接Supabaseへ送る
+      // （Vercelの1リクエスト4.5MB制限を回避するため）
+      const uploadError = await prepareUploads(formData);
+      if (uploadError) {
+        setUploadLabel(null);
+        setError(uploadError);
+        return;
+      }
       const result = await updateTool(tool.id, formData);
       if (result?.error) setError(result.error);
     });
@@ -617,6 +690,21 @@ export default function EditToolClient({
               </p>
             )}
           </Field>
+
+          {uploadLabel && (
+            <div className="rounded-lg border border-border bg-surface p-3.5">
+              <div className="mb-2 flex items-center justify-between text-[12px]">
+                <span className="text-text-secondary">{uploadLabel}</span>
+                <span className="font-mono text-text-muted">{uploadPercent}%</span>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-surface-raised">
+                <div
+                  className="h-full rounded-full bg-accent-signal transition-[width] duration-200"
+                  style={{ width: `${uploadPercent}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"

@@ -81,7 +81,14 @@
   "header": {
     "searchPlaceholder": "搜尋工具...例如：發票 自動化",
     "searchExamplePrefix": "搜尋工具... 例如：",
-    "searchExamples": ["發票", "旅行", "影片剪輯", "遊戲", "習慣", "設計"],
+    "searchExamples": [
+      "發票",
+      "旅行",
+      "影片剪輯",
+      "遊戲",
+      "習慣",
+      "設計"
+    ],
     "searchAriaLabel": "搜尋工具",
     "searchButtonAriaLabel": "搜尋",
     "browse": "探索",
@@ -128,7 +135,14 @@
     "heroPrefix": "你的",
     "heroHighlight": "想法",
     "heroConnector": "，",
-    "heroRepertoire": ["能派上用場。", "化為價值。", "改變工作的方式。", "點燃期待。", "走向世界。", "改變世界。"],
+    "heroRepertoire": [
+      "能派上用場。",
+      "化為價值。",
+      "改變工作的方式。",
+      "點燃期待。",
+      "走向世界。",
+      "改變世界。"
+    ],
     "heroSubcopy": "把你用 AI 打造的工具，免費或付費公開販售。",
     "ctaPublish": "上架工具",
     "ctaBrowse": "瀏覽市集",
@@ -750,7 +764,11 @@
     "publishing": "上架處理中…",
     "saveDraft": "儲存草稿",
     "savingDraft": "儲存中…",
-    "draftSaved": "已於 {time} 儲存草稿，隨時可以在會員中心繼續編輯。"
+    "draftSaved": "已於 {time} 儲存草稿，隨時可以在會員中心繼續編輯。",
+    "uploadingFile": "正在上傳工具檔案…",
+    "uploadingThumbnail": "正在上傳縮圖…",
+    "uploadingGallery": "正在上傳介紹圖片…（{current}/{total}）",
+    "errorSessionExpired": "登入已逾時，請重新登入。"
   },
   "categories": {
     "automation": "自動化與工作流程",

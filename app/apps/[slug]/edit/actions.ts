@@ -4,41 +4,18 @@ import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE } from "@/lib/mock-data";
+import { MAX_TOOL_FILE_SIZE } from "@/lib/mock-data";
 import { translateAndSaveTool } from "@/lib/translate-tool";
-import { reviewToolSubmission } from "@/lib/ai/review-tool";
 import { notify, notifyAdmins } from "@/lib/notifications/create";
 import {
-  toolAutoRejectedRisk,
   toolEditTriggeredReview,
   adminNewPendingReview,
-  adminHighRiskFlagged,
 } from "@/lib/notifications/content";
 
 export type EditActionResult = { error: string } | { error: null };
 
-// app/submit/actions.ts と全く同じ命名規則にする
-// （既存ファイルと同じ author_id/tool_id/ファイル名 の構造を崩さないため）
-function sanitizeFileName(name: string): string {
-  const dotIndex = name.lastIndexOf(".");
-  const hasExt = dotIndex > 0 && dotIndex < name.length - 1;
-  const base = hasExt ? name.slice(0, dotIndex) : name;
-  const ext = hasExt ? name.slice(dotIndex + 1).replace(/[^a-zA-Z0-9]/g, "").toLowerCase() : "";
-
-  const safeBase =
-    base
-      .normalize("NFKD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9_-]+/g, "_")
-      .replace(/_+/g, "_")
-      .replace(/(^_|_$)/g, "")
-      .slice(0, 80) || "file";
-
-  return ext ? `${safeBase}.${ext}` : safeBase;
-}
-
 const MAX_FILE_SIZE = MAX_TOOL_FILE_SIZE;
-const MAX_THUMBNAIL_SIZE = MAX_THUMBNAIL_FILE_SIZE;
+
 const MAX_GALLERY_IMAGES = 5;
 
 /**
@@ -47,42 +24,15 @@ const MAX_GALLERY_IMAGES = 5;
  * app/submit/actions.ts の同名関数と全く同じロジック
  * （出品時と編集時でファイルの保存先の考え方を揃えるため）。
  */
-async function processGalleryImages(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  formData: FormData,
-  userId: string,
-  toolId: string
-): Promise<{ urls: string[]; error?: string }> {
-  const t = await getTranslations("errors");
+function processGalleryImages(
+  formData: FormData
+): { urls: string[]; error?: string } {
   const existingRaw = String(formData.get("existingGalleryUrls") || "");
   const existing = existingRaw ? existingRaw.split(",").filter(Boolean) : [];
 
-  const newFiles = formData
-    .getAll("galleryImages")
-    .filter((f): f is File => f instanceof File && f.size > 0);
-
-  for (const file of newFiles) {
-    if (file.size > MAX_THUMBNAIL_SIZE) {
-      return { urls: existing, error: t("galleryImageTooLarge", { name: file.name }) };
-    }
-  }
-
-  const remaining = Math.max(0, MAX_GALLERY_IMAGES - existing.length);
-  const uploadedUrls: string[] = [];
-
-  for (const file of newFiles.slice(0, remaining)) {
-    const key = `${userId}/${toolId}/gallery-${crypto.randomUUID().slice(0, 8)}-${sanitizeFileName(file.name)}`;
-    const { error: uploadError } = await supabase.storage
-      .from("tool-images")
-      .upload(key, file, { upsert: true });
-
-    if (uploadError) {
-      return { urls: existing, error: t("galleryUploadFailed", { message: uploadError.message }) };
-    }
-
-    const { data: publicUrlData } = supabase.storage.from("tool-images").getPublicUrl(key);
-    uploadedUrls.push(publicUrlData.publicUrl);
-  }
+  // 新規分はブラウザ側で既にアップロード済みなので、そのURLを受け取るだけ
+  const uploadedRaw = String(formData.get("uploadedGalleryUrls") || "");
+  const uploadedUrls = uploadedRaw ? uploadedRaw.split(",").filter(Boolean) : [];
 
   return { urls: [...existing, ...uploadedUrls].slice(0, MAX_GALLERY_IMAGES) };
 }
@@ -131,11 +81,10 @@ export async function updateTool(
   const platforms = platformsRaw ? platformsRaw.split(",").filter(Boolean) : [];
   const minOsVersion = String(formData.get("minOsVersion") || "").trim() || null;
   const demoUrl = String(formData.get("demoUrl") || "").trim() || null;
-  const file = formData.get("file");
-  const uploadedFile = file instanceof File && file.size > 0 ? file : null;
-  const thumbnail = formData.get("thumbnail");
-  const uploadedThumbnail =
-    thumbnail instanceof File && thumbnail.size > 0 ? thumbnail : null;
+  // ファイル本体はブラウザから直接Supabaseへアップロード済み（出品時と同じ理由）
+  const uploadedFileKey = String(formData.get("uploadedFileKey") || "").trim() || null;
+  const uploadedFileSize = Number(formData.get("uploadedFileSize") || 0) || null;
+  const uploadedThumbnailUrl = String(formData.get("uploadedThumbnailUrl") || "").trim() || null;
 
   if (!name || !tagline || !description || categoriesList.length === 0) {
     return { error: t("requiredFieldsMissing") };
@@ -164,88 +113,43 @@ export async function updateTool(
   if (existing.runtime === "cloud" && !demoUrl) {
     return { error: t("demoUrlRequiredForCloud") };
   }
-  if (uploadedFile && uploadedFile.size > MAX_FILE_SIZE) {
+  if (uploadedFileSize && uploadedFileSize > MAX_FILE_SIZE) {
     return { error: t("fileSizeLimit300mb") };
-  }
-  if (uploadedThumbnail && uploadedThumbnail.size > MAX_THUMBNAIL_SIZE) {
-    return { error: t("thumbnailSizeLimit10mb") };
   }
 
   let fileKey = existing.file_key;
   let thumbnailUrl = existing.thumbnail_url;
 
-  // 新しいファイルが指定された場合だけ差し替える。
-  // upsert:true にしているのは、編集は既存の枠に上書きする操作であり、
-  // 出品時（常に新規のtool_idなので衝突しない）とは事情が違うため。
-  if (existing.runtime === "local" && uploadedFile) {
-    const newKey = `${user.id}/${toolId}/${sanitizeFileName(uploadedFile.name)}`;
-    const { error: uploadError } = await supabase.storage
-      .from("tool-files")
-      .upload(newKey, uploadedFile, { upsert: true });
-
-    if (uploadError) {
-      return { error: t("fileUploadFailed", { message: uploadError.message }) };
+  // 新しいファイルが指定された場合だけ差し替える（ブラウザ側でアップロード済み）
+  if (existing.runtime === "local" && uploadedFileKey) {
+    if (!uploadedFileKey.startsWith(`${user.id}/`)) {
+      return { error: t("fileUploadFailed", { message: "invalid path" }) };
     }
-    fileKey = newKey;
+    fileKey = uploadedFileKey;
   }
 
-  if (uploadedThumbnail) {
-    const newThumbKey = `${user.id}/${toolId}/${sanitizeFileName(uploadedThumbnail.name)}`;
-    const { error: thumbUploadError } = await supabase.storage
-      .from("tool-images")
-      .upload(newThumbKey, uploadedThumbnail, { upsert: true });
-
-    if (thumbUploadError) {
-      return {
-        error: t("thumbnailUploadFailed", { message: thumbUploadError.message }),
-      };
-    }
-    const { data: publicUrlData } = supabase.storage
-      .from("tool-images")
-      .getPublicUrl(newThumbKey);
-    thumbnailUrl = publicUrlData.publicUrl;
+  if (uploadedThumbnailUrl) {
+    thumbnailUrl = uploadedThumbnailUrl;
   }
 
-  const galleryResult = await processGalleryImages(supabase, formData, user.id, toolId);
+  const galleryResult = processGalleryImages(formData);
   if (galleryResult.error) {
     return { error: galleryResult.error };
   }
 
   // 公開中のツールが、詐欺的な差し替え（値上げ・サムネイル差し替え・
-  // ファイル差し替え）で再審査を回避できてしまわないよう、これらの変更が
-  // あった場合は、出品時と同じAI審査をもう一度通し、一時的に「審査待ち」に戻す。
+  // ファイル差し替え）でこっそり中身を変えられてしまわないよう、これらの変更が
+  // あった場合は一時的に「審査待ち」に戻し、管理者の再確認を必須にする。
   // 説明文の修正など、それ以外の変更では今まで通り即座に反映される。
+  // （AI審査は現在停止中のため、判断は管理者の目視確認に委ねている）
   const priceIncreased = price > existing.price;
   const needsReReview =
     existing.status === "published" &&
-    (priceIncreased || Boolean(uploadedThumbnail) || Boolean(uploadedFile));
+    (priceIncreased || Boolean(uploadedThumbnailUrl) || Boolean(uploadedFileKey));
 
-  let nextStatus: string | undefined;
-  let reviewSummary: string | undefined;
-  let reviewRisk: string | undefined;
+  const nextStatus: string | undefined = needsReReview ? "pending_review" : undefined;
+
   if (needsReReview) {
-    const thumbnailBufferForReview = uploadedThumbnail
-      ? Buffer.from(await uploadedThumbnail.arrayBuffer())
-      : null;
-    const fileBufferForReview = uploadedFile
-      ? Buffer.from(await uploadedFile.arrayBuffer())
-      : null;
-
-    const review = await reviewToolSubmission({
-      toolName: name,
-      tagline,
-      description,
-      price,
-      fileBuffer: fileBufferForReview,
-      fileName: uploadedFile?.name ?? null,
-      thumbnailBuffer: thumbnailBufferForReview,
-      thumbnailMediaType: uploadedThumbnail?.type ?? null,
-    });
-
-    nextStatus = review.risk === "high" ? "rejected" : "pending_review";
-    reviewSummary = review.summary;
-    reviewRisk = review.risk;
-
     after(async () => {
       const { data: authorProfile } = await supabase
         .from("profiles")
@@ -255,16 +159,8 @@ export async function updateTool(
       const authorName =
         authorProfile?.display_name || authorProfile?.handle || "出品者";
 
-      if (nextStatus === "rejected") {
-        await notify(user.id, "tool_auto_rejected_risk", toolAutoRejectedRisk(name, review.summary));
-        await notifyAdmins(
-          "admin_high_risk_flagged",
-          adminHighRiskFlagged(name, authorName, review.summary)
-        );
-      } else {
-        await notify(user.id, "tool_edit_triggered_review", toolEditTriggeredReview(name));
-        await notifyAdmins("admin_new_pending_review", adminNewPendingReview(name, authorName));
-      }
+      await notify(user.id, "tool_edit_triggered_review", toolEditTriggeredReview(name));
+      await notifyAdmins("admin_new_pending_review", adminNewPendingReview(name, authorName));
     });
   }
 
@@ -282,15 +178,15 @@ export async function updateTool(
       min_os_version: minOsVersion,
       demo_url: demoUrl,
       file_key: fileKey,
-      file_size_bytes: uploadedFile ? uploadedFile.size : undefined,
+      file_size_bytes: uploadedFileSize ?? undefined,
       thumbnail_url: thumbnailUrl,
       gallery_urls: galleryResult.urls,
       ...(nextStatus
         ? {
             status: nextStatus,
-            ai_review_summary: reviewSummary ?? null,
-            ai_review_risk: reviewRisk ?? null,
-            rejection_reason: nextStatus === "rejected" ? (reviewSummary ?? null) : null,
+            ai_review_summary: null,
+            ai_review_risk: null,
+            rejection_reason: null,
           }
         : {}),
     })
