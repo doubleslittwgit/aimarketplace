@@ -183,7 +183,8 @@
     "sortPriceAsc": "価格が低い順",
     "sortPriceDesc": "価格が高い順",
     "emptyTitle": "該当するツールが見つかりませんでした",
-    "emptyHint": "キーワードやカテゴリを変えて、もう一度お試しください"
+    "emptyHint": "キーワードやカテゴリを変えて、もう一度お試しください",
+    "freeOnly": "無料のみ"
   },
   "aiSearch": {
     "title": "AIに相談して探す",
@@ -280,7 +281,9 @@
       "installs": "インストール数",
       "updatedAt": "最終更新",
       "fileSize": "必要容量",
-      "saleEndsAt": "セール終了まで: {date}"
+      "saleEndsAt": "セール終了まで: {date}",
+      "remixAllowed": "リミックス可",
+      "remixAllowedHint": "このツールは、改造・再配布が許可されています。"
     },
     "purchaseButton": {
       "ownerNotice": "あなたが出品したツールです",
@@ -342,7 +345,9 @@
       "purchaseToReview": "購入すると、このツールのレビューを書けるようになります。",
       "anonymous": "匿名",
       "empty": "まだレビューはありません。"
-    }
+    },
+    "versionHistory": "更新履歴",
+    "noVersionHistory": "更新履歴はまだありません。"
   },
   "mfa": {
     "title": "二段階認証",
@@ -789,7 +794,15 @@
     "salePriceLabel": "セール価格",
     "saleEndsAtLabel": "セール終了日時",
     "saleHint": "終了日時を過ぎると、自動的に通常価格に戻ります。",
-    "errorUnsupportedFileType": "この形式のファイルはアップロードできません。ZIPなどの配布形式か、対応するプラグイン形式を選んでください。"
+    "errorUnsupportedFileType": "この形式のファイルはアップロードできません。ZIPなどの配布形式か、対応するプラグイン形式を選んでください。",
+    "remixLabel": "リミックス許可（任意）",
+    "remixEnable": "改造・再配布を許可する",
+    "remixHint": "購入者が中身を改造し、自分の作品として再配布することを許可します。商品ページに「リミックス可」と表示されます。",
+    "versionLabel": "バージョン情報",
+    "versionNumberLabel": "新しいバージョン番号（例: 1.2.0）",
+    "changelogLabel": "変更内容",
+    "changelogPlaceholder": "何を直したか・追加したかを書いてください（購入者に表示されます）",
+    "versionHint": "ファイルを差し替えたので、更新内容を記録できます。空欄のままでも保存できます。"
   },
   "categories": {
     "automation": "自動化・ワークフロー",

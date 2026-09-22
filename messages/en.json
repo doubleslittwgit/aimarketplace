@@ -183,7 +183,8 @@
     "sortPriceAsc": "Price: low to high",
     "sortPriceDesc": "Price: high to low",
     "emptyTitle": "No matching tools found",
-    "emptyHint": "Try different keywords or categories"
+    "emptyHint": "Try different keywords or categories",
+    "freeOnly": "Free only"
   },
   "aiSearch": {
     "title": "Ask AI to find a tool",
@@ -280,7 +281,9 @@
       "installs": "Installs",
       "updatedAt": "Last updated",
       "fileSize": "File size",
-      "saleEndsAt": "Sale ends: {date}"
+      "saleEndsAt": "Sale ends: {date}",
+      "remixAllowed": "Remixable",
+      "remixAllowedHint": "This tool may be modified and redistributed."
     },
     "purchaseButton": {
       "ownerNotice": "This is your own listing",
@@ -342,7 +345,9 @@
       "purchaseToReview": "Purchase this tool to leave a review.",
       "anonymous": "Anonymous",
       "empty": "No reviews yet."
-    }
+    },
+    "versionHistory": "Changelog",
+    "noVersionHistory": "No update history yet."
   },
   "mfa": {
     "title": "Two-factor authentication",
@@ -789,7 +794,15 @@
     "salePriceLabel": "Sale price",
     "saleEndsAtLabel": "Sale ends at",
     "saleHint": "It automatically reverts to the regular price once this time passes.",
-    "errorUnsupportedFileType": "That file type can't be uploaded. Please choose an archive (like ZIP) or a supported plugin format."
+    "errorUnsupportedFileType": "That file type can't be uploaded. Please choose an archive (like ZIP) or a supported plugin format.",
+    "remixLabel": "Remixing (optional)",
+    "remixEnable": "Allow modification and redistribution",
+    "remixHint": "Lets buyers modify this tool and redistribute it as their own work. A \"Remixable\" badge will appear on the tool page.",
+    "versionLabel": "Version info",
+    "versionNumberLabel": "New version number (e.g. 1.2.0)",
+    "changelogLabel": "What changed",
+    "changelogPlaceholder": "Describe what you fixed or added (shown to buyers)",
+    "versionHint": "You replaced the file, so you can record what changed. Leaving this blank is fine."
   },
   "categories": {
     "automation": "Automation & Workflows",

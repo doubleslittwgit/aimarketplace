@@ -77,6 +77,10 @@ export async function updateTool(
   const category = categoriesList[0] ?? "";
   const hostAppsRaw = String(formData.get("hostApps") || "");
   const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
+  const remixAllowed = formData.get("remixAllowed") === "1";
+  // バージョン履歴（ファイルを差し替えた時だけ、出品者が任意で書き残せる）
+  const newVersion = String(formData.get("newVersion") || "").trim();
+  const changelog = String(formData.get("changelog") || "").trim();
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)));
 
@@ -193,6 +197,7 @@ export async function updateTool(
       category,
       categories: categoriesList,
       host_apps: hostAppsList,
+      remix_allowed: remixAllowed,
       price,
       sale_price: salePrice,
       sale_ends_at: saleEndsAt,
@@ -216,6 +221,21 @@ export async function updateTool(
 
   if (updateError) {
     return { error: t("updateFailed", { message: updateError.message }) };
+  }
+
+  // バージョン履歴を残す。ファイルを差し替えた時に、出品者が任意で書いたものだけ。
+  // 「最終更新日だけ見えて中身が分からない」状態を避けるための記録なので、
+  // 変更内容が書かれていない場合は履歴として残さない。
+  if (uploadedFileKey && newVersion && changelog) {
+    const { error: versionError } = await supabase.from("tool_versions").insert({
+      tool_id: toolId,
+      version: newVersion,
+      changelog,
+    });
+    if (versionError) {
+      // 履歴が残せなくても、更新自体は成立しているのでエラーにはしない
+      console.error("[updateTool] バージョン履歴の保存に失敗:", versionError.message);
+    }
   }
 
   // 公開済みのツールを編集した場合、既存の翻訳キャッシュは古い内容のままなので

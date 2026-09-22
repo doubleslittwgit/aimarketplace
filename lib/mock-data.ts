@@ -24,6 +24,8 @@ export type Tool = {
   /** 期間限定のセール価格（任意）。lib/sale-price.tsで実効価格を計算する */
   salePrice?: number | null;
   saleEndsAt?: string | null;
+  /** 改造・再配布を許可しているか */
+  remixAllowed?: boolean;
 };
 
 // 出品フォームの上限（サーバー側 app/submit/actions.ts のチェックと必ず揃えること）

@@ -799,6 +799,25 @@ export default function SubmitClient({
                 />
               </Field>
 
+              <Field label={t("remixLabel")}>
+                <label className="flex cursor-pointer items-start gap-2.5">
+                  <input
+                    type="checkbox"
+                    name="remixAllowed"
+                    value="1"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-border"
+                  />
+                  <span>
+                    <span className="block text-[13px] text-text-secondary">
+                      {t("remixEnable")}
+                    </span>
+                    <span className="mt-0.5 block text-[12px] text-text-dim">
+                      {t("remixHint")}
+                    </span>
+                  </span>
+                </label>
+              </Field>
+
               {/* 対応環境 */}
               {runtime === "local" ? (
                 <Field label={t("supportedOs")} required>

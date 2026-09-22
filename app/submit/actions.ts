@@ -69,6 +69,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   const category = categoriesList[0] ?? "";
   const hostAppsRaw = String(formData.get("hostApps") || "");
   const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
+  const remixAllowed = formData.get("remixAllowed") === "1";
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)));
@@ -210,6 +211,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       category,
       categories: categoriesList,
       host_apps: hostAppsList,
+      remix_allowed: remixAllowed,
       price,
       runtime,
       platforms,
@@ -287,6 +289,7 @@ export async function saveDraft(
   const category = categoriesList[0] ?? "";
   const hostAppsRaw = String(formData.get("hostApps") || "");
   const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
+  const remixAllowed = formData.get("remixAllowed") === "1";
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)) || 0);
@@ -371,6 +374,7 @@ export async function saveDraft(
       category,
       categories: categoriesList,
       host_apps: hostAppsList,
+      remix_allowed: remixAllowed,
       price,
       runtime,
       platforms,

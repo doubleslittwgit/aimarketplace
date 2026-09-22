@@ -183,7 +183,8 @@
     "sortPriceAsc": "價格由低到高",
     "sortPriceDesc": "價格由高到低",
     "emptyTitle": "找不到符合條件的工具",
-    "emptyHint": "請試著更換關鍵字或分類再試一次"
+    "emptyHint": "請試著更換關鍵字或分類再試一次",
+    "freeOnly": "只看免費"
   },
   "aiSearch": {
     "title": "問AI找工具",
@@ -280,7 +281,9 @@
       "installs": "安裝次數",
       "updatedAt": "最後更新",
       "fileSize": "所需容量",
-      "saleEndsAt": "促銷截止：{date}"
+      "saleEndsAt": "促銷截止：{date}",
+      "remixAllowed": "可二次創作",
+      "remixAllowedHint": "這個工具允許改造與再發布。"
     },
     "purchaseButton": {
       "ownerNotice": "這是您上架的工具",
@@ -342,7 +345,9 @@
       "purchaseToReview": "購買後即可為這個工具留下評論。",
       "anonymous": "匿名用戶",
       "empty": "目前還沒有評論。"
-    }
+    },
+    "versionHistory": "更新紀錄",
+    "noVersionHistory": "目前還沒有更新紀錄。"
   },
   "mfa": {
     "title": "雙重驗證",
@@ -789,7 +794,15 @@
     "salePriceLabel": "促銷價格",
     "saleEndsAtLabel": "促銷結束時間",
     "saleHint": "超過結束時間後，會自動恢復為原價。",
-    "errorUnsupportedFileType": "無法上傳此格式的檔案。請選擇 ZIP 等發布格式，或支援的外掛格式。"
+    "errorUnsupportedFileType": "無法上傳此格式的檔案。請選擇 ZIP 等發布格式，或支援的外掛格式。",
+    "remixLabel": "允許二次創作（選填）",
+    "remixEnable": "允許改造與再發布",
+    "remixHint": "允許購買者修改內容，並以自己的作品再次發布。商品頁面會顯示「可二次創作」。",
+    "versionLabel": "版本資訊",
+    "versionNumberLabel": "新版本號（例如：1.2.0）",
+    "changelogLabel": "更新內容",
+    "changelogPlaceholder": "請說明修正或新增了什麼（會顯示給購買者）",
+    "versionHint": "由於您更換了檔案，可以記錄本次更新內容。留空也可以儲存。"
   },
   "categories": {
     "automation": "自動化與工作流程",

@@ -35,6 +35,7 @@ export default function BrowseClient({
     setActiveCategory(initialCategory);
   }
   const [sort, setSort] = useState<SortKey>("new");
+  const [freeOnly, setFreeOnly] = useState(false);
 
   const filtered = useMemo(() => {
     let result = initialTools.filter((t) => {
@@ -45,7 +46,9 @@ export default function BrowseClient({
         t.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase()));
       const matchesCategory =
         activeCategory === ALL_CATEGORIES_VALUE || t.categories.includes(activeCategory);
-      return matchesQuery && matchesCategory;
+      // セール中かどうかに関わらず、通常価格が0のものだけを「無料」とする
+      const matchesFree = !freeOnly || t.price === 0;
+      return matchesQuery && matchesCategory && matchesFree;
     });
 
     switch (sort) {
@@ -64,7 +67,7 @@ export default function BrowseClient({
         );
     }
     return result;
-  }, [initialTools, query, activeCategory, sort]);
+  }, [initialTools, query, activeCategory, sort, freeOnly]);
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">
@@ -115,6 +118,19 @@ export default function BrowseClient({
             />
           ))}
         </div>
+
+        {/* 無料のみ */}
+        <button
+          type="button"
+          onClick={() => setFreeOnly((v) => !v)}
+          className={`shrink-0 rounded-lg border px-3 py-2 text-[13px] transition ${
+            freeOnly
+              ? "border-accent-success/40 bg-accent-success/10 text-accent-success"
+              : "border-border bg-surface text-text-secondary hover:border-border-strong"
+          }`}
+        >
+          {tBrowse("freeOnly")}
+        </button>
 
         {/* Sort */}
         <select

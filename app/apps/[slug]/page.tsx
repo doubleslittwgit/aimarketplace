@@ -67,6 +67,7 @@ async function loadTool(
       thumbnailUrl: row.thumbnail_url || null,
       salePrice: row.sale_price ?? null,
       saleEndsAt: row.sale_ends_at ?? null,
+      remixAllowed: row.remix_allowed ?? false,
       galleryUrls: row.gallery_urls || [],
       fileSizeBytes: row.file_size_bytes ?? null,
     };
@@ -159,6 +160,8 @@ export default async function ToolDetailPage({
 }) {
   const { slug } = await params;
   const locale = (await getLocale()) as Locale;
+  const intlLocale =
+    ({ ja: "ja-JP", zh: "zh-TW", en: "en-US" } as Record<string, string>)[locale] ?? "ja-JP";
   const result = await loadTool(slug, locale);
 
   if (!result) notFound();
@@ -177,8 +180,13 @@ export default async function ToolDetailPage({
   // 以下の3つは互いに依存しないので同時に問い合わせる
   // （DBが東京リージョンにあり、1回の往復にも時間がかかるため、
   //  直列にすると表示速度に直結する）。
-  const [{ data: purchase }, { data: like }, { data: reviewRows }, { data: questionRows }] =
-    await Promise.all([
+  const [
+    { data: purchase },
+    { data: like },
+    { data: reviewRows },
+    { data: questionRows },
+    { data: versionRows },
+  ] = await Promise.all([
     user && !isDemo
       ? supabase
           .from("purchases")
@@ -212,6 +220,15 @@ export default async function ToolDetailPage({
           .select("*, profiles:asker_id(display_name, handle, avatar_url)")
           .eq("tool_id", tool.id)
           .order("created_at", { ascending: false })
+      : Promise.resolve({ data: null }),
+    // 更新履歴（公開中のツールは誰でも見られる。購入判断の材料になるため）
+    !isDemo
+      ? supabase
+          .from("tool_versions")
+          .select("id, version, changelog, created_at")
+          .eq("tool_id", tool.id)
+          .order("created_at", { ascending: false })
+          .limit(20)
       : Promise.resolve({ data: null }),
   ]);
 
@@ -378,6 +395,33 @@ export default async function ToolDetailPage({
                   currentUserId={user?.id ?? null}
                   isPurchased={isPurchased}
                 />
+              )}
+
+              {/* 更新履歴。「最終更新日だけ見えて中身が分からない」状態を避け、
+                  買う前に「今も手入れされているツールか」が分かるようにする */}
+              {!isDemo && (versionRows ?? []).length > 0 && (
+                <div className="mt-8">
+                  <h2 className="mb-4 font-display text-lg font-semibold text-text-primary">
+                    {t("versionHistory")}
+                  </h2>
+                  <div className="space-y-3">
+                    {(versionRows ?? []).map((v) => (
+                      <div key={v.id} className="rounded-xl border border-border bg-surface p-4">
+                        <div className="flex items-baseline gap-2.5">
+                          <span className="rounded-md bg-accent-ai-dim px-2 py-0.5 font-mono text-[12px] font-medium text-accent-ai">
+                            v{v.version}
+                          </span>
+                          <span className="font-mono text-[11px] text-text-dim">
+                            {new Date(v.created_at).toLocaleDateString(intlLocale)}
+                          </span>
+                        </div>
+                        <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-text-secondary">
+                          {v.changelog}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
 
               {!isDemo && (

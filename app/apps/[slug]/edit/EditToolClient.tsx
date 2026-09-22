@@ -24,6 +24,7 @@ type Tool = {
   price: number;
   sale_price: number | null;
   sale_ends_at: string | null;
+  remix_allowed: boolean;
   runtime: "cloud" | "local";
   platforms: string[] | null;
   min_os_version: string | null;
@@ -68,6 +69,9 @@ export default function EditToolClient({
   const [uploadPercent, setUploadPercent] = useState(0);
   const supabaseBrowser = useMemo(() => createBrowserSupabase(), []);
   const [selectedHostApps, setSelectedHostApps] = useState<string[]>(tool.host_apps ?? []);
+  const [remixAllowed, setRemixAllowed] = useState(tool.remix_allowed);
+  // ファイルを差し替えた時だけ、バージョン情報の入力欄を出す
+  const [fileReplaced, setFileReplaced] = useState(false);
   function toggleHostApp(slug: string) {
     setSelectedHostApps((prev) =>
       prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug]
@@ -118,6 +122,7 @@ export default function EditToolClient({
       return;
     }
     setError(null);
+    setFileReplaced(true);
     setFileName(file.name);
     setFileSize(file.size);
     if (fileInputRef.current) {
@@ -635,6 +640,49 @@ export default function EditToolClient({
             </div>
             <input type="hidden" name="hostApps" value={selectedHostApps.join(",")} readOnly />
           </Field>
+
+          <Field label={tSubmit("remixLabel")}>
+            <label className="flex cursor-pointer items-start gap-2.5">
+              <input
+                type="checkbox"
+                name="remixAllowed"
+                value="1"
+                checked={remixAllowed}
+                onChange={(e) => setRemixAllowed(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-border"
+              />
+              <span>
+                <span className="block text-[13px] text-text-secondary">
+                  {tSubmit("remixEnable")}
+                </span>
+                <span className="mt-0.5 block text-[12px] text-text-dim">
+                  {tSubmit("remixHint")}
+                </span>
+              </span>
+            </label>
+          </Field>
+
+          {fileReplaced && (
+            <Field label={tSubmit("versionLabel")}>
+              <p className="mb-2 text-[12px] text-text-dim">{tSubmit("versionHint")}</p>
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  name="newVersion"
+                  placeholder={tSubmit("versionNumberLabel")}
+                  maxLength={20}
+                  className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
+                />
+                <textarea
+                  name="changelog"
+                  rows={3}
+                  maxLength={1000}
+                  placeholder={tSubmit("changelogPlaceholder")}
+                  className="w-full resize-none rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
+                />
+              </div>
+            </Field>
+          )}
 
           {/* 対応OS（ローカル実行のみ） */}
           {tool.runtime === "local" && (

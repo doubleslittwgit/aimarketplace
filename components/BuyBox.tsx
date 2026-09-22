@@ -98,6 +98,20 @@ export default function BuyBox({
           <Row label={t("fileSize")} value={formatFileSize(tool.fileSizeBytes)!} />
         )}
       </dl>
+
+      {tool.remixAllowed && (
+        <div className="mt-4 rounded-lg border border-accent-success/30 bg-accent-success/5 px-3 py-2.5">
+          <p className="flex items-center gap-1.5 text-[12px] font-medium text-accent-success">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />
+            </svg>
+            {t("remixAllowed")}
+          </p>
+          <p className="mt-1 text-[11px] leading-relaxed text-text-muted">
+            {t("remixAllowedHint")}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
