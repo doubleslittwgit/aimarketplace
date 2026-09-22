@@ -124,9 +124,14 @@ export default async function AnalyticsPage() {
           </div>
 
           <section className="mb-8 rounded-xl border border-border bg-surface p-5">
-            <h2 className="mb-4 text-[13px] font-medium text-text-secondary">
-              {t("earningsChartTitle")}
-            </h2>
+            <div className="mb-4 flex items-baseline justify-between gap-3">
+              <h2 className="text-[13px] font-medium text-text-secondary">
+                {t("earningsChartTitle")}
+              </h2>
+              <span className="font-display text-[15px] font-semibold text-text-primary">
+                {formatPrice(last30DaysEarnings)}
+              </span>
+            </div>
             {sales.length === 0 ? (
               <p className="py-8 text-center text-[13px] text-text-muted">{t("noEarningsYet")}</p>
             ) : (
