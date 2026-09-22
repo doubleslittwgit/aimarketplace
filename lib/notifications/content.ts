@@ -35,7 +35,8 @@ export type NotificationType =
   | "new_post_comment"
   | "new_question"
   | "question_answered"
-  | "new_request_link";
+  | "new_request_link"
+  | "liked_tool_on_sale";
 
 // ------------------------------------------------------------
 // 通知設定でオフにできる種類。
@@ -51,6 +52,7 @@ export const OPTIONAL_NOTIFICATION_TYPES = [
   "new_question",
   "question_answered",
   "new_request_link",
+  "liked_tool_on_sale",
 ] as const;
 
 export type OptionalNotificationType = (typeof OPTIONAL_NOTIFICATION_TYPES)[number];
@@ -323,5 +325,19 @@ export function newRequestLink(
     title: tNotif(locale, "newRequestLink.title"),
     body: tNotif(locale, "newRequestLink.body", { requestTitle, toolName }),
     linkUrl: `${SITE_URL}/requests#${requestId}`,
+  };
+}
+
+export function likedToolOnSale(
+  toolName: string,
+  slug: string,
+  oldPrice: string,
+  newPrice: string,
+  locale: SupportedLocale
+): NotificationContent {
+  return {
+    title: tNotif(locale, "likedToolOnSale.title", { toolName }),
+    body: tNotif(locale, "likedToolOnSale.body", { oldPrice, newPrice }),
+    linkUrl: `${SITE_URL}/apps/${slug}`,
   };
 }

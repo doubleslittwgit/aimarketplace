@@ -4,12 +4,13 @@ import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { MAX_TOOL_FILE_SIZE } from "@/lib/mock-data";
+import { MAX_TOOL_FILE_SIZE, formatPrice } from "@/lib/mock-data";
 import { translateAndSaveTool } from "@/lib/translate-tool";
 import { notify, notifyAdmins } from "@/lib/notifications/create";
 import {
   toolEditTriggeredReview,
   adminNewPendingReview,
+  likedToolOnSale,
 } from "@/lib/notifications/content";
 
 export type EditActionResult = { error: string } | { error: null };
@@ -56,7 +57,7 @@ export async function updateTool(
   // 「他人のツールを編集しようとした」という分かりやすいエラーを返せる。
   const { data: existing, error: fetchError } = await supabase
     .from("tools")
-    .select("id, slug, author_id, runtime, file_key, thumbnail_url, status, price")
+    .select("id, slug, author_id, runtime, file_key, thumbnail_url, status, price, sale_price")
     .eq("id", toolId)
     .maybeSingle();
 
@@ -216,6 +217,40 @@ export async function updateTool(
   // 更新しておく（下書き・審査待ちの間は、まだ誰にも見えていないので不要）。
   if (existing.status === "published" && !needsReReview) {
     after(() => translateAndSaveTool(toolId, name, tagline, description));
+  }
+
+  // 「今セールが始まった」時だけ、このツールをお気に入りしている人に知らせる。
+  // 既にセール中だったものの価格を微調整した場合や、そもそも公開されていない
+  // ツールでは通知しない（前者は何度も通知が飛んでしまい、後者は
+  // まだ誰も見られない状態のため）。
+  const saleJustStarted =
+    existing.status === "published" &&
+    !needsReReview &&
+    salePrice != null &&
+    existing.sale_price == null;
+
+  if (saleJustStarted) {
+    const confirmedSalePrice = salePrice as number;
+    after(async () => {
+      const { data: likers } = await supabase
+        .from("tool_likes")
+        .select("user_id")
+        .eq("tool_id", toolId);
+
+      // 出品者本人がお気に入りしていても、自分には送らない
+      const targets = (likers ?? []).filter((l) => l.user_id !== user.id);
+      for (const liker of targets) {
+        await notify(liker.user_id, "liked_tool_on_sale", (locale) =>
+          likedToolOnSale(
+            name,
+            existing.slug,
+            formatPrice(price),
+            formatPrice(confirmedSalePrice),
+            locale
+          )
+        );
+      }
+    });
   }
 
   redirect(`/apps/${existing.slug}`);

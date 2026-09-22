@@ -849,6 +849,10 @@
       "new_request_link": {
         "label": "Request answered",
         "description": "When a tool is linked to your request"
+      },
+      "liked_tool_on_sale": {
+        "label": "Favorited tool on sale",
+        "description": "When a tool you favorited goes on sale"
       }
     }
   },
@@ -914,6 +918,10 @@
     "newRequestLink": {
       "title": "A tool answering your request was found",
       "body": "\"{toolName}\" was linked to \"{requestTitle}\"."
+    },
+    "likedToolOnSale": {
+      "title": "\"{toolName}\" is on sale",
+      "body": "Reduced from {oldPrice} to {newPrice}."
     }
   },
   "refundRequest": {

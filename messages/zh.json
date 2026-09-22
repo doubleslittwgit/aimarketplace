@@ -849,6 +849,10 @@
       "new_request_link": {
         "label": "需求獲得回應時",
         "description": "您發布的需求被連結到對應的工具時通知您"
+      },
+      "liked_tool_on_sale": {
+        "label": "關注的工具開始促銷時",
+        "description": "您關注的工具降價時通知您"
       }
     }
   },
@@ -914,6 +918,10 @@
     "newRequestLink": {
       "title": "找到回應您需求的工具了",
       "body": "「{toolName}」已連結至「{requestTitle}」。"
+    },
+    "likedToolOnSale": {
+      "title": "您關注的「{toolName}」正在促銷",
+      "body": "已從 {oldPrice} 降價為 {newPrice}。"
     }
   },
   "refundRequest": {

@@ -849,6 +849,10 @@
       "new_request_link": {
         "label": "リクエストに回答があった時",
         "description": "投稿したリクエストに回答となるツールが紐付けられた時に通知します"
+      },
+      "liked_tool_on_sale": {
+        "label": "お気に入りがセールになった時",
+        "description": "お気に入りしたツールが値下げされた時に通知します"
       }
     }
   },
@@ -914,6 +918,10 @@
     "newRequestLink": {
       "title": "リクエストに回答するツールが見つかりました",
       "body": "「{requestTitle}」に「{toolName}」が紐付けられました。"
+    },
+    "likedToolOnSale": {
+      "title": "気になっていた「{toolName}」がセール中です",
+      "body": "{oldPrice} → {newPrice} に値下げされました。"
     }
   },
   "refundRequest": {
