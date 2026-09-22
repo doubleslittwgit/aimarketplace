@@ -516,7 +516,6 @@
     "totalViews": "累計瀏覽數",
     "totalLikes": "累計喜歡數",
     "totalDownloads": "累計下載數",
-    "last30DaysEarnings": "近30天收入",
     "noEarningsYet": "目前還沒有銷售資料。",
     "perToolBreakdown": "各工具表現",
     "tableName": "工具名稱",
@@ -537,7 +536,8 @@
     "breakdownNote": "以累計 {count} 筆銷售紀錄計算。",
     "rangeDaily": "每日",
     "rangeMonthly": "每月",
-    "rangeYearly": "每年"
+    "rangeYearly": "每年",
+    "thisMonthEarnings": "本月銷售額"
   },
   "dashboard": {
     "title": "會員中心",

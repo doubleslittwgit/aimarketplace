@@ -516,7 +516,6 @@
     "totalViews": "累計閲覧数",
     "totalLikes": "累計いいね",
     "totalDownloads": "累計ダウンロード",
-    "last30DaysEarnings": "直近30日間の売上",
     "noEarningsYet": "まだ売上データがありません。",
     "perToolBreakdown": "ツールごとの実績",
     "tableName": "ツール名",
@@ -537,7 +536,8 @@
     "breakdownNote": "累計 {count} 件の販売実績に基づく金額です。",
     "rangeDaily": "日別",
     "rangeMonthly": "月別",
-    "rangeYearly": "年別"
+    "rangeYearly": "年別",
+    "thisMonthEarnings": "今月の売上"
   },
   "dashboard": {
     "title": "マイページ",

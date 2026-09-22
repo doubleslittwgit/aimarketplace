@@ -516,7 +516,6 @@
     "totalViews": "Total views",
     "totalLikes": "Total likes",
     "totalDownloads": "Total downloads",
-    "last30DaysEarnings": "Last 30 days' earnings",
     "noEarningsYet": "No sales data yet.",
     "perToolBreakdown": "Per-tool breakdown",
     "tableName": "Tool",
@@ -537,7 +536,8 @@
     "breakdownNote": "Based on {count} completed sales.",
     "rangeDaily": "Daily",
     "rangeMonthly": "Monthly",
-    "rangeYearly": "Yearly"
+    "rangeYearly": "Yearly",
+    "thisMonthEarnings": "This month's earnings"
   },
   "dashboard": {
     "title": "Dashboard",

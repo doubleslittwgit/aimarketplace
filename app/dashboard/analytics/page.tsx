@@ -32,7 +32,6 @@ type AllSaleRow = {
 };
 
 const INTL_LOCALE: Record<string, string> = { ja: "ja-JP", zh: "zh-TW", en: "en-US" };
-const DAYS = 30;
 
 export async function generateMetadata() {
   const t = await getTranslations("analytics");
@@ -49,9 +48,12 @@ export default async function AnalyticsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/dashboard/analytics");
 
-  const since = new Date();
-  since.setDate(since.getDate() - (DAYS - 1));
-  since.setHours(0, 0, 0, 0);
+  // 日別グラフは「今月の1日〜末日」で区切る。
+  // 直近30日だと始まりも終わりも月の途中になり、月別・年別タブと
+  // 期間の考え方が揃わないため。
+  const now = new Date();
+  const since = new Date(now.getFullYear(), now.getMonth(), 1);
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
   const [{ data: toolsData }, { data: salesData }, { data: allSalesData }] = await Promise.all([
     supabase
@@ -82,7 +84,7 @@ export default async function AnalyticsPage() {
   const totalViews = tools.reduce((sum, tool) => sum + tool.view_count, 0);
   const totalLikes = tools.reduce((sum, tool) => sum + tool.like_count, 0);
   const totalDownloads = tools.reduce((sum, tool) => sum + tool.install_count, 0);
-  const last30DaysEarnings = sales.reduce((sum, s) => sum + s.seller_earnings, 0);
+  const thisMonthEarnings = sales.reduce((sum, s) => sum + s.seller_earnings, 0);
 
   // 全期間の内訳
   const allSales = (allSalesData ?? []) as AllSaleRow[];
@@ -93,14 +95,16 @@ export default async function AnalyticsPage() {
   // 月別の推移（直近12ヶ月）
   const monthlyMap = new Map<string, number>();
   for (const s of allSales) {
-    const key = s.created_at.slice(0, 7); // YYYY-MM
+    const dt = new Date(s.created_at);
+    const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`;
     monthlyMap.set(key, (monthlyMap.get(key) ?? 0) + s.seller_earnings);
   }
+  // 今年の1月〜12月。「直近12ヶ月」だと始まりと終わりが月の途中になり、
+  // 「どこからどこまでの集計なのか」が分かりにくかったため、暦年で区切る。
+  const currentYear = new Date().getFullYear();
   const monthlyData = Array.from({ length: 12 }, (_, i) => {
-    const d = new Date();
-    d.setDate(1);
-    d.setMonth(d.getMonth() - (11 - i));
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const d = new Date(currentYear, i, 1);
+    const key = `${currentYear}-${String(i + 1).padStart(2, "0")}`;
     const value = monthlyMap.get(key) ?? 0;
     return {
       label: d.toLocaleDateString(INTL_LOCALE[locale] ?? "ja-JP", { month: "short" }),
@@ -111,7 +115,7 @@ export default async function AnalyticsPage() {
   // 年別の推移（売上が発生している年だけ。無ければ今年だけ表示）
   const yearlyMap = new Map<string, number>();
   for (const s of allSales) {
-    const key = s.created_at.slice(0, 4);
+    const key = String(new Date(s.created_at).getFullYear());
     yearlyMap.set(key, (yearlyMap.get(key) ?? 0) + s.seller_earnings);
   }
   const years =
@@ -128,13 +132,16 @@ export default async function AnalyticsPage() {
   // 直近30日分、1日ごとの売上合計を作る（データが無い日も0で埋めて、必ず30本並ぶようにする）
   const earningsByDay = new Map<string, number>();
   for (const s of sales) {
-    const day = s.created_at.slice(0, 10);
+    // created_atはUTCなので、そのまま先頭10文字を切ると
+    // 日本時間の朝9時より前の売上が前日に計上されてしまう。
+    // 表示している暦（ローカル時間）に合わせてから日付キーを作る。
+    const dt = new Date(s.created_at);
+    const day = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
     earningsByDay.set(day, (earningsByDay.get(day) ?? 0) + s.seller_earnings);
   }
-  const chartData = Array.from({ length: DAYS }, (_, i) => {
-    const d = new Date(since);
-    d.setDate(d.getDate() + i);
-    const key = d.toISOString().slice(0, 10);
+  const chartData = Array.from({ length: daysInMonth }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth(), i + 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     const value = earningsByDay.get(key) ?? 0;
     return {
       label: d.toLocaleDateString(INTL_LOCALE[locale] ?? "ja-JP", { month: "numeric", day: "numeric" }),
@@ -177,7 +184,7 @@ export default async function AnalyticsPage() {
             <StatCard label={t("totalViews")} value={formatInstalls(totalViews)} />
             <StatCard label={t("totalLikes")} value={formatInstalls(totalLikes)} accent />
             <StatCard label={t("totalDownloads")} value={formatInstalls(totalDownloads)} />
-            <StatCard label={t("last30DaysEarnings")} value={`¥${last30DaysEarnings.toLocaleString()}`} />
+            <StatCard label={t("thisMonthEarnings")} value={`¥${thisMonthEarnings.toLocaleString()}`} />
           </div>
 
           <EarningsChart
@@ -185,7 +192,7 @@ export default async function AnalyticsPage() {
             monthly={monthlyData}
             yearly={yearlyData}
             totals={{
-              daily: formatPrice(last30DaysEarnings),
+              daily: formatPrice(thisMonthEarnings),
               monthly: formatPrice(netTotal),
               yearly: formatPrice(netTotal),
             }}
