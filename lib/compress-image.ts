@@ -113,6 +113,14 @@ export async function compressImage(
     const blob = await new Promise<Blob | null>((resolve) =>
       canvas.toBlob(resolve, outputMime, quality)
     );
+
+    // デコード済みの画像データを、ガベージコレクションの実行タイミング任せに
+    // せず、ここで明示的に手放す。特に高解像度の写真を連続して処理する場合、
+    // 解放が遅れるとその分だけピークメモリが積み上がってしまうため。
+    img.src = "";
+    canvas.width = 0;
+    canvas.height = 0;
+
     if (!blob) return file;
 
     // 圧縮した結果、元より大きくなってしまった場合は元のファイルを使う
@@ -135,6 +143,9 @@ export async function compressImage(
  * 複数の画像を「同時にではなく1枚ずつ」圧縮する。
  * Promise.allで並列に処理すると、大きな写真を複数同時に扱うことになり
  * モバイル端末のメモリを圧迫しやすいため、あえて直列に処理している。
+ * さらに、1枚ごとに短い間隔を空けることで、ブラウザ側がガベージ
+ * コレクションを実行する猶予を作り、高解像度の写真が連続しても
+ * ピークメモリが積み上がりにくくしている。
  */
 export async function compressImagesSequentially(
   files: File[],
@@ -143,6 +154,7 @@ export async function compressImagesSequentially(
   const results: File[] = [];
   for (const file of files) {
     results.push(await compressImage(file, options));
+    await new Promise((resolve) => setTimeout(resolve, 60));
   }
   return results;
 }
