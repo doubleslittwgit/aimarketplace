@@ -530,7 +530,13 @@
     "backToDashboard": "返回會員中心",
     "salesReportLabel": "年度銷售報表",
     "yearOption": "{year}年",
-    "downloadCsv": "下載 CSV"
+    "downloadCsv": "下載 CSV",
+    "earningsBreakdownTitle": "銷售明細（全期間）",
+    "grossSales": "銷售總額",
+    "platformFee": "平台手續費（20%）",
+    "netEarnings": "您的實收金額",
+    "breakdownNote": "以累計 {count} 筆銷售紀錄計算。",
+    "monthlyChartTitle": "每月銷售趨勢（近12個月）"
   },
   "dashboard": {
     "title": "會員中心",

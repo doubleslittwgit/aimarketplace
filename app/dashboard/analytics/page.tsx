@@ -24,6 +24,13 @@ type SaleRow = {
   created_at: string;
 };
 
+type AllSaleRow = {
+  price_paid: number;
+  platform_fee: number;
+  seller_earnings: number;
+  created_at: string;
+};
+
 const INTL_LOCALE: Record<string, string> = { ja: "ja-JP", zh: "zh-TW", en: "en-US" };
 const DAYS = 30;
 
@@ -46,7 +53,7 @@ export default async function AnalyticsPage() {
   since.setDate(since.getDate() - (DAYS - 1));
   since.setHours(0, 0, 0, 0);
 
-  const [{ data: toolsData }, { data: salesData }] = await Promise.all([
+  const [{ data: toolsData }, { data: salesData }, { data: allSalesData }] = await Promise.all([
     supabase
       .from("tools")
       .select("id, name, slug, view_count, like_count, install_count")
@@ -58,6 +65,15 @@ export default async function AnalyticsPage() {
       .eq("seller_id", user.id)
       .eq("status", "completed")
       .gte("created_at", since.toISOString()),
+    // 内訳表示のため、全期間の売上も取る。
+    // 「直近30日」のグラフだけだと、累計でいくら稼いだのか・
+    // 手数料がいくら引かれているのかが全く分からないため。
+    supabase
+      .from("purchases")
+      .select("price_paid, platform_fee, seller_earnings, created_at")
+      .eq("seller_id", user.id)
+      .eq("status", "completed")
+      .order("created_at", { ascending: true }),
   ]);
 
   const tools = (toolsData ?? []) as ToolRow[];
@@ -67,6 +83,32 @@ export default async function AnalyticsPage() {
   const totalLikes = tools.reduce((sum, tool) => sum + tool.like_count, 0);
   const totalDownloads = tools.reduce((sum, tool) => sum + tool.install_count, 0);
   const last30DaysEarnings = sales.reduce((sum, s) => sum + s.seller_earnings, 0);
+
+  // 全期間の内訳
+  const allSales = (allSalesData ?? []) as AllSaleRow[];
+  const grossTotal = allSales.reduce((sum, s) => sum + s.price_paid, 0);
+  const feeTotal = allSales.reduce((sum, s) => sum + s.platform_fee, 0);
+  const netTotal = allSales.reduce((sum, s) => sum + s.seller_earnings, 0);
+
+  // 月別の推移（直近12ヶ月）
+  const monthlyMap = new Map<string, number>();
+  for (const s of allSales) {
+    const key = s.created_at.slice(0, 7); // YYYY-MM
+    monthlyMap.set(key, (monthlyMap.get(key) ?? 0) + s.seller_earnings);
+  }
+  const monthlyData = Array.from({ length: 12 }, (_, i) => {
+    const d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() - (11 - i));
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const value = monthlyMap.get(key) ?? 0;
+    return {
+      label: d.toLocaleDateString(INTL_LOCALE[locale] ?? "ja-JP", { month: "short" }),
+      value,
+      displayValue: formatPrice(value),
+    };
+  });
+  const hasAnySales = allSales.length > 0;
 
   // 直近30日分、1日ごとの売上合計を作る（データが無い日も0で埋めて、必ず30本並ぶようにする）
   const earningsByDay = new Map<string, number>();
@@ -138,6 +180,45 @@ export default async function AnalyticsPage() {
               <SimpleBarChart data={chartData} />
             )}
           </section>
+
+          {/* 売上の内訳（全期間）。手数料がいくら引かれているか、
+              手元にいくら残っているかを明示する */}
+          {hasAnySales && (
+            <section className="mb-8 rounded-xl border border-border bg-surface p-5">
+              <h2 className="mb-4 text-[13px] font-medium text-text-secondary">
+                {t("earningsBreakdownTitle")}
+              </h2>
+              <dl className="space-y-2.5 text-[13px]">
+                <div className="flex items-center justify-between">
+                  <dt className="text-text-muted">{t("grossSales")}</dt>
+                  <dd className="font-mono text-text-primary">{formatPrice(grossTotal)}</dd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <dt className="text-text-muted">{t("platformFee")}</dt>
+                  <dd className="font-mono text-text-muted">-{formatPrice(feeTotal)}</dd>
+                </div>
+                <div className="flex items-center justify-between border-t border-border pt-2.5">
+                  <dt className="font-medium text-text-primary">{t("netEarnings")}</dt>
+                  <dd className="font-display text-[17px] font-semibold text-accent-signal">
+                    {formatPrice(netTotal)}
+                  </dd>
+                </div>
+              </dl>
+              <p className="mt-3 text-[12px] text-text-dim">
+                {t("breakdownNote", { count: allSales.length })}
+              </p>
+            </section>
+          )}
+
+          {/* 月別の推移（直近12ヶ月）。日別だけだと長期の傾向が見えないため */}
+          {hasAnySales && (
+            <section className="mb-8 rounded-xl border border-border bg-surface p-5">
+              <h2 className="mb-4 text-[13px] font-medium text-text-secondary">
+                {t("monthlyChartTitle")}
+              </h2>
+              <SimpleBarChart data={monthlyData} />
+            </section>
+          )}
 
           <section>
             <h2 className="mb-4 font-display text-lg font-semibold text-text-primary">

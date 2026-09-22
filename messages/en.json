@@ -530,7 +530,13 @@
     "backToDashboard": "Back to dashboard",
     "salesReportLabel": "Annual sales report",
     "yearOption": "{year}",
-    "downloadCsv": "Download CSV"
+    "downloadCsv": "Download CSV",
+    "earningsBreakdownTitle": "Earnings breakdown (all time)",
+    "grossSales": "Gross sales",
+    "platformFee": "Platform fee (20%)",
+    "netEarnings": "Your earnings",
+    "breakdownNote": "Based on {count} completed sales.",
+    "monthlyChartTitle": "Monthly earnings (last 12 months)"
   },
   "dashboard": {
     "title": "Dashboard",
