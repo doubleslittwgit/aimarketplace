@@ -40,6 +40,16 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  // app/favicon.ico があれば自動で配信されるが、Googleの検索結果や
+  // スマホのホーム画面追加など、参照のされ方が経路ごとに違うため、
+  // 解像度違いを明示しておく（icon-512.pngはpublic/配下）。
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: "/icon-512.png",
+  },
   openGraph: {
     type: "website",
     locale: "ja_JP",
@@ -48,12 +58,14 @@ export const metadata: Metadata = {
     title: "BuildBay — AIでつくったツールが集まる港",
     description:
       "AIを活用して開発したツールを、無料でも有料でも公開・販売できるマーケットプレイス。",
+    images: [{ url: "/icon-512.png", width: 512, height: 512, alt: "BuildBay" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "BuildBay — AIでつくったツールが集まる港",
     description:
       "AIを活用して開発したツールを、無料でも有料でも公開・販売できるマーケットプレイス。",
+    images: ["/icon-512.png"],
   },
 };
 
