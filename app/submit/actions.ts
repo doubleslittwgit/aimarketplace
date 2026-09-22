@@ -119,6 +119,8 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   const categoriesRaw = String(formData.get("categories") || "");
   const categoriesList = categoriesRaw ? categoriesRaw.split(",").filter(Boolean) : [];
   const category = categoriesList[0] ?? "";
+  const hostAppsRaw = String(formData.get("hostApps") || "");
+  const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)));
@@ -284,6 +286,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       description,
       category,
       categories: categoriesList,
+      host_apps: hostAppsList,
       price,
       runtime,
       platforms,
@@ -380,6 +383,8 @@ export async function saveDraft(
   const categoriesRaw = String(formData.get("categories") || "");
   const categoriesList = categoriesRaw ? categoriesRaw.split(",").filter(Boolean) : [];
   const category = categoriesList[0] ?? "";
+  const hostAppsRaw = String(formData.get("hostApps") || "");
+  const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)) || 0);
@@ -474,6 +479,7 @@ export async function saveDraft(
       description,
       category,
       categories: categoriesList,
+      host_apps: hostAppsList,
       price,
       runtime,
       platforms,

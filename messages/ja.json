@@ -738,6 +738,8 @@
     "descriptionPlaceholder": "このツールが何を解決するか、どう使うかを説明してください",
     "categoryLabel": "カテゴリ（複数選択可）",
     "categoryRequired": "少なくとも1つ選んでください",
+    "hostAppsLabel": "対応ソフト（任意）",
+    "hostAppsHint": "Blender・After Effects等のプラグイン・拡張機能の場合は選択してください。選ぶと「BuildBay Creative」にも表示されます。",
     "supportedOs": "対応OS",
     "minOsPlaceholder": "例：Windows 10以降 / macOS 12 Monterey以降",
     "minOsHint": "対応OSと最低バージョンを明記してください。購入者が動作確認できずトラブルになるのを防ぎます",

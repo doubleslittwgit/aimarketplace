@@ -123,6 +123,8 @@ export async function updateTool(
   const categoriesRaw = String(formData.get("categories") || "");
   const categoriesList = categoriesRaw ? categoriesRaw.split(",").filter(Boolean) : [];
   const category = categoriesList[0] ?? "";
+  const hostAppsRaw = String(formData.get("hostApps") || "");
+  const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)));
   const platformsRaw = String(formData.get("platforms") || "");
@@ -274,6 +276,7 @@ export async function updateTool(
       description,
       category,
       categories: categoriesList,
+      host_apps: hostAppsList,
       price,
       platforms,
       min_os_version: minOsVersion,

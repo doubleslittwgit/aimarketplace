@@ -738,6 +738,8 @@
     "descriptionPlaceholder": "請說明這個工具能解決什麼問題、如何使用",
     "categoryLabel": "分類（可複選）",
     "categoryRequired": "請至少選擇一個",
+    "hostAppsLabel": "對應軟體（選填）",
+    "hostAppsHint": "若為Blender、After Effects等的外掛／擴充功能，請選擇對應軟體。選擇後會同時顯示於「BuildBay Creative」。",
     "supportedOs": "支援的作業系統",
     "minOsPlaceholder": "例如：Windows 10 以上／macOS 12 Monterey 以上",
     "minOsHint": "請註明支援的作業系統與最低版本，避免買家因無法確認相容性而產生糾紛",

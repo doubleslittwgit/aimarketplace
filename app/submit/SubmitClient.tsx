@@ -4,6 +4,7 @@ import { useState, useTransition, useRef, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
+import { CREATIVE_APPS } from "@/lib/creative-apps";
 import { compressImage, compressImagesSequentially, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
 import { createTool, saveDraft } from "./actions";
 
@@ -74,6 +75,12 @@ export default function SubmitClient({
   function toggleCategory(c: string) {
     setSelectedCategories((prev) =>
       prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
+    );
+  }
+  const [selectedHostApps, setSelectedHostApps] = useState<string[]>([]);
+  function toggleHostApp(slug: string) {
+    setSelectedHostApps((prev) =>
+      prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug]
     );
   }
   const [error, setError] = useState<string | null>(null);
@@ -660,6 +667,32 @@ export default function SubmitClient({
                     {t("categoryRequired")}
                   </p>
                 )}
+              </Field>
+
+              <Field label={t("hostAppsLabel")}>
+                <p className="mb-2 text-[12px] text-text-dim">{t("hostAppsHint")}</p>
+                <div className="flex flex-wrap gap-2">
+                  {CREATIVE_APPS.map((app) => (
+                    <button
+                      key={app.slug}
+                      type="button"
+                      onClick={() => toggleHostApp(app.slug)}
+                      className={`rounded-full border px-3.5 py-1.5 text-[13px] transition ${
+                        selectedHostApps.includes(app.slug)
+                          ? "border-accent-signal/40 bg-accent-signal/10 text-accent-signal"
+                          : "border-border text-text-secondary hover:border-border-strong"
+                      }`}
+                    >
+                      {app.name}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="hidden"
+                  name="hostApps"
+                  value={selectedHostApps.join(",")}
+                  readOnly
+                />
               </Field>
 
               {/* 対応環境 */}

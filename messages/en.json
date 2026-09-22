@@ -738,6 +738,8 @@
     "descriptionPlaceholder": "Explain what problem this tool solves and how to use it",
     "categoryLabel": "Categories (select any that apply)",
     "categoryRequired": "Please choose at least one",
+    "hostAppsLabel": "Host software (optional)",
+    "hostAppsHint": "Select these if this is a plugin/extension for Blender, After Effects, etc. Selecting any will also list it on \"BuildBay Creative\".",
     "supportedOs": "Supported OS",
     "minOsPlaceholder": "e.g. Windows 10+ / macOS 12 Monterey+",
     "minOsHint": "Specify the supported OS and minimum version to avoid compatibility issues for buyers",
