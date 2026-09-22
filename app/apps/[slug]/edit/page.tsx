@@ -3,6 +3,10 @@ import Header from "@/components/Header";
 import EditToolClient from "./EditToolClient";
 import { createClient } from "@/lib/supabase/server";
 
+// 出品ページと同じ理由（大きなファイル＋AI再審査＋複数アップロードが
+// 1回のリクエストで走りうるため）で、実行時間上限を引き上げる。
+export const maxDuration = 60;
+
 export default async function EditToolPage({
   params,
 }: {

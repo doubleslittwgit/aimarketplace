@@ -4,6 +4,13 @@ import Header from "@/components/Header";
 import SubmitClient, { type DraftInitialValues } from "./SubmitClient";
 import { createClient } from "@/lib/supabase/server";
 
+// Server Actionの実行時間上限。何も指定しないとVercelのデフォルト（10秒）に
+// なってしまい、大きめのファイル受信＋AI審査＋Supabase Storageへの再アップロード＋
+// DB保存を1回のリクエストの中で行うこの出品フォームでは、実測でタイムアウトして
+// しまうケースが確認された（ブラウザ側では「ページが読み込めない」という
+// クラッシュのような見え方になる）。余裕を持って60秒に設定する。
+export const maxDuration = 60;
+
 export default async function SubmitPage({
   searchParams,
 }: {
