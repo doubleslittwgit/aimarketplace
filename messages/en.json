@@ -517,7 +517,6 @@
     "totalLikes": "Total likes",
     "totalDownloads": "Total downloads",
     "last30DaysEarnings": "Last 30 days' earnings",
-    "earningsChartTitle": "Daily earnings (last 30 days)",
     "noEarningsYet": "No sales data yet.",
     "perToolBreakdown": "Per-tool breakdown",
     "tableName": "Tool",
@@ -536,7 +535,9 @@
     "platformFee": "Platform fee (20%)",
     "netEarnings": "Your earnings",
     "breakdownNote": "Based on {count} completed sales.",
-    "monthlyChartTitle": "Monthly earnings (last 12 months)"
+    "rangeDaily": "Daily",
+    "rangeMonthly": "Monthly",
+    "rangeYearly": "Yearly"
   },
   "dashboard": {
     "title": "Dashboard",

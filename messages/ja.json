@@ -517,7 +517,6 @@
     "totalLikes": "累計いいね",
     "totalDownloads": "累計ダウンロード",
     "last30DaysEarnings": "直近30日間の売上",
-    "earningsChartTitle": "日別の売上推移（直近30日間）",
     "noEarningsYet": "まだ売上データがありません。",
     "perToolBreakdown": "ツールごとの実績",
     "tableName": "ツール名",
@@ -536,7 +535,9 @@
     "platformFee": "プラットフォーム手数料（20%）",
     "netEarnings": "あなたの受取額",
     "breakdownNote": "累計 {count} 件の販売実績に基づく金額です。",
-    "monthlyChartTitle": "月別の売上推移（直近12ヶ月）"
+    "rangeDaily": "日別",
+    "rangeMonthly": "月別",
+    "rangeYearly": "年別"
   },
   "dashboard": {
     "title": "マイページ",

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getTranslations, getLocale } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import SimpleBarChart from "@/components/SimpleBarChart";
+import EarningsChart from "@/components/EarningsChart";
 import SalesReportDownload from "@/components/SalesReportDownload";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice, formatInstalls } from "@/lib/mock-data";
@@ -108,6 +108,21 @@ export default async function AnalyticsPage() {
       displayValue: formatPrice(value),
     };
   });
+  // 年別の推移（売上が発生している年だけ。無ければ今年だけ表示）
+  const yearlyMap = new Map<string, number>();
+  for (const s of allSales) {
+    const key = s.created_at.slice(0, 4);
+    yearlyMap.set(key, (yearlyMap.get(key) ?? 0) + s.seller_earnings);
+  }
+  const years =
+    yearlyMap.size > 0
+      ? Array.from(yearlyMap.keys()).sort()
+      : [String(new Date().getFullYear())];
+  const yearlyData = years.map((y) => {
+    const value = yearlyMap.get(y) ?? 0;
+    return { label: y, value, displayValue: formatPrice(value) };
+  });
+
   const hasAnySales = allSales.length > 0;
 
   // 直近30日分、1日ごとの売上合計を作る（データが無い日も0で埋めて、必ず30本並ぶようにする）
@@ -165,21 +180,16 @@ export default async function AnalyticsPage() {
             <StatCard label={t("last30DaysEarnings")} value={`¥${last30DaysEarnings.toLocaleString()}`} />
           </div>
 
-          <section className="mb-8 rounded-xl border border-border bg-surface p-5">
-            <div className="mb-4 flex items-baseline justify-between gap-3">
-              <h2 className="text-[13px] font-medium text-text-secondary">
-                {t("earningsChartTitle")}
-              </h2>
-              <span className="font-display text-[15px] font-semibold text-text-primary">
-                {formatPrice(last30DaysEarnings)}
-              </span>
-            </div>
-            {sales.length === 0 ? (
-              <p className="py-8 text-center text-[13px] text-text-muted">{t("noEarningsYet")}</p>
-            ) : (
-              <SimpleBarChart data={chartData} />
-            )}
-          </section>
+          <EarningsChart
+            daily={chartData}
+            monthly={monthlyData}
+            yearly={yearlyData}
+            totals={{
+              daily: formatPrice(last30DaysEarnings),
+              monthly: formatPrice(netTotal),
+              yearly: formatPrice(netTotal),
+            }}
+          />
 
           {/* 売上の内訳（全期間）。手数料がいくら引かれているか、
               手元にいくら残っているかを明示する */}
@@ -207,16 +217,6 @@ export default async function AnalyticsPage() {
               <p className="mt-3 text-[12px] text-text-dim">
                 {t("breakdownNote", { count: allSales.length })}
               </p>
-            </section>
-          )}
-
-          {/* 月別の推移（直近12ヶ月）。日別だけだと長期の傾向が見えないため */}
-          {hasAnySales && (
-            <section className="mb-8 rounded-xl border border-border bg-surface p-5">
-              <h2 className="mb-4 text-[13px] font-medium text-text-secondary">
-                {t("monthlyChartTitle")}
-              </h2>
-              <SimpleBarChart data={monthlyData} />
             </section>
           )}
 
