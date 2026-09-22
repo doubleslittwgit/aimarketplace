@@ -16,14 +16,19 @@ type Translatable = {
  * 上書き適用する。無いものは、このリクエストのレスポンスを遅らせずに
  * after() で裏側で翻訳しておき、次回以降のアクセスから反映されるようにする。
  *
- * ロケールが日本語の場合は何もしない（原文がそのまま日本語のため）。
+ * 【日本語も含めて常に翻訳テーブルを見る理由】
+ * 出品者は日本語で書くとは限らない（英語で書く人もいる）。以前は
+ * 「ロケールが日本語なら原文をそのまま返す」という近道をしていたが、
+ * これだと英語で出品されたツールが、日本語の閲覧者には永遠に英語のまま
+ * 表示されてしまっていた。原文がどの言語であっても、翻訳キャッシュに
+ * 該当ロケールの行があればそれを使う、という一貫した扱いに変更した。
  */
 export async function applyToolTranslations<T extends Translatable>(
   supabase: SupabaseClient,
   items: T[],
   locale: Locale
 ): Promise<T[]> {
-  if (locale === "ja" || items.length === 0) return items;
+  if (items.length === 0) return items;
 
   const ids = items.map((i) => i.id);
   const { data: translations } = await supabase
@@ -60,13 +65,14 @@ type TranslatableReview = { id: string; comment: string | null };
 /**
  * レビュー一覧に、指定ロケールのキャッシュ済み翻訳（コメント文のみ）があれば
  * 上書き適用する。無いものは同様にafter()で裏側の翻訳を予約する。
+ * ツールと同じ理由で、日本語ロケールでも常に翻訳テーブルを参照する。
  */
 export async function applyReviewTranslations<T extends TranslatableReview>(
   supabase: SupabaseClient,
   reviews: T[],
   locale: Locale
 ): Promise<T[]> {
-  if (locale === "ja" || reviews.length === 0) return reviews;
+  if (reviews.length === 0) return reviews;
 
   const ids = reviews.map((r) => r.id);
   const { data: translations } = await supabase

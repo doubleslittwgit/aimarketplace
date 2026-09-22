@@ -10,10 +10,11 @@
  * 有料版は api.deepl.com を使う。キーの形から自動判定する。
  */
 
-export type SupportedLocale = "en" | "zh";
+export type SupportedLocale = "ja" | "en" | "zh";
 
 // このアプリの言語コード → DeepLのターゲット言語コード
 const DEEPL_TARGET_LANG: Record<SupportedLocale, string> = {
+  ja: "JA",
   en: "EN-US",
   zh: "ZH-HANT", // 繁体字中国語
 };
@@ -27,6 +28,14 @@ function apiBaseUrl(apiKey: string): string {
  * DeepLは1リクエストで複数テキストを送れるので、
  * 「商品名・キャッチコピー・概要」のように関連する文章はまとめて送り、
  * 呼び出し回数と待ち時間を減らす。
+ *
+ * 【原文の言語について】
+ * 出品者・レビュー投稿者は日本語とは限らない（英語で書く人もいる）ため、
+ * source_langを固定せず、DeepL自身に自動判定させている。これにより、
+ * 例えば英語で書かれた商品説明でも、日本語・中国語どちらのターゲットへも
+ * 正しく翻訳できる。原文と同じ言語をターゲットに指定した場合、DeepLは
+ * ほぼそのままの文章を返すため、「どの言語がターゲットか」を呼び出し側が
+ * 事前に気にする必要が無い設計にしている（詳しくはtranslate-tool.ts参照）。
  *
  * 失敗時はnullを返す（呼び出し側で「保存しない」判断をしやすくするため）。
  */
@@ -59,7 +68,7 @@ export async function translateTexts(
       },
       body: JSON.stringify({
         text: nonEmptyIndices.map((i) => texts[i]),
-        source_lang: "JA",
+        // source_langはあえて指定しない（DeepLに自動判定させる）
         target_lang: DEEPL_TARGET_LANG[targetLocale],
       }),
     });
@@ -83,7 +92,10 @@ export async function translateTexts(
   }
 }
 
-export const SUPPORTED_TRANSLATION_LOCALES: SupportedLocale[] = ["en", "zh"];
+// 「原文と同じ言語」も含めた全ロケール。翻訳先を事前に絞り込まず、
+// 常に3言語すべてを生成する（原文と同じ言語への翻訳は、DeepLがほぼ
+// そのままの文章を返すだけなので、無駄ではあるが害もない）。
+export const SUPPORTED_TRANSLATION_LOCALES: SupportedLocale[] = ["ja", "en", "zh"];
 
 /**
  * HTML文書を、タグ構造を保ったまま翻訳する（法務ページ用）。
