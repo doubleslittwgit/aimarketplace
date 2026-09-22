@@ -120,6 +120,13 @@ export default function UserMenu({ email, displayName, avatarUrl, isAdmin }: Pro
               >
                 {t("adminReports")}
               </Link>
+              <Link
+                href="/admin/refund-requests"
+                className="block px-3.5 py-2 text-[13px] text-accent-ai hover:bg-surface-raised"
+                onClick={() => setOpen(false)}
+              >
+                {t("adminRefundRequests")}
+              </Link>
             </>
           )}
 

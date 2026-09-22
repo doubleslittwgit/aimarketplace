@@ -76,3 +76,9 @@ grant select, insert, update, delete on public.tools to service_role;
 grant select, insert, update, delete on public.purchases to service_role;
 grant select, insert, update, delete on public.reviews to service_role;
 grant select on public.seller_earnings_summary to service_role;
+grant select, insert, update, delete on public.refund_requests to service_role;
+
+-- ------------------------------------------------------------
+-- refund_requests
+-- ------------------------------------------------------------
+grant select, insert on public.refund_requests to authenticated;

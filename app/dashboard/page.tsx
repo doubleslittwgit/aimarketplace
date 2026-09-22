@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import SellerOnboardingButton from "@/components/SellerOnboardingButton";
 import OnboardingChecklist from "@/components/OnboardingChecklist";
 import SubmitSuccessModal from "@/components/SubmitSuccessModal";
+import ReportTroubleButton from "@/components/ReportTroubleButton";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/mock-data";
 import type { Locale } from "@/i18n/config";
@@ -87,6 +88,7 @@ export default async function DashboardPage() {
     { data: ownToolsData },
     { data: salesData },
     { count: postCount },
+    { data: refundRequestsData },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -115,11 +117,15 @@ export default async function DashboardPage() {
       .eq("status", "completed")
       .order("created_at", { ascending: false }),
     supabase.from("posts").select("*", { count: "exact", head: true }).eq("author_id", user.id),
+    supabase.from("refund_requests").select("purchase_id").eq("buyer_id", user.id),
   ]);
 
   const purchases = (purchasesData ?? []) as unknown as PurchaseRow[];
   const ownTools = (ownToolsData ?? []) as OwnToolRow[];
   const sales = (salesData ?? []) as unknown as SaleRow[];
+  const refundedPurchaseIds = new Set(
+    (refundRequestsData ?? []).map((r) => r.purchase_id)
+  );
 
   const totalEarnings = sales.reduce((sum, s) => sum + s.seller_earnings, 0);
 
@@ -266,6 +272,15 @@ export default async function DashboardPage() {
                             date: new Date(p.created_at).toLocaleDateString(intlLocale),
                           })}
                         </p>
+                        {p.price_paid > 0 && (
+                          <div className="mt-1">
+                            <ReportTroubleButton
+                              purchaseId={p.id}
+                              toolName={p.tools?.name ?? ""}
+                              alreadySubmitted={refundedPurchaseIds.has(p.id)}
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
                     {p.tools && p.tools.runtime === "local" && (

@@ -109,7 +109,8 @@
     "adminReview": "上架審核（管理員）",
     "adminReports": "檢舉處理（管理員）",
     "logout": "登出",
-    "unnamedUser": "未設定使用者"
+    "unnamedUser": "未設定使用者",
+    "adminRefundRequests": "退款／問題回報（管理員）"
   },
   "notifications": {
     "title": "通知",
@@ -911,5 +912,19 @@
       "title": "找到回應您需求的工具了",
       "body": "「{toolName}」已連結至「{requestTitle}」。"
     }
+  },
+  "refundRequest": {
+    "reportButton": "回報退款／問題",
+    "modalTitle": "回報退款／問題",
+    "modalSubtitle": "請告訴我們「{toolName}」發生了什麼狀況。",
+    "messagePlaceholder": "請盡量具體描述遇到的問題（例如：與說明不符、無法運作等）",
+    "submit": "送出",
+    "submitting": "送出中…",
+    "cancel": "取消",
+    "submittedNotice": "已收到您的回報",
+    "messageRequired": "請輸入內容",
+    "purchaseNotFound": "找不到對應的購買紀錄",
+    "alreadySubmitted": "此筆購買已經回報過了",
+    "unknownTool": "（已刪除的工具）"
   }
 }

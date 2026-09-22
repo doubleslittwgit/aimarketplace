@@ -109,7 +109,8 @@
     "adminReview": "出品の審査（管理者）",
     "adminReports": "通報の確認（管理者）",
     "logout": "ログアウト",
-    "unnamedUser": "未設定のユーザー"
+    "unnamedUser": "未設定のユーザー",
+    "adminRefundRequests": "返金・トラブル報告（管理者）"
   },
   "notifications": {
     "title": "通知",
@@ -911,5 +912,19 @@
       "title": "リクエストに回答するツールが見つかりました",
       "body": "「{requestTitle}」に「{toolName}」が紐付けられました。"
     }
+  },
+  "refundRequest": {
+    "reportButton": "返金・トラブルを報告",
+    "modalTitle": "返金・トラブルの報告",
+    "modalSubtitle": "「{toolName}」について、状況を教えてください。",
+    "messagePlaceholder": "どのようなトラブルか、できるだけ具体的にご記入ください（例: 説明と異なる、動作しない 等）",
+    "submit": "送信する",
+    "submitting": "送信中...",
+    "cancel": "キャンセル",
+    "submittedNotice": "報告を受け付けました",
+    "messageRequired": "内容を入力してください",
+    "purchaseNotFound": "対象の購入が見つかりませんでした",
+    "alreadySubmitted": "この購入については、既に報告済みです",
+    "unknownTool": "（削除されたツール）"
   }
 }

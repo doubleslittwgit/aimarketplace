@@ -29,6 +29,7 @@ export type NotificationType =
   | "admin_new_pending_review"
   | "admin_high_risk_flagged"
   | "admin_post_reported"
+  | "admin_refund_requested"
   | "new_follower"
   | "post_liked"
   | "new_post_comment"
@@ -228,6 +229,17 @@ export function adminPostReported(
     title: `🚩 投稿が通報されました`,
     body: `投稿者: ${authorName}。理由: ${reasonLabel}`,
     linkUrl: `${SITE_URL}/admin/post-reports`,
+  };
+}
+
+export function adminRefundRequested(
+  toolName: string,
+  message: string
+): NotificationContent {
+  return {
+    title: `🧾 返金・トラブルの報告があります: ${toolName}`,
+    body: message.slice(0, 200),
+    linkUrl: `${SITE_URL}/admin/refund-requests`,
   };
 }
 
