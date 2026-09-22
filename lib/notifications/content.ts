@@ -36,6 +36,24 @@ export type NotificationType =
   | "question_answered"
   | "new_request_link";
 
+// ------------------------------------------------------------
+// 通知設定でオフにできる種類。
+// ------------------------------------------------------------
+// 審査結果・売上・購入完了・受け取り設定の状況など、取引に関わる
+// 重要な通知は、ここに含めない（常にメールが届く）。
+// SNS的な機能まわりの通知だけを、利用者が選んでオフにできるようにしている。
+export const OPTIONAL_NOTIFICATION_TYPES = [
+  "new_follower",
+  "post_liked",
+  "new_post_comment",
+  "new_review",
+  "new_question",
+  "question_answered",
+  "new_request_link",
+] as const;
+
+export type OptionalNotificationType = (typeof OPTIONAL_NOTIFICATION_TYPES)[number];
+
 export type NotificationContent = {
   title: string;
   body: string;

@@ -9,7 +9,9 @@ import zh from "@/messages/zh.json";
  * 前提にしているが、通知は「操作した人」ではなく「通知を受け取る人」の
  * 言語で出す必要があるため、任意のロケールを指定できる、この専用の
  * シンプルな仕組みを別に用意している。メッセージファイル（messages/*.json）の
- * "notifications" 名前空間をそのまま読み込むので、翻訳の二重管理にはならない。
+ * "notificationEmails" 名前空間をそのまま読み込むので、翻訳の二重管理には
+ * ならない（通知ベルUIの文言は別の "notifications" 名前空間にあり、
+ * これとは別物）。
  */
 
 const MESSAGES: Record<string, unknown> = { ja, en, zh };
@@ -19,7 +21,7 @@ function interpolate(template: string, vars: Record<string, string | number>): s
 }
 
 function lookup(locale: string, key: string): unknown {
-  const parts = ["notifications", ...key.split(".")];
+  const parts = ["notificationEmails", ...key.split(".")];
   let node: unknown = MESSAGES[locale];
   for (const p of parts) {
     if (typeof node !== "object" || node === null) return undefined;

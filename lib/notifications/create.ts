@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, notificationEmailHtml } from "@/lib/email/resend";
 import type { NotificationContent } from "@/lib/notifications/content";
+import { OPTIONAL_NOTIFICATION_TYPES } from "@/lib/notifications/content";
 import type { SupportedLocale } from "@/lib/deepl";
 
 /**
@@ -21,6 +22,12 @@ import type { SupportedLocale } from "@/lib/deepl";
  * ここで受信者(userId)のprofiles.localeを一度だけ調べ、その結果を
  * 渡すことで、呼び出し側が毎回ロケールを調べる必要が無いようにしている。
  *
+ * 【通知設定について】
+ * OPTIONAL_NOTIFICATION_TYPES に含まれる種類（SNS的な機能まわりの通知）は、
+ * 利用者が自分でメール受信をオフにできる。アプリ内通知は種類を問わず
+ * 常に保存する（オフにできるのはメールだけ）。取引に関わる重要な通知は
+ * この対象に含まれないため、常にメールが届く。
+ *
  * メール送信が失敗しても、アプリ内通知の保存は独立して成功させる
  * （逆も同様）。どちらか一方が失敗しても、もう一方はユーザーに届く。
  */
@@ -32,18 +39,26 @@ export async function notify(
 ): Promise<void> {
   const admin = createAdminClient();
 
-  let resolvedContent: NotificationContent;
-  if (typeof content === "function") {
+  const needsProfile = typeof content === "function" || options.email !== false;
+  let locale: SupportedLocale = "ja";
+  let emailDisabledByPref = false;
+
+  if (needsProfile) {
     const { data: profile } = await admin
       .from("profiles")
-      .select("locale")
+      .select("locale, notification_prefs")
       .eq("id", userId)
       .maybeSingle();
-    const locale = (profile?.locale as SupportedLocale) || "ja";
-    resolvedContent = content(locale);
-  } else {
-    resolvedContent = content;
+    locale = (profile?.locale as SupportedLocale) || "ja";
+
+    if ((OPTIONAL_NOTIFICATION_TYPES as readonly string[]).includes(type)) {
+      const prefs = (profile?.notification_prefs as Record<string, boolean>) || {};
+      emailDisabledByPref = prefs[type] === false;
+    }
   }
+
+  const resolvedContent: NotificationContent =
+    typeof content === "function" ? content(locale) : content;
 
   const { error: insertError } = await admin.from("notifications").insert({
     user_id: userId,
@@ -57,7 +72,7 @@ export async function notify(
     console.error(`[notify] アプリ内通知の保存に失敗 (type=${type}):`, insertError.message);
   }
 
-  if (options.email === false) return;
+  if (options.email === false || emailDisabledByPref) return;
 
   try {
     const { data: userData, error: userError } =

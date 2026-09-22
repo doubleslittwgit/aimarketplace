@@ -112,68 +112,15 @@
     "unnamedUser": "未設定のユーザー"
   },
   "notifications": {
-    "toolApproved": {
-      "title": "「{toolName}」が公開されました",
-      "body": "審査を通過し、マーケットに公開されました。"
-    },
-    "toolRejected": {
-      "title": "「{toolName}」が却下されました",
-      "body": "却下理由: {reason}"
-    },
-    "toolAutoRejectedRisk": {
-      "title": "「{toolName}」が自動的に却下されました",
-      "body": "内容の自動チェックにより却下されました。理由: {reason}"
-    },
-    "toolEditTriggeredReview": {
-      "title": "「{toolName}」が再審査待ちになりました",
-      "body": "価格の値上げ・サムネイル・ファイルの変更があったため、公開を一時停止し再審査しています。審査が終わるまで、新規購入者には表示されません（既に購入済みの方はダウンロードを継続できます）。"
-    },
-    "toolUnpublishedByAdmin": {
-      "title": "「{toolName}」が非公開になりました",
-      "body": "運営により非公開にされました。理由: {reason}"
-    },
-    "sale": {
-      "title": "「{toolName}」が売れました",
-      "body": "{buyerName}さんが購入しました（あなたの取り分: {earnings}）。"
-    },
-    "newReview": {
-      "title": "「{toolName}」に新しいレビューがつきました",
-      "body": "評価: {stars}"
-    },
-    "sellerAccountStatusTitle": "受け取り設定の状況が更新されました",
-    "sellerAccountEnabled": "受け取り設定が完了し、有料ツールの販売・入金ができるようになりました。",
-    "sellerAccountRequirementsDue": "受け取り設定に追加の情報が必要です。ご確認ください。",
-    "sellerAccountDisabled": "受け取り設定の状態が変わり、現在は入金を受け付けられません。",
-    "purchaseReceipt": {
-      "title": "「{toolName}」のご購入ありがとうございます",
-      "body": "{price}のお支払いが完了しました。マイページからいつでもダウンロードできます。",
-      "emailSubject": "ご購入ありがとうございます — {toolName}"
-    },
-    "newFollower": {
-      "title": "{followerName}さんにフォローされました",
-      "body": "プロフィールを見てみましょう。"
-    },
-    "postLiked": {
-      "title": "{likerName}さんが投稿にいいねしました",
-      "bodyWithExcerpt": "「{postExcerpt}」",
-      "bodyNoExcerpt": "あなたの投稿にいいねがつきました。"
-    },
-    "newPostComment": {
-      "title": "{commenterName}さんが投稿にコメントしました",
-      "body": "「{commentExcerpt}」"
-    },
-    "newQuestion": {
-      "title": "「{toolName}」に質問が届きました",
-      "body": "{askerName}さん: 「{questionExcerpt}」"
-    },
-    "questionAnswered": {
-      "title": "「{toolName}」への質問に回答がありました",
-      "body": "商品ページで回答を確認できます。"
-    },
-    "newRequestLink": {
-      "title": "リクエストに回答するツールが見つかりました",
-      "body": "「{requestTitle}」に「{toolName}」が紐付けられました。"
-    }
+    "title": "通知",
+    "markAllRead": "すべて既読にする",
+    "empty": "通知はまだありません。",
+    "justNow": "たった今",
+    "minutesAgo": "{minutes}分前",
+    "hoursAgo": "{hours}時間前",
+    "daysAgo": "{days}日前",
+    "bellAriaLabel": "通知",
+    "settingsLink": "通知設定"
   },
   "footer": {
     "tagline": "AIで生まれたツールが集まる港。",
@@ -857,5 +804,105 @@
     "pets": "ペット",
     "utilities": "ユーティリティ",
     "other": "その他"
+  },
+  "notificationSettings": {
+    "title": "通知設定",
+    "subtitle": "メールで受け取る通知の種類を選べます。",
+    "saved": "保存しました",
+    "essentialNotice": "審査結果・売上・購入完了など、取引に関わる重要な通知は、この設定に関わらず常にメールで届きます。",
+    "types": {
+      "new_follower": {
+        "label": "フォローされた時",
+        "description": "新しいフォロワーがついた時に通知します"
+      },
+      "post_liked": {
+        "label": "投稿にいいねされた時",
+        "description": "フィードの投稿にいいねがついた時に通知します"
+      },
+      "new_post_comment": {
+        "label": "投稿にコメントされた時",
+        "description": "フィードの投稿にコメントがついた時に通知します"
+      },
+      "new_review": {
+        "label": "レビューがついた時",
+        "description": "出品したツールに新しいレビューがついた時に通知します"
+      },
+      "new_question": {
+        "label": "質問が届いた時",
+        "description": "出品したツールに質問が届いた時に通知します"
+      },
+      "question_answered": {
+        "label": "質問に回答があった時",
+        "description": "自分がした質問に回答があった時に通知します"
+      },
+      "new_request_link": {
+        "label": "リクエストに回答があった時",
+        "description": "投稿したリクエストに回答となるツールが紐付けられた時に通知します"
+      }
+    }
+  },
+  "notificationEmails": {
+    "toolApproved": {
+      "title": "「{toolName}」が公開されました",
+      "body": "審査を通過し、マーケットに公開されました。"
+    },
+    "toolRejected": {
+      "title": "「{toolName}」が却下されました",
+      "body": "却下理由: {reason}"
+    },
+    "toolAutoRejectedRisk": {
+      "title": "「{toolName}」が自動的に却下されました",
+      "body": "内容の自動チェックにより却下されました。理由: {reason}"
+    },
+    "toolEditTriggeredReview": {
+      "title": "「{toolName}」が再審査待ちになりました",
+      "body": "価格の値上げ・サムネイル・ファイルの変更があったため、公開を一時停止し再審査しています。審査が終わるまで、新規購入者には表示されません（既に購入済みの方はダウンロードを継続できます）。"
+    },
+    "toolUnpublishedByAdmin": {
+      "title": "「{toolName}」が非公開になりました",
+      "body": "運営により非公開にされました。理由: {reason}"
+    },
+    "sale": {
+      "title": "「{toolName}」が売れました",
+      "body": "{buyerName}さんが購入しました（あなたの取り分: {earnings}）。"
+    },
+    "newReview": {
+      "title": "「{toolName}」に新しいレビューがつきました",
+      "body": "評価: {stars}"
+    },
+    "sellerAccountStatusTitle": "受け取り設定の状況が更新されました",
+    "sellerAccountEnabled": "受け取り設定が完了し、有料ツールの販売・入金ができるようになりました。",
+    "sellerAccountRequirementsDue": "受け取り設定に追加の情報が必要です。ご確認ください。",
+    "sellerAccountDisabled": "受け取り設定の状態が変わり、現在は入金を受け付けられません。",
+    "purchaseReceipt": {
+      "title": "「{toolName}」のご購入ありがとうございます",
+      "body": "{price}のお支払いが完了しました。マイページからいつでもダウンロードできます。",
+      "emailSubject": "ご購入ありがとうございます — {toolName}"
+    },
+    "newFollower": {
+      "title": "{followerName}さんにフォローされました",
+      "body": "プロフィールを見てみましょう。"
+    },
+    "postLiked": {
+      "title": "{likerName}さんが投稿にいいねしました",
+      "bodyWithExcerpt": "「{postExcerpt}」",
+      "bodyNoExcerpt": "あなたの投稿にいいねがつきました。"
+    },
+    "newPostComment": {
+      "title": "{commenterName}さんが投稿にコメントしました",
+      "body": "「{commentExcerpt}」"
+    },
+    "newQuestion": {
+      "title": "「{toolName}」に質問が届きました",
+      "body": "{askerName}さん: 「{questionExcerpt}」"
+    },
+    "questionAnswered": {
+      "title": "「{toolName}」への質問に回答がありました",
+      "body": "商品ページで回答を確認できます。"
+    },
+    "newRequestLink": {
+      "title": "リクエストに回答するツールが見つかりました",
+      "body": "「{requestTitle}」に「{toolName}」が紐付けられました。"
+    }
   }
 }

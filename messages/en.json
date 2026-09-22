@@ -112,68 +112,15 @@
     "unnamedUser": "Unnamed user"
   },
   "notifications": {
-    "toolApproved": {
-      "title": "\"{toolName}\" is now published",
-      "body": "It passed review and is now live on the marketplace."
-    },
-    "toolRejected": {
-      "title": "\"{toolName}\" was rejected",
-      "body": "Reason: {reason}"
-    },
-    "toolAutoRejectedRisk": {
-      "title": "\"{toolName}\" was automatically rejected",
-      "body": "Rejected by the automated content check. Reason: {reason}"
-    },
-    "toolEditTriggeredReview": {
-      "title": "\"{toolName}\" is back under review",
-      "body": "A price increase, thumbnail, or file change temporarily unpublished it while it's re-reviewed. It won't show to new buyers until review finishes (existing buyers can still download it)."
-    },
-    "toolUnpublishedByAdmin": {
-      "title": "\"{toolName}\" was unpublished",
-      "body": "Unpublished by BuildBay staff. Reason: {reason}"
-    },
-    "sale": {
-      "title": "\"{toolName}\" sold!",
-      "body": "{buyerName} purchased it (your share: {earnings})."
-    },
-    "newReview": {
-      "title": "New review on \"{toolName}\"",
-      "body": "Rating: {stars}"
-    },
-    "sellerAccountStatusTitle": "Your payout setup status changed",
-    "sellerAccountEnabled": "Payout setup is complete — you can now sell paid tools and receive payouts.",
-    "sellerAccountRequirementsDue": "Your payout setup needs more information. Please check it.",
-    "sellerAccountDisabled": "Your payout status changed and payouts are currently unavailable.",
-    "purchaseReceipt": {
-      "title": "Thanks for purchasing \"{toolName}\"",
-      "body": "Your payment of {price} is complete. You can download it anytime from your dashboard.",
-      "emailSubject": "Thanks for your purchase — {toolName}"
-    },
-    "newFollower": {
-      "title": "{followerName} followed you",
-      "body": "Check out their profile."
-    },
-    "postLiked": {
-      "title": "{likerName} liked your post",
-      "bodyWithExcerpt": "\"{postExcerpt}\"",
-      "bodyNoExcerpt": "Someone liked your post."
-    },
-    "newPostComment": {
-      "title": "{commenterName} commented on your post",
-      "body": "\"{commentExcerpt}\""
-    },
-    "newQuestion": {
-      "title": "New question on \"{toolName}\"",
-      "body": "{askerName}: \"{questionExcerpt}\""
-    },
-    "questionAnswered": {
-      "title": "Your question on \"{toolName}\" was answered",
-      "body": "You can view the answer on the product page."
-    },
-    "newRequestLink": {
-      "title": "A tool answering your request was found",
-      "body": "\"{toolName}\" was linked to \"{requestTitle}\"."
-    }
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet.",
+    "justNow": "Just now",
+    "minutesAgo": "{minutes}m ago",
+    "hoursAgo": "{hours}h ago",
+    "daysAgo": "{days}d ago",
+    "bellAriaLabel": "Notifications",
+    "settingsLink": "Notification settings"
   },
   "footer": {
     "tagline": "A harbor for tools built with AI.",
@@ -857,5 +804,105 @@
     "pets": "Pets",
     "utilities": "Utilities",
     "other": "Other"
+  },
+  "notificationSettings": {
+    "title": "Notification settings",
+    "subtitle": "Choose which notifications you receive by email.",
+    "saved": "Saved",
+    "essentialNotice": "Important transactional notifications (review results, sales, purchase confirmations) are always sent by email regardless of these settings.",
+    "types": {
+      "new_follower": {
+        "label": "New follower",
+        "description": "When someone follows you"
+      },
+      "post_liked": {
+        "label": "Post liked",
+        "description": "When someone likes your feed post"
+      },
+      "new_post_comment": {
+        "label": "Post commented",
+        "description": "When someone comments on your feed post"
+      },
+      "new_review": {
+        "label": "New review",
+        "description": "When your tool gets a new review"
+      },
+      "new_question": {
+        "label": "New question",
+        "description": "When someone asks a question about your tool"
+      },
+      "question_answered": {
+        "label": "Question answered",
+        "description": "When your question gets answered"
+      },
+      "new_request_link": {
+        "label": "Request answered",
+        "description": "When a tool is linked to your request"
+      }
+    }
+  },
+  "notificationEmails": {
+    "toolApproved": {
+      "title": "\"{toolName}\" is now published",
+      "body": "It passed review and is now live on the marketplace."
+    },
+    "toolRejected": {
+      "title": "\"{toolName}\" was rejected",
+      "body": "Reason: {reason}"
+    },
+    "toolAutoRejectedRisk": {
+      "title": "\"{toolName}\" was automatically rejected",
+      "body": "Rejected by the automated content check. Reason: {reason}"
+    },
+    "toolEditTriggeredReview": {
+      "title": "\"{toolName}\" is back under review",
+      "body": "A price increase, thumbnail, or file change temporarily unpublished it while it's re-reviewed. It won't show to new buyers until review finishes (existing buyers can still download it)."
+    },
+    "toolUnpublishedByAdmin": {
+      "title": "\"{toolName}\" was unpublished",
+      "body": "Unpublished by BuildBay staff. Reason: {reason}"
+    },
+    "sale": {
+      "title": "\"{toolName}\" sold!",
+      "body": "{buyerName} purchased it (your share: {earnings})."
+    },
+    "newReview": {
+      "title": "New review on \"{toolName}\"",
+      "body": "Rating: {stars}"
+    },
+    "sellerAccountStatusTitle": "Your payout setup status changed",
+    "sellerAccountEnabled": "Payout setup is complete — you can now sell paid tools and receive payouts.",
+    "sellerAccountRequirementsDue": "Your payout setup needs more information. Please check it.",
+    "sellerAccountDisabled": "Your payout status changed and payouts are currently unavailable.",
+    "purchaseReceipt": {
+      "title": "Thanks for purchasing \"{toolName}\"",
+      "body": "Your payment of {price} is complete. You can download it anytime from your dashboard.",
+      "emailSubject": "Thanks for your purchase — {toolName}"
+    },
+    "newFollower": {
+      "title": "{followerName} followed you",
+      "body": "Check out their profile."
+    },
+    "postLiked": {
+      "title": "{likerName} liked your post",
+      "bodyWithExcerpt": "\"{postExcerpt}\"",
+      "bodyNoExcerpt": "Someone liked your post."
+    },
+    "newPostComment": {
+      "title": "{commenterName} commented on your post",
+      "body": "\"{commentExcerpt}\""
+    },
+    "newQuestion": {
+      "title": "New question on \"{toolName}\"",
+      "body": "{askerName}: \"{questionExcerpt}\""
+    },
+    "questionAnswered": {
+      "title": "Your question on \"{toolName}\" was answered",
+      "body": "You can view the answer on the product page."
+    },
+    "newRequestLink": {
+      "title": "A tool answering your request was found",
+      "body": "\"{toolName}\" was linked to \"{requestTitle}\"."
+    }
   }
 }

@@ -161,6 +161,14 @@ export default function NotificationBell({
               ))
             )}
           </div>
+
+          <Link
+            href="/settings/notifications"
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-center border-t border-border py-2.5 text-[12px] text-text-muted transition hover:bg-surface hover:text-text-secondary"
+          >
+            {t("settingsLink")}
+          </Link>
         </div>
       )}
     </div>
