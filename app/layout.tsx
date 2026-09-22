@@ -58,14 +58,14 @@ export const metadata: Metadata = {
     title: "BuildBay — AIでつくったツールが集まる港",
     description:
       "AIを活用して開発したツールを、無料でも有料でも公開・販売できるマーケットプレイス。",
-    images: [{ url: "/icon-512.png", width: 512, height: 512, alt: "BuildBay" }],
+    images: [{ url: "/OGP.png", width: 1200, height: 630, alt: "BuildBay" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "BuildBay — AIでつくったツールが集まる港",
     description:
       "AIを活用して開発したツールを、無料でも有料でも公開・販売できるマーケットプレイス。",
-    images: ["/icon-512.png"],
+    images: ["/OGP.png"],
   },
 };
 
