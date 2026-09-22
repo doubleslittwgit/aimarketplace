@@ -2,8 +2,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { translateTexts, SUPPORTED_TRANSLATION_LOCALES } from "@/lib/deepl";
 
 /**
- * 出品者が書いた「商品名・キャッチコピー・概要」を、対応する全言語へ翻訳し、
+ * 出品者が書いた「キャッチコピー・概要」を、対応する全言語へ翻訳し、
  * tool_translationsテーブルに保存する。
+ *
+ * 【商品名（タイトル）はあえて翻訳しない】
+ * ツール名は、多くの場合ブランド名・固有名詞としての意味合いが強く、
+ * DeepLに通すと意図しない訳になったり、そもそも意味が壊れたりする
+ * （例: ロゴのように扱っている名前が、直訳されて別物になってしまう）。
+ * そのため、name（商品名）はどのロケールでも原文のまま保存する。
  *
  * 出品の公開・更新のタイミングで呼ぶ。翻訳の失敗は握りつぶし
  * （console.errorのみ）、出品自体の成否には影響させない
@@ -19,15 +25,15 @@ export async function translateAndSaveTool(
 
   await Promise.all(
     SUPPORTED_TRANSLATION_LOCALES.map(async (locale) => {
-      const translated = await translateTexts([name, tagline, description], locale);
+      const translated = await translateTexts([tagline, description], locale);
       if (!translated) return;
 
-      const [tName, tTagline, tDescription] = translated;
+      const [tTagline, tDescription] = translated;
       const { error } = await admin.from("tool_translations").upsert(
         {
           tool_id: toolId,
           locale,
-          name: tName || name,
+          name,
           tagline: tTagline || tagline,
           description: tDescription || description,
         },
