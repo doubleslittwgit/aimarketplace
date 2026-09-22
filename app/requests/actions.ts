@@ -264,7 +264,7 @@ export async function linkToolToRequest(
     await notify(
       request.requester_id,
       "new_request_link",
-      newRequestLink(tool.name, request.title, requestId),
+      (locale) => newRequestLink(tool.name, request.title, requestId, locale),
       { email: true }
     );
   });

@@ -28,6 +28,7 @@
 | `tool_requests.sql` | 「欲しいツール」リクエスト掲示板（後から足したもの） |
 | `get_seller_badge_stats.sql` | プロフィールの実績バッジ用の集計RPC（後から足したもの） |
 | `add_host_apps.sql` | 「BuildBay Creative」用のhost_appsカラム（後から足したもの） |
+| `add_profile_locale.sql` | メール通知を出品時の言語で送るためのlocaleカラム（後から足したもの） |
 | `increment_install.sql` | ダウンロード数を加算する関数 |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
 
@@ -69,8 +70,9 @@
 18. `tool_requests.sql`
 19. `get_seller_badge_stats.sql`
 20. `add_host_apps.sql`
-21. `increment_install.sql`
-22. `grants.sql` ← **必ず最後**
+21. `add_profile_locale.sql`
+22. `increment_install.sql`
+23. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」

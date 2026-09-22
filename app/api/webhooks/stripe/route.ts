@@ -103,19 +103,19 @@ export async function POST(request: Request) {
         await notify(
           before.user_id,
           "seller_account_status_changed",
-          sellerAccountStatusChanged("enabled")
+          (locale) => sellerAccountStatusChanged("enabled", locale)
         );
       } else if (wasEnabled && !isEnabled) {
         await notify(
           before.user_id,
           "seller_account_status_changed",
-          sellerAccountStatusChanged("disabled")
+          (locale) => sellerAccountStatusChanged("disabled", locale)
         );
       } else if (!hadRequirements && hasRequirements) {
         await notify(
           before.user_id,
           "seller_account_status_changed",
-          sellerAccountStatusChanged("requirements_due")
+          (locale) => sellerAccountStatusChanged("requirements_due", locale)
         );
       }
     }
@@ -292,12 +292,12 @@ export async function POST(request: Request) {
   await notify(
     sellerId,
     "sale",
-    saleContent(tool.name, buyerName, formatPrice(sellerEarnings))
+    (locale) => saleContent(tool.name, buyerName, formatPrice(sellerEarnings), locale)
   );
   await notify(
     buyerId,
     "purchase_receipt",
-    purchaseReceipt(tool.name, formatPrice(tool.price), tool.slug),
+    (locale) => purchaseReceipt(tool.name, formatPrice(tool.price), tool.slug, locale),
     { email: true }
   );
 

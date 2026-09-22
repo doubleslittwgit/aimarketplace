@@ -3,7 +3,18 @@
  *
  * 1箇所にまとめておくことで、「アプリ内通知とメールで文言が微妙に違う」
  * 「同じ種類の通知なのに呼び出し箇所ごとに文言がバラバラ」を防ぐ。
+ *
+ * 【多言語対応について】
+ * 利用者（買い手・出品者）宛の通知は、その人が最後に出品した時の言語
+ * （profiles.locale）で送る。実際の文言は messages/*.json の
+ * "notifications" 名前空間にあり、lib/notifications/i18n.ts の tNotif() で
+ * 取り出している。一方、管理者（Shuさん）宛の通知（admin_*）は、
+ * 常にShuさん自身が使う日本語のまま。これは「その通知を受け取る人が
+ * 何語を使っているか」で決めているため、対象が違えば扱いも変える。
  */
+
+import { tNotif } from "./i18n";
+import type { SupportedLocale } from "@/lib/deepl";
 
 export type NotificationType =
   | "tool_approved"
@@ -35,45 +46,61 @@ export type NotificationContent = {
 
 const SITE_URL = "https://www.getbuildbay.com";
 
-export function toolApproved(toolName: string, slug: string): NotificationContent {
+export function toolApproved(
+  toolName: string,
+  slug: string,
+  locale: SupportedLocale
+): NotificationContent {
   return {
-    title: `「${toolName}」が公開されました`,
-    body: "審査を通過し、マーケットに公開されました。",
+    title: tNotif(locale, "toolApproved.title", { toolName }),
+    body: tNotif(locale, "toolApproved.body"),
     linkUrl: `${SITE_URL}/apps/${slug}`,
   };
 }
 
-export function toolRejected(toolName: string, reason: string): NotificationContent {
+export function toolRejected(
+  toolName: string,
+  reason: string,
+  locale: SupportedLocale
+): NotificationContent {
   return {
-    title: `「${toolName}」が却下されました`,
-    body: `却下理由: ${reason}`,
+    title: tNotif(locale, "toolRejected.title", { toolName }),
+    body: tNotif(locale, "toolRejected.body", { reason }),
     linkUrl: `${SITE_URL}/dashboard`,
   };
 }
 
-export function toolAutoRejectedRisk(toolName: string, reason: string): NotificationContent {
+export function toolAutoRejectedRisk(
+  toolName: string,
+  reason: string,
+  locale: SupportedLocale
+): NotificationContent {
   return {
-    title: `「${toolName}」が自動的に却下されました`,
-    body: `内容の自動チェックにより却下されました。理由: ${reason}`,
+    title: tNotif(locale, "toolAutoRejectedRisk.title", { toolName }),
+    body: tNotif(locale, "toolAutoRejectedRisk.body", { reason }),
     linkUrl: `${SITE_URL}/dashboard`,
   };
 }
 
-export function toolEditTriggeredReview(toolName: string): NotificationContent {
+export function toolEditTriggeredReview(
+  toolName: string,
+  locale: SupportedLocale
+): NotificationContent {
   return {
-    title: `「${toolName}」が再審査待ちになりました`,
-    body: "価格の値上げ・サムネイル・ファイルの変更があったため、公開を一時停止し再審査しています。審査が終わるまで、新規購入者には表示されません（既に購入済みの方はダウンロードを継続できます）。",
+    title: tNotif(locale, "toolEditTriggeredReview.title", { toolName }),
+    body: tNotif(locale, "toolEditTriggeredReview.body"),
     linkUrl: `${SITE_URL}/dashboard`,
   };
 }
 
 export function toolUnpublishedByAdmin(
   toolName: string,
-  reason: string
+  reason: string,
+  locale: SupportedLocale
 ): NotificationContent {
   return {
-    title: `「${toolName}」が非公開になりました`,
-    body: `運営により非公開にされました。理由: ${reason}`,
+    title: tNotif(locale, "toolUnpublishedByAdmin.title", { toolName }),
+    body: tNotif(locale, "toolUnpublishedByAdmin.body", { reason }),
     linkUrl: `${SITE_URL}/dashboard`,
   };
 }
@@ -81,11 +108,12 @@ export function toolUnpublishedByAdmin(
 export function sale(
   toolName: string,
   buyerName: string,
-  earnings: string
+  earnings: string,
+  locale: SupportedLocale
 ): NotificationContent {
   return {
-    title: `「${toolName}」が売れました`,
-    body: `${buyerName}さんが購入しました（あなたの取り分: ${earnings}）。`,
+    title: tNotif(locale, "sale.title", { toolName }),
+    body: tNotif(locale, "sale.body", { buyerName, earnings }),
     linkUrl: `${SITE_URL}/dashboard`,
   };
 }
@@ -93,26 +121,31 @@ export function sale(
 export function newReview(
   toolName: string,
   rating: number,
-  slug: string
+  slug: string,
+  locale: SupportedLocale
 ): NotificationContent {
   return {
-    title: `「${toolName}」に新しいレビューがつきました`,
-    body: `評価: ${"★".repeat(rating)}${"☆".repeat(5 - rating)}`,
+    title: tNotif(locale, "newReview.title", { toolName }),
+    body: tNotif(locale, "newReview.body", {
+      stars: `${"★".repeat(rating)}${"☆".repeat(5 - rating)}`,
+    }),
     linkUrl: `${SITE_URL}/apps/${slug}`,
   };
 }
 
 export function sellerAccountStatusChanged(
-  status: "enabled" | "requirements_due" | "disabled"
+  status: "enabled" | "requirements_due" | "disabled",
+  locale: SupportedLocale
 ): NotificationContent {
-  const messages: Record<typeof status, string> = {
-    enabled: "受け取り設定が完了し、有料ツールの販売・入金ができるようになりました。",
-    requirements_due: "受け取り設定に追加の情報が必要です。ご確認ください。",
-    disabled: "受け取り設定の状態が変わり、現在は入金を受け付けられません。",
-  };
+  const bodyKey =
+    status === "enabled"
+      ? "sellerAccountEnabled"
+      : status === "requirements_due"
+        ? "sellerAccountRequirementsDue"
+        : "sellerAccountDisabled";
   return {
-    title: "受け取り設定の状況が更新されました",
-    body: messages[status],
+    title: tNotif(locale, "sellerAccountStatusTitle"),
+    body: tNotif(locale, bodyKey),
     linkUrl: `${SITE_URL}/seller`,
   };
 }
@@ -120,15 +153,20 @@ export function sellerAccountStatusChanged(
 export function purchaseReceipt(
   toolName: string,
   price: string,
-  slug: string
+  slug: string,
+  locale: SupportedLocale
 ): NotificationContent {
   return {
-    title: `「${toolName}」のご購入ありがとうございます`,
-    body: `${price}のお支払いが完了しました。マイページからいつでもダウンロードできます。`,
+    title: tNotif(locale, "purchaseReceipt.title", { toolName }),
+    body: tNotif(locale, "purchaseReceipt.body", { price }),
     linkUrl: `${SITE_URL}/apps/${slug}`,
-    emailSubject: `ご購入ありがとうございます — ${toolName}`,
+    emailSubject: tNotif(locale, "purchaseReceipt.emailSubject", { toolName }),
   };
 }
+
+// ------------------------------------------------------------
+// 管理者（Shuさん）宛の通知。受け取る人が固定なので、常に日本語のまま。
+// ------------------------------------------------------------
 
 export function adminNewPendingReview(
   toolName: string,
@@ -175,18 +213,33 @@ export function adminPostReported(
   };
 }
 
-export function newFollower(followerName: string, followerHandle: string): NotificationContent {
+// ------------------------------------------------------------
+// ここから先も利用者宛（SNS的な機能まわり）
+// ------------------------------------------------------------
+
+export function newFollower(
+  followerName: string,
+  followerHandle: string,
+  locale: SupportedLocale
+): NotificationContent {
   return {
-    title: `${followerName}さんにフォローされました`,
-    body: "プロフィールを見てみましょう。",
+    title: tNotif(locale, "newFollower.title", { followerName }),
+    body: tNotif(locale, "newFollower.body"),
     linkUrl: `${SITE_URL}/u/${followerHandle}`,
   };
 }
 
-export function postLiked(likerName: string, postExcerpt: string, postId: string): NotificationContent {
+export function postLiked(
+  likerName: string,
+  postExcerpt: string,
+  postId: string,
+  locale: SupportedLocale
+): NotificationContent {
   return {
-    title: `${likerName}さんが投稿にいいねしました`,
-    body: postExcerpt ? `「${postExcerpt}」` : "あなたの投稿にいいねがつきました。",
+    title: tNotif(locale, "postLiked.title", { likerName }),
+    body: postExcerpt
+      ? tNotif(locale, "postLiked.bodyWithExcerpt", { postExcerpt })
+      : tNotif(locale, "postLiked.bodyNoExcerpt"),
     linkUrl: `${SITE_URL}/feed/${postId}`,
   };
 }
@@ -194,11 +247,12 @@ export function postLiked(likerName: string, postExcerpt: string, postId: string
 export function newPostComment(
   commenterName: string,
   commentExcerpt: string,
-  postId: string
+  postId: string,
+  locale: SupportedLocale
 ): NotificationContent {
   return {
-    title: `${commenterName}さんが投稿にコメントしました`,
-    body: `「${commentExcerpt}」`,
+    title: tNotif(locale, "newPostComment.title", { commenterName }),
+    body: tNotif(locale, "newPostComment.body", { commentExcerpt }),
     linkUrl: `${SITE_URL}/feed/${postId}`,
   };
 }
@@ -207,19 +261,24 @@ export function newQuestion(
   askerName: string,
   toolName: string,
   questionExcerpt: string,
-  slug: string
+  slug: string,
+  locale: SupportedLocale
 ): NotificationContent {
   return {
-    title: `「${toolName}」に質問が届きました`,
-    body: `${askerName}さん: 「${questionExcerpt}」`,
+    title: tNotif(locale, "newQuestion.title", { toolName }),
+    body: tNotif(locale, "newQuestion.body", { askerName, questionExcerpt }),
     linkUrl: `${SITE_URL}/apps/${slug}#qa`,
   };
 }
 
-export function questionAnswered(toolName: string, slug: string): NotificationContent {
+export function questionAnswered(
+  toolName: string,
+  slug: string,
+  locale: SupportedLocale
+): NotificationContent {
   return {
-    title: `「${toolName}」への質問に回答がありました`,
-    body: "商品ページで回答を確認できます。",
+    title: tNotif(locale, "questionAnswered.title", { toolName }),
+    body: tNotif(locale, "questionAnswered.body"),
     linkUrl: `${SITE_URL}/apps/${slug}#qa`,
   };
 }
@@ -227,11 +286,12 @@ export function questionAnswered(toolName: string, slug: string): NotificationCo
 export function newRequestLink(
   toolName: string,
   requestTitle: string,
-  requestId: string
+  requestId: string,
+  locale: SupportedLocale
 ): NotificationContent {
   return {
-    title: `リクエストに回答するツールが見つかりました`,
-    body: `「${requestTitle}」に「${toolName}」が紐付けられました。`,
+    title: tNotif(locale, "newRequestLink.title"),
+    body: tNotif(locale, "newRequestLink.body", { requestTitle, toolName }),
     linkUrl: `${SITE_URL}/requests#${requestId}`,
   };
 }

@@ -386,7 +386,7 @@ export async function togglePostLike(
     await notify(
       post.author_id,
       "post_liked",
-      postLiked(name, post.content.slice(0, 60), postId),
+      (locale) => postLiked(name, post.content.slice(0, 60), postId, locale),
       { email: false } // いいねは頻度が高くなりうるため、アプリ内通知のみ
     );
   });
@@ -436,7 +436,7 @@ export async function addComment(
     await notify(
       post.author_id,
       "new_post_comment",
-      newPostComment(commenterName, trimmed.slice(0, 60), postId),
+      (locale) => newPostComment(commenterName, trimmed.slice(0, 60), postId, locale),
       { email: true }
     );
   });

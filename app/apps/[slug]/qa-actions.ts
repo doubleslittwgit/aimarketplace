@@ -60,7 +60,7 @@ export async function askQuestion(
     await notify(
       tool.author_id,
       "new_question",
-      newQuestion(name, tool.name, trimmed.slice(0, 60), slug),
+      (locale) => newQuestion(name, tool.name, trimmed.slice(0, 60), slug, locale),
       { email: true }
     );
   });
@@ -120,7 +120,7 @@ export async function answerQuestion(
     notify(
       existing.asker_id,
       "question_answered",
-      questionAnswered(existing.tools?.name ?? "", slug),
+      (locale) => questionAnswered(existing.tools?.name ?? "", slug, locale),
       { email: true }
     )
   );

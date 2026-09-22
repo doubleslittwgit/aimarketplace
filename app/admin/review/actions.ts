@@ -60,7 +60,7 @@ export async function approveTool(toolId: string): Promise<ReviewActionResult> {
   if (error) return { error: tAdmin("approveFailed", { message: error.message }) };
 
   if (tool) {
-    await notify(tool.author_id, "tool_approved", toolApproved(tool.name, tool.slug));
+    await notify(tool.author_id, "tool_approved", (locale) => toolApproved(tool.name, tool.slug, locale));
     // 公開直後の最初の訪問者を待たせないよう、この場で翻訳しておく
     // （閲覧時にも無ければ翻訳する仕組みがあるので、ここが失敗しても実害は無い）。
     after(() => translateAndSaveTool(tool.id, tool.name, tool.tagline, tool.description));
@@ -98,7 +98,7 @@ export async function rejectTool(
   if (error) return { error: tAdmin("rejectFailed", { message: error.message }) };
 
   if (tool) {
-    await notify(tool.author_id, "tool_rejected", toolRejected(tool.name, reason.trim()));
+    await notify(tool.author_id, "tool_rejected", (locale) => toolRejected(tool.name, reason.trim(), locale));
   }
 
   revalidatePath("/admin/review");
@@ -143,7 +143,7 @@ export async function unpublishToolByAdmin(
   await notify(
     tool.author_id,
     "tool_unpublished_by_admin",
-    toolUnpublishedByAdminContent(tool.name, reason.trim())
+    (locale) => toolUnpublishedByAdminContent(tool.name, reason.trim(), locale)
   );
 
   revalidatePath("/admin/review");

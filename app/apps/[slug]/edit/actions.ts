@@ -159,7 +159,7 @@ export async function updateTool(
       const authorName =
         authorProfile?.display_name || authorProfile?.handle || "出品者";
 
-      await notify(user.id, "tool_edit_triggered_review", toolEditTriggeredReview(name));
+      await notify(user.id, "tool_edit_triggered_review", (locale) => toolEditTriggeredReview(name, locale));
       await notifyAdmins("admin_new_pending_review", adminNewPendingReview(name, authorName));
     });
   }

@@ -86,7 +86,7 @@ export async function upsertReview(
     // 自分の購入したツールに自分でレビューは書けない設計だが、
     // 念のため出品者本人には通知しない分岐を入れておく
     if (tool && tool.author_id !== user.id) {
-      await notify(tool.author_id, "new_review", newReview(tool.name, rating, slug));
+      await notify(tool.author_id, "new_review", (locale) => newReview(tool.name, rating, slug, locale));
     }
   }
 

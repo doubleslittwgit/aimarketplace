@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE } from "@/lib/mock-data";
 import { notifyAdmins } from "@/lib/notifications/create";
@@ -53,6 +53,12 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   if (!user) {
     return { error: t("submitLoginRequired") };
   }
+
+  // 「その人が出品した時に使っていた言語」でメール通知を送るため、
+  // 出品するたびに、今このページで使われているロケールを記録しておく。
+  // 失敗しても出品自体は止めない（通知の言語が古いままになるだけ）。
+  const currentLocale = await getLocale();
+  await supabase.from("profiles").update({ locale: currentLocale }).eq("id", user.id);
 
   const name = String(formData.get("name") || "").trim();
   const tagline = String(formData.get("tagline") || "").trim();

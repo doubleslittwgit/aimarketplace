@@ -112,14 +112,68 @@
     "unnamedUser": "未設定のユーザー"
   },
   "notifications": {
-    "title": "通知",
-    "markAllRead": "すべて既読にする",
-    "empty": "通知はまだありません。",
-    "justNow": "たった今",
-    "minutesAgo": "{minutes}分前",
-    "hoursAgo": "{hours}時間前",
-    "daysAgo": "{days}日前",
-    "bellAriaLabel": "通知"
+    "toolApproved": {
+      "title": "「{toolName}」が公開されました",
+      "body": "審査を通過し、マーケットに公開されました。"
+    },
+    "toolRejected": {
+      "title": "「{toolName}」が却下されました",
+      "body": "却下理由: {reason}"
+    },
+    "toolAutoRejectedRisk": {
+      "title": "「{toolName}」が自動的に却下されました",
+      "body": "内容の自動チェックにより却下されました。理由: {reason}"
+    },
+    "toolEditTriggeredReview": {
+      "title": "「{toolName}」が再審査待ちになりました",
+      "body": "価格の値上げ・サムネイル・ファイルの変更があったため、公開を一時停止し再審査しています。審査が終わるまで、新規購入者には表示されません（既に購入済みの方はダウンロードを継続できます）。"
+    },
+    "toolUnpublishedByAdmin": {
+      "title": "「{toolName}」が非公開になりました",
+      "body": "運営により非公開にされました。理由: {reason}"
+    },
+    "sale": {
+      "title": "「{toolName}」が売れました",
+      "body": "{buyerName}さんが購入しました（あなたの取り分: {earnings}）。"
+    },
+    "newReview": {
+      "title": "「{toolName}」に新しいレビューがつきました",
+      "body": "評価: {stars}"
+    },
+    "sellerAccountStatusTitle": "受け取り設定の状況が更新されました",
+    "sellerAccountEnabled": "受け取り設定が完了し、有料ツールの販売・入金ができるようになりました。",
+    "sellerAccountRequirementsDue": "受け取り設定に追加の情報が必要です。ご確認ください。",
+    "sellerAccountDisabled": "受け取り設定の状態が変わり、現在は入金を受け付けられません。",
+    "purchaseReceipt": {
+      "title": "「{toolName}」のご購入ありがとうございます",
+      "body": "{price}のお支払いが完了しました。マイページからいつでもダウンロードできます。",
+      "emailSubject": "ご購入ありがとうございます — {toolName}"
+    },
+    "newFollower": {
+      "title": "{followerName}さんにフォローされました",
+      "body": "プロフィールを見てみましょう。"
+    },
+    "postLiked": {
+      "title": "{likerName}さんが投稿にいいねしました",
+      "bodyWithExcerpt": "「{postExcerpt}」",
+      "bodyNoExcerpt": "あなたの投稿にいいねがつきました。"
+    },
+    "newPostComment": {
+      "title": "{commenterName}さんが投稿にコメントしました",
+      "body": "「{commentExcerpt}」"
+    },
+    "newQuestion": {
+      "title": "「{toolName}」に質問が届きました",
+      "body": "{askerName}さん: 「{questionExcerpt}」"
+    },
+    "questionAnswered": {
+      "title": "「{toolName}」への質問に回答がありました",
+      "body": "商品ページで回答を確認できます。"
+    },
+    "newRequestLink": {
+      "title": "リクエストに回答するツールが見つかりました",
+      "body": "「{requestTitle}」に「{toolName}」が紐付けられました。"
+    }
   },
   "footer": {
     "tagline": "AIで生まれたツールが集まる港。",

@@ -112,14 +112,68 @@
     "unnamedUser": "未設定使用者"
   },
   "notifications": {
-    "title": "通知",
-    "markAllRead": "全部標為已讀",
-    "empty": "目前還沒有通知。",
-    "justNow": "剛剛",
-    "minutesAgo": "{minutes} 分鐘前",
-    "hoursAgo": "{hours} 小時前",
-    "daysAgo": "{days} 天前",
-    "bellAriaLabel": "通知"
+    "toolApproved": {
+      "title": "「{toolName}」已上架",
+      "body": "已通過審核，現已在市集公開。"
+    },
+    "toolRejected": {
+      "title": "「{toolName}」已被駁回",
+      "body": "駁回原因：{reason}"
+    },
+    "toolAutoRejectedRisk": {
+      "title": "「{toolName}」已被自動駁回",
+      "body": "經自動內容檢查後被駁回。原因：{reason}"
+    },
+    "toolEditTriggeredReview": {
+      "title": "「{toolName}」已重新進入審核",
+      "body": "因為漲價、更換縮圖或檔案，已暫時下架並重新審核。審核完成前，新買家將看不到此工具（已購買的使用者仍可繼續下載）。"
+    },
+    "toolUnpublishedByAdmin": {
+      "title": "「{toolName}」已被下架",
+      "body": "已由營運團隊下架。原因：{reason}"
+    },
+    "sale": {
+      "title": "「{toolName}」售出了！",
+      "body": "{buyerName} 購買了此工具（您的分潤：{earnings}）。"
+    },
+    "newReview": {
+      "title": "「{toolName}」有新評價",
+      "body": "評分：{stars}"
+    },
+    "sellerAccountStatusTitle": "收款設定狀態已更新",
+    "sellerAccountEnabled": "收款設定已完成，現在可以銷售付費工具並收款。",
+    "sellerAccountRequirementsDue": "收款設定需要補充更多資訊，請確認。",
+    "sellerAccountDisabled": "收款狀態已變更，目前暫時無法入帳。",
+    "purchaseReceipt": {
+      "title": "感謝您購買「{toolName}」",
+      "body": "已完成 {price} 的付款，您可以隨時從會員中心下載。",
+      "emailSubject": "感謝您的購買 — {toolName}"
+    },
+    "newFollower": {
+      "title": "{followerName} 開始追蹤您",
+      "body": "去看看對方的個人資料吧。"
+    },
+    "postLiked": {
+      "title": "{likerName} 對您的貼文按讚",
+      "bodyWithExcerpt": "「{postExcerpt}」",
+      "bodyNoExcerpt": "有人對您的貼文按了讚。"
+    },
+    "newPostComment": {
+      "title": "{commenterName} 在您的貼文留言",
+      "body": "「{commentExcerpt}」"
+    },
+    "newQuestion": {
+      "title": "「{toolName}」收到新提問",
+      "body": "{askerName}：「{questionExcerpt}」"
+    },
+    "questionAnswered": {
+      "title": "您對「{toolName}」的提問已獲回覆",
+      "body": "可以在商品頁面查看回覆內容。"
+    },
+    "newRequestLink": {
+      "title": "找到回應您需求的工具了",
+      "body": "「{toolName}」已連結至「{requestTitle}」。"
+    }
   },
   "footer": {
     "tagline": "由 AI 打造的工具，齊聚一堂。",

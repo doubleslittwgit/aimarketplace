@@ -66,7 +66,7 @@ export async function toggleFollow(
       .maybeSingle();
     const name = followerProfile?.display_name || followerProfile?.handle || "";
     const handle = followerProfile?.handle || "";
-    await notify(targetProfileId, "new_follower", newFollower(name, handle), { email: true });
+    await notify(targetProfileId, "new_follower", (locale) => newFollower(name, handle, locale), { email: true });
   });
 
   revalidatePath(`/u/${targetHandle}`);

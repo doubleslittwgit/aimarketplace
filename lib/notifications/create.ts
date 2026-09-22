@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, notificationEmailHtml } from "@/lib/email/resend";
 import type { NotificationContent } from "@/lib/notifications/content";
+import type { SupportedLocale } from "@/lib/deepl";
 
 /**
  * 通知を1件作成する（アプリ内通知の保存 + メール送信）。
@@ -13,23 +14,43 @@ import type { NotificationContent } from "@/lib/notifications/content";
  * 呼び出せるのはサーバー側のコード（サーバーアクション・Webhook）のみで、
  * クライアントから直接呼ばれることはない。
  *
+ * 【多言語対応について】
+ * contentは、固定の内容（管理者向け通知など）ならそのまま渡してよいが、
+ * 利用者向けの通知は「その人が最後に出品した時の言語」で送りたいため、
+ * ロケールを受け取って内容を組み立てる関数として渡せるようにしている。
+ * ここで受信者(userId)のprofiles.localeを一度だけ調べ、その結果を
+ * 渡すことで、呼び出し側が毎回ロケールを調べる必要が無いようにしている。
+ *
  * メール送信が失敗しても、アプリ内通知の保存は独立して成功させる
  * （逆も同様）。どちらか一方が失敗しても、もう一方はユーザーに届く。
  */
 export async function notify(
   userId: string,
   type: string,
-  content: NotificationContent,
+  content: NotificationContent | ((locale: SupportedLocale) => NotificationContent),
   options: { email?: boolean } = { email: true }
 ): Promise<void> {
   const admin = createAdminClient();
 
+  let resolvedContent: NotificationContent;
+  if (typeof content === "function") {
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("locale")
+      .eq("id", userId)
+      .maybeSingle();
+    const locale = (profile?.locale as SupportedLocale) || "ja";
+    resolvedContent = content(locale);
+  } else {
+    resolvedContent = content;
+  }
+
   const { error: insertError } = await admin.from("notifications").insert({
     user_id: userId,
     type,
-    title: content.title,
-    body: content.body,
-    link_url: content.linkUrl,
+    title: resolvedContent.title,
+    body: resolvedContent.body,
+    link_url: resolvedContent.linkUrl,
   });
 
   if (insertError) {
@@ -52,11 +73,11 @@ export async function notify(
 
     const result = await sendEmail({
       to: userData.user.email,
-      subject: content.emailSubject ?? content.title,
+      subject: resolvedContent.emailSubject ?? resolvedContent.title,
       html: notificationEmailHtml({
-        title: content.title,
-        body: content.body,
-        linkUrl: content.linkUrl,
+        title: resolvedContent.title,
+        body: resolvedContent.body,
+        linkUrl: resolvedContent.linkUrl,
       }),
     });
 
