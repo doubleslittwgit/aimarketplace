@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import CourseEditor from "@/components/academy/CourseEditor";
+import AcademyCelebration from "@/components/academy/AcademyCelebration";
 import { saveCourse } from "@/app/academy/actions";
 import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
 import {
@@ -25,6 +26,7 @@ export default function CourseComposer({
   initial,
   myTools,
   canReceivePayments,
+  celebrateOnMount = false,
 }: {
   /** 既存の講座を編集する場合のID（新規作成時は無し） */
   courseId?: string;
@@ -44,6 +46,8 @@ export default function CourseComposer({
   myTools: ToolOption[];
   /** 売上の受け取り設定・本人確認が済んでいるか（有料で出すのに必要） */
   canReceivePayments: boolean;
+  /** 新規の講座を提出した直後（編集用のURLに切り替わった後）に、お祝いの演出を出す */
+  celebrateOnMount?: boolean;
 }) {
   const t = useTranslations("academyEditor");
   const locale = useLocale();
@@ -64,6 +68,7 @@ export default function CourseComposer({
   const [dirty, setDirty] = useState(false);
   // 最後に保存できた日時。保存ボタンの横に「✅ 保存 9/24 5:41」と出し、
   // 押した結果が分からない状態をなくす
+  const [celebrate, setCelebrate] = useState(celebrateOnMount);
   const [savedAt, setSavedAt] = useState<Date | null>(initial.savedAt ? new Date(initial.savedAt) : null);
   const [thumbUploading, setThumbUploading] = useState(false);
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
@@ -147,13 +152,13 @@ export default function CourseComposer({
       setDirty(false);
       setSavedAt(new Date());
       if (submit) setStatus("pending_review");
-      setMessage(
-        submit
-          ? { kind: "ok", text: "alreadyPending" in result && result.alreadyPending ? t("alreadyInReview") : t("submitted") }
-          : null
-      );
-      // 新規作成だった場合は、再読み込みしても続きから編集できるURLへ切り替える
-      if (!courseId) router.replace(`/academy/${id}/edit`);
+      const repeat = "alreadyPending" in result && Boolean(result.alreadyPending);
+      // 初めての提出は、中央のお祝い演出で知らせる（再提出は帯で「すでに審査中」と伝える）
+      setMessage(submit && repeat ? { kind: "ok", text: t("alreadyInReview") } : null);
+      if (submit && !repeat && courseId) setCelebrate(true);
+      // 新規作成だった場合は、再読み込みしても続きから編集できるURLへ切り替える。
+      // 画面が切り替わるので、演出は切り替わった先で出す（?submitted=1 で合図する）
+      if (!courseId) router.replace(`/academy/${id}/edit${submit && !repeat ? "?submitted=1" : ""}`);
     });
   }
 
@@ -168,6 +173,19 @@ export default function CourseComposer({
 
   return (
     <div className="min-h-screen bg-bg">
+      {celebrate && (
+        <AcademyCelebration
+          title={t("celebrate.title")}
+          body={t("celebrate.body")}
+          primary={{ label: t("celebrate.toDashboard"), href: "/dashboard" }}
+          secondary={{ label: t("celebrate.close") }}
+          onClose={() => {
+            setCelebrate(false);
+            // 合図のパラメータを消す（残すと再読み込みのたびに演出が出る）
+            if (celebrateOnMount) router.replace(`/academy/${id}/edit`);
+          }}
+        />
+      )}
       {/* ------- 上部バー（Canvaのような編集専用のバー） -------
           保存の結果（日時・エラー）は必ずここに出す。以前は結果をページの一番上に
           出していたため、本文を書いてスクロールした状態では見えず、保存できたのか

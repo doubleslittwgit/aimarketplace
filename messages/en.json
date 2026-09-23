@@ -1177,7 +1177,13 @@
     },
     "savedAt": "Saved {time}",
     "saveFailedShort": "⚠️ Couldn't save",
-    "alreadyInReview": "This course is already in review. Your changes were saved, and the review will use the latest version."
+    "alreadyInReview": "This course is already in review. Your changes were saved, and the review will use the latest version.",
+    "celebrate": {
+      "title": "Your course is submitted!",
+      "body": "Once it passes review it'll be published on BuildBay Academy, and you'll get a notification. You can keep editing the draft meanwhile.",
+      "toDashboard": "Go to dashboard",
+      "close": "Close"
+    }
   },
   "academyHome": {
     "tagline": "Learn. Build. Share.",
@@ -1370,6 +1376,12 @@
       "ownCourse": "You can't buy your own course",
       "sellerCannotReceive": "The author hasn't finished payout setup, so this course can't be bought yet",
       "checkoutFailed": "Couldn't start checkout: {message}"
+    },
+    "celebrate": {
+      "title": "Thanks for your purchase!",
+      "body": "The full course, paid sections included, is now yours to read anytime. You'll also find it under Purchased courses in your dashboard.",
+      "read": "Start reading",
+      "toDashboard": "Go to dashboard"
     }
   },
   "creativeHome": {

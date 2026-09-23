@@ -1177,7 +1177,13 @@
     },
     "savedAt": "已儲存 {time}",
     "saveFailedShort": "⚠️ 無法儲存",
-    "alreadyInReview": "此課程已在審核中。變更內容已儲存，審核將使用最新版本。"
+    "alreadyInReview": "此課程已在審核中。變更內容已儲存，審核將使用最新版本。",
+    "celebrate": {
+      "title": "課程已送出！",
+      "body": "審核通過後將在 BuildBay Academy 上架，結果會以通知告知您。審核期間仍可編輯草稿。",
+      "toDashboard": "前往會員中心確認",
+      "close": "關閉"
+    }
   },
   "academyHome": {
     "tagline": "學習、創作、擴散。",
@@ -1370,6 +1376,12 @@
       "ownCourse": "無法購買自己的課程",
       "sellerCannotReceive": "作者尚未完成收款設定，目前無法購買",
       "checkoutFailed": "無法準備付款：{message}"
+    },
+    "celebrate": {
+      "title": "感謝您的購買！",
+      "body": "現在可以隨時閱讀包含付費部分的全文，也能從會員中心的「已購買的課程」開啟。",
+      "read": "開始閱讀",
+      "toDashboard": "前往會員中心"
     }
   },
   "creativeHome": {

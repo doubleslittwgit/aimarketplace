@@ -1177,7 +1177,13 @@
     },
     "savedAt": "保存 {time}",
     "saveFailedShort": "⚠️ 保存できませんでした",
-    "alreadyInReview": "この講座はすでに審査中です。内容の変更は保存し、審査には最新の内容が使われます。"
+    "alreadyInReview": "この講座はすでに審査中です。内容の変更は保存し、審査には最新の内容が使われます。",
+    "celebrate": {
+      "title": "講座を提出しました！",
+      "body": "審査が終わると BuildBay Academy に公開され、結果はお知らせで届きます。審査中も下書きの編集はできます。",
+      "toDashboard": "マイページで確認する",
+      "close": "閉じる"
+    }
   },
   "academyHome": {
     "tagline": "学ぶ、つくる、広がる。",
@@ -1370,6 +1376,12 @@
       "ownCourse": "自分の講座は購入できません",
       "sellerCannotReceive": "作者の受け取り設定が完了していないため、現在は購入できません",
       "checkoutFailed": "決済の準備に失敗しました：{message}"
+    },
+    "celebrate": {
+      "title": "ご購入ありがとうございます！",
+      "body": "有料部分を含む全文を、いつでも読めるようになりました。マイページの「購入した講座」からも開けます。",
+      "read": "講座を読む",
+      "toDashboard": "マイページへ"
     }
   },
   "creativeHome": {

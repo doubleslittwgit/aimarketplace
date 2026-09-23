@@ -175,3 +175,9 @@ body {
 
 /* BuildBay Academy：見出し用の明朝体（端末に入っているフォントを使い、追加の読み込みはしない） */
 .ac-serif { font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "Noto Serif CJK JP", "Songti TC", "PMingLiU", serif; }
+
+/* Academy のお祝い演出の紙吹雪 */
+@keyframes ac-confetti-fall {
+  from { transform: translateY(0) rotate(0deg); opacity: 1; }
+  to { transform: translateY(105vh) rotate(420deg); opacity: 0.25; }
+}

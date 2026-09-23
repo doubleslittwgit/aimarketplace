@@ -11,6 +11,7 @@ import { renderCourseHtml } from "@/lib/academy/render";
 import { isCourseCategory } from "@/lib/academy/categories";
 import { COURSE_PURCHASE_ENABLED } from "@/lib/academy/flags";
 import BuyCourseButton from "@/components/academy/BuyCourseButton";
+import PurchasedCelebration from "@/components/academy/PurchasedCelebration";
 import type { JSONNode, TocItem } from "@/lib/course-content";
 
 type CourseRow = {
@@ -176,25 +177,15 @@ export default async function CoursePage({
     <div className="flex min-h-screen flex-col bg-bg text-text-primary">
       <Header />
 
-      {justPurchased && (
-        <div
-          className={`border-b px-4 py-2.5 text-center text-[13px] ${
-            purchased
-              ? "border-accent-success/30 bg-accent-success/10 text-accent-success"
-              : "border-accent-ai/30 bg-accent-ai-dim text-accent-ai"
-          }`}
-        >
-          {purchased ? (
-            t("purchasedBanner")
-          ) : (
-            // Stripeから戻った直後は、支払い完了の通知がまだ届いていないことがある
-            <>
-              {t("purchasePending")}{" "}
-              <Link href={`/academy/courses/${course.slug}?purchased=1`} className="font-semibold underline">
-                {t("reload")}
-              </Link>
-            </>
-          )}
+      {/* 購入が確認できていれば中央のお祝い演出、まだなら「確認中」の帯を出す */}
+      {justPurchased && purchased && <PurchasedCelebration />}
+      {justPurchased && !purchased && (
+        <div className="border-b border-accent-ai/30 bg-accent-ai-dim px-4 py-2.5 text-center text-[13px] text-accent-ai">
+          {/* Stripeから戻った直後は、支払い完了の通知がまだ届いていないことがある */}
+          {t("purchasePending")}{" "}
+          <Link href={`/academy/courses/${course.slug}?purchased=1`} className="font-semibold underline">
+            {t("reload")}
+          </Link>
         </div>
       )}
 

@@ -6,8 +6,15 @@ import type { JSONNode } from "@/lib/course-content";
 
 export const metadata = { title: "講座を編集 | BuildBay Academy" };
 
-export default async function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditCoursePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ submitted?: string }>;
+}) {
   const { id } = await params;
+  const justSubmitted = (await searchParams).submitted === "1";
   const supabase = await createClient();
   const {
     data: { user },
@@ -37,6 +44,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
       userId={user.id}
       myTools={myTools}
       canReceivePayments={Boolean(canReceive)}
+      celebrateOnMount={justSubmitted}
       initial={{
         title: course.title,
         thumbnailUrl: course.thumbnail_url,
