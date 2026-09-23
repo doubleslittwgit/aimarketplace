@@ -1160,14 +1160,21 @@
       "paywallNested": "付費線只能放在段落與段落之間",
       "multiplePaywalls": "付費線只能設定一條",
       "disallowedMark": "內文包含無法使用的格式",
-      "invalidLink": "連結僅支援 http:// 或 https:// 開頭的網址"
+      "invalidLink": "連結僅支援 http:// 或 https:// 開頭的網址",
+      "unexpected": "儲存時發生未預期的錯誤（撰寫的內容仍保留在畫面上）。請再試一次：{message}"
     },
     "payoutNoticeTitle": "付費販售需要先完成收款設定・身分驗證",
     "payoutNoticeBody": "草稿可以照常儲存。送出審核前，請先完成設定。免費課程則不需要此設定。",
     "payoutNoticeCta": "前往設定",
     "category": "分類",
     "categoryNone": "未設定",
-    "refundPolicy": "退款方針"
+    "refundPolicy": "退款方針",
+    "pageError": {
+      "title": "無法顯示此頁面",
+      "body": "可能是暫時性的問題，請再試一次。若持續發生，請附上下方的ID告知我們。",
+      "retry": "再試一次",
+      "home": "回到Academy首頁"
+    }
   },
   "academyHome": {
     "tagline": "學習、創作、擴散。",

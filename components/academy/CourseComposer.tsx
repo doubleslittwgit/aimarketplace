@@ -106,7 +106,9 @@ export default function CourseComposer({
     if (submit && isPaid && !hasPaywall() && !window.confirm(t("confirmNoPaywall"))) return;
 
     startSaving(async () => {
-      const result = await saveCourse({
+      let result: Awaited<ReturnType<typeof saveCourse>>;
+      try {
+        result = await saveCourse({
         id,
         title,
         thumbnailUrl,
@@ -117,6 +119,14 @@ export default function CourseComposer({
         submit,
         toolIds,
       });
+      } catch (e) {
+        // 通信の失敗やサーバー側の想定外のエラーでも、書いた内容を失わないよう画面は維持する
+        setMessage({
+          kind: "error",
+          text: t("errors.unexpected", { message: e instanceof Error ? e.message : String(e) }),
+        });
+        return;
+      }
       if (result.error) {
         setMessage({ kind: "error", text: result.error });
         return;

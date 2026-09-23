@@ -54,7 +54,8 @@ function isHttpUrl(value: unknown): value is string {
 
 /** 画像は、自分たちのストレージに置かれたものだけを許可する */
 function isOwnStorageImage(src: unknown): boolean {
-  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  // 設定値の末尾に「/」が付いていても、正しく比較できるようにする
+  const base = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/+$/, "");
   return (
     typeof src === "string" &&
     !!base &&

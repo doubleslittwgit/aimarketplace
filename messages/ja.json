@@ -1160,14 +1160,21 @@
       "paywallNested": "有料ラインは段落と段落の間にだけ引けます",
       "multiplePaywalls": "有料ラインは1本だけ引けます",
       "disallowedMark": "使用できない装飾が含まれています",
-      "invalidLink": "リンクは http:// または https:// のURLのみ使えます"
+      "invalidLink": "リンクは http:// または https:// のURLのみ使えます",
+      "unexpected": "保存中に予期しないエラーが起きました（書いた内容は画面に残っています）。もう一度お試しください：{message}"
     },
     "payoutNoticeTitle": "有料で販売するには、売上の受け取り設定・本人確認が必要です",
     "payoutNoticeBody": "下書きはこのまま保存できます。審査に出す前に、設定を完了してください。無料の講座なら設定は不要です。",
     "payoutNoticeCta": "設定に進む",
     "category": "カテゴリ",
     "categoryNone": "未設定",
-    "refundPolicy": "返金対応"
+    "refundPolicy": "返金対応",
+    "pageError": {
+      "title": "ページを表示できませんでした",
+      "body": "一時的な問題の可能性があります。もう一度お試しください。続く場合は、下のIDを添えてお知らせください。",
+      "retry": "もう一度試す",
+      "home": "Academyトップへ"
+    }
   },
   "academyHome": {
     "tagline": "学ぶ、つくる、広がる。",

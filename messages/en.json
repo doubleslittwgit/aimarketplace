@@ -1160,14 +1160,21 @@
       "paywallNested": "The paywall can only go between paragraphs",
       "multiplePaywalls": "Only one paywall is allowed",
       "disallowedMark": "The content contains unsupported formatting",
-      "invalidLink": "Links must start with http:// or https://"
+      "invalidLink": "Links must start with http:// or https://",
+      "unexpected": "Something unexpected went wrong while saving (your writing is still on screen). Please try again: {message}"
     },
     "payoutNoticeTitle": "Paid courses need payouts & ID verification",
     "payoutNoticeBody": "You can keep saving drafts. Finish the setup before submitting for review. Free courses don't need it.",
     "payoutNoticeCta": "Go to setup",
     "category": "Category",
     "categoryNone": "None",
-    "refundPolicy": "Refunds"
+    "refundPolicy": "Refunds",
+    "pageError": {
+      "title": "This page couldn't be displayed",
+      "body": "It may be a temporary problem. Please try again. If it keeps happening, let us know with the ID below.",
+      "retry": "Try again",
+      "home": "Academy home"
+    }
   },
   "academyHome": {
     "tagline": "Learn. Build. Share.",

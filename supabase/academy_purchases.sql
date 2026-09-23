@@ -91,3 +91,9 @@ create policy "buyers can create refund requests for own purchases"
         where cp.id = course_purchase_id and cp.buyer_id = auth.uid() and cp.course_id = refund_requests.course_id and cp.status = 'completed'))
     )
   );
+
+-- courses / course_bodies の読み取り条件が course_purchases を参照しているため、
+-- ログインしていない閲覧者（anon）にも参照権限が必要（無いと Academy の一覧や、
+-- 講座と紐付いたツールのページが、ログインしていない人には permission denied で表示できなかった）。
+-- 行レベルの制限があるので、anon には1行も見えない（検証済み）。
+grant select on public.course_purchases to anon;

@@ -50,6 +50,18 @@ function withoutPaywall(doc: JSONNode): JSONNode {
  *   - course_bodies（金庫）  : 有料部分を含む全文
  */
 export async function saveCourse(input: SaveCourseInput): Promise<SaveCourseResult> {
+  // 予期しないエラーで画面全体がエラーページになるのを防ぎ、原因をメッセージとして返す。
+  // （実際にiPhoneで「下書き保存」がエラーページになった件の調査のため、詳細をログにも残す）
+  try {
+    return await saveCourseInner(input);
+  } catch (e) {
+    console.error("[saveCourse] unexpected error:", e);
+    const t = await getTranslations("academyEditor");
+    return { error: t("errors.unexpected", { message: e instanceof Error ? e.message : String(e) }) };
+  }
+}
+
+async function saveCourseInner(input: SaveCourseInput): Promise<SaveCourseResult> {
   const t = await getTranslations("academyEditor");
   const supabase = await createClient();
   const {
@@ -66,7 +78,8 @@ export async function saveCourse(input: SaveCourseInput): Promise<SaveCourseResu
   if (price < 0 || price > 100000) return { error: t("errors.invalidPrice") };
 
   // サムネイルは、本人がエディタからアップロードした画像だけを受け付ける
-  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  // 設定値の末尾に「/」が付いていても、正しく比較できるようにする
+  const base = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/+$/, "");
   const thumbnailUrl = input.thumbnailUrl || null;
   if (
     thumbnailUrl &&
