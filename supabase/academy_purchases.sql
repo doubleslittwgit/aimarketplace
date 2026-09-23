@@ -72,3 +72,22 @@ alter table public.refund_requests add constraint refund_requests_one_target che
   (purchase_id is not null and tool_id is not null and course_purchase_id is null and course_id is null)
   or (course_purchase_id is not null and course_id is not null and purchase_id is null and tool_id is null)
 );
+
+-- 返金・トラブル報告は「自分が実際に購入したもの」にしか出せないようにする。
+-- 以前は buyer_id が自分であることしか確認しておらず、公開鍵で直接問い合わせれば
+-- 他人の購入IDを指定した報告を作れてしまった。検証済み：本人の相談は通り、他人の購入の指定は拒否。
+drop policy if exists "buyers can create own refund requests" on public.refund_requests;
+create policy "buyers can create refund requests for own purchases"
+  on public.refund_requests for insert
+  with check (
+    auth.uid() = buyer_id
+    and (
+      (purchase_id is not null and exists (
+        select 1 from public.purchases p
+        where p.id = purchase_id and p.buyer_id = auth.uid() and p.tool_id = refund_requests.tool_id and p.status = 'completed'))
+      or
+      (course_purchase_id is not null and exists (
+        select 1 from public.course_purchases cp
+        where cp.id = course_purchase_id and cp.buyer_id = auth.uid() and cp.course_id = refund_requests.course_id and cp.status = 'completed'))
+    )
+  );

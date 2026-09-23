@@ -617,7 +617,9 @@
     "untitledCourse": "(Untitled)",
     "courseReturnedReason": "Returned: {reason}",
     "coursePendingNotice": "In review. You'll get a notification with the result.",
-    "preview": "Preview"
+    "preview": "Preview",
+    "boughtCourses": "Purchased courses",
+    "readCourse": "Read"
   },
   "auth": {
     "loginRequiredTitle": "Login required",

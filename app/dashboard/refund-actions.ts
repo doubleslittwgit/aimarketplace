@@ -18,7 +18,9 @@ export type SubmitRefundRequestResult = { error: string | null };
  */
 export async function submitRefundRequest(
   purchaseId: string,
-  message: string
+  message: string,
+  /** "course" なら BuildBay Academy の講座の購入への報告 */
+  kind: "tool" | "course" = "tool"
 ): Promise<SubmitRefundRequestResult> {
   const t = await getTranslations("errors");
   const tRefund = await getTranslations("refundRequest");
@@ -34,6 +36,32 @@ export async function submitRefundRequest(
   const trimmed = message.trim();
   if (!trimmed) {
     return { error: tRefund("messageRequired") };
+  }
+
+  if (kind === "course") {
+    // 講座の購入も、本当に自分の購入か・完了しているかを確認する
+    // （データベース側でも同じ条件で制限している）
+    const { data: cp } = await supabase
+      .from("course_purchases")
+      .select("id, course_id, buyer_id, status, courses(title)")
+      .eq("id", purchaseId)
+      .maybeSingle();
+    if (!cp || cp.buyer_id !== user.id || cp.status !== "completed") {
+      return { error: tRefund("purchaseNotFound") };
+    }
+    const { error: courseError } = await supabase.from("refund_requests").insert({
+      course_purchase_id: purchaseId,
+      course_id: cp.course_id,
+      buyer_id: user.id,
+      message: trimmed,
+    });
+    if (courseError) {
+      if (courseError.code === "23505") return { error: tRefund("alreadySubmitted") };
+      return { error: t("saveFailed", { message: courseError.message }) };
+    }
+    const courseTitle = (cp.courses as { title?: string } | null)?.title ?? "";
+    await notifyAdmins("admin_refund_requested", adminRefundRequested(`【講座】${courseTitle}`, trimmed));
+    return { error: null };
   }
 
   // 本当に自分の購入か、完了しているかを確認する

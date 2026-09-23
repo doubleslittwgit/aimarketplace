@@ -8,10 +8,13 @@ export default function ReportTroubleButton({
   purchaseId,
   toolName,
   alreadySubmitted,
+  kind = "tool",
 }: {
   purchaseId: string;
   toolName: string;
   alreadySubmitted: boolean;
+  /** "course" なら講座の購入への報告 */
+  kind?: "tool" | "course";
 }) {
   const t = useTranslations("refundRequest");
   const [open, setOpen] = useState(false);
@@ -29,7 +32,7 @@ export default function ReportTroubleButton({
   function handleSubmit() {
     setError(null);
     startTransition(async () => {
-      const result = await submitRefundRequest(purchaseId, message);
+      const result = await submitRefundRequest(purchaseId, message, kind);
       if (result.error) {
         setError(result.error);
         return;

@@ -617,7 +617,9 @@
     "untitledCourse": "（未設定標題）",
     "courseReturnedReason": "退回原因：{reason}",
     "coursePendingNotice": "審核中，結果會以通知告知您。",
-    "preview": "預覽"
+    "preview": "預覽",
+    "boughtCourses": "已購買的課程",
+    "readCourse": "閱讀"
   },
   "auth": {
     "loginRequiredTitle": "需要登入",

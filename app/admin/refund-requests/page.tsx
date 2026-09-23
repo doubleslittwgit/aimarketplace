@@ -16,6 +16,8 @@ export type RefundRequestRow = {
   tools: { name: string; slug: string } | null;
   buyer: { display_name: string | null; handle: string } | null;
   purchases: { price_paid: number } | null;
+  courses: { title: string; slug: string } | null;
+  course_purchases: { price_paid: number } | null;
 };
 
 export default async function AdminRefundRequestsPage() {
@@ -35,7 +37,7 @@ export default async function AdminRefundRequestsPage() {
   const { data } = await admin
     .from("refund_requests")
     .select(
-      "id, message, status, admin_note, created_at, purchase_id, tools:tool_id(name, slug), buyer:buyer_id(display_name, handle), purchases:purchase_id(price_paid)"
+      "id, message, status, admin_note, created_at, purchase_id, tools:tool_id(name, slug), buyer:buyer_id(display_name, handle), purchases:purchase_id(price_paid), courses:course_id(title, slug), course_purchases:course_purchase_id(price_paid)"
     )
     .order("created_at", { ascending: false })
     .limit(200);

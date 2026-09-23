@@ -617,7 +617,9 @@
     "untitledCourse": "（タイトル未設定）",
     "courseReturnedReason": "差し戻しの理由: {reason}",
     "coursePendingNotice": "審査中です。結果はお知らせで届きます。",
-    "preview": "プレビュー"
+    "preview": "プレビュー",
+    "boughtCourses": "購入した講座",
+    "readCourse": "読む"
   },
   "auth": {
     "loginRequiredTitle": "ログインが必要です",

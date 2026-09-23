@@ -49,6 +49,13 @@ type OwnToolRow = {
   thumbnail_url: string | null;
 };
 
+type BoughtCourseRow = {
+  id: string;
+  price_paid: number;
+  created_at: string;
+  courses: { id: string; slug: string; title: string; thumbnail_url: string | null } | null;
+};
+
 type MyCourseRow = {
   id: string;
   slug: string;
@@ -103,6 +110,7 @@ export default async function DashboardPage() {
     { data: refundRequestsData },
     { count: followerCount },
     { data: myCoursesData },
+    { data: boughtCoursesData },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -131,7 +139,7 @@ export default async function DashboardPage() {
       .eq("status", "completed")
       .order("created_at", { ascending: false }),
     supabase.from("posts").select("*", { count: "exact", head: true }).eq("author_id", user.id),
-    supabase.from("refund_requests").select("purchase_id").eq("buyer_id", user.id),
+    supabase.from("refund_requests").select("purchase_id, course_purchase_id").eq("buyer_id", user.id),
     supabase
       .from("follows")
       .select("follower_id", { count: "exact", head: true })
@@ -142,6 +150,13 @@ export default async function DashboardPage() {
       .select("id, slug, title, thumbnail_url, price, status, rejection_reason, updated_at")
       .eq("author_id", user.id)
       .order("updated_at", { ascending: false }),
+    // BuildBay Academy で購入した講座
+    supabase
+      .from("course_purchases")
+      .select("id, price_paid, created_at, courses(id, slug, title, thumbnail_url)")
+      .eq("buyer_id", user.id)
+      .eq("status", "completed")
+      .order("created_at", { ascending: false }),
   ]);
 
   const purchases = (purchasesData ?? []) as unknown as PurchaseRow[];
@@ -151,6 +166,10 @@ export default async function DashboardPage() {
   const refundedPurchaseIds = new Set(
     (refundRequestsData ?? []).map((r) => r.purchase_id)
   );
+  const refundedCoursePurchaseIds = new Set(
+    (refundRequestsData ?? []).map((r) => r.course_purchase_id).filter(Boolean)
+  );
+  const boughtCourses = (boughtCoursesData ?? []) as unknown as BoughtCourseRow[];
 
   const totalEarnings = sales.reduce((sum, s) => sum + s.seller_earnings, 0);
 
@@ -335,6 +354,51 @@ export default async function DashboardPage() {
               </div>
             )}
           </section>
+
+          {/* 購入した講座（BuildBay Academy）。講座を買った人が、あとから読み返しに戻れる場所 */}
+          {boughtCourses.length > 0 && (
+            <section className="mb-10">
+              <h2 className="mb-4 font-display text-lg font-semibold text-text-primary">{t("boughtCourses")}</h2>
+              <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
+                {boughtCourses.map((bc) => (
+                  <div key={bc.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="flex h-10 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-bg">
+                        {bc.courses?.thumbnail_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={bc.courses.thumbnail_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="font-display text-xs font-semibold text-text-dim/50">
+                            {(bc.courses?.title ?? "?").slice(0, 2)}
+                          </span>
+                        )}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-[14px] font-medium text-text-primary">{bc.courses?.title}</p>
+                        <p className="mt-0.5 font-mono text-[11px] text-text-dim">
+                          {formatPrice(bc.price_paid)} ・ {new Date(bc.created_at).toLocaleDateString(intlLocale)}
+                        </p>
+                        <ReportTroubleButton
+                          purchaseId={bc.id}
+                          toolName={bc.courses?.title ?? ""}
+                          alreadySubmitted={refundedCoursePurchaseIds.has(bc.id)}
+                          kind="course"
+                        />
+                      </div>
+                    </div>
+                    {bc.courses && (
+                      <Link
+                        href={`/academy/courses/${bc.courses.slug}`}
+                        className="shrink-0 rounded-lg bg-accent-success px-3.5 py-2 text-[13px] font-medium text-white transition hover:brightness-105"
+                      >
+                        {t("readCourse")}
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* 出品したツール */}
           <section className="mb-10">

@@ -132,6 +132,19 @@ function RequestRowItem({
           >
             {request.tools.name}
           </Link>
+        ) : request.courses ? (
+          <>
+            <span className="shrink-0 rounded-full bg-[#C9A227]/15 px-2 py-0.5 text-[10px] font-medium text-[#9C7A12]">
+              講座
+            </span>
+            <Link
+              href={`/academy/courses/${request.courses.slug}`}
+              target="_blank"
+              className="text-[13px] font-medium text-accent-signal hover:underline"
+            >
+              {request.courses.title}
+            </Link>
+          </>
         ) : (
           <span className="text-[12px] text-text-dim">（削除されたツール）</span>
         )}
@@ -146,7 +159,11 @@ function RequestRowItem({
 
       <p className="mt-1.5 font-mono text-[11px] text-text-dim">
         {request.buyer?.display_name ?? request.buyer?.handle ?? "不明な購入者"} ・{" "}
-        {request.purchases ? formatPrice(request.purchases.price_paid) : ""} ・{" "}
+        {request.purchases
+          ? formatPrice(request.purchases.price_paid)
+          : request.course_purchases
+            ? formatPrice(request.course_purchases.price_paid)
+            : ""} ・{" "}
         {new Date(request.created_at).toLocaleString("ja-JP")}
       </p>
 
