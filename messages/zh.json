@@ -68,7 +68,8 @@
     "reviewRequiresPurchase": "只有購買過此工具的使用者才能撰寫評論",
     "postFailed": "送出失敗：{message}",
     "claimFailed": "取得失敗：{message}",
-    "unsupportedFileType": "不支援的檔案格式"
+    "unsupportedFileType": "不支援的檔案格式",
+    "invalidVideoUrl": "介紹影片僅能登錄 YouTube 或 Vimeo 的網址"
   },
   "cookieNotice": {
     "text": "本服務使用維持登入狀態所必需的Cookie。詳情請參閱<link>隱私權政策</link>。",
@@ -353,7 +354,8 @@
       "empty": "目前還沒有評論。"
     },
     "versionHistory": "更新紀錄",
-    "noVersionHistory": "目前還沒有更新紀錄。"
+    "noVersionHistory": "目前還沒有更新紀錄。",
+    "videoSlide": "介紹影片"
   },
   "mfa": {
     "title": "雙重驗證",
@@ -823,7 +825,11 @@
     "refundPolicyHint": "在商品頁面顯示退款方針，讓買家更安心。",
     "wipLabel": "發布狀態（選填）",
     "wipEnable": "以「開發中」的狀態發布",
-    "wipHint": "尚未完成也能發布。會顯示「開發中」，讓有興趣的人能等待完成。"
+    "wipHint": "尚未完成也能發布。會顯示「開發中」，讓有興趣的人能等待完成。",
+    "videoUrlLabel": "介紹影片（選填）",
+    "videoUrlPlaceholder": "https://www.youtube.com/watch?v=...",
+    "videoUrlHint": "請貼上 YouTube 或 Vimeo 的網址（不公開影片也可以）。會顯示在商品頁面的最前面。",
+    "videoUrlInvalid": "僅能登錄 YouTube 或 Vimeo 的網址"
   },
   "categories": {
     "automation": "自動化與工作流程",
@@ -919,7 +925,7 @@
     },
     "toolEditTriggeredReview": {
       "title": "「{toolName}」已重新進入審核",
-      "body": "因為漲價、更換縮圖或檔案，已暫時下架並重新審核。審核完成前，新買家將看不到此工具（已購買的使用者仍可繼續下載）。"
+      "body": "因為漲價、更換縮圖、介紹影片或檔案，已暫時下架並重新審核。審核完成前，新買家將看不到此工具（已購買的使用者仍可繼續下載）。"
     },
     "toolUnpublishedByAdmin": {
       "title": "「{toolName}」已被下架",

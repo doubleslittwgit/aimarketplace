@@ -7,6 +7,7 @@ import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize
 import { categoryToSlug } from "@/lib/category-slugs";
 import { CREATIVE_APPS } from "@/lib/creative-apps";
 import { TOOL_FILE_ACCEPT, isAllowedToolFile } from "@/lib/tool-file-types";
+import { parseVideoUrl } from "@/lib/video-embed";
 import { compressImage, compressImagesSequentially, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
 import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
 import { createClient as createBrowserSupabase } from "@/lib/supabase/client";
@@ -27,6 +28,7 @@ type Tool = {
   remix_allowed: boolean;
   refund_policy: "none" | "conditional" | "full";
   is_wip: boolean;
+  video_url: string | null;
   runtime: "cloud" | "local";
   platforms: string[] | null;
   min_os_version: string | null;
@@ -75,6 +77,7 @@ export default function EditToolClient({
   // ファイルを差し替えた時だけ、バージョン情報の入力欄を出す
   const [fileReplaced, setFileReplaced] = useState(false);
   const [isWip, setIsWip] = useState(tool.is_wip);
+  const [videoUrl, setVideoUrl] = useState(tool.video_url ?? "");
   function toggleHostApp(slug: string) {
     setSelectedHostApps((prev) =>
       prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug]
@@ -485,6 +488,22 @@ export default function EditToolClient({
               {tSubmit("galleryHint", { limit: formatFileSize(MAX_THUMBNAIL_FILE_SIZE) ?? "" })}
             </p>
           </Field>
+
+              <Field label={tSubmit("videoUrlLabel")}>
+                <input
+                  type="url"
+                  name="videoUrl"
+                  defaultValue={tool.video_url ?? ""}
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  placeholder={tSubmit("videoUrlPlaceholder")}
+                  className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
+                />
+                {videoUrl.trim() && !parseVideoUrl(videoUrl) ? (
+                  <p className="mt-2 text-[12px] text-accent-danger">{tSubmit("videoUrlInvalid")}</p>
+                ) : (
+                  <p className="mt-2 text-[12px] text-text-dim">{tSubmit("videoUrlHint")}</p>
+                )}
+              </Field>
 
           <input type="hidden" name="platforms" value={platforms.join(",")} readOnly />
 

@@ -68,7 +68,8 @@
     "reviewRequiresPurchase": "このツールを購入した方だけがレビューを書けます",
     "postFailed": "投稿に失敗しました: {message}",
     "claimFailed": "取得に失敗しました: {message}",
-    "unsupportedFileType": "対応していないファイル形式です"
+    "unsupportedFileType": "対応していないファイル形式です",
+    "invalidVideoUrl": "紹介動画はYouTubeまたはVimeoのURLのみ登録できます"
   },
   "cookieNotice": {
     "text": "本サービスは、ログイン状態を維持するために必要なCookieを使用しています。詳しくは<link>プライバシーポリシー</link>をご覧ください。",
@@ -353,7 +354,8 @@
       "empty": "まだレビューはありません。"
     },
     "versionHistory": "更新履歴",
-    "noVersionHistory": "更新履歴はまだありません。"
+    "noVersionHistory": "更新履歴はまだありません。",
+    "videoSlide": "紹介動画"
   },
   "mfa": {
     "title": "二段階認証",
@@ -823,7 +825,11 @@
     "refundPolicyHint": "購入者が安心して買えるよう、返金の方針を商品ページに表示します。",
     "wipLabel": "公開状態（任意）",
     "wipEnable": "開発中のツールとして公開する",
-    "wipHint": "完成前でも公開できます。「開発中」と表示され、興味を持った人が完成を待てます。"
+    "wipHint": "完成前でも公開できます。「開発中」と表示され、興味を持った人が完成を待てます。",
+    "videoUrlLabel": "紹介動画（任意）",
+    "videoUrlPlaceholder": "https://www.youtube.com/watch?v=...",
+    "videoUrlHint": "YouTubeまたはVimeoのURLを貼ってください（限定公開でも可）。商品ページの一番最初に表示されます。",
+    "videoUrlInvalid": "YouTubeまたはVimeoのURLのみ登録できます"
   },
   "categories": {
     "automation": "自動化・ワークフロー",
@@ -919,7 +925,7 @@
     },
     "toolEditTriggeredReview": {
       "title": "「{toolName}」が再審査待ちになりました",
-      "body": "価格の値上げ・サムネイル・ファイルの変更があったため、公開を一時停止し再審査しています。審査が終わるまで、新規購入者には表示されません（既に購入済みの方はダウンロードを継続できます）。"
+      "body": "価格の値上げ・サムネイル・紹介動画・ファイルの変更があったため、公開を一時停止し再審査しています。審査が終わるまで、新規購入者には表示されません（既に購入済みの方はダウンロードを継続できます）。"
     },
     "toolUnpublishedByAdmin": {
       "title": "「{toolName}」が非公開になりました",

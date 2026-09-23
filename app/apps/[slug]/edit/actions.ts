@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE, formatPrice } from "@/lib/mock-data";
 import { isAllowedToolFile } from "@/lib/tool-file-types";
+import { parseVideoUrl } from "@/lib/video-embed";
 import { translateAndSaveTool } from "@/lib/translate-tool";
 import { notify, notifyAdmins } from "@/lib/notifications/create";
 import {
@@ -59,7 +60,7 @@ export async function updateTool(
   // 「他人のツールを編集しようとした」という分かりやすいエラーを返せる。
   const { data: existing, error: fetchError } = await supabase
     .from("tools")
-    .select("id, slug, author_id, runtime, file_key, thumbnail_url, status, price, sale_price")
+    .select("id, slug, author_id, runtime, file_key, thumbnail_url, status, price, sale_price, video_url")
     .eq("id", toolId)
     .maybeSingle();
 
@@ -84,6 +85,13 @@ export async function updateTool(
     ? refundPolicyRaw
     : "none";
   const isWip = formData.get("isWip") === "1";
+  // 紹介動画（YouTube/Vimeoのみ）。ブラウザ側でも注意を出しているが、
+  // 保存するかどうかの判断は必ずサーバー側で行う。
+  const videoUrlRaw = String(formData.get("videoUrl") || "").trim();
+  if (videoUrlRaw && !parseVideoUrl(videoUrlRaw)) {
+    return { error: t("invalidVideoUrl") };
+  }
+  const videoUrl = videoUrlRaw || null;
   // バージョン履歴（ファイルを差し替えた時だけ、出品者が任意で書き残せる）
   const newVersion = String(formData.get("newVersion") || "").trim();
   const changelog = String(formData.get("changelog") || "").trim();
@@ -175,7 +183,12 @@ export async function updateTool(
   const priceIncreased = price > existing.price;
   const needsReReview =
     existing.status === "published" &&
-    (priceIncreased || Boolean(uploadedThumbnailUrl) || Boolean(uploadedFileKey));
+    (priceIncreased ||
+      Boolean(uploadedThumbnailUrl) ||
+      Boolean(uploadedFileKey) ||
+      // 紹介動画の差し替えも、サムネイルと同じく「見た目で釣る」差し替えに使えるため再審査。
+      // （動画を外すだけなら審査は不要）
+      (Boolean(videoUrl) && videoUrl !== existing.video_url));
 
   const nextStatus: string | undefined = needsReReview ? "pending_review" : undefined;
 
@@ -206,6 +219,7 @@ export async function updateTool(
       remix_allowed: remixAllowed,
       refund_policy: refundPolicy,
       is_wip: isWip,
+      video_url: videoUrl,
       price,
       sale_price: salePrice,
       sale_ends_at: saleEndsAt,

@@ -36,6 +36,7 @@
 | `protect_tool_columns.sql` | 審査ステータス・実績カウントの改ざん防止（後から足したもの） |
 | `add_policy_wip_announcements.sql` | 返金ポリシー・開発中フラグ・出品者のお知らせ（後から足したもの） |
 | `add_tips_and_notes.sql` | 使い方のコツ投稿・チップ（後から足したもの） |
+| `add_tool_video_url.sql` | 商品ページの紹介動画（後から足したもの） |
 | `increment_install.sql` | ダウンロード数を加算する関数 |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
 
@@ -84,9 +85,10 @@
 25. `add_versions_and_remix.sql`
 26. `add_policy_wip_announcements.sql`
 27. `add_tips_and_notes.sql`
-28. `increment_install.sql`
-29. `protect_tool_columns.sql`
-30. `grants.sql` ← **必ず最後**
+28. `add_tool_video_url.sql`
+29. `increment_install.sql`
+30. `protect_tool_columns.sql`
+31. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」

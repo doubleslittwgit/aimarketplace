@@ -30,6 +30,8 @@ export type Tool = {
   refundPolicy?: "none" | "conditional" | "full";
   /** 完成前の「開発中」として公開しているか */
   isWip?: boolean;
+  /** 紹介動画のURL（YouTube/Vimeoのみ） */
+  videoUrl?: string | null;
 };
 
 // 出品フォームの上限（サーバー側 app/submit/actions.ts のチェックと必ず揃えること）

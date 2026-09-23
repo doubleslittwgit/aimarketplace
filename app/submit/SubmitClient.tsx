@@ -6,6 +6,7 @@ import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize
 import { categoryToSlug } from "@/lib/category-slugs";
 import { CREATIVE_APPS } from "@/lib/creative-apps";
 import { TOOL_FILE_ACCEPT, isAllowedToolFile } from "@/lib/tool-file-types";
+import { parseVideoUrl } from "@/lib/video-embed";
 import { compressImage, compressImagesSequentially, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
 import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
 import { createClient as createBrowserSupabase } from "@/lib/supabase/client";
@@ -81,6 +82,8 @@ export default function SubmitClient({
     );
   }
   const [selectedHostApps, setSelectedHostApps] = useState<string[]>([]);
+  // 入力中の動画URL（YouTube/Vimeo以外なら、その場で注意を出すため）
+  const [videoUrl, setVideoUrl] = useState("");
   function toggleHostApp(slug: string) {
     setSelectedHostApps((prev) =>
       prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug]
@@ -612,6 +615,22 @@ export default function SubmitClient({
                 <p className="mt-2 text-[12px] text-text-dim">
                   {t("galleryHint", { limit: formatFileSize(MAX_THUMBNAIL_FILE_SIZE) ?? "" })}
                 </p>
+              </Field>
+
+              <Field label={t("videoUrlLabel")}>
+                <input
+                  type="url"
+                  name="videoUrl"
+                  defaultValue=""
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  placeholder={t("videoUrlPlaceholder")}
+                  className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
+                />
+                {videoUrl.trim() && !parseVideoUrl(videoUrl) ? (
+                  <p className="mt-2 text-[12px] text-accent-danger">{t("videoUrlInvalid")}</p>
+                ) : (
+                  <p className="mt-2 text-[12px] text-text-dim">{t("videoUrlHint")}</p>
+                )}
               </Field>
 
               {/* 実行環境に応じて、ファイルアップロード or デモURL のどちらかを表示 */}

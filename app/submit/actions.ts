@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE } from "@/lib/mock-data";
 import { isAllowedToolFile } from "@/lib/tool-file-types";
 import { slugify } from "@/lib/slugify";
+import { parseVideoUrl } from "@/lib/video-embed";
 import { notifyAdmins } from "@/lib/notifications/create";
 import { adminNewPendingReview } from "@/lib/notifications/content";
 
@@ -66,6 +67,13 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     ? refundPolicyRaw
     : "none";
   const isWip = formData.get("isWip") === "1";
+  // 紹介動画（YouTube/Vimeoのみ）。ブラウザ側でも注意を出しているが、
+  // 保存するかどうかの判断は必ずサーバー側で行う。
+  const videoUrlRaw = String(formData.get("videoUrl") || "").trim();
+  if (videoUrlRaw && !parseVideoUrl(videoUrlRaw)) {
+    return { error: t("invalidVideoUrl") };
+  }
+  const videoUrl = videoUrlRaw || null;
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)));
@@ -210,6 +218,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       remix_allowed: remixAllowed,
       refund_policy: refundPolicy,
       is_wip: isWip,
+      video_url: videoUrl,
       price,
       runtime,
       platforms,
@@ -293,6 +302,13 @@ export async function saveDraft(
     ? refundPolicyRaw
     : "none";
   const isWip = formData.get("isWip") === "1";
+  // 紹介動画（YouTube/Vimeoのみ）。ブラウザ側でも注意を出しているが、
+  // 保存するかどうかの判断は必ずサーバー側で行う。
+  const videoUrlRaw = String(formData.get("videoUrl") || "").trim();
+  if (videoUrlRaw && !parseVideoUrl(videoUrlRaw)) {
+    return { error: t("invalidVideoUrl") };
+  }
+  const videoUrl = videoUrlRaw || null;
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)) || 0);
@@ -380,6 +396,7 @@ export async function saveDraft(
       remix_allowed: remixAllowed,
       refund_policy: refundPolicy,
       is_wip: isWip,
+      video_url: videoUrl,
       price,
       runtime,
       platforms,

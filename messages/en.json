@@ -68,7 +68,8 @@
     "reviewRequiresPurchase": "Only buyers of this tool can leave a review",
     "postFailed": "Failed to post: {message}",
     "claimFailed": "Failed to claim: {message}",
-    "unsupportedFileType": "Unsupported file type"
+    "unsupportedFileType": "Unsupported file type",
+    "invalidVideoUrl": "The intro video must be a YouTube or Vimeo link"
   },
   "cookieNotice": {
     "text": "This site uses cookies required to keep you logged in. See our <link>Privacy Policy</link> for details.",
@@ -353,7 +354,8 @@
       "empty": "No reviews yet."
     },
     "versionHistory": "Changelog",
-    "noVersionHistory": "No update history yet."
+    "noVersionHistory": "No update history yet.",
+    "videoSlide": "Intro video"
   },
   "mfa": {
     "title": "Two-factor authentication",
@@ -823,7 +825,11 @@
     "refundPolicyHint": "Shown on the tool page so buyers know where they stand before paying.",
     "wipLabel": "Release state (optional)",
     "wipEnable": "Publish as a work in progress",
-    "wipHint": "Publish before it's finished. It'll be marked as in development so interested people can follow along."
+    "wipHint": "Publish before it's finished. It'll be marked as in development so interested people can follow along.",
+    "videoUrlLabel": "Intro video (optional)",
+    "videoUrlPlaceholder": "https://www.youtube.com/watch?v=...",
+    "videoUrlHint": "Paste a YouTube or Vimeo link (unlisted is fine). It's shown first on the tool page.",
+    "videoUrlInvalid": "Only YouTube or Vimeo links are supported"
   },
   "categories": {
     "automation": "Automation & Workflows",
@@ -919,7 +925,7 @@
     },
     "toolEditTriggeredReview": {
       "title": "\"{toolName}\" is back under review",
-      "body": "A price increase, thumbnail, or file change temporarily unpublished it while it's re-reviewed. It won't show to new buyers until review finishes (existing buyers can still download it)."
+      "body": "A price increase or a thumbnail, video, or file change temporarily unpublished it while it's re-reviewed. It won't show to new buyers until review finishes (existing buyers can still download it)."
     },
     "toolUnpublishedByAdmin": {
       "title": "\"{toolName}\" was unpublished",

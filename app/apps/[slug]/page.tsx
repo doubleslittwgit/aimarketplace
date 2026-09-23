@@ -18,6 +18,7 @@ import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
 import ImageCarousel from "@/components/ImageCarousel";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { parseVideoUrl } from "@/lib/video-embed";
 import { categoryToSlug } from "@/lib/category-slugs";
 import { applyToolTranslations, applyReviewTranslations } from "@/lib/apply-translations";
 import type { Locale } from "@/i18n/config";
@@ -73,6 +74,7 @@ async function loadTool(
       remixAllowed: row.remix_allowed ?? false,
       refundPolicy: row.refund_policy ?? "none",
       isWip: row.is_wip ?? false,
+      videoUrl: row.video_url ?? null,
       galleryUrls: row.gallery_urls || [],
       fileSizeBytes: row.file_size_bytes ?? null,
     };
@@ -436,6 +438,7 @@ export default async function ToolDetailPage({
 
               {/* Preview image(s) */}
               <ImageCarousel
+                video={parseVideoUrl(tool.videoUrl)}
                 images={[
                   ...(tool.thumbnailUrl ? [tool.thumbnailUrl] : []),
                   ...(tool.galleryUrls ?? []),
