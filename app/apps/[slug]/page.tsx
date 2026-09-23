@@ -17,6 +17,7 @@ import ToolReviews from "@/components/ToolReviews";
 import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
 import ImageCarousel from "@/components/ImageCarousel";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { categoryToSlug } from "@/lib/category-slugs";
 import { applyToolTranslations, applyReviewTranslations } from "@/lib/apply-translations";
 import type { Locale } from "@/i18n/config";
@@ -181,6 +182,24 @@ export default async function ToolDetailPage({
   } = await supabase.auth.getUser();
 
   const isOwner = Boolean(user) && authorId === user?.id;
+
+  // 出品者がチップを受け取れる状態か。
+  // 受け取り設定が未完了の出品者にもチップ欄を出すと、送ろうとした時点で
+  // 初めて「受け取れません」と分かることになり、送り手にも出品者にも
+  // 気まずい。受け取れる出品者にだけ表示する。
+  // seller_accounts はRLSで本人以外に非公開なので、管理者権限で読む
+  // （ここで得るのは「受け取れるか」の真偽だけで、画面には何も渡さない）。
+  let sellerCanReceiveTips = false;
+  if (!isDemo && authorId && !isOwner) {
+    const { data: sellerAccount } = await createAdminClient()
+      .from("seller_accounts")
+      .select("transfers_enabled, payouts_enabled")
+      .eq("user_id", authorId)
+      .maybeSingle();
+    sellerCanReceiveTips = Boolean(
+      sellerAccount?.transfers_enabled && sellerAccount?.payouts_enabled
+    );
+  }
 
   // 以下の3つは互いに依存しないので同時に問い合わせる
   // （DBが東京リージョンにあり、1回の往復にも時間がかかるため、
@@ -537,7 +556,7 @@ export default async function ToolDetailPage({
                 isDemo={isDemo}
               />
               {/* チップ（投げ銭）。無料ツールの作り手にも報いられるようにするもの */}
-              {!isDemo && (
+              {!isDemo && sellerCanReceiveTips && (
                 <TipBox
                   toolId={tool.id}
                   slug={tool.slug}
