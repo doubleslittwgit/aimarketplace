@@ -1326,11 +1326,11 @@
   "creativeHome": {
     "meta": {
       "title": "BuildBay Creative｜創作者的外掛與擴充功能",
-      "description": "可上架、販售 Blender、After Effects、Cinema 4D、TouchDesigner、DAW 等創作軟體外掛與擴充功能的 BuildBay 專屬頁面。"
+      "description": "從 Blender、After Effects、TouchDesigner 等的外掛，到影片剪輯、設計、音樂製作工具。可上架、販售創作者工具的 BuildBay 專屬頁面。"
     },
     "hero": {
       "catch": "匯聚加速創作的外掛與工具。",
-      "sub": "從3D、影像、即時視覺到音樂製作，都能找到由創作者打造、拓展表現的外掛與擴充功能。",
+      "sub": "從3D、影像、即時視覺到音樂製作，都能找到創作者打造的外掛與擴充功能，以及可獨立運作的創意工具。",
       "ctaBrowse": "探索工具",
       "ctaPublish": "上架工具"
     },
@@ -1362,8 +1362,8 @@
       "sub": "拓展創作的多元分類。"
     },
     "promo": {
-      "title": "Blender、After Effects、TouchDesigner、DAW⋯⋯專屬外掛的聚集地。",
-      "body": "BuildBay Creative 是匯集3D、影像、現場視覺與音樂製作外掛及擴充功能的專屬頁面。",
+      "title": "從影片剪輯、3D、設計到音樂製作，匯集創作者工具的地方。",
+      "body": "BuildBay Creative 匯集了為創作者打造的工具：從 Blender、After Effects、TouchDesigner 等的外掛，到可獨立運作的影片剪輯、設計與音樂製作工具。",
       "cta": "前往 BuildBay Creative"
     },
     "tools": {

@@ -100,7 +100,7 @@ export default async function CreativePage({
                 height={206}
                 className="h-auto w-full max-w-xl"
               />
-              <p className="mt-8 font-display text-2xl font-semibold leading-snug text-text-primary sm:text-3xl">
+              <p className="mt-8 font-display text-2xl font-semibold leading-snug [word-break:auto-phrase] text-text-primary sm:text-3xl">
                 {t("hero.catch")}
               </p>
               <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-text-secondary sm:text-base">

@@ -1326,11 +1326,11 @@
   "creativeHome": {
     "meta": {
       "title": "BuildBay Creative | Plugins & extensions for creators",
-      "description": "The BuildBay hub for publishing and selling plugins and extensions for creative tools — Blender, After Effects, Cinema 4D, TouchDesigner, DAWs and more."
+      "description": "From plugins for Blender, After Effects and TouchDesigner to standalone video, design and music tools — the BuildBay hub for publishing and selling tools for creators."
     },
     "hero": {
       "catch": "Where plugins and tools that speed up creative work come together.",
-      "sub": "From 3D and video to real-time visuals and music production — find plugins and extensions made by creators to expand what you can make.",
+      "sub": "From 3D and video to real-time visuals and music production — find plugins and extensions made by creators, and standalone creative tools too.",
       "ctaBrowse": "Browse tools",
       "ctaPublish": "Publish a tool"
     },
@@ -1362,8 +1362,8 @@
       "sub": "Categories to widen what you can create."
     },
     "promo": {
-      "title": "Blender, After Effects, TouchDesigner, DAWs… a place just for plugins.",
-      "body": "BuildBay Creative is the dedicated hub for plugins and extensions for 3D, video, live visuals and music production.",
+      "title": "Video, 3D, design and music — a home for tools made for creators.",
+      "body": "BuildBay Creative brings together tools for creators: plugins for Blender, After Effects, TouchDesigner and more, plus standalone tools for video editing, design and music production.",
       "cta": "Explore BuildBay Creative"
     },
     "tools": {

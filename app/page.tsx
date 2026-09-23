@@ -392,7 +392,7 @@ export default async function Home() {
               <div className="max-w-xl">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/creative-logo.png" alt="BuildBay Creative" width={1400} height={206} className="h-auto w-full max-w-sm" />
-                <p className="mt-5 font-display text-xl font-semibold leading-snug text-text-primary sm:text-2xl">
+                <p className="mt-5 font-display text-xl font-semibold leading-snug [word-break:auto-phrase] text-text-primary sm:text-2xl">
                   {tCreative("promo.title")}
                 </p>
                 <p className="mt-3 text-[14px] leading-relaxed text-text-secondary">{tCreative("promo.body")}</p>
