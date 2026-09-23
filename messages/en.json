@@ -69,7 +69,8 @@
     "postFailed": "Failed to post: {message}",
     "claimFailed": "Failed to claim: {message}",
     "unsupportedFileType": "Unsupported file type",
-    "invalidVideoUrl": "The intro video must be a YouTube or Vimeo link"
+    "invalidVideoUrl": "The intro video must be a YouTube or Vimeo link",
+    "invalidToolUrl": "The tool URL must start with http:// or https://"
   },
   "cookieNotice": {
     "text": "This site uses cookies required to keep you logged in. See our <link>Privacy Policy</link> for details.",

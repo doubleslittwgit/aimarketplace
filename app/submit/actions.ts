@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE } from "@/lib/mock-data";
 import { isAllowedToolFile } from "@/lib/tool-file-types";
 import { slugify } from "@/lib/slugify";
+import { syncToolAccessUrl, isValidToolUrl } from "@/lib/tool-access-url";
 import { parseVideoUrl } from "@/lib/video-embed";
 import { notifyAdmins } from "@/lib/notifications/create";
 import { adminNewPendingReview } from "@/lib/notifications/content";
@@ -81,6 +82,10 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   const platforms = platformsRaw ? platformsRaw.split(",").filter(Boolean) : [];
   const minOsVersion = String(formData.get("minOsVersion") || "").trim() || null;
   const demoUrl = String(formData.get("demoUrl") || "").trim() || null;
+  // ツールのURLは http/https のみ（それ以外の形式は、開く時に予期せぬ動作をしうるため）
+  if (demoUrl && !isValidToolUrl(demoUrl)) {
+    return { error: t("invalidToolUrl") };
+  }
 
   // ファイル本体はブラウザから直接Supabase Storageへアップロード済み。
   // ここで受け取るのは、その保存先パスとサイズだけ（lib/direct-upload.ts 参照）。
@@ -227,7 +232,6 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       file_size_bytes: fileSizeBytes,
       thumbnail_url: thumbnailUrl,
       gallery_urls: galleryResult.urls,
-      demo_url: demoUrl,
       status: initialStatus,
       ai_review_summary: null,
       ai_review_risk: null,
@@ -242,6 +246,13 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
     // ファイルはそのまま再利用される）ため、消してしまうと大きいファイルを
     // もう一度アップロードし直させることになってしまう。
     return { error: t("saveFailed", { message: upsertError.message }) };
+  }
+
+  // ツールのURLは、誰でも読める tools ではなく、購入者などに限定された
+  // tool_access_urls に保存する（lib/tool-access-url.ts 参照）
+  const accessUrlError = await syncToolAccessUrl(supabase, id, runtime, demoUrl);
+  if (accessUrlError) {
+    return { error: t("saveFailed", { message: accessUrlError }) };
   }
 
   // 出品者の表示名（通知の宛先ではなく、管理者向け通知の文面に使う）
@@ -316,6 +327,10 @@ export async function saveDraft(
   const platforms = platformsRaw ? platformsRaw.split(",").filter(Boolean) : [];
   const minOsVersion = String(formData.get("minOsVersion") || "").trim() || null;
   const demoUrl = String(formData.get("demoUrl") || "").trim() || null;
+  // ツールのURLは http/https のみ（それ以外の形式は、開く時に予期せぬ動作をしうるため）
+  if (demoUrl && !isValidToolUrl(demoUrl)) {
+    return { error: t("invalidToolUrl") };
+  }
 
   // createToolと同じく、ファイル本体はブラウザから直接アップロード済み。
   // ここで受け取るのは保存先パスとサイズのみ。
@@ -401,7 +416,6 @@ export async function saveDraft(
       runtime,
       platforms,
       min_os_version: minOsVersion,
-      demo_url: demoUrl,
       file_key: fileKey,
       file_size_bytes: fileSizeBytes,
       thumbnail_url: thumbnailUrl,
@@ -413,6 +427,13 @@ export async function saveDraft(
 
   if (upsertError) {
     return { error: t("saveFailed", { message: upsertError.message }) };
+  }
+
+  // ツールのURLは、誰でも読める tools ではなく、購入者などに限定された
+  // tool_access_urls に保存する（lib/tool-access-url.ts 参照）
+  const accessUrlError = await syncToolAccessUrl(supabase, id, runtime, demoUrl);
+  if (accessUrlError) {
+    return { error: t("saveFailed", { message: accessUrlError }) };
   }
 
   return { error: null, draftId: id, slug };

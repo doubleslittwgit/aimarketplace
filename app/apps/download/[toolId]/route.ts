@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
  * ツールのダウンロード。
@@ -32,7 +33,7 @@ export async function GET(
 
   const { data: tool } = await supabase
     .from("tools")
-    .select("id, slug, price, author_id, file_key, demo_url, runtime, status")
+    .select("id, slug, price, author_id, file_key, runtime, status")
     .eq("id", toolId)
     .maybeSingle();
 
@@ -71,13 +72,23 @@ export async function GET(
 
   // クラウド型のツールは、ファイルではなくデモURLへ案内する
   if (tool.runtime === "cloud") {
-    if (!tool.demo_url) {
+    // ツールのURLは tool_access_urls から取り出す。通常は本人のセッションで読み、
+    // データベース側の制限（購入者・出品者・無料のみ）を二重の守りとして効かせる。
+    // 審査中のツールを確認する管理者だけは、その制限に当てはまらないので管理者権限で読む。
+    const reader = isReviewingAdmin && !isOwner ? createAdminClient() : supabase;
+    const { data: access } = await reader
+      .from("tool_access_urls")
+      .select("url")
+      .eq("tool_id", tool.id)
+      .maybeSingle();
+
+    if (!access?.url) {
       return NextResponse.json(
         { error: "利用先URLが設定されていません" },
         { status: 404 }
       );
     }
-    return NextResponse.redirect(tool.demo_url);
+    return NextResponse.redirect(access.url);
   }
 
   if (!tool.file_key) {

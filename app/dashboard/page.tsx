@@ -33,7 +33,6 @@ type PurchaseRow = {
     name: string;
     thumbnail_url: string | null;
     runtime: "cloud" | "local";
-    demo_url: string | null;
   } | null;
 };
 
@@ -100,7 +99,7 @@ export default async function DashboardPage() {
     supabase
       .from("purchases")
       .select(
-        "id, price_paid, status, created_at, tools(id, slug, name, thumbnail_url, runtime, demo_url)"
+        "id, price_paid, status, created_at, tools(id, slug, name, thumbnail_url, runtime)"
       )
       .eq("buyer_id", user.id)
       .eq("status", "completed")
@@ -299,9 +298,11 @@ export default async function DashboardPage() {
                         {t("download")}
                       </a>
                     )}
-                    {p.tools && p.tools.runtime === "cloud" && p.tools.demo_url && (
+                    {/* ツールのURLは画面に埋め込まず、購入を確認してから
+                        転送する経路（/apps/download）を通して開く */}
+                    {p.tools && p.tools.runtime === "cloud" && (
                       <a
-                        href={p.tools.demo_url}
+                        href={`/apps/download/${p.tools.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="shrink-0 rounded-lg bg-accent-success px-3.5 py-2 text-[13px] font-medium text-white transition hover:brightness-105"

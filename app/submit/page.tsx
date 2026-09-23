@@ -88,7 +88,7 @@ export default async function SubmitPage({
     const { data: draft } = await supabase
       .from("tools")
       .select(
-        "id, author_id, status, name, tagline, description, category, categories, price, runtime, platforms, min_os_version, demo_url, thumbnail_url, gallery_urls, file_key"
+        "id, author_id, status, name, tagline, description, category, categories, price, runtime, platforms, min_os_version, thumbnail_url, gallery_urls, file_key"
       )
       .eq("id", draftId)
       .maybeSingle();
@@ -96,6 +96,12 @@ export default async function SubmitPage({
     // 他人の下書き・既に下書きでなくなったものは、静かに無視して
     // 通常の新規出品フォームとして表示する（存在自体は教えない）
     if (draft && draft.author_id === user.id && draft.status === "draft") {
+      // ツールのURLは別テーブル（本人なら読める）から取り出す
+      const { data: access } = await supabase
+        .from("tool_access_urls")
+        .select("url")
+        .eq("tool_id", draft.id)
+        .maybeSingle();
       initialDraft = {
         id: draft.id,
         name: draft.name,
@@ -107,7 +113,7 @@ export default async function SubmitPage({
         runtime: draft.runtime,
         platforms: draft.platforms ?? [],
         minOsVersion: draft.min_os_version,
-        demoUrl: draft.demo_url,
+        demoUrl: access?.url ?? null,
         thumbnailUrl: draft.thumbnail_url,
         galleryUrls: draft.gallery_urls ?? [],
         fileName: draft.file_key ? draft.file_key.split("/").pop() ?? null : null,

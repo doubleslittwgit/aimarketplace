@@ -25,7 +25,7 @@ export default async function EditToolPage({
   const { data: tool } = await supabase
     .from("tools")
     .select(
-      "id, slug, name, tagline, description, category, categories, host_apps, price, sale_price, sale_ends_at, remix_allowed, refund_policy, is_wip, video_url, runtime, platforms, min_os_version, demo_url, thumbnail_url, gallery_urls, file_key, status, author_id"
+      "id, slug, name, tagline, description, category, categories, host_apps, price, sale_price, sale_ends_at, remix_allowed, refund_policy, is_wip, video_url, runtime, platforms, min_os_version, thumbnail_url, gallery_urls, file_key, status, author_id"
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -38,19 +38,21 @@ export default async function EditToolPage({
     notFound();
   }
 
-  const [{ data: canReceiveData }, { count: purchaseCount }] = await Promise.all([
+  const [{ data: canReceiveData }, { count: purchaseCount }, { data: access }] = await Promise.all([
     supabase.rpc("seller_can_receive_payments", { p_user_id: user.id }),
     supabase
       .from("purchases")
       .select("id", { count: "exact", head: true })
       .eq("tool_id", tool.id),
+    // ツールのURLは別テーブルに保存している（出品者本人なので読める）
+    supabase.from("tool_access_urls").select("url").eq("tool_id", tool.id).maybeSingle(),
   ]);
 
   return (
     <>
       <Header />
       <EditToolClient
-        tool={tool}
+        tool={{ ...tool, demo_url: access?.url ?? null }}
         canReceivePayments={Boolean(canReceiveData)}
         hasPurchases={Boolean(purchaseCount && purchaseCount > 0)}
       />

@@ -69,7 +69,8 @@
     "postFailed": "投稿に失敗しました: {message}",
     "claimFailed": "取得に失敗しました: {message}",
     "unsupportedFileType": "対応していないファイル形式です",
-    "invalidVideoUrl": "紹介動画はYouTubeまたはVimeoのURLのみ登録できます"
+    "invalidVideoUrl": "紹介動画はYouTubeまたはVimeoのURLのみ登録できます",
+    "invalidToolUrl": "ツールのURLは http:// または https:// で始まるURLを入力してください"
   },
   "cookieNotice": {
     "text": "本サービスは、ログイン状態を維持するために必要なCookieを使用しています。詳しくは<link>プライバシーポリシー</link>をご覧ください。",

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE, formatPrice } from "@/lib/mock-data";
 import { isAllowedToolFile } from "@/lib/tool-file-types";
 import { parseVideoUrl } from "@/lib/video-embed";
+import { syncToolAccessUrl, isValidToolUrl } from "@/lib/tool-access-url";
 import { translateAndSaveTool } from "@/lib/translate-tool";
 import { notify, notifyAdmins } from "@/lib/notifications/create";
 import {
@@ -115,6 +116,10 @@ export async function updateTool(
   const platforms = platformsRaw ? platformsRaw.split(",").filter(Boolean) : [];
   const minOsVersion = String(formData.get("minOsVersion") || "").trim() || null;
   const demoUrl = String(formData.get("demoUrl") || "").trim() || null;
+  // ツールのURLは http/https のみ（それ以外の形式は、開く時に予期せぬ動作をしうるため）
+  if (demoUrl && !isValidToolUrl(demoUrl)) {
+    return { error: t("invalidToolUrl") };
+  }
   // ファイル本体はブラウザから直接Supabaseへアップロード済み（出品時と同じ理由）
   const uploadedFileKey = String(formData.get("uploadedFileKey") || "").trim() || null;
   const uploadedFileSize = Number(formData.get("uploadedFileSize") || 0) || null;
@@ -225,7 +230,6 @@ export async function updateTool(
       sale_ends_at: saleEndsAt,
       platforms,
       min_os_version: minOsVersion,
-      demo_url: demoUrl,
       file_key: fileKey,
       file_size_bytes: uploadedFileSize ?? undefined,
       thumbnail_url: thumbnailUrl,
@@ -243,6 +247,13 @@ export async function updateTool(
 
   if (updateError) {
     return { error: t("updateFailed", { message: updateError.message }) };
+  }
+
+  // ツールのURLは、誰でも読める tools ではなく、購入者などに限定された
+  // tool_access_urls に保存する（lib/tool-access-url.ts 参照）
+  const accessUrlError = await syncToolAccessUrl(supabase, toolId, existing.runtime, demoUrl);
+  if (accessUrlError) {
+    return { error: t("saveFailed", { message: accessUrlError }) };
   }
 
   // バージョン履歴を残す。ファイルを差し替えた時に、出品者が任意で書いたものだけ。

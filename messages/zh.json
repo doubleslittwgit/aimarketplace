@@ -69,7 +69,8 @@
     "postFailed": "送出失敗：{message}",
     "claimFailed": "取得失敗：{message}",
     "unsupportedFileType": "不支援的檔案格式",
-    "invalidVideoUrl": "介紹影片僅能登錄 YouTube 或 Vimeo 的網址"
+    "invalidVideoUrl": "介紹影片僅能登錄 YouTube 或 Vimeo 的網址",
+    "invalidToolUrl": "工具網址請輸入以 http:// 或 https:// 開頭的網址"
   },
   "cookieNotice": {
     "text": "本服務使用維持登入狀態所必需的Cookie。詳情請參閱<link>隱私權政策</link>。",
