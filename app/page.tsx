@@ -14,6 +14,8 @@ import { applyToolTranslations } from "@/lib/apply-translations";
 import { fetchFeedPosts } from "@/app/feed/actions";
 import { fetchRequests } from "@/app/requests/actions";
 import { CREATIVE_APPS } from "@/lib/creative-apps";
+import { COURSE_CATEGORIES, CATEGORY_ICONS } from "@/lib/academy/categories";
+import AcademyBlurs from "@/components/academy/AcademyBlurs";
 import type { Locale } from "@/i18n/config";
 import {
   tools as mockTools,
@@ -108,6 +110,7 @@ async function loadSaleTools(locale: Locale): Promise<Tool[]> {
 export default async function Home() {
   const t = await getTranslations("home");
   const tCreative = await getTranslations("creativeHome");
+  const tAcademy = await getTranslations("academyHome");
   const tCategories = await getTranslations("categories");
   const tCommon = await getTranslations("common");
   const locale = (await getLocale()) as Locale;
@@ -421,6 +424,52 @@ export default async function Home() {
                     </span>
                     <span className="text-center text-[10px] leading-tight text-text-muted">{app.name}</span>
                   </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* BuildBay Academyへの導線。Creativeの紹介欄と同じ作りで、背景だけを
+            Academyの緑と金のぼかしにして、2つの特設ページが対になって見えるようにする */}
+        <section className="relative overflow-hidden border-b border-border bg-bg">
+          <AcademyBlurs />
+          <div className="relative mx-auto max-w-7xl px-6 py-16">
+            <div className="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-xl">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/academy-logo.png" alt="BuildBay Academy" width={1400} height={182} className="h-auto w-full max-w-sm" />
+                <p className="mt-5 font-display text-xl font-semibold leading-snug [word-break:auto-phrase] text-text-primary sm:text-2xl">
+                  {tAcademy("promo.title")}
+                </p>
+                <p className="mt-3 text-[14px] leading-relaxed text-text-secondary">{tAcademy("promo.body")}</p>
+                <Link
+                  href="/academy"
+                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#173F35] via-[#2f7a5b] to-[#C9A227] px-6 py-3 text-[14px] font-medium text-white shadow-[0_10px_30px_-8px_rgba(23,63,53,0.45)] transition hover:-translate-y-0.5 hover:brightness-110"
+                >
+                  {tAcademy("promo.cta")}
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </Link>
+              </div>
+
+              <div className="grid w-full grid-cols-4 gap-3 lg:w-auto">
+                {COURSE_CATEGORIES.map((cat) => (
+                  <Link
+                    key={cat}
+                    href={`/academy?category=${cat}#courses`}
+                    className="flex flex-col items-center gap-2 rounded-xl border border-border bg-bg/70 px-3 py-4 backdrop-blur transition hover:border-[#C9A227]"
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#173F35] text-[#e8c65a]">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <path d={CATEGORY_ICONS[cat]} />
+                      </svg>
+                    </span>
+                    <span className="text-center text-[10px] leading-tight text-text-muted">
+                      {tAcademy(`categories.${cat}.name`)}
+                    </span>
+                  </Link>
                 ))}
               </div>
             </div>

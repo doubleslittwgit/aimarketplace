@@ -1298,6 +1298,11 @@
         "name": "AI活用技巧",
         "desc": "更善用AI"
       }
+    },
+    "promo": {
+      "title": "向真正做過的人，學習用AI打造工具的方法。",
+      "body": "BuildBay Academy 是以文章與影片學習的課程市集。購買前可看完整目錄，並能免費閱讀前半部分。你也可以把自己的經驗寫成課程。",
+      "cta": "前往 BuildBay Academy"
     }
   },
   "academyCourse": {

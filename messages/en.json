@@ -1298,6 +1298,11 @@
         "name": "Using AI well",
         "desc": "Get more out of AI"
       }
+    },
+    "promo": {
+      "title": "Learn to build tools with AI, from people who actually built them.",
+      "body": "BuildBay Academy is a marketplace of courses in articles and video. See the full table of contents before buying and read the opening for free — or turn your own experience into a course.",
+      "cta": "Explore BuildBay Academy"
     }
   },
   "academyCourse": {
