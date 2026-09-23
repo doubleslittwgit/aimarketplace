@@ -1002,5 +1002,19 @@
     "messageRequired": "Please enter a message",
     "tooLong": "Please keep it under 500 characters",
     "cooldown": "Please wait {hours} hours between announcements"
+  },
+  "toolNotes": {
+    "title": "Usage tips",
+    "subtitle": "Hints left by people who've actually used this.",
+    "compose": "Share a tip",
+    "placeholder": "Settings worth using, common gotchas, handy workflows (1000 chars max)",
+    "post": "Post",
+    "posting": "Posting...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "empty": "No tips yet. Care to write the first one?",
+    "unknownUser": "Deleted user",
+    "contentRequired": "Please enter some content",
+    "tooLong": "Please keep it under 1000 characters"
   }
 }

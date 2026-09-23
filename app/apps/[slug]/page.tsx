@@ -10,6 +10,7 @@ import LikeButton from "@/components/LikeButton";
 import ReportButton from "@/components/ReportButton";
 import AuthorCard from "@/components/AuthorCard";
 import ToolQA from "@/components/ToolQA";
+import ToolNotes, { type ToolNoteItem } from "@/components/ToolNotes";
 import ToolCard from "@/components/ToolCard";
 import ToolReviews from "@/components/ToolReviews";
 import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
@@ -190,6 +191,7 @@ export default async function ToolDetailPage({
     { data: questionRows },
     { data: versionRows },
     { data: relatedRows },
+    { data: noteRows },
   ] = await Promise.all([
     user && !isDemo
       ? supabase
@@ -238,6 +240,15 @@ export default async function ToolDetailPage({
     // 集計結果だけを返す専用の関数を経由する（誰が買ったかは一切返らない）。
     !isDemo
       ? supabase.rpc("get_related_tools", { p_tool_id: tool.id, p_limit: 4 })
+      : Promise.resolve({ data: null }),
+    // 使い方のコツ（レビューとは別枠の、実用ノウハウ）
+    !isDemo
+      ? supabase
+          .from("tool_notes")
+          .select("id, content, created_at, author_id, profiles:author_id(display_name, handle, avatar_url)")
+          .eq("tool_id", tool.id)
+          .order("created_at", { ascending: false })
+          .limit(50)
       : Promise.resolve({ data: null }),
   ]);
 
@@ -487,6 +498,18 @@ export default async function ToolDetailPage({
                       <ToolCard key={rt.id} tool={rt} />
                     ))}
                   </div>
+                </div>
+              )}
+
+              {!isDemo && (
+                <div className="mt-8">
+                  <ToolNotes
+                    toolId={tool.id}
+                    slug={tool.slug}
+                    initialItems={(noteRows ?? []) as unknown as ToolNoteItem[]}
+                    isLoggedIn={Boolean(user)}
+                    currentUserId={user?.id ?? null}
+                  />
                 </div>
               )}
 

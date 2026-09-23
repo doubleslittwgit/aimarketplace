@@ -1002,5 +1002,19 @@
     "messageRequired": "請輸入內容",
     "tooLong": "請在500字以內",
     "cooldown": "距離上次發送需間隔 {hours} 小時"
+  },
+  "toolNotes": {
+    "title": "使用技巧",
+    "subtitle": "實際使用過的人留下的實用提示。",
+    "compose": "撰寫技巧",
+    "placeholder": "推薦設定、容易卡關的地方、方便的用法等（1000字以內）",
+    "post": "發布",
+    "posting": "發布中…",
+    "cancel": "取消",
+    "delete": "刪除",
+    "empty": "目前還沒有投稿。要不要來寫下第一個技巧？",
+    "unknownUser": "已退出的使用者",
+    "contentRequired": "請輸入內容",
+    "tooLong": "請在1000字以內"
   }
 }
