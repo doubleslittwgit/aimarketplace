@@ -32,6 +32,8 @@ export type Tool = {
   isWip?: boolean;
   /** 紹介動画のURL（YouTube/Vimeoのみ） */
   videoUrl?: string | null;
+  /** 対応ソフト（BuildBay Creativeのプラグインの場合） */
+  hostApps?: string[];
 };
 
 // 出品フォームの上限（サーバー側 app/submit/actions.ts のチェックと必ず揃えること）
@@ -49,6 +51,7 @@ export const categories = [
   "開発者ツール",
   "データ分析",
   "AI・チャットボット",
+  "クリエイティブ",
   "動画・画像編集",
   "写真",
   "デザイン",

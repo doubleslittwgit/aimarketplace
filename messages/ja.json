@@ -861,7 +861,8 @@
     "parenting": "子育て・育児",
     "pets": "ペット",
     "utilities": "ユーティリティ",
-    "other": "その他"
+    "other": "その他",
+    "creative": "クリエイティブ"
   },
   "notificationSettings": {
     "title": "通知設定",
@@ -1364,6 +1365,11 @@
       "title": "Blender、After Effects、TouchDesigner、DAW… プラグインだけを集めた場所。",
       "body": "BuildBay Creativeは、3DCG・映像・ライブビジュアル・音楽制作のためのプラグインと拡張機能が集まる専用ページです。",
       "cta": "BuildBay Creativeを見る"
+    },
+    "tools": {
+      "title": "クリエイティブツール",
+      "sub": "動画編集・デザイン・写真・音楽など、単体で動くクリエイター向けのツール。",
+      "empty": "まだクリエイティブツールの出品がありません。"
     }
   }
 }

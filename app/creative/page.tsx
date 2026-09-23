@@ -3,9 +3,10 @@ import { getLocale, getTranslations } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ToolCard from "@/components/ToolCard";
+import RainbowBlurs from "@/components/creative/RainbowBlurs";
 import { createClient } from "@/lib/supabase/server";
 import { applyToolTranslations } from "@/lib/apply-translations";
-import { CREATIVE_APPS, CREATIVE_CATEGORIES, getCreativeApp } from "@/lib/creative-apps";
+import { CREATIVE_APPS, CREATIVE_CATEGORIES, CREATIVE_TOOL_CATEGORIES, getCreativeApp } from "@/lib/creative-apps";
 import type { Locale } from "@/i18n/config";
 import type { Tool } from "@/lib/mock-data";
 
@@ -14,25 +15,6 @@ export async function generateMetadata() {
   return { title: t("meta.title"), description: t("meta.description") };
 }
 
-/**
- * 背景に散らす虹色のぼかし。ロゴの「Creative」と同じ色の並び
- * （マゼンタ→赤→オレンジ→黄→緑→水色→青→紫）にして、
- * ロゴと背景がひと続きに見えるようにしている。
- * 白を基調にしたBuildBay本体の見た目は保ちつつ、ここだけが
- * 「Creative」の場所だと一目で分かるようにするための差別化。
- */
-const RAINBOW_BLURS = [
-  { c: "#e91ecf", cls: "-left-24 -top-28 h-[26rem] w-[26rem] opacity-30" },
-  { c: "#ff2d55", cls: "left-[22%] -top-40 h-80 w-80 opacity-25" },
-  { c: "#ff8a00", cls: "left-[42%] top-[-6rem] h-72 w-72 opacity-25" },
-  { c: "#ffd400", cls: "right-[24%] -top-24 h-80 w-80 opacity-30" },
-  { c: "#34d399", cls: "-right-20 top-[18%] h-96 w-96 opacity-25" },
-  { c: "#06b6d4", cls: "right-[12%] bottom-[-8rem] h-[24rem] w-[24rem] opacity-30" },
-  { c: "#3b5bff", cls: "left-[34%] bottom-[-10rem] h-[26rem] w-[26rem] opacity-25" },
-  { c: "#a855f7", cls: "-left-16 bottom-[-6rem] h-80 w-80 opacity-25" },
-  { c: "#ff4fa3", cls: "left-[60%] top-[30%] h-56 w-56 opacity-20" },
-  { c: "#22d3ee", cls: "left-[8%] top-[38%] h-48 w-48 opacity-20" },
-];
 
 export default async function CreativePage({
   searchParams,
@@ -53,10 +35,22 @@ export default async function CreativePage({
     .order("install_count", { ascending: false })
     .limit(12);
   if (activeApp) query = query.contains("host_apps", [activeApp.slug]);
-  const { data: rows } = await query;
+  // プラグインとは別に、クリエイティブ系カテゴリの「単体で動くツール」も集める。
+  // プラグイン欄と重複しないよう、対応ソフトを持たないものだけにする。
+  const [{ data: rows }, { data: toolRows }] = await Promise.all([
+    query,
+    supabase
+      .from("tools")
+      .select("*, profiles:author_id(display_name, handle)")
+      .eq("status", "published")
+      .eq("host_apps", "{}")
+      .overlaps("categories", CREATIVE_TOOL_CATEGORIES)
+      .order("install_count", { ascending: false })
+      .limit(12),
+  ]);
 
   const tCommon = await getTranslations("common");
-  const raw = (rows ?? []).map((r) => ({
+  const toTool = (r: NonNullable<typeof rows>[number]) => ({
     id: r.id,
     slug: r.slug,
     name: r.name,
@@ -81,8 +75,11 @@ export default async function CreativePage({
     saleEndsAt: r.sale_ends_at ?? null,
     isWip: r.is_wip ?? false,
     hostApps: (r.host_apps as string[] | null) ?? [],
-  }));
-  const plugins = (await applyToolTranslations(supabase, raw, locale)) as (Tool & { hostApps: string[] })[];
+  });
+  const [plugins, creativeTools] = (await Promise.all([
+    applyToolTranslations(supabase, (rows ?? []).map(toTool), locale),
+    applyToolTranslations(supabase, (toolRows ?? []).map(toTool), locale),
+  ])) as (Tool & { hostApps: string[] })[][];
 
   return (
     <>
@@ -90,15 +87,7 @@ export default async function CreativePage({
       <main className="flex-1">
         {/* ================= ヒーロー（白地に虹色のぼかし） ================= */}
         <section className="relative overflow-hidden border-b border-border bg-bg">
-          <div aria-hidden className="pointer-events-none absolute inset-0">
-            {RAINBOW_BLURS.map((b, i) => (
-              <div
-                key={i}
-                className={`absolute rounded-full blur-[100px] ${b.cls}`}
-                style={{ backgroundColor: b.c }}
-              />
-            ))}
-          </div>
+          <RainbowBlurs />
 
           <div className="relative mx-auto max-w-7xl px-6 py-16 sm:py-24">
             <div className="max-w-2xl">
@@ -223,6 +212,31 @@ export default async function CreativePage({
                     </div>
                   );
                 })}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ================= クリエイティブツール（単体で動くもの） ================= */}
+        <section className="border-t border-border">
+          <div className="mx-auto max-w-7xl px-6 py-12">
+            <h2 className="font-display text-2xl font-semibold text-text-primary">{t("tools.title")}</h2>
+            <p className="mt-1 text-[13px] text-text-muted">{t("tools.sub")}</p>
+            {creativeTools.length === 0 ? (
+              <div className="mt-6 flex flex-col items-center rounded-xl border border-dashed border-border-strong bg-surface py-14 text-center">
+                <p className="text-[14px] text-text-secondary">{t("tools.empty")}</p>
+                <Link
+                  href="/submit"
+                  className="mt-4 rounded-full bg-accent-signal px-5 py-2.5 text-[13px] font-medium text-white transition hover:brightness-110"
+                >
+                  {t("featured.beFirst")}
+                </Link>
+              </div>
+            ) : (
+              <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {creativeTools.map((tool) => (
+                  <ToolCard key={tool.id} tool={tool} />
+                ))}
               </div>
             )}
           </div>

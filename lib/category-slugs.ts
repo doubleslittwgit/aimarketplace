@@ -17,6 +17,7 @@ export const CATEGORY_SLUGS = [
   "devTools",
   "dataAnalysis",
   "aiChatbot",
+  "creative",
   "videoPhotoEditing",
   "photography",
   "design",

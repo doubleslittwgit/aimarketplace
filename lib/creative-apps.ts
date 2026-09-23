@@ -89,3 +89,25 @@ export const CREATIVE_CATEGORIES = [
   "VJ",
   "Game / Realtime",
 ];
+
+/**
+ * これらのカテゴリを1つでも選んだツールは、BuildBay Creative にも表示する。
+ * （DBのカテゴリは日本語の文字列で保存している。lib/mock-data.ts の categories と一致させること）
+ * 対応ソフト（host_apps）を選んだプラグインとは別に、動画編集ソフトや
+ * 簡単な3Dツールのような「単体で動くクリエイティブツール」を拾うための仕組み。
+ */
+export const CREATIVE_TOOL_CATEGORIES = [
+  "クリエイティブ",
+  "動画・画像編集",
+  "写真",
+  "デザイン",
+  "音楽・オーディオ",
+];
+
+/** そのツールが BuildBay Creative の対象か（プラグイン、またはクリエイティブ系のカテゴリ） */
+export function isCreativeTool(tool: { categories?: string[]; hostApps?: string[] }): boolean {
+  return (
+    (tool.hostApps?.length ?? 0) > 0 ||
+    (tool.categories ?? []).some((c) => CREATIVE_TOOL_CATEGORIES.includes(c))
+  );
+}

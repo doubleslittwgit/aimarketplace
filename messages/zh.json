@@ -861,7 +861,8 @@
     "parenting": "育兒",
     "pets": "寵物",
     "utilities": "工具程式",
-    "other": "其他"
+    "other": "其他",
+    "creative": "創意"
   },
   "notificationSettings": {
     "title": "通知設定",
@@ -1364,6 +1365,11 @@
       "title": "Blender、After Effects、TouchDesigner、DAW⋯⋯專屬外掛的聚集地。",
       "body": "BuildBay Creative 是匯集3D、影像、現場視覺與音樂製作外掛及擴充功能的專屬頁面。",
       "cta": "前往 BuildBay Creative"
+    },
+    "tools": {
+      "title": "創意工具",
+      "sub": "影片剪輯、設計、攝影、音樂等，可獨立運作的創作者工具。",
+      "empty": "目前還沒有上架的創意工具。"
     }
   }
 }

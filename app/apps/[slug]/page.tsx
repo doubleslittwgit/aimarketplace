@@ -19,6 +19,8 @@ import ImageCarousel from "@/components/ImageCarousel";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { parseVideoUrl } from "@/lib/video-embed";
+import { isCreativeTool } from "@/lib/creative-apps";
+import RainbowBlurs from "@/components/creative/RainbowBlurs";
 import { categoryToSlug } from "@/lib/category-slugs";
 import { applyToolTranslations, applyReviewTranslations } from "@/lib/apply-translations";
 import type { Locale } from "@/i18n/config";
@@ -75,6 +77,7 @@ async function loadTool(
       refundPolicy: row.refund_policy ?? "none",
       isWip: row.is_wip ?? false,
       videoUrl: row.video_url ?? null,
+      hostApps: (row.host_apps as string[] | null) ?? [],
       galleryUrls: row.gallery_urls || [],
       fileSizeBytes: row.file_size_bytes ?? null,
     };
@@ -173,6 +176,7 @@ export default async function ToolDetailPage({
 
   if (!result) notFound();
   const { tool, related, isDemo, status, rejectionReason, authorId } = result;
+  const creative = !isDemo && isCreativeTool(tool);
   const t = await getTranslations("toolDetail");
   const tCommon = await getTranslations("common");
   const tCategories = await getTranslations("categories");
@@ -366,8 +370,20 @@ export default async function ToolDetailPage({
         <PurchaseSuccessModal />
       </Suspense>
 
-      <main className="flex-1">
-        <div className="mx-auto max-w-6xl px-6 py-8">
+      {/* Creative対象のツール（プラグイン、またはクリエイティブ系のカテゴリ）は、
+          Creativeページと同じ「白地に虹色のぼかし」で表示し、Creativeの一員だと分かるようにする */}
+      <main className={`flex-1 ${creative ? "relative overflow-hidden bg-bg" : ""}`}>
+        {creative && <RainbowBlurs subtle />}
+        <div className="relative mx-auto max-w-6xl px-6 py-8">
+          {creative && (
+            <Link
+              href="/creative"
+              className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-bg/80 px-3 py-1.5 backdrop-blur transition hover:border-border-strong"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/creative-logo.png" alt="BuildBay Creative" width={1400} height={206} className="h-4 w-auto" />
+            </Link>
+          )}
           {isOwner && status !== "published" && (
             <div className="mb-6 rounded-lg border border-accent-ai/30 bg-accent-ai-dim px-4 py-3 text-[13px] text-accent-ai">
               {status === "pending_review" && t("status.pendingReview")}

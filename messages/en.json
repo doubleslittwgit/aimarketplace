@@ -861,7 +861,8 @@
     "parenting": "Parenting",
     "pets": "Pets",
     "utilities": "Utilities",
-    "other": "Other"
+    "other": "Other",
+    "creative": "Creative"
   },
   "notificationSettings": {
     "title": "Notification settings",
@@ -1364,6 +1365,11 @@
       "title": "Blender, After Effects, TouchDesigner, DAWs… a place just for plugins.",
       "body": "BuildBay Creative is the dedicated hub for plugins and extensions for 3D, video, live visuals and music production.",
       "cta": "Explore BuildBay Creative"
+    },
+    "tools": {
+      "title": "Creative tools",
+      "sub": "Standalone tools for creators — video editing, design, photography, music and more.",
+      "empty": "No creative tools have been published yet."
     }
   }
 }
