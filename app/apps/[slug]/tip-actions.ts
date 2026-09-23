@@ -6,11 +6,10 @@ import { getTranslations } from "next-intl/server";
 import { stripe, PLATFORM_FEE_RATE } from "@/lib/stripe/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { TIP_AMOUNTS, type TipAmount } from "@/lib/tip-amounts";
 
 export type TipResult = { error: string };
 
-/** チップとして選べる金額。任意入力にすると不正な値が入りうるので、選択式にしている */
-export const TIP_AMOUNTS = [300, 500, 1000, 3000] as const;
 
 /**
  * 出品者へのチップ（投げ銭）。
@@ -39,7 +38,7 @@ export async function startTip(
   // 金額は許可リストにあるものだけを受け付ける。
   // （ブラウザから任意の数値を送れる状態にすると、1円チップや
   //   極端な高額での誤操作を招くため）
-  if (!TIP_AMOUNTS.includes(amount as (typeof TIP_AMOUNTS)[number])) {
+  if (!TIP_AMOUNTS.includes(amount as TipAmount)) {
     return { error: tTip("invalidAmount") };
   }
 

@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { startTip, TIP_AMOUNTS } from "@/app/apps/[slug]/tip-actions";
+import { startTip } from "@/app/apps/[slug]/tip-actions";
+import { TIP_AMOUNTS } from "@/lib/tip-amounts";
 
 export default function TipBox({
   toolId,
