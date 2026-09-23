@@ -23,9 +23,9 @@
     "alreadySubmittedForReview": "この出品は既に審査に出されています",
     "notADraftAnymore": "この出品は既に下書きではありません（審査中または公開済み）",
     "localFileRequired": "ローカル実行ツールにはファイルのアップロードが必要です",
-    "payoutCheckFailed": "受け取り設定の確認に失敗しました: {message}",
-    "payoutRequiredForSubmit": "有料ツールを出品するには、先に売上の受け取り設定（Stripe登録）を完了してください。マイページの「売上の受け取り設定」から進められます。無料ツールとして出品する場合はこの設定は不要です。",
-    "payoutRequiredForContinuedPublish": "有料で公開し続けるには、売上の受け取り設定（Stripe登録）が必要です。マイページの「売上の受け取り設定」から進められます。",
+    "payoutCheckFailed": "受け取り設定・本人確認の状況を確認できませんでした: {message}",
+    "payoutRequiredForSubmit": "有料ツールを出品するには、先に売上の受け取り設定・本人確認（Stripe登録）を完了してください。マイページの「売上の受け取り設定・本人確認」から進められます。無料ツールとして出品する場合はこの設定は不要です。",
+    "payoutRequiredForContinuedPublish": "有料で公開し続けるには、売上の受け取り設定・本人確認（Stripe登録）が必要です。マイページの「売上の受け取り設定・本人確認」から進められます。",
     "purchaseHistoryCheckFailed": "購入履歴の確認に失敗しました: {message}",
     "cannotDeleteHasPurchases": "このツールは購入者がいるため完全には削除できません。代わりに「非公開にする」をお使いください（購入者は引き続きダウンロードできます）。",
     "unnamedSeller": "名前未設定の出品者",
@@ -37,7 +37,7 @@
     "toolNotPurchasable": "このツールは現在購入できません",
     "freeToolNoCheckout": "無料ツールは購入手続きが不要です",
     "cannotBuyOwnTool": "自分が出品したツールは購入できません",
-    "sellerPayoutIncomplete": "現在このツールは購入できません（出品者の受け取り設定が完了していません）",
+    "sellerPayoutIncomplete": "現在このツールは購入できません（出品者の受け取り設定・本人確認が完了していません）",
     "checkoutUrlFailed": "決済ページのURLを取得できませんでした",
     "sellerInfoCheckFailed": "出品者情報の確認に失敗しました: {message}",
     "checkoutPreparationFailed": "決済の準備に失敗しました: {message}",
@@ -107,7 +107,7 @@
   "userMenu": {
     "dashboard": "マイページ",
     "publishTool": "ツールを公開する",
-    "sellerSettings": "売上の受け取り設定",
+    "sellerSettings": "売上の受け取り設定・本人確認",
     "mfa": "二段階認証",
     "adminReview": "出品の審査（管理者）",
     "adminReports": "通報の確認（管理者）",
@@ -329,7 +329,9 @@
       }
     },
     "authorCard": {
-      "label": "開発者"
+      "label": "開発者",
+      "verified": "本人確認済み",
+      "verifiedHint": "Stripeによる本人確認と、売上の受け取り設定が完了している出品者です"
     },
     "purchaseModal": {
       "title": "ご購入ありがとうございます",
@@ -390,9 +392,9 @@
     "verifyButton": "確認する"
   },
   "seller": {
-    "title": "売上の受け取り設定",
+    "title": "売上の受け取り設定・本人確認",
     "subtitle": "有料ツールを販売するには、売上を受け取るための登録が必要です。登録はStripeの画面で行われ、BuildBayが銀行口座や本人確認書類を預かることはありません。",
-    "completeTitle": "受け取り設定は完了しています",
+    "completeTitle": "受け取り設定・本人確認は完了しています",
     "completeSubtitle": "有料ツールを販売でき、売上は自動で入金されます",
     "feeNoticePrefix": "販売価格から",
     "feeNoticeHighlight": "プラットフォーム手数料20%",
@@ -406,7 +408,7 @@
     "step1": "Stripeの登録画面に移動します",
     "step2": "本人確認の情報と、入金先の銀行口座を登録します",
     "step3": "審査が通ると、有料ツールを販売できるようになります",
-    "startSetup": "受け取り設定を始める",
+    "startSetup": "受け取り設定・本人確認を始める",
     "freeNoSetupNeeded": "無料ツールの公開だけであれば、この設定は不要です",
     "backToDashboard": "マイページに戻る",
     "requirements": {
@@ -557,7 +559,7 @@
     "stepProfileAction": "プロフィールを編集",
     "stepFirstListing": "最初のツールを出品する",
     "stepFirstListingAction": "出品する",
-    "stepPayout": "売上の受け取り設定をする",
+    "stepPayout": "売上の受け取り設定・本人確認をする",
     "stepPayoutAction": "設定する",
     "stepFirstPost": "フィードに最初の投稿をする",
     "stepFirstPostAction": "投稿する",
@@ -590,12 +592,12 @@
     "payoutAutoNotice": "売上は、残高が1,000円に達すると登録済みの口座へ自動で入金されます。",
     "payoutAutoDetail": "手数料の関係上、少額のうちは出金されません。入金のタイミングや明細、振込先の変更はStripeの画面から確認できます。",
     "checkPayouts": "Stripeで入金・明細を確認する",
-    "onboardingIncompleteNotice": "受け取り設定が完了していません。",
+    "onboardingIncompleteNotice": "受け取り設定・本人確認が完了していません。",
     "onboardingIncompleteDetail": "設定が終わるまで、有料ツールの販売と売上の入金はできません。",
     "continueSetup": "設定の続きへ",
-    "needsSetupNotice": "有料ツールを販売するには、売上の受け取り設定が必要です。",
+    "needsSetupNotice": "有料ツールを販売するには、売上の受け取り設定・本人確認が必要です。",
     "needsSetupDetail": "無料ツールの公開には設定は不要です。",
-    "startSetup": "受け取り設定を始める",
+    "startSetup": "受け取り設定・本人確認を始める",
     "noSales": "まだ販売実績はありません。",
     "buyer": "購入者: {name}",
     "unknown": "不明",
@@ -728,7 +730,7 @@
     "freePublishNotice": "無料ツールとして公開されます",
     "save": "変更を保存する",
     "saving": "保存中...",
-    "payoutRequiredNotice": "有料で公開するには、先に<link>売上の受け取り設定</link>を完了してください。",
+    "payoutRequiredNotice": "有料で公開するには、先に<link>売上の受け取り設定・本人確認</link>を完了してください。",
     "deleteTitle": "このツールを完全に削除する",
     "deleteBlockedByPurchases": "購入者がいるため削除できません。上の「非公開にする」をお使いください。",
     "deleteWarning": "この操作は取り消せません。ファイルもあわせて削除されます。",
@@ -750,11 +752,11 @@
     "freeDescription": "誰でもすぐにダウンロードできます",
     "paid": "有料",
     "paidDescription": "購入した人だけがダウンロードできます",
-    "payoutRequiredTitle": "先に売上の受け取り設定が必要です",
-    "payoutStep1": "「受け取り設定に進む」からStripeの登録画面に移動します",
+    "payoutRequiredTitle": "先に売上の受け取り設定・本人確認が必要です",
+    "payoutStep1": "「受け取り設定・本人確認に進む」からStripeの登録画面に移動します",
     "payoutStep2": "本人確認の情報と、入金先の銀行口座を登録します",
     "payoutStep3": "審査が通ると、有料ツールを公開できるようになります",
-    "payoutCta": "受け取り設定に進む",
+    "payoutCta": "受け取り設定・本人確認に進む",
     "price": "価格",
     "priceHint": "{amount}円で販売されます（手数料20%を差し引いた¥{net}が売上になります）",
     "priceHintEmpty": "1円以上を入力してください",
@@ -940,10 +942,10 @@
       "title": "「{toolName}」に新しいレビューがつきました",
       "body": "評価: {stars}"
     },
-    "sellerAccountStatusTitle": "受け取り設定の状況が更新されました",
-    "sellerAccountEnabled": "受け取り設定が完了し、有料ツールの販売・入金ができるようになりました。",
-    "sellerAccountRequirementsDue": "受け取り設定に追加の情報が必要です。ご確認ください。",
-    "sellerAccountDisabled": "受け取り設定の状態が変わり、現在は入金を受け付けられません。",
+    "sellerAccountStatusTitle": "受け取り設定・本人確認の状況が更新されました",
+    "sellerAccountEnabled": "受け取り設定・本人確認が完了し、有料の出品と入金ができるようになりました。",
+    "sellerAccountRequirementsDue": "受け取り設定・本人確認に追加の情報が必要です。ご確認ください。",
+    "sellerAccountDisabled": "受け取り設定・本人確認の状態が変わり、現在は入金を受け付けられません。",
     "purchaseReceipt": {
       "title": "「{toolName}」のご購入ありがとうございます",
       "body": "{price}のお支払いが完了しました。マイページからいつでもダウンロードできます。",
@@ -1121,7 +1123,7 @@
       "invalidPrice": "価格は0〜100,000円の範囲で入力してください",
       "imageNotAllowed": "画像はエディタからアップロードしたものだけ使えます",
       "contentRequired": "本文を入力してください",
-      "payoutRequired": "有料講座を出すには、先に売上の受け取り設定を完了してください",
+      "payoutRequired": "有料講座を出すには、先に売上の受け取り設定・本人確認を完了してください",
       "notFound": "講座が見つかりません",
       "publishedEditNotYet": "公開済みの講座の編集は、まだ対応していません（近日対応予定）",
       "saveFailed": "保存に失敗しました：{message}",
@@ -1134,6 +1136,9 @@
       "multiplePaywalls": "有料ラインは1本だけ引けます",
       "disallowedMark": "使用できない装飾が含まれています",
       "invalidLink": "リンクは http:// または https:// のURLのみ使えます"
-    }
+    },
+    "payoutNoticeTitle": "有料で販売するには、売上の受け取り設定・本人確認が必要です",
+    "payoutNoticeBody": "下書きはこのまま保存できます。審査に出す前に、設定を完了してください。無料の講座なら設定は不要です。",
+    "payoutNoticeCta": "設定に進む"
   }
 }

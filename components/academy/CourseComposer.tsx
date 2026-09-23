@@ -23,6 +23,7 @@ export default function CourseComposer({
   userId,
   initial,
   myTools,
+  canReceivePayments,
 }: {
   /** 既存の講座を編集する場合のID（新規作成時は無し） */
   courseId?: string;
@@ -36,6 +37,8 @@ export default function CourseComposer({
     toolIds: string[];
   };
   myTools: ToolOption[];
+  /** 売上の受け取り設定・本人確認が済んでいるか（有料で出すのに必要） */
+  canReceivePayments: boolean;
 }) {
   const t = useTranslations("academyEditor");
   const router = useRouter();
@@ -275,6 +278,23 @@ export default function CourseComposer({
             </div>
           )}
         </div>
+        {/* 講座を書くこと自体はログインしていれば誰でもできるが、有料で売るには
+            本人確認と受け取り設定が必要。価格を入れた時点で、先に案内する
+            （審査に出す段階で初めて断られると、書いた手間が無駄に感じるため）。 */}
+        {isPaid && !canReceivePayments && (
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-accent-signal/40 bg-accent-signal/5 px-4 py-3">
+            <div className="min-w-0">
+              <p className="text-[13px] font-medium text-text-primary">{t("payoutNoticeTitle")}</p>
+              <p className="mt-0.5 text-[12px] text-text-muted">{t("payoutNoticeBody")}</p>
+            </div>
+            <Link
+              href="/seller"
+              className="shrink-0 rounded-lg bg-accent-signal px-3.5 py-2 text-[12px] font-medium text-white transition hover:brightness-105"
+            >
+              {t("payoutNoticeCta")}
+            </Link>
+          </div>
+        )}
         {isPaid && <p className="mt-2 text-[12px] text-text-dim">{t("paywallHint")}</p>}
 
         {/* ------- ③ 本文 ------- */}

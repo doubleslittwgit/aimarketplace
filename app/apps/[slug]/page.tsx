@@ -191,17 +191,19 @@ export default async function ToolDetailPage({
   // 気まずい。受け取れる出品者にだけ表示する。
   // seller_accounts はRLSで本人以外に非公開なので、管理者権限で読む
   // （ここで得るのは「受け取れるか」の真偽だけで、画面には何も渡さない）。
-  let sellerCanReceiveTips = false;
-  if (!isDemo && authorId && !isOwner) {
+  // 同じ判定を「本人確認済み」バッジにも使う（出品者本人が見ても表示する）。
+  let sellerVerified = false;
+  if (!isDemo && authorId) {
     const { data: sellerAccount } = await createAdminClient()
       .from("seller_accounts")
       .select("transfers_enabled, payouts_enabled")
       .eq("user_id", authorId)
       .maybeSingle();
-    sellerCanReceiveTips = Boolean(
+    sellerVerified = Boolean(
       sellerAccount?.transfers_enabled && sellerAccount?.payouts_enabled
     );
   }
+  const sellerCanReceiveTips = sellerVerified && !isOwner;
 
   // 以下の3つは互いに依存しないので同時に問い合わせる
   // （DBが東京リージョンにあり、1回の往復にも時間がかかるため、
@@ -576,7 +578,7 @@ export default async function ToolDetailPage({
                   initialCount={tool.likes}
                 />
               )}
-              <AuthorCard tool={tool} isDemo={isDemo} />
+              <AuthorCard tool={tool} isDemo={isDemo} verified={sellerVerified} />
               {!isDemo && !isOwner && (
                 <div className="text-center">
                   <ReportButton toolId={tool.id} slug={tool.slug} />

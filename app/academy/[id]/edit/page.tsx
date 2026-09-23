@@ -23,11 +23,12 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
   // 他人の講座の編集画面は、存在自体を教えない
   if (!course || course.author_id !== user.id) notFound();
 
-  const [{ data: body }, { data: links }, myTools] = await Promise.all([
+  const [{ data: body }, { data: links }, myTools, { data: canReceive }] = await Promise.all([
     // 全文（有料部分を含む）は金庫側にある。作者本人なので読める
     supabase.from("course_bodies").select("content").eq("course_id", id).maybeSingle(),
     supabase.from("course_tool_links").select("tool_id").eq("course_id", id),
     getMyPublishedTools(),
+    supabase.rpc("seller_can_receive_payments", { p_user_id: user.id }),
   ]);
 
   return (
@@ -35,6 +36,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
       courseId={course.id}
       userId={user.id}
       myTools={myTools}
+      canReceivePayments={Boolean(canReceive)}
       initial={{
         title: course.title,
         thumbnailUrl: course.thumbnail_url,

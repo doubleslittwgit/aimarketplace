@@ -12,12 +12,16 @@ export default async function NewCoursePage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/academy/new");
 
-  const myTools = await getMyPublishedTools();
+  const [myTools, { data: canReceive }] = await Promise.all([
+    getMyPublishedTools(),
+    supabase.rpc("seller_can_receive_payments", { p_user_id: user.id }),
+  ]);
 
   return (
     <CourseComposer
       userId={user.id}
       myTools={myTools}
+      canReceivePayments={Boolean(canReceive)}
       initial={{ title: "", thumbnailUrl: null, price: 0, content: null, status: "draft", toolIds: [] }}
     />
   );

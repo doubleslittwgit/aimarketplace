@@ -23,9 +23,9 @@
     "alreadySubmittedForReview": "This listing has already been submitted for review",
     "notADraftAnymore": "This listing is no longer a draft (it's under review or published)",
     "localFileRequired": "A file upload is required for local tools",
-    "payoutCheckFailed": "Failed to check payout setup: {message}",
-    "payoutRequiredForSubmit": "To publish a paid tool, first complete payout setup (Stripe registration) from \"Payout settings\" in your dashboard. This isn't needed if you're publishing a free tool.",
-    "payoutRequiredForContinuedPublish": "To keep selling this as a paid tool, you need to complete payout setup (Stripe registration) from \"Payout settings\" in your dashboard.",
+    "payoutCheckFailed": "Couldn't check your payout and ID verification status: {message}",
+    "payoutRequiredForSubmit": "To publish a paid tool, first complete payouts & ID verification (Stripe registration) from \"Payouts & ID verification\" in your dashboard. This isn't needed if you're publishing a free tool.",
+    "payoutRequiredForContinuedPublish": "To keep selling this as a paid tool, you need to complete payouts & ID verification (Stripe registration) from \"Payouts & ID verification\" in your dashboard.",
     "purchaseHistoryCheckFailed": "Failed to check purchase history: {message}",
     "cannotDeleteHasPurchases": "This tool can't be fully deleted because it has buyers. Use \"Unpublish\" instead (buyers can still download it).",
     "unnamedSeller": "Unnamed seller",
@@ -37,7 +37,7 @@
     "toolNotPurchasable": "This tool can't be purchased right now",
     "freeToolNoCheckout": "Free tools don't need checkout",
     "cannotBuyOwnTool": "You can't buy your own listing",
-    "sellerPayoutIncomplete": "This tool can't be purchased right now (the seller hasn't finished payout setup)",
+    "sellerPayoutIncomplete": "This tool can't be purchased right now (the seller hasn't finished payouts & ID verification)",
     "checkoutUrlFailed": "Couldn't get the checkout page URL",
     "sellerInfoCheckFailed": "Failed to check seller info: {message}",
     "checkoutPreparationFailed": "Failed to prepare checkout: {message}",
@@ -107,7 +107,7 @@
   "userMenu": {
     "dashboard": "Dashboard",
     "publishTool": "Publish a tool",
-    "sellerSettings": "Payout settings",
+    "sellerSettings": "Payouts & ID verification",
     "mfa": "Two-factor authentication",
     "adminReview": "Review submissions (admin)",
     "adminReports": "Review reports (admin)",
@@ -329,7 +329,9 @@
       }
     },
     "authorCard": {
-      "label": "Developer"
+      "label": "Developer",
+      "verified": "ID verified",
+      "verifiedHint": "This seller has completed ID verification and payout setup with Stripe"
     },
     "purchaseModal": {
       "title": "Thanks for your purchase!",
@@ -390,9 +392,9 @@
     "verifyButton": "Verify"
   },
   "seller": {
-    "title": "Payout setup",
+    "title": "Payouts & ID verification",
     "subtitle": "To sell paid tools, you need to register to receive payouts. Registration happens on Stripe's screen — BuildBay never holds your bank details or ID documents.",
-    "completeTitle": "Payout setup is complete",
+    "completeTitle": "Payouts & ID verification are complete",
     "completeSubtitle": "You can sell paid tools and earnings are deposited automatically",
     "feeNoticePrefix": "After deducting a",
     "feeNoticeHighlight": "20% platform fee",
@@ -406,7 +408,7 @@
     "step1": "Go to Stripe's registration screen",
     "step2": "Enter your identity verification details and bank account",
     "step3": "Once approved, you can sell paid tools",
-    "startSetup": "Set up payouts",
+    "startSetup": "Start payouts & ID verification",
     "freeNoSetupNeeded": "This isn't needed if you only publish free tools",
     "backToDashboard": "Back to dashboard",
     "requirements": {
@@ -557,7 +559,7 @@
     "stepProfileAction": "Edit profile",
     "stepFirstListing": "Publish your first tool",
     "stepFirstListingAction": "Publish",
-    "stepPayout": "Set up how you get paid",
+    "stepPayout": "Set up payouts & verify your ID",
     "stepPayoutAction": "Set up",
     "stepFirstPost": "Make your first feed post",
     "stepFirstPostAction": "Post",
@@ -590,12 +592,12 @@
     "payoutAutoNotice": "Earnings are paid out automatically once your balance reaches ¥1,000.",
     "payoutAutoDetail": "Smaller balances aren't paid out yet, to keep payout fees from eating into earnings. Check payout timing, statements, and bank details in Stripe.",
     "checkPayouts": "Check payouts in Stripe",
-    "onboardingIncompleteNotice": "Payout setup isn't finished yet.",
+    "onboardingIncompleteNotice": "Payouts & ID verification aren't finished yet.",
     "onboardingIncompleteDetail": "You can't sell paid tools or receive payouts until it's complete.",
     "continueSetup": "Continue setup",
-    "needsSetupNotice": "You need to set up payouts before selling paid tools.",
+    "needsSetupNotice": "You need to complete payouts & ID verification before selling paid tools.",
     "needsSetupDetail": "No setup is needed to publish free tools.",
-    "startSetup": "Set up payouts",
+    "startSetup": "Start payouts & ID verification",
     "noSales": "No sales yet.",
     "buyer": "Buyer: {name}",
     "unknown": "Unknown",
@@ -728,7 +730,7 @@
     "freePublishNotice": "This will be published as a free tool",
     "save": "Save changes",
     "saving": "Saving...",
-    "payoutRequiredNotice": "To publish this as paid, first complete <link>payout setup</link>.",
+    "payoutRequiredNotice": "To publish this as paid, first complete <link>payouts & ID verification</link>.",
     "deleteTitle": "Permanently delete this tool",
     "deleteBlockedByPurchases": "Can't delete — it has buyers. Use \"Unpublish\" above instead.",
     "deleteWarning": "This can't be undone. Its files will be deleted too.",
@@ -750,11 +752,11 @@
     "freeDescription": "Anyone can download it immediately",
     "paid": "Paid",
     "paidDescription": "Only buyers can download it",
-    "payoutRequiredTitle": "Set up payouts first",
-    "payoutStep1": "Click \"Set up payouts\" to go to Stripe's onboarding screen",
+    "payoutRequiredTitle": "Complete payouts & ID verification first",
+    "payoutStep1": "Click \"Continue to payouts & ID verification\" to go to Stripe's onboarding screen",
     "payoutStep2": "Enter your identity verification details and bank account",
     "payoutStep3": "Once approved, you can publish paid tools",
-    "payoutCta": "Set up payouts",
+    "payoutCta": "Continue to payouts & ID verification",
     "price": "Price",
     "priceHint": "Sold for ¥{amount} (after the 20% platform fee, you'll earn ¥{net})",
     "priceHintEmpty": "Enter an amount of at least ¥1",
@@ -940,10 +942,10 @@
       "title": "New review on \"{toolName}\"",
       "body": "Rating: {stars}"
     },
-    "sellerAccountStatusTitle": "Your payout setup status changed",
-    "sellerAccountEnabled": "Payout setup is complete — you can now sell paid tools and receive payouts.",
-    "sellerAccountRequirementsDue": "Your payout setup needs more information. Please check it.",
-    "sellerAccountDisabled": "Your payout status changed and payouts are currently unavailable.",
+    "sellerAccountStatusTitle": "Your payouts & ID verification status changed",
+    "sellerAccountEnabled": "Payouts & ID verification are complete — you can now sell paid items and receive payouts.",
+    "sellerAccountRequirementsDue": "Your payouts & ID verification need more information. Please check it.",
+    "sellerAccountDisabled": "Your payouts & ID verification status changed and payouts are currently unavailable.",
     "purchaseReceipt": {
       "title": "Thanks for purchasing \"{toolName}\"",
       "body": "Your payment of {price} is complete. You can download it anytime from your dashboard.",
@@ -1121,7 +1123,7 @@
       "invalidPrice": "Price must be between ¥0 and ¥100,000",
       "imageNotAllowed": "Only images uploaded through the editor can be used",
       "contentRequired": "Please write some content",
-      "payoutRequired": "Set up payouts before submitting a paid course",
+      "payoutRequired": "Complete payouts & ID verification before submitting a paid course",
       "notFound": "Course not found",
       "publishedEditNotYet": "Editing published courses isn't supported yet (coming soon)",
       "saveFailed": "Couldn't save: {message}",
@@ -1134,6 +1136,9 @@
       "multiplePaywalls": "Only one paywall is allowed",
       "disallowedMark": "The content contains unsupported formatting",
       "invalidLink": "Links must start with http:// or https://"
-    }
+    },
+    "payoutNoticeTitle": "Paid courses need payouts & ID verification",
+    "payoutNoticeBody": "You can keep saving drafts. Finish the setup before submitting for review. Free courses don't need it.",
+    "payoutNoticeCta": "Go to setup"
   }
 }
