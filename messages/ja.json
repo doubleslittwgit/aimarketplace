@@ -102,7 +102,8 @@
     "login": "ログイン",
     "publish": "公開する",
     "menuAriaLabel": "メニュー",
-    "languageAriaLabel": "言語を選択"
+    "languageAriaLabel": "言語を選択",
+    "academy": "Academy"
   },
   "userMenu": {
     "dashboard": "マイページ",
@@ -358,7 +359,8 @@
     },
     "versionHistory": "更新履歴",
     "noVersionHistory": "更新履歴はまだありません。",
-    "videoSlide": "紹介動画"
+    "videoSlide": "紹介動画",
+    "learnCourses": "このツールの作り方を学ぶ"
   },
   "mfa": {
     "title": "二段階認証",
@@ -991,6 +993,14 @@
     "tipReceived": {
       "title": "{tipperName}さんからチップが届きました",
       "body": "「{toolName}」へ{amount}のチップをいただきました。"
+    },
+    "courseApproved": {
+      "title": "講座「{title}」が公開されました",
+      "body": "審査を通過し、BuildBay Academy に公開されました。"
+    },
+    "courseRejected": {
+      "title": "講座「{title}」が差し戻されました",
+      "body": "理由：{reason}　内容を修正して、もう一度審査に出すことができます。"
     }
   },
   "refundRequest": {
@@ -1287,6 +1297,29 @@
         "name": "AI活用術",
         "desc": "もっと使いこなす"
       }
+    }
+  },
+  "academyCourse": {
+    "toc": "目次",
+    "freeNote": "この講座は、最後まで無料で読めます。",
+    "authorPreview": "作者プレビュー：有料部分を含む全文を表示しています",
+    "adminPreview": "審査用プレビュー：有料部分を含む全文を表示しています",
+    "buy": "購入して続きを読む",
+    "buyComingSoon": "購入手続きは準備中です",
+    "buyNote": "購入すると、有料部分を含む全文をいつでも読めます。",
+    "lockedCount": "有料の見出し {n} 件",
+    "paywall": "ここから有料",
+    "paywallTitle": "ここから先は有料です",
+    "paywallBody": "残り {n} 件の見出しは、購入すると読めるようになります。目次で内容を確認できます。",
+    "paywallBodyNoCount": "続きは購入すると読めるようになります。",
+    "toolsTitle": "この講座で作るツール",
+    "trustNote": "BuildBay Academy の講座は、すべて運営の審査を通過しています。",
+    "editCourse": "編集する",
+    "statusBanner": {
+      "draft": "下書きのプレビューです（まだ公開されていません）",
+      "pending_review": "審査中のプレビューです（まだ公開されていません）",
+      "rejected": "差し戻された講座のプレビューです",
+      "suspended": "非公開中の講座です"
     }
   }
 }

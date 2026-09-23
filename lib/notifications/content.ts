@@ -39,7 +39,10 @@ export type NotificationType =
   | "liked_tool_on_sale"
   | "tool_updated"
   | "seller_announcement"
-  | "tip_received";
+  | "tip_received"
+  | "course_approved"
+  | "course_rejected"
+  | "admin_course_pending";
 
 // ------------------------------------------------------------
 // 通知設定でオフにできる種類。
@@ -389,5 +392,35 @@ export function tipReceived(
     title: tNotif(locale, "tipReceived.title", { tipperName }),
     body: tNotif(locale, "tipReceived.body", { toolName, amount }),
     linkUrl: `${SITE_URL}/apps/${slug}`,
+  };
+}
+
+export function courseApproved(title: string, slug: string, locale: SupportedLocale): NotificationContent {
+  return {
+    title: tNotif(locale, "courseApproved.title", { title }),
+    body: tNotif(locale, "courseApproved.body"),
+    linkUrl: `${SITE_URL}/academy/courses/${slug}`,
+  };
+}
+
+export function courseRejected(
+  title: string,
+  courseId: string,
+  reason: string,
+  locale: SupportedLocale
+): NotificationContent {
+  return {
+    title: tNotif(locale, "courseRejected.title", { title }),
+    body: tNotif(locale, "courseRejected.body", { reason: reason.slice(0, 300) }),
+    linkUrl: `${SITE_URL}/academy/${courseId}/edit`,
+  };
+}
+
+/** 管理者（Shuさん）宛：講座が審査に提出された */
+export function adminCoursePending(title: string, authorName: string): NotificationContent {
+  return {
+    title: `📚 講座の審査依頼: ${title || "（タイトル未設定）"}`,
+    body: `${authorName}さんが講座を審査に提出しました。`,
+    linkUrl: `${SITE_URL}/admin/courses`,
   };
 }

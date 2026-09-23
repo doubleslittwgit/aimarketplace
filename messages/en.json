@@ -102,7 +102,8 @@
     "login": "Log in",
     "publish": "Publish",
     "menuAriaLabel": "Menu",
-    "languageAriaLabel": "Select language"
+    "languageAriaLabel": "Select language",
+    "academy": "Academy"
   },
   "userMenu": {
     "dashboard": "Dashboard",
@@ -358,7 +359,8 @@
     },
     "versionHistory": "Changelog",
     "noVersionHistory": "No update history yet.",
-    "videoSlide": "Intro video"
+    "videoSlide": "Intro video",
+    "learnCourses": "Learn how this tool was built"
   },
   "mfa": {
     "title": "Two-factor authentication",
@@ -991,6 +993,14 @@
     "tipReceived": {
       "title": "{tipperName} sent you a tip",
       "body": "You received a {amount} tip for {toolName}."
+    },
+    "courseApproved": {
+      "title": "Your course “{title}” is live",
+      "body": "It passed review and is now published on BuildBay Academy."
+    },
+    "courseRejected": {
+      "title": "Your course “{title}” was returned",
+      "body": "Reason: {reason} — you can revise it and submit again."
     }
   },
   "refundRequest": {
@@ -1287,6 +1297,29 @@
         "name": "Using AI well",
         "desc": "Get more out of AI"
       }
+    }
+  },
+  "academyCourse": {
+    "toc": "Contents",
+    "freeNote": "This course is free to read in full.",
+    "authorPreview": "Author preview: showing the full text, paid sections included",
+    "adminPreview": "Review preview: showing the full text, paid sections included",
+    "buy": "Buy to keep reading",
+    "buyComingSoon": "Checkout is coming soon",
+    "buyNote": "Once purchased, you can read the full course anytime.",
+    "lockedCount": "{n} paid headings",
+    "paywall": "Paid from here",
+    "paywallTitle": "The rest of this course is paid",
+    "paywallBody": "Buy to unlock the remaining {n} headings. Check the contents to see what's inside.",
+    "paywallBodyNoCount": "Buy to read the rest.",
+    "toolsTitle": "Tools built in this course",
+    "trustNote": "Every BuildBay Academy course has passed our review.",
+    "editCourse": "Edit",
+    "statusBanner": {
+      "draft": "Draft preview (not published yet)",
+      "pending_review": "In-review preview (not published yet)",
+      "rejected": "Preview of a returned course",
+      "suspended": "This course is unpublished"
     }
   }
 }

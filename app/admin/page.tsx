@@ -37,6 +37,7 @@ export default async function AdminHomePage() {
     { count: toolReports },
     { count: postReports },
     { count: refundRequests },
+    { count: pendingCourses },
     { count: publishedTools },
     { count: totalUsers },
     { data: recentSales },
@@ -46,6 +47,7 @@ export default async function AdminHomePage() {
     admin.from("tool_reports").select("id", { count: "exact", head: true }).eq("status", "open"),
     admin.from("post_reports").select("id", { count: "exact", head: true }).eq("status", "open"),
     admin.from("refund_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    admin.from("courses").select("id", { count: "exact", head: true }).eq("status", "pending_review"),
     admin.from("tools").select("id", { count: "exact", head: true }).eq("status", "published"),
     admin.from("profiles").select("id", { count: "exact", head: true }),
     admin
@@ -65,6 +67,12 @@ export default async function AdminHomePage() {
       label: "出品の審査",
       count: pendingReviews ?? 0,
       description: "公開を待っているツール",
+    },
+    {
+      href: "/admin/courses",
+      label: "講座の審査",
+      count: pendingCourses ?? 0,
+      description: "Academy に提出された講座",
     },
     {
       href: "/admin/refund-requests",

@@ -205,6 +205,19 @@ export default async function ToolDetailPage({
   }
   const sellerCanReceiveTips = sellerVerified && !isOwner;
 
+  // このツールと紐付いた、公開中の Academy 講座（「このツールの作り方を学ぶ」）
+  type LinkedCourse = { slug: string; title: string; thumbnail_url: string | null; price: number; status: string };
+  let learnCourses: LinkedCourse[] = [];
+  if (!isDemo) {
+    const { data: courseLinks } = await supabase
+      .from("course_tool_links")
+      .select("courses(slug, title, thumbnail_url, price, status)")
+      .eq("tool_id", tool.id);
+    learnCourses = ((courseLinks ?? []) as unknown as { courses: LinkedCourse | null }[])
+      .map((l) => l.courses)
+      .filter((x): x is LinkedCourse => Boolean(x && x.status === "published"));
+  }
+
   // 以下の3つは互いに依存しないので同時に問い合わせる
   // （DBが東京リージョンにあり、1回の往復にも時間がかかるため、
   //  直列にすると表示速度に直結する）。
@@ -579,6 +592,31 @@ export default async function ToolDetailPage({
                 />
               )}
               <AuthorCard tool={tool} isDemo={isDemo} verified={sellerVerified} />
+              {learnCourses.length > 0 && (
+                <div className="rounded-xl border border-[#C9A227]/40 bg-[#F7F3E8] p-5">
+                  <p className="text-[12px] font-semibold text-[#9C7A12]">{t("learnCourses")}</p>
+                  <ul className="mt-3 space-y-3">
+                    {learnCourses.map((lc) => (
+                      <li key={lc.slug}>
+                        <Link href={`/academy/courses/${lc.slug}`} className="flex items-center gap-3 hover:opacity-80">
+                          <span className="h-10 w-16 shrink-0 overflow-hidden rounded-md bg-[#173F35]">
+                            {lc.thumbnail_url && (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={lc.thumbnail_url} alt="" className="h-full w-full object-cover" />
+                            )}
+                          </span>
+                          <span className="min-w-0">
+                            <span className="line-clamp-2 text-[13px] font-semibold leading-snug text-[#173F35]">{lc.title}</span>
+                            <span className="text-[11px] text-[#9C7A12]">
+                              {lc.price > 0 ? `¥${lc.price.toLocaleString()}` : "BuildBay Academy"}
+                            </span>
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {!isDemo && !isOwner && (
                 <div className="text-center">
                   <ReportButton toolId={tool.id} slug={tool.slug} />

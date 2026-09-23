@@ -85,6 +85,13 @@ export default function MobileMenu({ isLoggedIn }: { isLoggedIn: boolean }) {
               </span>
             </Link>
             <Link
+              href="/academy"
+              onClick={() => setOpen(false)}
+              className="rounded-lg px-3 py-2.5 font-medium text-[#9C7A12] transition hover:bg-surface"
+            >
+              {t("academy")}
+            </Link>
+            <Link
               href="/submit"
               onClick={() => setOpen(false)}
               className="rounded-lg px-3 py-2.5 text-text-secondary transition hover:bg-surface hover:text-text-primary"

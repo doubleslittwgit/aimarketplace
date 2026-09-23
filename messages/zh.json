@@ -102,7 +102,8 @@
     "login": "登入",
     "publish": "上架工具",
     "menuAriaLabel": "選單",
-    "languageAriaLabel": "選擇語言"
+    "languageAriaLabel": "選擇語言",
+    "academy": "Academy"
   },
   "userMenu": {
     "dashboard": "會員中心",
@@ -358,7 +359,8 @@
     },
     "versionHistory": "更新紀錄",
     "noVersionHistory": "目前還沒有更新紀錄。",
-    "videoSlide": "介紹影片"
+    "videoSlide": "介紹影片",
+    "learnCourses": "學習這個工具的製作方法"
   },
   "mfa": {
     "title": "雙重驗證",
@@ -991,6 +993,14 @@
     "tipReceived": {
       "title": "收到來自 {tipperName} 的贊助",
       "body": "「{toolName}」收到了 {amount} 的贊助。"
+    },
+    "courseApproved": {
+      "title": "課程「{title}」已發布",
+      "body": "已通過審核，並在 BuildBay Academy 上架。"
+    },
+    "courseRejected": {
+      "title": "課程「{title}」已被退回",
+      "body": "原因：{reason}　修改內容後可再次送出審核。"
     }
   },
   "refundRequest": {
@@ -1287,6 +1297,29 @@
         "name": "AI活用技巧",
         "desc": "更善用AI"
       }
+    }
+  },
+  "academyCourse": {
+    "toc": "目錄",
+    "freeNote": "這門課程可以免費讀到最後。",
+    "authorPreview": "作者預覽：正在顯示包含付費部分的全文",
+    "adminPreview": "審核預覽：正在顯示包含付費部分的全文",
+    "buy": "購買以繼續閱讀",
+    "buyComingSoon": "購買功能即將推出",
+    "buyNote": "購買後，可隨時閱讀包含付費部分的全文。",
+    "lockedCount": "付費標題 {n} 項",
+    "paywall": "以下為付費內容",
+    "paywallTitle": "以下為付費內容",
+    "paywallBody": "購買後即可閱讀其餘 {n} 項標題的內容。可從目錄確認內容。",
+    "paywallBodyNoCount": "購買後即可閱讀後續內容。",
+    "toolsTitle": "本課程製作的工具",
+    "trustNote": "BuildBay Academy 的課程皆已通過營運審核。",
+    "editCourse": "編輯",
+    "statusBanner": {
+      "draft": "草稿預覽（尚未發布）",
+      "pending_review": "審核中的預覽（尚未發布）",
+      "rejected": "被退回課程的預覽",
+      "suspended": "此課程目前未公開"
     }
   }
 }

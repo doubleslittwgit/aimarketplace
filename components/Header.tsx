@@ -101,6 +101,12 @@ export default async function Header() {
             {t("creative")}
           </Link>
           <Link
+            href="/academy"
+            className="hidden font-medium text-[#9C7A12] transition hover:text-[#173F35] sm:block"
+          >
+            {t("academy")}
+          </Link>
+          <Link
             href="/submit"
             className="hidden text-text-secondary transition hover:text-text-primary sm:block"
           >

@@ -1,6 +1,9 @@
 "use server";
 
+import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
+import { notifyAdmins } from "@/lib/notifications/create";
+import { adminCoursePending } from "@/lib/notifications/content";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slugify";
 import { isCourseCategory } from "@/lib/academy/categories";
@@ -150,6 +153,20 @@ export async function saveCourse(input: SaveCourseInput): Promise<SaveCourseResu
       .from("course_tool_links")
       .insert(toolIds.map((tool_id) => ({ course_id: input.id, tool_id })));
     if (linkError) return { error: t("errors.saveFailed", { message: linkError.message }) };
+  }
+
+  if (input.submit) {
+    after(async () => {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name, handle")
+        .eq("id", user.id)
+        .maybeSingle();
+      await notifyAdmins(
+        "admin_course_pending",
+        adminCoursePending(title, profile?.display_name || profile?.handle || "—")
+      );
+    });
   }
 
   return { error: null, slug };
