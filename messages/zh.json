@@ -610,7 +610,14 @@
       "body": "審核完成後會通知您。內容隨時都能從會員中心編輯。",
       "close": "關閉",
       "submitAnother": "再上架一個"
-    }
+    },
+    "myCourses": "我的課程（Academy）",
+    "newCourse": "+ 撰寫新課程",
+    "noCourses": "目前還沒有課程。要不要把用AI打造工具的經驗寫成課程？",
+    "untitledCourse": "（未設定標題）",
+    "courseReturnedReason": "退回原因：{reason}",
+    "coursePendingNotice": "審核中，結果會以通知告知您。",
+    "preview": "預覽"
   },
   "auth": {
     "loginRequiredTitle": "需要登入",

@@ -610,7 +610,14 @@
       "body": "審査が完了したら、お知らせします。内容はマイページからいつでも編集できます。",
       "close": "閉じる",
       "submitAnother": "もう1つ出品する"
-    }
+    },
+    "myCourses": "自分の講座（Academy）",
+    "newCourse": "+ 新しく講座を書く",
+    "noCourses": "まだ講座はありません。AIでツールをつくった経験を、講座にしてみませんか？",
+    "untitledCourse": "（タイトル未設定）",
+    "courseReturnedReason": "差し戻しの理由: {reason}",
+    "coursePendingNotice": "審査中です。結果はお知らせで届きます。",
+    "preview": "プレビュー"
   },
   "auth": {
     "loginRequiredTitle": "ログインが必要です",

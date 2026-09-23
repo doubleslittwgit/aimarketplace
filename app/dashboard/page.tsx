@@ -49,6 +49,17 @@ type OwnToolRow = {
   thumbnail_url: string | null;
 };
 
+type MyCourseRow = {
+  id: string;
+  slug: string;
+  title: string;
+  thumbnail_url: string | null;
+  price: number;
+  status: string;
+  rejection_reason: string | null;
+  updated_at: string;
+};
+
 type SaleRow = {
   id: string;
   price_paid: number;
@@ -91,6 +102,7 @@ export default async function DashboardPage() {
     { count: postCount },
     { data: refundRequestsData },
     { count: followerCount },
+    { data: myCoursesData },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -124,11 +136,18 @@ export default async function DashboardPage() {
       .from("follows")
       .select("follower_id", { count: "exact", head: true })
       .eq("following_id", user.id),
+    // BuildBay Academy で自分が書いた講座（下書き・審査中も含む）
+    supabase
+      .from("courses")
+      .select("id, slug, title, thumbnail_url, price, status, rejection_reason, updated_at")
+      .eq("author_id", user.id)
+      .order("updated_at", { ascending: false }),
   ]);
 
   const purchases = (purchasesData ?? []) as unknown as PurchaseRow[];
   const ownTools = (ownToolsData ?? []) as OwnToolRow[];
   const sales = (salesData ?? []) as unknown as SaleRow[];
+  const myCourses = (myCoursesData ?? []) as MyCourseRow[];
   const refundedPurchaseIds = new Set(
     (refundRequestsData ?? []).map((r) => r.purchase_id)
   );
@@ -399,6 +418,95 @@ export default async function DashboardPage() {
                     >
                       {tool.status === "draft" ? t("continueEditing") : t("edit")}
                     </Link>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* 自分の講座（BuildBay Academy）。
+              以前はマイページに入口が無く、書きかけの講座に戻るにはURLを覚えておく必要があった */}
+          <section className="mb-10">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-display text-lg font-semibold text-text-primary">{t("myCourses")}</h2>
+              <Link href="/academy/new" className="text-[13px] text-accent-signal hover:underline">
+                {t("newCourse")}
+              </Link>
+            </div>
+            {myCourses.length === 0 ? (
+              <div className="rounded-xl border border-border bg-surface p-6 text-center text-[13px] text-text-muted">
+                {t("noCourses")}
+              </div>
+            ) : (
+              <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
+                {myCourses.map((course) => (
+                  <div key={course.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                    <div className="flex min-w-0 items-start gap-3">
+                      {/* 講座のサムネイルは横長なので、ツールより少し横に広い枠にする */}
+                      <span className="flex h-10 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-bg">
+                        {course.thumbnail_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={course.thumbnail_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="font-display text-xs font-semibold text-text-dim/50">
+                            {(course.title || "?").slice(0, 2).toUpperCase()}
+                          </span>
+                        )}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          {course.status === "published" ? (
+                            <Link
+                              href={`/academy/courses/${course.slug}`}
+                              className="truncate text-[14px] font-medium text-text-primary hover:text-accent-signal"
+                            >
+                              {course.title}
+                            </Link>
+                          ) : (
+                            <span className="truncate text-[14px] font-medium text-text-primary">
+                              {course.title || t("untitledCourse")}
+                            </span>
+                          )}
+                          <span
+                            className={`shrink-0 rounded-full px-2 py-0.5 font-mono text-[10px] tracking-wide ${
+                              STATUS_STYLE[course.status] ?? "bg-surface-raised text-text-muted"
+                            }`}
+                          >
+                            {statusLabel(course.status)}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 font-mono text-[11px] text-text-dim">
+                          {formatPrice(course.price)} ・{" "}
+                          {new Date(course.updated_at).toLocaleDateString(intlLocale)}
+                        </p>
+                        {course.status === "rejected" && course.rejection_reason && (
+                          <p className="mt-1.5 max-w-md text-[11px] leading-relaxed text-accent-danger">
+                            {t("courseReturnedReason", { reason: course.rejection_reason })}
+                          </p>
+                        )}
+                        {course.status === "pending_review" && (
+                          <p className="mt-1.5 text-[11px] text-text-dim">{t("coursePendingNotice")}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {/* 公開前でも、作者は講座ページで読者と同じ見た目を確認できる */}
+                      <Link
+                        href={`/academy/courses/${course.slug}`}
+                        className="rounded-lg border border-border px-3 py-1.5 text-[12px] text-text-secondary transition hover:bg-surface-raised"
+                      >
+                        {t("preview")}
+                      </Link>
+                      {/* 公開中・非公開中の講座の編集は、再審査の流れを作るまで受け付けていない */}
+                      {course.status !== "published" && course.status !== "suspended" && (
+                        <Link
+                          href={`/academy/${course.id}/edit`}
+                          className="rounded-lg border border-border px-3 py-1.5 text-[12px] text-text-secondary transition hover:bg-surface-raised"
+                        >
+                          {course.status === "draft" ? t("continueEditing") : t("edit")}
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -610,7 +610,14 @@
       "body": "We'll let you know once it's reviewed. You can edit it anytime from your dashboard.",
       "close": "Close",
       "submitAnother": "Submit another"
-    }
+    },
+    "myCourses": "My courses (Academy)",
+    "newCourse": "+ Write a new course",
+    "noCourses": "No courses yet. Why not turn your experience building tools with AI into a course?",
+    "untitledCourse": "(Untitled)",
+    "courseReturnedReason": "Returned: {reason}",
+    "coursePendingNotice": "In review. You'll get a notification with the result.",
+    "preview": "Preview"
   },
   "auth": {
     "loginRequiredTitle": "Login required",
