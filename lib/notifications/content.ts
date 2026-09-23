@@ -42,7 +42,8 @@ export type NotificationType =
   | "tip_received"
   | "course_approved"
   | "course_rejected"
-  | "admin_course_pending";
+  | "admin_course_pending"
+  | "admin_course_double_payment";
 
 // ------------------------------------------------------------
 // 通知設定でオフにできる種類。
@@ -422,5 +423,28 @@ export function adminCoursePending(title: string, authorName: string): Notificat
     title: `📚 講座の審査依頼: ${title || "（タイトル未設定）"}`,
     body: `${authorName}さんが講座を審査に提出しました。`,
     linkUrl: `${SITE_URL}/admin/courses`,
+  };
+}
+
+export function coursePurchaseReceipt(
+  title: string,
+  price: string,
+  slug: string,
+  locale: SupportedLocale
+): NotificationContent {
+  return {
+    title: tNotif(locale, "coursePurchaseReceipt.title", { title }),
+    body: tNotif(locale, "coursePurchaseReceipt.body", { price }),
+    linkUrl: `${SITE_URL}/academy/courses/${slug}`,
+    emailSubject: tNotif(locale, "coursePurchaseReceipt.title", { title }),
+  };
+}
+
+/** 管理者（Shuさん）宛：講座の二重決済。Stripeの管理画面から返金が必要 */
+export function adminCourseDoublePayment(title: string, paymentIntentId: string, amount: string): NotificationContent {
+  return {
+    title: `⚠️ 講座の二重決済（要・返金）: ${title}`,
+    body: `同じ購入者が同じ講座に2回支払いました。Stripeで ${paymentIntentId}（${amount}）を返金してください。`,
+    linkUrl: `https://dashboard.stripe.com/payments/${paymentIntentId}`,
   };
 }

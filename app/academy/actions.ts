@@ -20,6 +20,7 @@ export type SaveCourseInput = {
   thumbnailUrl: string | null;
   price: number;
   category: string | null;
+  refundPolicy: string;
   content: unknown;
   /** true なら「審査に出す」、false なら「下書き保存」 */
   submit: boolean;
@@ -128,6 +129,8 @@ export async function saveCourse(input: SaveCourseInput): Promise<SaveCourseResu
       price,
       // 決められたカテゴリ以外は保存しない（DB側の制約とも一致させている）
       category: isCourseCategory(input.category) ? input.category : null,
+      // 決められた3つ以外は「返金なし」として扱う
+      refund_policy: ["none", "conditional", "full"].includes(input.refundPolicy) ? input.refundPolicy : "none",
       status,
       free_content: freeContent,
       toc: buildToc(doc),

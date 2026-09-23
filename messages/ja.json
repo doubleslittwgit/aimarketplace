@@ -1009,6 +1009,10 @@
     "courseRejected": {
       "title": "講座「{title}」が差し戻されました",
       "body": "理由：{reason}　内容を修正して、もう一度審査に出すことができます。"
+    },
+    "coursePurchaseReceipt": {
+      "title": "講座「{title}」のご購入ありがとうございます",
+      "body": "{price}のお支払いが完了しました。講座ページで、有料部分を含む全文をいつでも読めます。"
     }
   },
   "refundRequest": {
@@ -1159,7 +1163,8 @@
     "payoutNoticeBody": "下書きはこのまま保存できます。審査に出す前に、設定を完了してください。無料の講座なら設定は不要です。",
     "payoutNoticeCta": "設定に進む",
     "category": "カテゴリ",
-    "categoryNone": "未設定"
+    "categoryNone": "未設定",
+    "refundPolicy": "返金対応"
   },
   "academyHome": {
     "tagline": "学ぶ、つくる、広がる。",
@@ -1333,6 +1338,25 @@
       "pending_review": "審査中のプレビューです（まだ公開されていません）",
       "rejected": "差し戻された講座のプレビューです",
       "suspended": "非公開中の講座です"
+    },
+    "purchasedNote": "購入済み：有料部分を含む全文を読めます",
+    "buyUnavailable": "現在は購入できません",
+    "redirecting": "決済画面へ移動中…",
+    "purchasedBanner": "ご購入ありがとうございます。有料部分を含む全文を読めるようになりました。",
+    "purchasePending": "決済を確認しています。数秒たっても全文が表示されない場合は、再読み込みしてください。",
+    "reload": "再読み込み",
+    "refundTitle": "返金対応",
+    "refund": {
+      "none": "返金なし",
+      "conditional": "条件により対応",
+      "full": "返金対応あり"
+    },
+    "errors": {
+      "notPurchasable": "この講座は現在購入できません",
+      "comingSoon": "購入手続きは準備中です",
+      "ownCourse": "自分の講座は購入できません",
+      "sellerCannotReceive": "作者の受け取り設定が完了していないため、現在は購入できません",
+      "checkoutFailed": "決済の準備に失敗しました：{message}"
     }
   },
   "creativeHome": {

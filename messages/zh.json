@@ -1009,6 +1009,10 @@
     "courseRejected": {
       "title": "課程「{title}」已被退回",
       "body": "原因：{reason}　修改內容後可再次送出審核。"
+    },
+    "coursePurchaseReceipt": {
+      "title": "感謝您購買課程「{title}」",
+      "body": "已完成 {price} 的付款。您可隨時在課程頁面閱讀包含付費部分的全文。"
     }
   },
   "refundRequest": {
@@ -1159,7 +1163,8 @@
     "payoutNoticeBody": "草稿可以照常儲存。送出審核前，請先完成設定。免費課程則不需要此設定。",
     "payoutNoticeCta": "前往設定",
     "category": "分類",
-    "categoryNone": "未設定"
+    "categoryNone": "未設定",
+    "refundPolicy": "退款方針"
   },
   "academyHome": {
     "tagline": "學習、創作、擴散。",
@@ -1333,6 +1338,25 @@
       "pending_review": "審核中的預覽（尚未發布）",
       "rejected": "被退回課程的預覽",
       "suspended": "此課程目前未公開"
+    },
+    "purchasedNote": "已購買：可閱讀包含付費部分的全文",
+    "buyUnavailable": "目前無法購買",
+    "redirecting": "正在前往付款頁面…",
+    "purchasedBanner": "感謝您的購買，現在可以閱讀包含付費部分的全文了。",
+    "purchasePending": "正在確認付款。若幾秒後仍未顯示全文，請重新整理頁面。",
+    "reload": "重新整理",
+    "refundTitle": "退款方針",
+    "refund": {
+      "none": "不接受退款",
+      "conditional": "視情況而定",
+      "full": "接受退款"
+    },
+    "errors": {
+      "notPurchasable": "此課程目前無法購買",
+      "comingSoon": "購買功能即將推出",
+      "ownCourse": "無法購買自己的課程",
+      "sellerCannotReceive": "作者尚未完成收款設定，目前無法購買",
+      "checkoutFailed": "無法準備付款：{message}"
     }
   },
   "creativeHome": {

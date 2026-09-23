@@ -22,7 +22,7 @@ export default async function NewCoursePage() {
       userId={user.id}
       myTools={myTools}
       canReceivePayments={Boolean(canReceive)}
-      initial={{ title: "", thumbnailUrl: null, price: 0, category: null, content: null, status: "draft", toolIds: [] }}
+      initial={{ title: "", thumbnailUrl: null, price: 0, category: null, refundPolicy: "none", content: null, status: "draft", toolIds: [] }}
     />
   );
 }

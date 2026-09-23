@@ -16,7 +16,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
 
   const { data: course } = await supabase
     .from("courses")
-    .select("id, author_id, title, thumbnail_url, price, status, category")
+    .select("id, author_id, title, thumbnail_url, price, status, category, refund_policy")
     .eq("id", id)
     .maybeSingle();
 
@@ -42,6 +42,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
         thumbnailUrl: course.thumbnail_url,
         price: course.price,
         category: course.category,
+        refundPolicy: course.refund_policy,
         content: (body?.content as JSONNode) ?? null,
         status: course.status,
         toolIds: (links ?? []).map((l) => l.tool_id),

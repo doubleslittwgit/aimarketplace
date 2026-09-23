@@ -34,6 +34,7 @@ export default function CourseComposer({
     thumbnailUrl: string | null;
     price: number;
     category: string | null;
+    refundPolicy: "none" | "conditional" | "full";
     content: JSONNode | null;
     status: string;
     toolIds: string[];
@@ -44,6 +45,7 @@ export default function CourseComposer({
 }) {
   const t = useTranslations("academyEditor");
   const tHome = useTranslations("academyHome");
+  const tCourse = useTranslations("academyCourse");
   const router = useRouter();
 
   // 画像の保存先パスに講座IDを使うため、新規作成でも最初にIDを決めておく
@@ -52,6 +54,7 @@ export default function CourseComposer({
   const [thumbnailUrl, setThumbnailUrl] = useState(initial.thumbnailUrl);
   const [price, setPrice] = useState(String(initial.price));
   const [category, setCategory] = useState(initial.category ?? "");
+  const [refundPolicy, setRefundPolicy] = useState(initial.refundPolicy);
   const [toolIds, setToolIds] = useState<string[]>(initial.toolIds);
   const [status, setStatus] = useState(initial.status);
   const docRef = useRef<JSONNode>(initial.content ?? EMPTY_DOC);
@@ -109,6 +112,7 @@ export default function CourseComposer({
         thumbnailUrl,
         price: priceNumber,
         category: category || null,
+        refundPolicy,
         content: docRef.current,
         submit,
         toolIds,
@@ -272,6 +276,25 @@ export default function CourseComposer({
               ))}
             </select>
           </label>
+
+          {/* 返金ポリシーは有料講座のときだけ意味を持つ。講座ページの購入欄に表示される */}
+          {isPaid && (
+            <label className="flex items-center gap-2 text-[13px] text-text-secondary">
+              {t("refundPolicy")}
+              <select
+                value={refundPolicy}
+                onChange={(e) => {
+                  setRefundPolicy(e.target.value as "none" | "conditional" | "full");
+                  setDirty(true);
+                }}
+                className="rounded-lg border border-border bg-surface px-2 py-1.5 text-[13px] text-text-primary outline-none focus:border-border-strong"
+              >
+                <option value="none">{tCourse("refund.none")}</option>
+                <option value="conditional">{tCourse("refund.conditional")}</option>
+                <option value="full">{tCourse("refund.full")}</option>
+              </select>
+            </label>
+          )}
 
           {myTools.length > 0 && (
             <div className="min-w-0 flex-1">

@@ -1009,6 +1009,10 @@
     "courseRejected": {
       "title": "Your course “{title}” was returned",
       "body": "Reason: {reason} — you can revise it and submit again."
+    },
+    "coursePurchaseReceipt": {
+      "title": "Thanks for buying “{title}”",
+      "body": "Your payment of {price} is complete. You can read the full course, paid sections included, anytime on the course page."
     }
   },
   "refundRequest": {
@@ -1159,7 +1163,8 @@
     "payoutNoticeBody": "You can keep saving drafts. Finish the setup before submitting for review. Free courses don't need it.",
     "payoutNoticeCta": "Go to setup",
     "category": "Category",
-    "categoryNone": "None"
+    "categoryNone": "None",
+    "refundPolicy": "Refunds"
   },
   "academyHome": {
     "tagline": "Learn. Build. Share.",
@@ -1333,6 +1338,25 @@
       "pending_review": "In-review preview (not published yet)",
       "rejected": "Preview of a returned course",
       "suspended": "This course is unpublished"
+    },
+    "purchasedNote": "Purchased: you can read the full course, paid sections included",
+    "buyUnavailable": "Not available right now",
+    "redirecting": "Opening checkout…",
+    "purchasedBanner": "Thanks for your purchase — the full course, paid sections included, is now unlocked.",
+    "purchasePending": "Confirming your payment. If the full text doesn't appear in a few seconds, reload the page.",
+    "reload": "Reload",
+    "refundTitle": "Refunds",
+    "refund": {
+      "none": "No refunds",
+      "conditional": "Case by case",
+      "full": "Refunds offered"
+    },
+    "errors": {
+      "notPurchasable": "This course can't be purchased right now",
+      "comingSoon": "Checkout is coming soon",
+      "ownCourse": "You can't buy your own course",
+      "sellerCannotReceive": "The author hasn't finished payout setup, so this course can't be bought yet",
+      "checkoutFailed": "Couldn't start checkout: {message}"
     }
   },
   "creativeHome": {

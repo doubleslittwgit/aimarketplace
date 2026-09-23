@@ -10,6 +10,7 @@ import { AcIcon } from "@/components/academy/AcademyChrome";
 import { renderCourseHtml } from "@/lib/academy/render";
 import { isCourseCategory } from "@/lib/academy/categories";
 import { COURSE_PURCHASE_ENABLED } from "@/lib/academy/flags";
+import BuyCourseButton from "@/components/academy/BuyCourseButton";
 import type { JSONNode, TocItem } from "@/lib/course-content";
 
 type CourseRow = {
@@ -23,11 +24,12 @@ type CourseRow = {
   toc: TocItem[] | null;
   free_content: JSONNode | null;
   author_id: string;
+  refund_policy: "none" | "conditional" | "full";
   profiles: { display_name: string | null; handle: string | null } | null;
 };
 
 const SELECT =
-  "id, slug, title, thumbnail_url, price, status, category, toc, free_content, author_id, profiles:author_id(display_name, handle)";
+  "id, slug, title, thumbnail_url, price, status, category, toc, free_content, author_id, refund_policy, profiles:author_id(display_name, handle)";
 
 const LOCK = "M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4";
 const SHIELD = "M12 2 3 6v6c0 5 3.8 9.3 9 10 5.2-.7 9-5 9-10V6l-9-4Z";
@@ -43,8 +45,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: data?.title ? `${data.title} | BuildBay Academy` : "BuildBay Academy" };
 }
 
-export default async function CoursePage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CoursePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ purchased?: string }>;
+}) {
   const { slug } = await params;
+  const justPurchased = (await searchParams).purchased === "1";
   const t = await getTranslations("academyCourse");
   const tHome = await getTranslations("academyHome");
   const supabase = await createClient();
@@ -82,7 +91,20 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
     .eq("course_id", course.id)
     .maybeSingle();
   const fullDoc = (body?.content as JSONNode | undefined) ?? null;
-  const hasFullAccess = Boolean(fullDoc) && (course.price === 0 || isAuthor || isAdmin);
+  // 購入済みか（購入記録は本人のものだけ読める）
+  let purchased = false;
+  if (user && course.price > 0 && !isAuthor) {
+    const { data: p } = await supabase
+      .from("course_purchases")
+      .select("id")
+      .eq("course_id", course.id)
+      .eq("buyer_id", user.id)
+      .eq("status", "completed")
+      .maybeSingle();
+    purchased = Boolean(p);
+  }
+  const hasFullAccess =
+    Boolean(fullDoc) && (course.price === 0 || isAuthor || isAdmin || purchased);
 
   const html = renderCourseHtml(hasFullAccess ? fullDoc : course.free_content);
 
@@ -119,21 +141,29 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
       </p>
       {!isPaid ? (
         <p className="mt-2 text-[13px] text-text-muted">{t("freeNote")}</p>
+      ) : purchased ? (
+        <p className="mt-2 rounded-lg bg-accent-success/10 px-3 py-2 text-[12px] font-medium text-accent-success">
+          {t("purchasedNote")}
+        </p>
       ) : hasFullAccess ? (
         <p className="mt-2 rounded-lg bg-bg px-3 py-2 text-[12px] text-text-muted">
           {isAuthor ? t("authorPreview") : t("adminPreview")}
         </p>
       ) : (
         <>
-          <button
-            type="button"
-            disabled={!COURSE_PURCHASE_ENABLED}
-            className="mt-3 w-full rounded-lg bg-[#C9A227] py-3 text-[14px] font-bold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {COURSE_PURCHASE_ENABLED ? t("buy") : t("buyComingSoon")}
-          </button>
+          <BuyCourseButton
+            courseId={course.id}
+            enabled={COURSE_PURCHASE_ENABLED && verified}
+            label={COURSE_PURCHASE_ENABLED ? (verified ? t("buy") : t("buyUnavailable")) : t("buyComingSoon")}
+          />
           <p className="mt-2 text-[11px] text-text-dim">{t("buyNote")}</p>
         </>
+      )}
+      {isPaid && (
+        <p className="mt-3 flex items-center justify-between rounded-lg border border-border px-3 py-2 text-[12px]">
+          <span className="text-text-muted">{t("refundTitle")}</span>
+          <span className="font-medium text-text-secondary">{t(`refund.${course.refund_policy ?? "none"}`)}</span>
+        </p>
       )}
       <ul className="mt-4 space-y-1.5 border-t border-border pt-4 text-[12px] text-text-secondary">
         <li>{tHome("card.chapters", { n: toc.filter((x) => x.level === 2).length || toc.length })}</li>
@@ -145,6 +175,28 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   return (
     <div className="flex min-h-screen flex-col bg-bg text-text-primary">
       <Header />
+
+      {justPurchased && (
+        <div
+          className={`border-b px-4 py-2.5 text-center text-[13px] ${
+            purchased
+              ? "border-accent-success/30 bg-accent-success/10 text-accent-success"
+              : "border-accent-ai/30 bg-accent-ai-dim text-accent-ai"
+          }`}
+        >
+          {purchased ? (
+            t("purchasedBanner")
+          ) : (
+            // Stripeから戻った直後は、支払い完了の通知がまだ届いていないことがある
+            <>
+              {t("purchasePending")}{" "}
+              <Link href={`/academy/courses/${course.slug}?purchased=1`} className="font-semibold underline">
+                {t("reload")}
+              </Link>
+            </>
+          )}
+        </div>
+      )}
 
       {!isPublished && (
         <div className="border-b border-[#C9A227]/40 bg-[#C9A227]/10 px-4 py-2.5 text-center text-[13px] text-[#6B5510]">

@@ -3,8 +3,11 @@ import Stripe from "stripe";
 import { stripe } from "@/lib/stripe/server";
 import { sellerAccountFieldsFromStripe } from "@/lib/stripe/seller-account";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { notify } from "@/lib/notifications/create";
+import { notify, notifyAdmins } from "@/lib/notifications/create";
+import { COURSE_PLATFORM_FEE_RATE } from "@/lib/academy/flags";
 import {
+  coursePurchaseReceipt,
+  adminCourseDoublePayment,
   sale as saleContent,
   purchaseReceipt,
   sellerAccountStatusChanged,
@@ -144,6 +147,12 @@ export async function POST(request: Request) {
   // 権限の判定が壊れてしまうため。
   if (meta.kind === "tip") {
     return handleTip(session, meta);
+  }
+
+  // 講座（BuildBay Academy）の購入も、ツールの購入記録（purchases）とは別の表に記録する。
+  // 混ぜるとツールのダウンロード権限や分析に講座が紛れ込むため。
+  if (meta.kind === "course") {
+    return handleCoursePurchase(session, meta);
   }
 
   const toolId = meta.tool_id;
@@ -405,6 +414,107 @@ async function handleTip(
       formatPrice(amountPaid),
       locale
     )
+  );
+
+  return NextResponse.json({ received: true });
+}
+
+/**
+ * 講座の購入を記録する（Stripeから「支払い完了」の通知が届いた時だけ呼ばれる）。
+ *
+ * 金額・手数料・受取人は、ブラウザ経由の情報（metadata）を信用せず、
+ * データベースの講座と、Stripeが実際に受け取った金額から決める。
+ */
+async function handleCoursePurchase(
+  session: Stripe.Checkout.Session,
+  meta: Record<string, string>
+): Promise<NextResponse> {
+  const supabase = createAdminClient();
+  const courseId = meta.course_id;
+  const buyerId = meta.buyer_id;
+  if (!courseId || !buyerId) {
+    return NextResponse.json({ error: "講座の購入情報が不足しています" }, { status: 400 });
+  }
+
+  const paymentIntentId =
+    typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
+  if (!paymentIntentId) {
+    return NextResponse.json({ error: "支払いIDを特定できませんでした" }, { status: 400 });
+  }
+
+  const { data: course } = await supabase
+    .from("courses")
+    .select("id, title, slug, price, author_id")
+    .eq("id", courseId)
+    .maybeSingle();
+  if (!course) {
+    return NextResponse.json({ error: "講座が見つかりません" }, { status: 400 });
+  }
+
+  // 実際に支払われた額が、講座の価格と一致するか確認する
+  const amountPaid = session.amount_total ?? 0;
+  if (amountPaid !== course.price) {
+    console.error(
+      `[webhook] 講座の金額不一致: 支払額=${amountPaid}, 価格=${course.price}, course=${courseId}`
+    );
+    return NextResponse.json({ error: "支払金額が講座の価格と一致しません" }, { status: 400 });
+  }
+
+  const platformFee = Math.round(amountPaid * COURSE_PLATFORM_FEE_RATE);
+  const sellerEarnings = amountPaid - platformFee;
+
+  const { error: insertError } = await supabase.from("course_purchases").insert({
+    course_id: course.id,
+    buyer_id: buyerId,
+    // 受取人は metadata ではなく、講座の作者（DBの値）を正とする
+    seller_id: course.author_id,
+    price_paid: amountPaid,
+    platform_fee: platformFee,
+    seller_earnings: sellerEarnings,
+    stripe_payment_intent_id: paymentIntentId,
+    status: "completed",
+  });
+
+  if (insertError) {
+    if (insertError.code === "23505") {
+      // 重複には2種類ある。区別しないと、本当の二重決済を見逃してしまう。
+      const { data: samePayment } = await supabase
+        .from("course_purchases")
+        .select("id")
+        .eq("stripe_payment_intent_id", paymentIntentId)
+        .maybeSingle();
+      if (samePayment) {
+        // (1) Stripeが同じ通知を再送してきただけ。既に記録済みなので何もしない
+        return NextResponse.json({ received: true, duplicate: true });
+      }
+      // (2) 同じ人が同じ講座に、別々の支払いを2回してしまった（実際にお金が2回動いている）。
+      //     再送させても解決しないので200を返し、返金対応が必要なことを管理者に知らせる。
+      console.error(
+        `[webhook] ⚠️ 講座の二重決済（要・返金対応）: course=${courseId}, buyer=${buyerId}, payment_intent=${paymentIntentId}`
+      );
+      await notifyAdmins(
+        "admin_course_double_payment",
+        adminCourseDoublePayment(course.title, paymentIntentId, formatPrice(amountPaid))
+      );
+      return NextResponse.json({ received: true, error: "duplicate_course_purchase_needs_refund" });
+    }
+    // 「支払ったのに購入記録が無い」状態を避けるため、500を返してStripeに再送させる
+    console.error("[webhook] 講座の購入記録の作成に失敗:", insertError.message);
+    return NextResponse.json({ error: insertError.message }, { status: 500 });
+  }
+
+  const { data: buyerProfile } = await supabase
+    .from("profiles")
+    .select("display_name, handle")
+    .eq("id", buyerId)
+    .maybeSingle();
+  const buyerName = buyerProfile?.display_name || buyerProfile?.handle || "購入者";
+
+  await notify(course.author_id, "sale", (locale) =>
+    saleContent(course.title, buyerName, formatPrice(sellerEarnings), locale)
+  );
+  await notify(buyerId, "purchase_receipt", (locale) =>
+    coursePurchaseReceipt(course.title, formatPrice(amountPaid), course.slug, locale)
   );
 
   return NextResponse.json({ received: true });
