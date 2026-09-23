@@ -1176,7 +1176,8 @@
       "home": "Academy home"
     },
     "savedAt": "Saved {time}",
-    "saveFailedShort": "⚠️ Couldn't save"
+    "saveFailedShort": "⚠️ Couldn't save",
+    "alreadyInReview": "This course is already in review. Your changes were saved, and the review will use the latest version."
   },
   "academyHome": {
     "tagline": "Learn. Build. Share.",

@@ -1176,7 +1176,8 @@
       "home": "回到Academy首頁"
     },
     "savedAt": "已儲存 {time}",
-    "saveFailedShort": "⚠️ 無法儲存"
+    "saveFailedShort": "⚠️ 無法儲存",
+    "alreadyInReview": "此課程已在審核中。變更內容已儲存，審核將使用最新版本。"
   },
   "academyHome": {
     "tagline": "學習、創作、擴散。",

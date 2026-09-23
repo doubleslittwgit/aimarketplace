@@ -147,7 +147,11 @@ export default function CourseComposer({
       setDirty(false);
       setSavedAt(new Date());
       if (submit) setStatus("pending_review");
-      setMessage(submit ? { kind: "ok", text: t("submitted") } : null);
+      setMessage(
+        submit
+          ? { kind: "ok", text: "alreadyPending" in result && result.alreadyPending ? t("alreadyInReview") : t("submitted") }
+          : null
+      );
       // 新規作成だった場合は、再読み込みしても続きから編集できるURLへ切り替える
       if (!courseId) router.replace(`/academy/${id}/edit`);
     });
@@ -207,13 +211,14 @@ export default function CourseComposer({
           >
             {t("saveDraft")}
           </button>
+          {/* 審査中は「審査に出す」を押せなくする（サーバー側でも二重提出は止めている） */}
           <button
             type="button"
-            disabled={isSaving}
+            disabled={isSaving || status === "pending_review"}
             onClick={() => save(true)}
             className="shrink-0 rounded-lg bg-accent-signal px-2.5 py-1.5 text-[12px] font-medium text-white transition hover:brightness-105 disabled:opacity-60 sm:px-3 sm:text-[13px]"
           >
-            {t("submit")}
+            {status === "pending_review" ? t("statusPending") : t("submit")}
           </button>
         </div>
 

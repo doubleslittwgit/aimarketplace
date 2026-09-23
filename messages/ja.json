@@ -1176,7 +1176,8 @@
       "home": "Academyトップへ"
     },
     "savedAt": "保存 {time}",
-    "saveFailedShort": "⚠️ 保存できませんでした"
+    "saveFailedShort": "⚠️ 保存できませんでした",
+    "alreadyInReview": "この講座はすでに審査中です。内容の変更は保存し、審査には最新の内容が使われます。"
   },
   "academyHome": {
     "tagline": "学ぶ、つくる、広がる。",

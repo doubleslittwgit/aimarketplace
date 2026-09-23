@@ -28,7 +28,9 @@ export type SaveCourseInput = {
   toolIds: string[];
 };
 
-export type SaveCourseResult = { error: string } | { error: null; slug: string };
+export type SaveCourseResult =
+  | { error: string }
+  | { error: null; slug: string; alreadyPending?: boolean };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -138,6 +140,10 @@ async function saveCourseInner(input: SaveCourseInput): Promise<SaveCourseResult
   let slugBase = slugify(title || "course");
   if (slugBase === "tool") slugBase = "course";
   const slug = existing?.slug ?? `${slugBase}-${input.id.slice(0, 6)}`;
+  // すでに審査中の講座に「審査に出す」が来た場合は、提出を重ねない。
+  // （連打や通信の遅れで何度も提出され、審査依頼の通知が重複して届いていた）
+  // 内容の更新は保存するが、審査依頼の通知は最初の1回だけにする。
+  const alreadyPending = existing?.status === "pending_review";
   const status = input.submit ? "pending_review" : (existing?.status ?? "draft");
 
   const { error: courseError } = await supabase.from("courses").upsert(
@@ -179,7 +185,7 @@ async function saveCourseInner(input: SaveCourseInput): Promise<SaveCourseResult
     if (linkError) return { error: t("errors.saveFailed", { message: linkError.message }) };
   }
 
-  if (input.submit) {
+  if (input.submit && !alreadyPending) {
     after(async () => {
       const { data: profile } = await supabase
         .from("profiles")
@@ -193,5 +199,5 @@ async function saveCourseInner(input: SaveCourseInput): Promise<SaveCourseResult
     });
   }
 
-  return { error: null, slug };
+  return { error: null, slug, alreadyPending: input.submit && alreadyPending };
 }
