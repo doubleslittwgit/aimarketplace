@@ -70,6 +70,11 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   const hostAppsRaw = String(formData.get("hostApps") || "");
   const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
   const remixAllowed = formData.get("remixAllowed") === "1";
+  const refundPolicyRaw = String(formData.get("refundPolicy") || "none");
+  const refundPolicy = ["none", "conditional", "full"].includes(refundPolicyRaw)
+    ? refundPolicyRaw
+    : "none";
+  const isWip = formData.get("isWip") === "1";
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)));
@@ -212,6 +217,8 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       categories: categoriesList,
       host_apps: hostAppsList,
       remix_allowed: remixAllowed,
+      refund_policy: refundPolicy,
+      is_wip: isWip,
       price,
       runtime,
       platforms,
@@ -290,6 +297,11 @@ export async function saveDraft(
   const hostAppsRaw = String(formData.get("hostApps") || "");
   const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
   const remixAllowed = formData.get("remixAllowed") === "1";
+  const refundPolicyRaw = String(formData.get("refundPolicy") || "none");
+  const refundPolicy = ["none", "conditional", "full"].includes(refundPolicyRaw)
+    ? refundPolicyRaw
+    : "none";
+  const isWip = formData.get("isWip") === "1";
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)) || 0);
@@ -375,6 +387,8 @@ export async function saveDraft(
       categories: categoriesList,
       host_apps: hostAppsList,
       remix_allowed: remixAllowed,
+      refund_policy: refundPolicy,
+      is_wip: isWip,
       price,
       runtime,
       platforms,

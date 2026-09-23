@@ -12,6 +12,7 @@ import {
   toolEditTriggeredReview,
   adminNewPendingReview,
   likedToolOnSale,
+  toolUpdated,
 } from "@/lib/notifications/content";
 
 export type EditActionResult = { error: string } | { error: null };
@@ -78,6 +79,11 @@ export async function updateTool(
   const hostAppsRaw = String(formData.get("hostApps") || "");
   const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
   const remixAllowed = formData.get("remixAllowed") === "1";
+  const refundPolicyRaw = String(formData.get("refundPolicy") || "none");
+  const refundPolicy = ["none", "conditional", "full"].includes(refundPolicyRaw)
+    ? refundPolicyRaw
+    : "none";
+  const isWip = formData.get("isWip") === "1";
   // バージョン履歴（ファイルを差し替えた時だけ、出品者が任意で書き残せる）
   const newVersion = String(formData.get("newVersion") || "").trim();
   const changelog = String(formData.get("changelog") || "").trim();
@@ -198,6 +204,8 @@ export async function updateTool(
       categories: categoriesList,
       host_apps: hostAppsList,
       remix_allowed: remixAllowed,
+      refund_policy: refundPolicy,
+      is_wip: isWip,
       price,
       sale_price: salePrice,
       sale_ends_at: saleEndsAt,
@@ -235,6 +243,27 @@ export async function updateTool(
     if (versionError) {
       // 履歴が残せなくても、更新自体は成立しているのでエラーにはしない
       console.error("[updateTool] バージョン履歴の保存に失敗:", versionError.message);
+    } else {
+      // 購入者に更新を知らせる。
+      // 履歴を残しても、購入者が商品ページを再訪しなければ気づけないため、
+      // ここまでやって初めて「更新履歴」が機能する。
+      after(async () => {
+        const { data: buyers } = await supabase
+          .from("purchases")
+          .select("buyer_id")
+          .eq("tool_id", toolId)
+          .eq("status", "completed");
+
+        const unique = Array.from(
+          new Set((buyers ?? []).map((b) => b.buyer_id))
+        ).filter((id) => id !== user.id);
+
+        for (const buyerId of unique) {
+          await notify(buyerId, "tool_updated", (locale) =>
+            toolUpdated(name, existing.slug, newVersion, changelog, locale)
+          );
+        }
+      });
     }
   }
 

@@ -25,6 +25,8 @@ type Tool = {
   sale_price: number | null;
   sale_ends_at: string | null;
   remix_allowed: boolean;
+  refund_policy: "none" | "conditional" | "full";
+  is_wip: boolean;
   runtime: "cloud" | "local";
   platforms: string[] | null;
   min_os_version: string | null;
@@ -72,6 +74,7 @@ export default function EditToolClient({
   const [remixAllowed, setRemixAllowed] = useState(tool.remix_allowed);
   // ファイルを差し替えた時だけ、バージョン情報の入力欄を出す
   const [fileReplaced, setFileReplaced] = useState(false);
+  const [isWip, setIsWip] = useState(tool.is_wip);
   function toggleHostApp(slug: string) {
     setSelectedHostApps((prev) =>
       prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug]
@@ -658,6 +661,36 @@ export default function EditToolClient({
                 <span className="mt-0.5 block text-[12px] text-text-dim">
                   {tSubmit("remixHint")}
                 </span>
+              </span>
+            </label>
+          </Field>
+
+          <Field label={tSubmit("refundPolicyLabel")}>
+            <p className="mb-2 text-[12px] text-text-dim">{tSubmit("refundPolicyHint")}</p>
+            <select
+              name="refundPolicy"
+              defaultValue={tool.refund_policy}
+              className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
+            >
+              <option value="none">{tSubmit("refundPolicyNone")}</option>
+              <option value="conditional">{tSubmit("refundPolicyConditional")}</option>
+              <option value="full">{tSubmit("refundPolicyFull")}</option>
+            </select>
+          </Field>
+
+          <Field label={tSubmit("wipLabel")}>
+            <label className="flex cursor-pointer items-start gap-2.5">
+              <input
+                type="checkbox"
+                name="isWip"
+                value="1"
+                checked={isWip}
+                onChange={(e) => setIsWip(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-border"
+              />
+              <span>
+                <span className="block text-[13px] text-text-secondary">{tSubmit("wipEnable")}</span>
+                <span className="mt-0.5 block text-[12px] text-text-dim">{tSubmit("wipHint")}</span>
               </span>
             </label>
           </Field>

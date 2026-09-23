@@ -283,7 +283,12 @@
       "fileSize": "所需容量",
       "saleEndsAt": "促銷截止：{date}",
       "remixAllowed": "可二次創作",
-      "remixAllowedHint": "這個工具允許改造與再發布。"
+      "remixAllowedHint": "這個工具允許改造與再發布。",
+      "wipBadge": "開發中",
+      "refundPolicyTitle": "退款方針",
+      "refundPolicyNone": "不接受退款",
+      "refundPolicyConditional": "視情況而定",
+      "refundPolicyFull": "接受退款"
     },
     "purchaseButton": {
       "ownerNotice": "這是您上架的工具",
@@ -809,7 +814,15 @@
     "versionNumberLabel": "新版本號（例如：1.2.0）",
     "changelogLabel": "更新內容",
     "changelogPlaceholder": "請說明修正或新增了什麼（會顯示給購買者）",
-    "versionHint": "由於您更換了檔案，可以記錄本次更新內容。留空也可以儲存。"
+    "versionHint": "由於您更換了檔案，可以記錄本次更新內容。留空也可以儲存。",
+    "refundPolicyLabel": "退款方針（選填）",
+    "refundPolicyNone": "不接受退款",
+    "refundPolicyConditional": "視情況而定",
+    "refundPolicyFull": "接受退款",
+    "refundPolicyHint": "在商品頁面顯示退款方針，讓買家更安心。",
+    "wipLabel": "發布狀態（選填）",
+    "wipEnable": "以「開發中」的狀態發布",
+    "wipHint": "尚未完成也能發布。會顯示「開發中」，讓有興趣的人能等待完成。"
   },
   "categories": {
     "automation": "自動化與工作流程",
@@ -875,6 +888,14 @@
       "liked_tool_on_sale": {
         "label": "關注的工具開始促銷時",
         "description": "您關注的工具降價時通知您"
+      },
+      "tool_updated": {
+        "label": "購買的工具更新時",
+        "description": "您購買的工具推出新版本時通知您"
+      },
+      "seller_announcement": {
+        "label": "追蹤中的上架者發布消息時",
+        "description": "您追蹤的上架者發布消息時通知您"
       }
     }
   },
@@ -944,6 +965,14 @@
     "likedToolOnSale": {
       "title": "您關注的「{toolName}」正在促銷",
       "body": "已從 {oldPrice} 降價為 {newPrice}。"
+    },
+    "toolUpdated": {
+      "title": "「{toolName}」已更新",
+      "body": "v{version}：{changelog}"
+    },
+    "sellerAnnouncement": {
+      "title": "來自 {sellerName} 的消息",
+      "body": "{message}"
     }
   },
   "refundRequest": {
@@ -959,5 +988,19 @@
     "purchaseNotFound": "找不到對應的購買紀錄",
     "alreadySubmitted": "此筆購買已經回報過了",
     "unknownTool": "（已刪除的工具）"
+  },
+  "announcement": {
+    "title": "發送消息給追蹤者",
+    "subtitle": "將一次送達 {count} 位追蹤者。",
+    "compose": "撰寫消息",
+    "placeholder": "新作發布、促銷通知等（500字以內）",
+    "send": "送出",
+    "sending": "送出中…",
+    "cancel": "取消",
+    "sent": "已發送給追蹤者",
+    "note": "為避免造成困擾，每6小時僅能發送一次。",
+    "messageRequired": "請輸入內容",
+    "tooLong": "請在500字以內",
+    "cooldown": "距離上次發送需間隔 {hours} 小時"
   }
 }

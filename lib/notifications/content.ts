@@ -36,7 +36,9 @@ export type NotificationType =
   | "new_question"
   | "question_answered"
   | "new_request_link"
-  | "liked_tool_on_sale";
+  | "liked_tool_on_sale"
+  | "tool_updated"
+  | "seller_announcement";
 
 // ------------------------------------------------------------
 // 通知設定でオフにできる種類。
@@ -53,6 +55,8 @@ export const OPTIONAL_NOTIFICATION_TYPES = [
   "question_answered",
   "new_request_link",
   "liked_tool_on_sale",
+  "tool_updated",
+  "seller_announcement",
 ] as const;
 
 export type OptionalNotificationType = (typeof OPTIONAL_NOTIFICATION_TYPES)[number];
@@ -339,5 +343,35 @@ export function likedToolOnSale(
     title: tNotif(locale, "likedToolOnSale.title", { toolName }),
     body: tNotif(locale, "likedToolOnSale.body", { oldPrice, newPrice }),
     linkUrl: `${SITE_URL}/apps/${slug}`,
+  };
+}
+
+export function toolUpdated(
+  toolName: string,
+  slug: string,
+  version: string,
+  changelog: string,
+  locale: SupportedLocale
+): NotificationContent {
+  return {
+    title: tNotif(locale, "toolUpdated.title", { toolName }),
+    body: tNotif(locale, "toolUpdated.body", {
+      version,
+      changelog: changelog.slice(0, 200),
+    }),
+    linkUrl: `${SITE_URL}/apps/${slug}`,
+  };
+}
+
+export function sellerAnnouncement(
+  sellerName: string,
+  sellerHandle: string,
+  message: string,
+  locale: SupportedLocale
+): NotificationContent {
+  return {
+    title: tNotif(locale, "sellerAnnouncement.title", { sellerName }),
+    body: tNotif(locale, "sellerAnnouncement.body", { message: message.slice(0, 300) }),
+    linkUrl: `${SITE_URL}/u/${sellerHandle}`,
   };
 }

@@ -818,6 +818,34 @@ export default function SubmitClient({
                 </label>
               </Field>
 
+              <Field label={t("refundPolicyLabel")}>
+                <p className="mb-2 text-[12px] text-text-dim">{t("refundPolicyHint")}</p>
+                <select
+                  name="refundPolicy"
+                  defaultValue="none"
+                  className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
+                >
+                  <option value="none">{t("refundPolicyNone")}</option>
+                  <option value="conditional">{t("refundPolicyConditional")}</option>
+                  <option value="full">{t("refundPolicyFull")}</option>
+                </select>
+              </Field>
+
+              <Field label={t("wipLabel")}>
+                <label className="flex cursor-pointer items-start gap-2.5">
+                  <input
+                    type="checkbox"
+                    name="isWip"
+                    value="1"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-border"
+                  />
+                  <span>
+                    <span className="block text-[13px] text-text-secondary">{t("wipEnable")}</span>
+                    <span className="mt-0.5 block text-[12px] text-text-dim">{t("wipHint")}</span>
+                  </span>
+                </label>
+              </Field>
+
               {/* 対応環境 */}
               {runtime === "local" ? (
                 <Field label={t("supportedOs")} required>

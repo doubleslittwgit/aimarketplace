@@ -57,6 +57,7 @@ async function loadRealTools(locale: Locale): Promise<Tool[]> {
       thumbnailUrl: r.thumbnail_url || null,
       salePrice: r.sale_price ?? null,
       saleEndsAt: r.sale_ends_at ?? null,
+      isWip: r.is_wip ?? false,
     })) || [];
 
   return applyToolTranslations(supabase, tools, locale);
@@ -98,6 +99,7 @@ async function loadSaleTools(locale: Locale): Promise<Tool[]> {
       thumbnailUrl: r.thumbnail_url || null,
       salePrice: r.sale_price ?? null,
       saleEndsAt: r.sale_ends_at ?? null,
+      isWip: r.is_wip ?? false,
     })) || [];
 
   return applyToolTranslations(supabase, tools, locale);

@@ -30,6 +30,11 @@ export default function ToolCard({ tool }: { tool: Tool }) {
             SALE
           </span>
         )}
+        {tool.isWip && !onSale && (
+          <span className="absolute left-3 top-3 z-10 rounded-full bg-accent-ai px-2 py-0.5 text-[10px] font-semibold text-white">
+            {t("toolDetail.buyBox.wipBadge")}
+          </span>
+        )}
         {tool.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img

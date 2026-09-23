@@ -283,7 +283,12 @@
       "fileSize": "必要容量",
       "saleEndsAt": "セール終了まで: {date}",
       "remixAllowed": "リミックス可",
-      "remixAllowedHint": "このツールは、改造・再配布が許可されています。"
+      "remixAllowedHint": "このツールは、改造・再配布が許可されています。",
+      "wipBadge": "開発中",
+      "refundPolicyTitle": "返金対応",
+      "refundPolicyNone": "返金なし",
+      "refundPolicyConditional": "条件により対応",
+      "refundPolicyFull": "返金対応あり"
     },
     "purchaseButton": {
       "ownerNotice": "あなたが出品したツールです",
@@ -809,7 +814,15 @@
     "versionNumberLabel": "新しいバージョン番号（例: 1.2.0）",
     "changelogLabel": "変更内容",
     "changelogPlaceholder": "何を直したか・追加したかを書いてください（購入者に表示されます）",
-    "versionHint": "ファイルを差し替えたので、更新内容を記録できます。空欄のままでも保存できます。"
+    "versionHint": "ファイルを差し替えたので、更新内容を記録できます。空欄のままでも保存できます。",
+    "refundPolicyLabel": "返金対応（任意）",
+    "refundPolicyNone": "返金なし",
+    "refundPolicyConditional": "条件により対応",
+    "refundPolicyFull": "返金対応あり",
+    "refundPolicyHint": "購入者が安心して買えるよう、返金の方針を商品ページに表示します。",
+    "wipLabel": "公開状態（任意）",
+    "wipEnable": "開発中のツールとして公開する",
+    "wipHint": "完成前でも公開できます。「開発中」と表示され、興味を持った人が完成を待てます。"
   },
   "categories": {
     "automation": "自動化・ワークフロー",
@@ -875,6 +888,14 @@
       "liked_tool_on_sale": {
         "label": "お気に入りがセールになった時",
         "description": "お気に入りしたツールが値下げされた時に通知します"
+      },
+      "tool_updated": {
+        "label": "購入したツールが更新された時",
+        "description": "購入済みツールに新しいバージョンが出た時に通知します"
+      },
+      "seller_announcement": {
+        "label": "フォロー中の出品者からのお知らせ",
+        "description": "フォローしている出品者がお知らせを送った時に通知します"
       }
     }
   },
@@ -944,6 +965,14 @@
     "likedToolOnSale": {
       "title": "気になっていた「{toolName}」がセール中です",
       "body": "{oldPrice} → {newPrice} に値下げされました。"
+    },
+    "toolUpdated": {
+      "title": "「{toolName}」が更新されました",
+      "body": "v{version}: {changelog}"
+    },
+    "sellerAnnouncement": {
+      "title": "{sellerName}さんからのお知らせ",
+      "body": "{message}"
     }
   },
   "refundRequest": {
@@ -959,5 +988,19 @@
     "purchaseNotFound": "対象の購入が見つかりませんでした",
     "alreadySubmitted": "この購入については、既に報告済みです",
     "unknownTool": "（削除されたツール）"
+  },
+  "announcement": {
+    "title": "フォロワーへのお知らせ",
+    "subtitle": "{count}人のフォロワーに一斉に届きます。",
+    "compose": "お知らせを書く",
+    "placeholder": "新作の告知、セールのお知らせなど（500文字まで）",
+    "send": "送信する",
+    "sending": "送信中...",
+    "cancel": "キャンセル",
+    "sent": "フォロワーに送信しました",
+    "note": "頻繁な配信は迷惑になるため、6時間に1回までとしています。",
+    "messageRequired": "内容を入力してください",
+    "tooLong": "500文字以内で入力してください",
+    "cooldown": "前回の送信から{hours}時間は空けてください"
   }
 }

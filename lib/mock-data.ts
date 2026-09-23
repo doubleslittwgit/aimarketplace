@@ -26,6 +26,10 @@ export type Tool = {
   saleEndsAt?: string | null;
   /** 改造・再配布を許可しているか */
   remixAllowed?: boolean;
+  /** 返金対応の方針 */
+  refundPolicy?: "none" | "conditional" | "full";
+  /** 完成前の「開発中」として公開しているか */
+  isWip?: boolean;
 };
 
 // 出品フォームの上限（サーバー側 app/submit/actions.ts のチェックと必ず揃えること）

@@ -42,6 +42,7 @@ async function loadRealTools(locale: Locale): Promise<Tool[]> {
       thumbnailUrl: r.thumbnail_url || null,
       salePrice: r.sale_price ?? null,
       saleEndsAt: r.sale_ends_at ?? null,
+      isWip: r.is_wip ?? false,
     })) || [];
 
   // デモ用のmockToolsはDBに実体が無いので、この時点（実データのみ）で翻訳を適用する

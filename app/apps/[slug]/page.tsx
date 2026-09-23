@@ -68,6 +68,8 @@ async function loadTool(
       salePrice: row.sale_price ?? null,
       saleEndsAt: row.sale_ends_at ?? null,
       remixAllowed: row.remix_allowed ?? false,
+      refundPolicy: row.refund_policy ?? "none",
+      isWip: row.is_wip ?? false,
       galleryUrls: row.gallery_urls || [],
       fileSizeBytes: row.file_size_bytes ?? null,
     };

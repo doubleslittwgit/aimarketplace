@@ -34,6 +34,7 @@
 | `create_refund_requests.sql` | 返金・トラブルのアプリ内報告窓口（後から足したもの） |
 | `add_versions_and_remix.sql` | バージョン履歴・リミックス許可（後から足したもの） |
 | `protect_tool_columns.sql` | 審査ステータス・実績カウントの改ざん防止（後から足したもの） |
+| `add_policy_wip_announcements.sql` | 返金ポリシー・開発中フラグ・出品者のお知らせ（後から足したもの） |
 | `increment_install.sql` | ダウンロード数を加算する関数 |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
 
@@ -80,9 +81,10 @@
 23. `add_sale_pricing.sql`
 24. `create_refund_requests.sql`
 25. `add_versions_and_remix.sql`
-26. `increment_install.sql`
-27. `protect_tool_columns.sql`
-28. `grants.sql` ← **必ず最後**
+26. `add_policy_wip_announcements.sql`
+27. `increment_install.sql`
+28. `protect_tool_columns.sql`
+29. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」

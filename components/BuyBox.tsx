@@ -99,6 +99,28 @@ export default function BuyBox({
         )}
       </dl>
 
+      {tool.isWip && (
+        <div className="mt-4 rounded-lg border border-accent-ai/30 bg-accent-ai-dim px-3 py-2.5">
+          <p className="flex items-center gap-1.5 text-[12px] font-medium text-accent-ai">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2v4m0 12v4M4.9 4.9l2.9 2.9m8.4 8.4 2.9 2.9M2 12h4m12 0h4M4.9 19.1l2.9-2.9m8.4-8.4 2.9-2.9" />
+            </svg>
+            {t("wipBadge")}
+          </p>
+        </div>
+      )}
+
+      {!isFree && tool.refundPolicy && tool.refundPolicy !== "none" && (
+        <div className="mt-4 flex items-center justify-between rounded-lg border border-border px-3 py-2.5">
+          <span className="text-[12px] text-text-muted">{t("refundPolicyTitle")}</span>
+          <span className="text-[12px] font-medium text-text-secondary">
+            {tool.refundPolicy === "full"
+              ? t("refundPolicyFull")
+              : t("refundPolicyConditional")}
+          </span>
+        </div>
+      )}
+
       {tool.remixAllowed && (
         <div className="mt-4 rounded-lg border border-accent-success/30 bg-accent-success/5 px-3 py-2.5">
           <p className="flex items-center gap-1.5 text-[12px] font-medium text-accent-success">

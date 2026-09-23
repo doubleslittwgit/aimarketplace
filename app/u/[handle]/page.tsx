@@ -89,6 +89,7 @@ export default async function ProfilePage({
     thumbnailUrl: r.thumbnail_url || null,
     salePrice: r.sale_price ?? null,
     saleEndsAt: r.sale_ends_at ?? null,
+      isWip: r.is_wip ?? false,
   }));
 
   const tools = await applyToolTranslations(supabase, rawTools, locale);

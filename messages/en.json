@@ -283,7 +283,12 @@
       "fileSize": "File size",
       "saleEndsAt": "Sale ends: {date}",
       "remixAllowed": "Remixable",
-      "remixAllowedHint": "This tool may be modified and redistributed."
+      "remixAllowedHint": "This tool may be modified and redistributed.",
+      "wipBadge": "In development",
+      "refundPolicyTitle": "Refunds",
+      "refundPolicyNone": "No refunds",
+      "refundPolicyConditional": "Case by case",
+      "refundPolicyFull": "Refunds offered"
     },
     "purchaseButton": {
       "ownerNotice": "This is your own listing",
@@ -809,7 +814,15 @@
     "versionNumberLabel": "New version number (e.g. 1.2.0)",
     "changelogLabel": "What changed",
     "changelogPlaceholder": "Describe what you fixed or added (shown to buyers)",
-    "versionHint": "You replaced the file, so you can record what changed. Leaving this blank is fine."
+    "versionHint": "You replaced the file, so you can record what changed. Leaving this blank is fine.",
+    "refundPolicyLabel": "Refund policy (optional)",
+    "refundPolicyNone": "No refunds",
+    "refundPolicyConditional": "Case by case",
+    "refundPolicyFull": "Refunds offered",
+    "refundPolicyHint": "Shown on the tool page so buyers know where they stand before paying.",
+    "wipLabel": "Release state (optional)",
+    "wipEnable": "Publish as a work in progress",
+    "wipHint": "Publish before it's finished. It'll be marked as in development so interested people can follow along."
   },
   "categories": {
     "automation": "Automation & Workflows",
@@ -875,6 +888,14 @@
       "liked_tool_on_sale": {
         "label": "Favorited tool on sale",
         "description": "When a tool you favorited goes on sale"
+      },
+      "tool_updated": {
+        "label": "Purchased tool updated",
+        "description": "When a tool you bought gets a new version"
+      },
+      "seller_announcement": {
+        "label": "Announcement from someone you follow",
+        "description": "When a seller you follow posts an announcement"
       }
     }
   },
@@ -944,6 +965,14 @@
     "likedToolOnSale": {
       "title": "\"{toolName}\" is on sale",
       "body": "Reduced from {oldPrice} to {newPrice}."
+    },
+    "toolUpdated": {
+      "title": "\"{toolName}\" was updated",
+      "body": "v{version}: {changelog}"
+    },
+    "sellerAnnouncement": {
+      "title": "Update from {sellerName}",
+      "body": "{message}"
     }
   },
   "refundRequest": {
@@ -959,5 +988,19 @@
     "purchaseNotFound": "Couldn't find that purchase",
     "alreadySubmitted": "You've already reported this purchase",
     "unknownTool": "(deleted tool)"
+  },
+  "announcement": {
+    "title": "Announce to followers",
+    "subtitle": "Goes out to all {count} of your followers at once.",
+    "compose": "Write an announcement",
+    "placeholder": "A new release, a sale, anything worth telling them (500 chars max)",
+    "send": "Send",
+    "sending": "Sending...",
+    "cancel": "Cancel",
+    "sent": "Sent to your followers",
+    "note": "Limited to once every 6 hours so it doesn't become noise.",
+    "messageRequired": "Please enter a message",
+    "tooLong": "Please keep it under 500 characters",
+    "cooldown": "Please wait {hours} hours between announcements"
   }
 }

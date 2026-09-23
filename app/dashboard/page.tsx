@@ -7,6 +7,7 @@ import SellerOnboardingButton from "@/components/SellerOnboardingButton";
 import OnboardingChecklist from "@/components/OnboardingChecklist";
 import SubmitSuccessModal from "@/components/SubmitSuccessModal";
 import ReportTroubleButton from "@/components/ReportTroubleButton";
+import AnnouncementBox from "@/components/AnnouncementBox";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/mock-data";
 import type { Locale } from "@/i18n/config";
@@ -89,6 +90,7 @@ export default async function DashboardPage() {
     { data: salesData },
     { count: postCount },
     { data: refundRequestsData },
+    { count: followerCount },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -118,6 +120,10 @@ export default async function DashboardPage() {
       .order("created_at", { ascending: false }),
     supabase.from("posts").select("*", { count: "exact", head: true }).eq("author_id", user.id),
     supabase.from("refund_requests").select("purchase_id").eq("buyer_id", user.id),
+    supabase
+      .from("follows")
+      .select("follower_id", { count: "exact", head: true })
+      .eq("following_id", user.id),
   ]);
 
   const purchases = (purchasesData ?? []) as unknown as PurchaseRow[];
@@ -224,6 +230,8 @@ export default async function DashboardPage() {
           </div>
 
           <OnboardingChecklist steps={onboardingSteps} handle={profile?.handle ?? null} />
+
+          <AnnouncementBox followerCount={followerCount ?? 0} />
 
           {/* 購入済みツール */}
           <section className="mb-10">

@@ -25,7 +25,7 @@ export default async function EditToolPage({
   const { data: tool } = await supabase
     .from("tools")
     .select(
-      "id, slug, name, tagline, description, category, categories, host_apps, price, sale_price, sale_ends_at, remix_allowed, runtime, platforms, min_os_version, demo_url, thumbnail_url, gallery_urls, file_key, status, author_id"
+      "id, slug, name, tagline, description, category, categories, host_apps, price, sale_price, sale_ends_at, remix_allowed, refund_policy, is_wip, runtime, platforms, min_os_version, demo_url, thumbnail_url, gallery_urls, file_key, status, author_id"
     )
     .eq("slug", slug)
     .maybeSingle();
