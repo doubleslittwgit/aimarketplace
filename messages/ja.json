@@ -1174,7 +1174,9 @@
       "body": "一時的な問題の可能性があります。もう一度お試しください。続く場合は、下のIDを添えてお知らせください。",
       "retry": "もう一度試す",
       "home": "Academyトップへ"
-    }
+    },
+    "savedAt": "保存 {time}",
+    "saveFailedShort": "⚠️ 保存できませんでした"
   },
   "academyHome": {
     "tagline": "学ぶ、つくる、広がる。",

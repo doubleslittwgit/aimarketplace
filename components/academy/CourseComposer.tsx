@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import CourseEditor from "@/components/academy/CourseEditor";
 import { saveCourse } from "@/app/academy/actions";
 import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
@@ -36,6 +36,8 @@ export default function CourseComposer({
     category: string | null;
     refundPolicy: "none" | "conditional" | "full";
     content: JSONNode | null;
+    /** 最後に保存された日時（新規作成時は無し） */
+    savedAt?: string | null;
     status: string;
     toolIds: string[];
   };
@@ -44,6 +46,7 @@ export default function CourseComposer({
   canReceivePayments: boolean;
 }) {
   const t = useTranslations("academyEditor");
+  const locale = useLocale();
   const tHome = useTranslations("academyHome");
   const tCourse = useTranslations("academyCourse");
   const router = useRouter();
@@ -59,10 +62,16 @@ export default function CourseComposer({
   const [status, setStatus] = useState(initial.status);
   const docRef = useRef<JSONNode>(initial.content ?? EMPTY_DOC);
   const [dirty, setDirty] = useState(false);
+  // 最後に保存できた日時。保存ボタンの横に「✅ 保存 9/24 5:41」と出し、
+  // 押した結果が分からない状態をなくす
+  const [savedAt, setSavedAt] = useState<Date | null>(initial.savedAt ? new Date(initial.savedAt) : null);
   const [thumbUploading, setThumbUploading] = useState(false);
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
   const [isSaving, startSaving] = useTransition();
   const thumbRef = useRef<HTMLInputElement>(null);
+
+  const formatSavedAt = (d: Date) =>
+    new Intl.DateTimeFormat(locale, { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }).format(d);
 
   const priceNumber = Math.max(0, Math.round(Number(price) || 0));
   const isPaid = priceNumber > 0;
@@ -132,8 +141,9 @@ export default function CourseComposer({
         return;
       }
       setDirty(false);
+      setSavedAt(new Date());
       if (submit) setStatus("pending_review");
-      setMessage({ kind: "ok", text: submit ? t("submitted") : t("saved") });
+      setMessage(submit ? { kind: "ok", text: t("submitted") } : null);
       // 新規作成だった場合は、再読み込みしても続きから編集できるURLへ切り替える
       if (!courseId) router.replace(`/academy/${id}/edit`);
     });
@@ -150,26 +160,46 @@ export default function CourseComposer({
 
   return (
     <div className="min-h-screen bg-bg">
-      {/* ------- 上部バー（Canvaのような編集専用のバー） ------- */}
-      <div
-        className="sticky top-0 z-40 flex items-center gap-3 border-b border-border bg-bg/95 px-4 backdrop-blur"
-        style={{ height: TOPBAR_HEIGHT }}
-      >
-        <Link href="/dashboard" className="text-[13px] text-text-muted hover:text-text-primary">
-          ← {t("back")}
-        </Link>
-        <span className="rounded-full bg-surface-raised px-2 py-0.5 text-[11px] text-text-muted">
-          {statusLabel}
-        </span>
-        <span className="hidden text-[12px] text-text-dim sm:inline">
-          {isSaving ? t("saving") : dirty ? t("unsaved") : ""}
-        </span>
-        <div className="ml-auto flex items-center gap-2">
+      {/* ------- 上部バー（Canvaのような編集専用のバー） -------
+          保存の結果（日時・エラー）は必ずここに出す。以前は結果をページの一番上に
+          出していたため、本文を書いてスクロールした状態では見えず、保存できたのか
+          失敗したのか分からなかった（実際に失敗に気づけなかった） */}
+      <div className="sticky top-0 z-40 border-b border-border bg-bg/95 backdrop-blur">
+        <div className="flex items-center gap-2 px-3 sm:gap-3 sm:px-4" style={{ height: TOPBAR_HEIGHT }}>
+          <Link
+            href="/dashboard"
+            aria-label={t("back")}
+            className="shrink-0 text-[13px] text-text-muted hover:text-text-primary"
+          >
+            ←<span className="hidden sm:inline"> {t("back")}</span>
+          </Link>
+          <span className="hidden shrink-0 rounded-full bg-surface-raised px-2 py-0.5 text-[11px] text-text-muted sm:inline">
+            {statusLabel}
+          </span>
+          <span
+            className={`min-w-0 flex-1 truncate text-right text-[11px] sm:text-[12px] ${
+              message?.kind === "error"
+                ? "font-medium text-accent-danger"
+                : savedAt && !dirty
+                  ? "text-accent-success"
+                  : "text-text-dim"
+            }`}
+          >
+            {isSaving
+              ? t("saving")
+              : message?.kind === "error"
+                ? t("saveFailedShort")
+                : savedAt && !dirty
+                  ? `✅ ${t("savedAt", { time: formatSavedAt(savedAt) })}`
+                  : dirty
+                    ? t("unsaved")
+                    : ""}
+          </span>
           <button
             type="button"
             disabled={isSaving}
             onClick={() => save(false)}
-            className="rounded-lg border border-border px-3 py-1.5 text-[13px] text-text-secondary transition hover:bg-surface disabled:opacity-60"
+            className="shrink-0 rounded-lg border border-border px-2.5 py-1.5 text-[12px] text-text-secondary transition hover:bg-surface disabled:opacity-60 sm:px-3 sm:text-[13px]"
           >
             {t("saveDraft")}
           </button>
@@ -177,26 +207,36 @@ export default function CourseComposer({
             type="button"
             disabled={isSaving}
             onClick={() => save(true)}
-            className="rounded-lg bg-accent-signal px-3 py-1.5 text-[13px] font-medium text-white transition hover:brightness-105 disabled:opacity-60"
+            className="shrink-0 rounded-lg bg-accent-signal px-2.5 py-1.5 text-[12px] font-medium text-white transition hover:brightness-105 disabled:opacity-60 sm:px-3 sm:text-[13px]"
           >
             {t("submit")}
           </button>
         </div>
+
+        {/* 結果の詳細は、上部バーのすぐ下に重ねて出す（スクロール位置に関係なく見える） */}
+        {message && (
+          <div
+            className={`absolute inset-x-0 top-full flex items-start gap-2 border-b px-4 py-2.5 text-[13px] shadow-sm ${
+              message.kind === "ok"
+                ? "border-accent-success/30 bg-[#effaf3] text-accent-success"
+                : "border-accent-danger/30 bg-[#fdf0ee] text-accent-danger"
+            }`}
+            role={message.kind === "error" ? "alert" : "status"}
+          >
+            <p className="min-w-0 flex-1 leading-relaxed">{message.text}</p>
+            <button
+              type="button"
+              onClick={() => setMessage(null)}
+              aria-label={t("cancel")}
+              className="shrink-0 px-1 text-[16px] leading-none opacity-70 hover:opacity-100"
+            >
+              ×
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="mx-auto max-w-3xl px-4 pb-24 pt-6">
-        {message && (
-          <p
-            className={`mb-4 rounded-lg px-3 py-2 text-[13px] ${
-              message.kind === "ok"
-                ? "bg-accent-success/10 text-accent-success"
-                : "bg-accent-danger/10 text-accent-danger"
-            }`}
-          >
-            {message.text}
-          </p>
-        )}
-
         {/* ------- ① サムネイル ------- */}
         <button
           type="button"

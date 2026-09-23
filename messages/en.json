@@ -1174,7 +1174,9 @@
       "body": "It may be a temporary problem. Please try again. If it keeps happening, let us know with the ID below.",
       "retry": "Try again",
       "home": "Academy home"
-    }
+    },
+    "savedAt": "Saved {time}",
+    "saveFailedShort": "⚠️ Couldn't save"
   },
   "academyHome": {
     "tagline": "Learn. Build. Share.",

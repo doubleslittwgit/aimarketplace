@@ -1174,7 +1174,9 @@
       "body": "可能是暫時性的問題，請再試一次。若持續發生，請附上下方的ID告知我們。",
       "retry": "再試一次",
       "home": "回到Academy首頁"
-    }
+    },
+    "savedAt": "已儲存 {time}",
+    "saveFailedShort": "⚠️ 無法儲存"
   },
   "academyHome": {
     "tagline": "學習、創作、擴散。",
