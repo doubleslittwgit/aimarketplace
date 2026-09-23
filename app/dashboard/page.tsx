@@ -46,6 +46,7 @@ type OwnToolRow = {
   like_count: number;
   updated_at: string;
   rejection_reason: string | null;
+  thumbnail_url: string | null;
 };
 
 type SaleRow = {
@@ -106,7 +107,7 @@ export default async function DashboardPage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("tools")
-      .select("id, slug, name, price, status, install_count, like_count, updated_at, rejection_reason")
+      .select("id, slug, name, price, status, install_count, like_count, updated_at, rejection_reason, thumbnail_url")
       .eq("author_id", user.id)
       .order("updated_at", { ascending: false }),
     supabase
@@ -340,7 +341,22 @@ export default async function DashboardPage() {
                     key={tool.id}
                     className="flex items-center justify-between gap-4 px-5 py-4"
                   >
-                    <div className="min-w-0">
+                    <div className="flex min-w-0 items-start gap-3">
+                      {/* 購入済みツールと同じ大きさの画像（無ければ名前の頭文字） */}
+                      <Link
+                        href={`/apps/${tool.slug}`}
+                        className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-bg"
+                      >
+                        {tool.thumbnail_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={tool.thumbnail_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="font-display text-xs font-semibold text-text-dim/50">
+                            {tool.name.slice(0, 2).toUpperCase()}
+                          </span>
+                        )}
+                      </Link>
+                      <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/apps/${tool.slug}`}
@@ -375,6 +391,7 @@ export default async function DashboardPage() {
                           {t("pendingReviewNotice")}
                         </p>
                       )}
+                      </div>
                     </div>
                     <Link
                       href={tool.status === "draft" ? `/submit?draft=${tool.id}` : `/apps/${tool.slug}/edit`}
