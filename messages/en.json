@@ -1321,5 +1321,49 @@
       "rejected": "Preview of a returned course",
       "suspended": "This course is unpublished"
     }
+  },
+  "creativeHome": {
+    "meta": {
+      "title": "BuildBay Creative | Plugins & extensions for creators",
+      "description": "The BuildBay hub for publishing and selling plugins and extensions for creative tools — Blender, After Effects, Cinema 4D, TouchDesigner, DAWs and more."
+    },
+    "hero": {
+      "catch": "Where plugins and tools that speed up creative work come together.",
+      "sub": "From 3D and video to real-time visuals and music production — find plugins and extensions made by creators to expand what you can make.",
+      "ctaBrowse": "Browse tools",
+      "ctaPublish": "Publish a tool"
+    },
+    "apps": {
+      "title": "Supported software",
+      "sub": "Filter by the software you use.",
+      "desc": {
+        "blender": "3D modeling & rendering",
+        "after-effects": "Motion graphics",
+        "cinema-4d": "3D motion graphics",
+        "premiere-pro": "Video editing",
+        "touchdesigner": "Real-time visuals",
+        "ableton-live": "Music production / DAW",
+        "fl-studio": "Music production / DAW",
+        "logic-pro": "Music production / DAW"
+      }
+    },
+    "featured": {
+      "title": "Featured plugins",
+      "titleForApp": "{app} plugins",
+      "sub": "Tools made by creators, built for real production work.",
+      "clear": "Clear filter",
+      "empty": "No plugins have been published yet.",
+      "emptyForApp": "No plugins for {app} yet.",
+      "beFirst": "Be the first to publish"
+    },
+    "categories": {
+      "title": "Browse by category",
+      "sub": "Categories to widen what you can create."
+    },
+    "promo": {
+      "title": "Blender, After Effects, TouchDesigner, DAWs… a place just for plugins.",
+      "body": "BuildBay Creative is the dedicated hub for plugins and extensions for 3D, video, live visuals and music production.",
+      "cta": "Explore BuildBay Creative"
+    }
   }
 }

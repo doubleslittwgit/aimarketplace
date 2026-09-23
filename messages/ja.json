@@ -1321,5 +1321,49 @@
       "rejected": "差し戻された講座のプレビューです",
       "suspended": "非公開中の講座です"
     }
+  },
+  "creativeHome": {
+    "meta": {
+      "title": "BuildBay Creative | クリエイター向けプラグイン・拡張機能",
+      "description": "Blender、After Effects、Cinema 4D、TouchDesigner、DAWなど、クリエイティブツール向けのプラグイン・拡張機能を公開・販売できるBuildBayの専用ページ。"
+    },
+    "hero": {
+      "catch": "クリエイティブ制作を加速する、プラグインとツールの集まる場所。",
+      "sub": "3DCG・映像・リアルタイムビジュアル・音楽制作まで。クリエイターがつくった、表現を広げるプラグインや拡張機能が見つかります。",
+      "ctaBrowse": "ツールを探す",
+      "ctaPublish": "ツールを公開する"
+    },
+    "apps": {
+      "title": "対応アプリケーション",
+      "sub": "お気に入りのソフトで絞り込めます。",
+      "desc": {
+        "blender": "3Dモデリング・レンダリング",
+        "after-effects": "モーショングラフィックス",
+        "cinema-4d": "3Dモーショングラフィックス",
+        "premiere-pro": "映像編集",
+        "touchdesigner": "リアルタイムビジュアル",
+        "ableton-live": "音楽制作・DAW",
+        "fl-studio": "音楽制作・DAW",
+        "logic-pro": "音楽制作・DAW"
+      }
+    },
+    "featured": {
+      "title": "注目のプラグイン",
+      "titleForApp": "{app}のプラグイン",
+      "sub": "クリエイターがつくった、制作に効くツール。",
+      "clear": "絞り込みを解除",
+      "empty": "まだプラグインの出品がありません。",
+      "emptyForApp": "まだ{app}向けのプラグインはありません。",
+      "beFirst": "最初の出品者になる"
+    },
+    "categories": {
+      "title": "カテゴリから探す",
+      "sub": "あなたの制作を広げる、多彩なカテゴリ。"
+    },
+    "promo": {
+      "title": "Blender、After Effects、TouchDesigner、DAW… プラグインだけを集めた場所。",
+      "body": "BuildBay Creativeは、3DCG・映像・ライブビジュアル・音楽制作のためのプラグインと拡張機能が集まる専用ページです。",
+      "cta": "BuildBay Creativeを見る"
+    }
   }
 }

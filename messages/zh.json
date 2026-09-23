@@ -1321,5 +1321,49 @@
       "rejected": "被退回課程的預覽",
       "suspended": "此課程目前未公開"
     }
+  },
+  "creativeHome": {
+    "meta": {
+      "title": "BuildBay Creative｜創作者的外掛與擴充功能",
+      "description": "可上架、販售 Blender、After Effects、Cinema 4D、TouchDesigner、DAW 等創作軟體外掛與擴充功能的 BuildBay 專屬頁面。"
+    },
+    "hero": {
+      "catch": "匯聚加速創作的外掛與工具。",
+      "sub": "從3D、影像、即時視覺到音樂製作，都能找到由創作者打造、拓展表現的外掛與擴充功能。",
+      "ctaBrowse": "探索工具",
+      "ctaPublish": "上架工具"
+    },
+    "apps": {
+      "title": "支援的軟體",
+      "sub": "可依常用的軟體篩選。",
+      "desc": {
+        "blender": "3D建模・算圖",
+        "after-effects": "動態圖像",
+        "cinema-4d": "3D動態圖像",
+        "premiere-pro": "影片剪輯",
+        "touchdesigner": "即時視覺",
+        "ableton-live": "音樂製作・DAW",
+        "fl-studio": "音樂製作・DAW",
+        "logic-pro": "音樂製作・DAW"
+      }
+    },
+    "featured": {
+      "title": "精選外掛",
+      "titleForApp": "{app}的外掛",
+      "sub": "由創作者打造、真正用得上的工具。",
+      "clear": "清除篩選",
+      "empty": "目前還沒有上架的外掛。",
+      "emptyForApp": "目前還沒有{app}的外掛。",
+      "beFirst": "成為第一位上架者"
+    },
+    "categories": {
+      "title": "依分類探索",
+      "sub": "拓展創作的多元分類。"
+    },
+    "promo": {
+      "title": "Blender、After Effects、TouchDesigner、DAW⋯⋯專屬外掛的聚集地。",
+      "body": "BuildBay Creative 是匯集3D、影像、現場視覺與音樂製作外掛及擴充功能的專屬頁面。",
+      "cta": "前往 BuildBay Creative"
+    }
   }
 }
