@@ -38,7 +38,8 @@ export type NotificationType =
   | "new_request_link"
   | "liked_tool_on_sale"
   | "tool_updated"
-  | "seller_announcement";
+  | "seller_announcement"
+  | "tip_received";
 
 // ------------------------------------------------------------
 // 通知設定でオフにできる種類。
@@ -57,6 +58,7 @@ export const OPTIONAL_NOTIFICATION_TYPES = [
   "liked_tool_on_sale",
   "tool_updated",
   "seller_announcement",
+  "tip_received",
 ] as const;
 
 export type OptionalNotificationType = (typeof OPTIONAL_NOTIFICATION_TYPES)[number];
@@ -373,5 +375,19 @@ export function sellerAnnouncement(
     title: tNotif(locale, "sellerAnnouncement.title", { sellerName }),
     body: tNotif(locale, "sellerAnnouncement.body", { message: message.slice(0, 300) }),
     linkUrl: `${SITE_URL}/u/${sellerHandle}`,
+  };
+}
+
+export function tipReceived(
+  tipperName: string,
+  toolName: string,
+  slug: string,
+  amount: string,
+  locale: SupportedLocale
+): NotificationContent {
+  return {
+    title: tNotif(locale, "tipReceived.title", { tipperName }),
+    body: tNotif(locale, "tipReceived.body", { toolName, amount }),
+    linkUrl: `${SITE_URL}/apps/${slug}`,
   };
 }

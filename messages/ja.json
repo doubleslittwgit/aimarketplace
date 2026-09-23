@@ -896,6 +896,10 @@
       "seller_announcement": {
         "label": "フォロー中の出品者からのお知らせ",
         "description": "フォローしている出品者がお知らせを送った時に通知します"
+      },
+      "tip_received": {
+        "label": "チップを受け取った時",
+        "description": "あなたのツールにチップが届いた時に通知します"
       }
     }
   },
@@ -973,6 +977,10 @@
     "sellerAnnouncement": {
       "title": "{sellerName}さんからのお知らせ",
       "body": "{message}"
+    },
+    "tipReceived": {
+      "title": "{tipperName}さんからチップが届きました",
+      "body": "「{toolName}」へ{amount}のチップをいただきました。"
     }
   },
   "refundRequest": {
@@ -1016,5 +1024,18 @@
     "unknownUser": "退会したユーザー",
     "contentRequired": "内容を入力してください",
     "tooLong": "1000文字以内で入力してください"
+  },
+  "tip": {
+    "title": "この出品者を応援する",
+    "subtitle": "気に入ったら、作り手に直接お礼を送れます。",
+    "button": "チップを送る",
+    "sending": "処理中...",
+    "cancel": "キャンセル",
+    "productName": "「{toolName}」へのチップ",
+    "invalidAmount": "金額が正しくありません",
+    "cannotTipSelf": "自分のツールにはチップを送れません",
+    "sellerCannotReceive": "この出品者は現在チップを受け取れません",
+    "thanks": "チップをお送りしました。ありがとうございます！",
+    "feeNote": "プラットフォーム手数料20%を差し引いた額が出品者に届きます。"
   }
 }

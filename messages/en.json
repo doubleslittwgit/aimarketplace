@@ -896,6 +896,10 @@
       "seller_announcement": {
         "label": "Announcement from someone you follow",
         "description": "When a seller you follow posts an announcement"
+      },
+      "tip_received": {
+        "label": "Tip received",
+        "description": "When someone tips one of your tools"
       }
     }
   },
@@ -973,6 +977,10 @@
     "sellerAnnouncement": {
       "title": "Update from {sellerName}",
       "body": "{message}"
+    },
+    "tipReceived": {
+      "title": "{tipperName} sent you a tip",
+      "body": "You received a {amount} tip for {toolName}."
     }
   },
   "refundRequest": {
@@ -1016,5 +1024,18 @@
     "unknownUser": "Deleted user",
     "contentRequired": "Please enter some content",
     "tooLong": "Please keep it under 1000 characters"
+  },
+  "tip": {
+    "title": "Support this creator",
+    "subtitle": "If you liked it, send the maker a thank-you directly.",
+    "button": "Send a tip",
+    "sending": "Processing...",
+    "cancel": "Cancel",
+    "productName": "Tip for {toolName}",
+    "invalidAmount": "That amount isn't valid",
+    "cannotTipSelf": "You can't tip your own tool",
+    "sellerCannotReceive": "This seller can't receive tips right now",
+    "thanks": "Your tip is on its way. Thank you!",
+    "feeNote": "The seller receives the amount minus the 20% platform fee."
   }
 }

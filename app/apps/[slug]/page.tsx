@@ -11,6 +11,7 @@ import ReportButton from "@/components/ReportButton";
 import AuthorCard from "@/components/AuthorCard";
 import ToolQA from "@/components/ToolQA";
 import ToolNotes, { type ToolNoteItem } from "@/components/ToolNotes";
+import TipBox from "@/components/TipBox";
 import ToolCard from "@/components/ToolCard";
 import ToolReviews from "@/components/ToolReviews";
 import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
@@ -535,6 +536,15 @@ export default async function ToolDetailPage({
                 isPurchased={isPurchased}
                 isDemo={isDemo}
               />
+              {/* チップ（投げ銭）。無料ツールの作り手にも報いられるようにするもの */}
+              {!isDemo && (
+                <TipBox
+                  toolId={tool.id}
+                  slug={tool.slug}
+                  isLoggedIn={Boolean(user)}
+                  isOwner={isOwner}
+                />
+              )}
               {/* デモ用ツールはDBに実体が無いのでいいねできない */}
               {!isDemo && (
                 <LikeButton

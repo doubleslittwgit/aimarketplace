@@ -896,6 +896,10 @@
       "seller_announcement": {
         "label": "追蹤中的上架者發布消息時",
         "description": "您追蹤的上架者發布消息時通知您"
+      },
+      "tip_received": {
+        "label": "收到贊助時",
+        "description": "您的工具收到贊助時通知您"
       }
     }
   },
@@ -973,6 +977,10 @@
     "sellerAnnouncement": {
       "title": "來自 {sellerName} 的消息",
       "body": "{message}"
+    },
+    "tipReceived": {
+      "title": "收到來自 {tipperName} 的贊助",
+      "body": "「{toolName}」收到了 {amount} 的贊助。"
     }
   },
   "refundRequest": {
@@ -1016,5 +1024,18 @@
     "unknownUser": "已退出的使用者",
     "contentRequired": "請輸入內容",
     "tooLong": "請在1000字以內"
+  },
+  "tip": {
+    "title": "支持這位上架者",
+    "subtitle": "如果喜歡，可以直接向創作者表達謝意。",
+    "button": "送出贊助",
+    "sending": "處理中…",
+    "cancel": "取消",
+    "productName": "給「{toolName}」的贊助",
+    "invalidAmount": "金額不正確",
+    "cannotTipSelf": "無法贊助自己的工具",
+    "sellerCannotReceive": "這位上架者目前無法收取贊助",
+    "thanks": "已送出贊助，感謝您！",
+    "feeNote": "扣除20%平台手續費後的金額會交給上架者。"
   }
 }

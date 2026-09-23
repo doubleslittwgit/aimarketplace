@@ -8,6 +8,7 @@ import {
   sale as saleContent,
   purchaseReceipt,
   sellerAccountStatusChanged,
+  tipReceived,
 } from "@/lib/notifications/content";
 import { formatPrice } from "@/lib/mock-data";
 
@@ -136,6 +137,15 @@ export async function POST(request: Request) {
   }
 
   const meta = session.metadata ?? {};
+
+  // チップ（投げ銭）は購入とは別物なので、先に分岐して処理する。
+  // 購入フローに混ぜると「購入済み扱い」になってしまい、
+  // 無料ツールにチップしただけの人がダウンロード権限を得るなど、
+  // 権限の判定が壊れてしまうため。
+  if (meta.kind === "tip") {
+    return handleTip(session, meta);
+  }
+
   const toolId = meta.tool_id;
   const buyerId = meta.buyer_id;
   const sellerId = meta.seller_id;
@@ -313,4 +323,89 @@ export async function POST(request: Request) {
   );
 
   return NextResponse.json({ received: true, recorded: true });
+}
+
+/**
+ * チップ（投げ銭）の支払い完了を記録する。
+ *
+ * 購入と違い、ダウンロード権限などには一切影響しない。
+ * 「出品者にお礼が届いた」という記録と、出品者への通知だけを行う。
+ */
+async function handleTip(
+  session: Stripe.Checkout.Session,
+  meta: Record<string, string>
+): Promise<NextResponse> {
+  const supabase = createAdminClient();
+
+  const toolId = meta.tool_id;
+  const tipperId = meta.tipper_id;
+  const sellerId = meta.seller_id;
+  if (!tipperId || !sellerId) {
+    return NextResponse.json(
+      { error: "チップに必要な情報が含まれていません" },
+      { status: 400 }
+    );
+  }
+
+  const paymentIntentId =
+    typeof session.payment_intent === "string"
+      ? session.payment_intent
+      : session.payment_intent?.id;
+  if (!paymentIntentId) {
+    return NextResponse.json({ error: "支払いIDを特定できませんでした" }, { status: 400 });
+  }
+
+  // 実際に支払われた額を正とする（metadataの値は参考情報として扱う）
+  const amountPaid = session.amount_total ?? 0;
+  if (amountPaid <= 0) {
+    return NextResponse.json({ error: "金額が不正です" }, { status: 400 });
+  }
+  const platformFee = Math.round(amountPaid * 0.2);
+
+  const { error: insertError } = await supabase.from("tips").insert({
+    tool_id: toolId || null,
+    seller_id: sellerId,
+    tipper_id: tipperId,
+    amount: amountPaid,
+    platform_fee: platformFee,
+    seller_earnings: amountPaid - platformFee,
+    stripe_payment_intent_id: paymentIntentId,
+    status: "completed",
+  });
+
+  if (insertError) {
+    // 同じ支払いを二重に記録しようとした場合（Stripeの再送など）は成功扱いにする
+    if (insertError.code === "23505") {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+    console.error("[webhook] チップの記録に失敗:", insertError.message);
+    return NextResponse.json({ error: insertError.message }, { status: 500 });
+  }
+
+  // 出品者に知らせる
+  const { data: tipperProfile } = await supabase
+    .from("profiles")
+    .select("display_name, handle")
+    .eq("id", tipperId)
+    .maybeSingle();
+  const tipperName =
+    tipperProfile?.display_name || tipperProfile?.handle || "どなたか";
+
+  const { data: tool } = await supabase
+    .from("tools")
+    .select("name, slug")
+    .eq("id", toolId)
+    .maybeSingle();
+
+  await notify(sellerId, "tip_received", (locale) =>
+    tipReceived(
+      tipperName,
+      tool?.name ?? "",
+      tool?.slug ?? "",
+      formatPrice(amountPaid),
+      locale
+    )
+  );
+
+  return NextResponse.json({ received: true });
 }
