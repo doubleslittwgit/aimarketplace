@@ -544,13 +544,14 @@
     "downloadCsv": "CSVをダウンロード",
     "earningsBreakdownTitle": "売上の内訳（全期間）",
     "grossSales": "販売総額",
-    "platformFee": "プラットフォーム手数料（20%）",
+    "platformFee": "プラットフォーム手数料（ツール20%・講座10%）",
     "netEarnings": "あなたの受取額",
     "breakdownNote": "累計 {count} 件の販売実績に基づく金額です。",
     "rangeDaily": "日別",
     "rangeMonthly": "月別",
     "rangeYearly": "年別",
-    "thisMonthEarnings": "今月の売上"
+    "thisMonthEarnings": "今月の売上",
+    "ofWhichCourses": "うち講座（Academy）の受取額"
   },
   "dashboard": {
     "title": "マイページ",

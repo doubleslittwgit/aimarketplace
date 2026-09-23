@@ -55,7 +55,13 @@ export default async function AnalyticsPage() {
   const since = new Date(now.getFullYear(), now.getMonth(), 1);
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
-  const [{ data: toolsData }, { data: salesData }, { data: allSalesData }] = await Promise.all([
+  const [
+    { data: toolsData },
+    { data: salesData },
+    { data: allSalesData },
+    { data: courseMonthData },
+    { data: courseAllData },
+  ] = await Promise.all([
     supabase
       .from("tools")
       .select("id, name, slug, view_count, like_count, install_count")
@@ -76,6 +82,18 @@ export default async function AnalyticsPage() {
       .eq("seller_id", user.id)
       .eq("status", "completed")
       .order("created_at", { ascending: true }),
+    // BuildBay Academy の講座の売上（ツールとは別の表に記録している）
+    supabase
+      .from("course_purchases")
+      .select("seller_earnings, created_at")
+      .eq("seller_id", user.id)
+      .eq("status", "completed")
+      .gte("created_at", since.toISOString()),
+    supabase
+      .from("course_purchases")
+      .select("price_paid, platform_fee, seller_earnings, created_at")
+      .eq("seller_id", user.id)
+      .eq("status", "completed"),
   ]);
 
   const tools = (toolsData ?? []) as ToolRow[];
@@ -84,10 +102,15 @@ export default async function AnalyticsPage() {
   const totalViews = tools.reduce((sum, tool) => sum + tool.view_count, 0);
   const totalLikes = tools.reduce((sum, tool) => sum + tool.like_count, 0);
   const totalDownloads = tools.reduce((sum, tool) => sum + tool.install_count, 0);
-  const thisMonthEarnings = sales.reduce((sum, s) => sum + s.seller_earnings, 0);
+  // 合計やグラフは、ツールと講座の売上を合算する（ツールごとの実績表にはツールだけを使う）
+  const courseMonthSales = (courseMonthData ?? []) as { seller_earnings: number; created_at: string }[];
+  const monthSales = [...sales, ...courseMonthSales];
+  const thisMonthEarnings = monthSales.reduce((sum, s) => sum + s.seller_earnings, 0);
 
   // 全期間の内訳
-  const allSales = (allSalesData ?? []) as AllSaleRow[];
+  const courseAllSales = (courseAllData ?? []) as AllSaleRow[];
+  const courseNetTotal = courseAllSales.reduce((sum, s) => sum + s.seller_earnings, 0);
+  const allSales = [...((allSalesData ?? []) as AllSaleRow[]), ...courseAllSales];
   const grossTotal = allSales.reduce((sum, s) => sum + s.price_paid, 0);
   const feeTotal = allSales.reduce((sum, s) => sum + s.platform_fee, 0);
   const netTotal = allSales.reduce((sum, s) => sum + s.seller_earnings, 0);
@@ -131,7 +154,7 @@ export default async function AnalyticsPage() {
 
   // 直近30日分、1日ごとの売上合計を作る（データが無い日も0で埋めて、必ず30本並ぶようにする）
   const earningsByDay = new Map<string, number>();
-  for (const s of sales) {
+  for (const s of monthSales) {
     // created_atはUTCなので、そのまま先頭10文字を切ると
     // 日本時間の朝9時より前の売上が前日に計上されてしまう。
     // 表示している暦（ローカル時間）に合わせてから日付キーを作る。
@@ -220,6 +243,12 @@ export default async function AnalyticsPage() {
                     {formatPrice(netTotal)}
                   </dd>
                 </div>
+                {courseAllSales.length > 0 && (
+                  <div className="flex items-center justify-between text-[12px]">
+                    <dt className="text-text-dim">{t("ofWhichCourses")}</dt>
+                    <dd className="font-mono text-text-muted">{formatPrice(courseNetTotal)}</dd>
+                  </div>
+                )}
               </dl>
               <p className="mt-3 text-[12px] text-text-dim">
                 {t("breakdownNote", { count: allSales.length })}

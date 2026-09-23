@@ -44,11 +44,45 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const rows = sales ?? [];
+  // BuildBay Academy の講座の売上も同じ年のものを取り、日付順に1本の表へまとめる
+  // （確定申告などで使う資料なので、売上の取りこぼしがないようにする）
+  const { data: courseSales, error: courseError } = await supabase
+    .from("course_purchases")
+    .select("created_at, price_paid, platform_fee, seller_earnings, courses(title), profiles:buyer_id(display_name, handle)")
+    .eq("seller_id", user.id)
+    .eq("status", "completed")
+    .gte("created_at", from)
+    .lt("created_at", to);
+  if (courseError) {
+    return NextResponse.json({ error: courseError.message }, { status: 500 });
+  }
+
+  type Buyer = { display_name?: string; handle?: string } | null;
+  const rows = [
+    ...(sales ?? []).map((r) => ({
+      created_at: r.created_at as string,
+      kind: "ツール",
+      name: (r.tools as { name?: string } | null)?.name ?? "",
+      buyer: r.profiles as Buyer,
+      price_paid: r.price_paid as number,
+      platform_fee: r.platform_fee as number,
+      seller_earnings: r.seller_earnings as number,
+    })),
+    ...(courseSales ?? []).map((r) => ({
+      created_at: r.created_at as string,
+      kind: "講座",
+      name: (r.courses as { title?: string } | null)?.title ?? "",
+      buyer: r.profiles as Buyer,
+      price_paid: r.price_paid as number,
+      platform_fee: r.platform_fee as number,
+      seller_earnings: r.seller_earnings as number,
+    })),
+  ].sort((a, b) => a.created_at.localeCompare(b.created_at));
 
   const header = [
     "日付",
-    "ツール名",
+    "種類",
+    "商品名",
     "購入者",
     "販売価格",
     "手数料",
@@ -67,13 +101,13 @@ export async function GET(request: NextRequest) {
   let totalEarnings = 0;
 
   for (const row of rows) {
-    const tool = row.tools as { name?: string } | null;
-    const buyer = row.profiles as { display_name?: string; handle?: string } | null;
+    const buyer = row.buyer;
     totalEarnings += row.seller_earnings ?? 0;
     lines.push(
       [
         new Date(row.created_at).toLocaleDateString("ja-JP"),
-        tool?.name ?? "",
+        row.kind,
+        row.name,
         buyer?.display_name || buyer?.handle || "",
         String(row.price_paid),
         String(row.platform_fee),

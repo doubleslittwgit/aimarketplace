@@ -544,13 +544,14 @@
     "downloadCsv": "Download CSV",
     "earningsBreakdownTitle": "Earnings breakdown (all time)",
     "grossSales": "Gross sales",
-    "platformFee": "Platform fee (20%)",
+    "platformFee": "Platform fee (tools 20%, courses 10%)",
     "netEarnings": "Your earnings",
     "breakdownNote": "Based on {count} completed sales.",
     "rangeDaily": "Daily",
     "rangeMonthly": "Monthly",
     "rangeYearly": "Yearly",
-    "thisMonthEarnings": "This month's earnings"
+    "thisMonthEarnings": "This month's earnings",
+    "ofWhichCourses": "Of which from courses (Academy)"
   },
   "dashboard": {
     "title": "Dashboard",
