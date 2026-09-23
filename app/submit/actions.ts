@@ -5,20 +5,11 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_TOOL_FILE_SIZE } from "@/lib/mock-data";
 import { isAllowedToolFile } from "@/lib/tool-file-types";
+import { slugify } from "@/lib/slugify";
 import { notifyAdmins } from "@/lib/notifications/create";
 import { adminNewPendingReview } from "@/lib/notifications/content";
 
 export type CreateToolResult = { error: string } | { error: null };
-
-function slugify(input: string) {
-  return input
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-    .slice(0, 40);
-}
 
 const MAX_FILE_SIZE = MAX_TOOL_FILE_SIZE; // 出品フォームに明記している上限と揃える
 const MAX_GALLERY_IMAGES = 5;
