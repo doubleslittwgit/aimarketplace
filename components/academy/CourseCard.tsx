@@ -40,7 +40,7 @@ export default function CourseCard({ course }: { course: CourseCardData }) {
   return (
     <Link
       href={`/academy/courses/${course.slug}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-[#E6DFCC] bg-white transition hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-12px_rgba(23,63,53,0.35)]"
+      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface transition hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-12px_rgba(23,63,53,0.35)]"
     >
       <div className="relative aspect-video overflow-hidden bg-[#173F35]">
         {course.thumbnailUrl ? (
@@ -51,7 +51,7 @@ export default function CourseCard({ course }: { course: CourseCardData }) {
             className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
           />
         ) : (
-          <span className="ac-serif absolute inset-0 flex items-center p-4 text-[18px] font-bold leading-snug text-[#F7F3E8]">
+          <span className="font-display absolute inset-0 flex items-center p-4 text-[18px] font-bold leading-snug text-[#F7F3E8]">
             {course.title}
           </span>
         )}
@@ -73,7 +73,7 @@ export default function CourseCard({ course }: { course: CourseCardData }) {
       </div>
 
       <div className="flex flex-1 flex-col p-3.5">
-        <h3 className="line-clamp-2 text-[14px] font-bold leading-snug text-[#1D2B25]">
+        <h3 className="line-clamp-2 text-[14px] font-bold leading-snug text-text-primary">
           {course.title}
         </h3>
         <div className="mt-auto flex items-center justify-between gap-2 pt-3">
@@ -81,7 +81,7 @@ export default function CourseCard({ course }: { course: CourseCardData }) {
             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#173F35] text-[10px] font-semibold text-[#F7F3E8]">
               {course.authorName.slice(0, 1)}
             </span>
-            <span className="truncate text-[12px] text-[#5E6A62]">{course.authorName}</span>
+            <span className="truncate text-[12px] text-text-muted">{course.authorName}</span>
           </span>
           <span
             className={`shrink-0 text-[15px] font-bold ${isFree ? "text-[#1F7A4D]" : "text-[#9C7A12]"}`}
@@ -91,7 +91,7 @@ export default function CourseCard({ course }: { course: CourseCardData }) {
         </div>
       </div>
 
-      <div className="border-t border-[#EFE9D8] bg-[#FBF8F0] px-3.5 py-2 text-[11px] text-[#5E6A62]">
+      <div className="border-t border-border bg-bg px-3.5 py-2 text-[11px] text-text-muted">
         {course.chapters > 0 && <>{t("card.chapters", { n: course.chapters })}・</>}
         {freeRange}
       </div>

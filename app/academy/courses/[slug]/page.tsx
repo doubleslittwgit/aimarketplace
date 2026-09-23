@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { AcademyHeader, AcademyFooter, AcIcon } from "@/components/academy/AcademyChrome";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import AcademyBlurs from "@/components/academy/AcademyBlurs";
+import { AcIcon } from "@/components/academy/AcademyChrome";
 import { renderCourseHtml } from "@/lib/academy/render";
 import { isCourseCategory } from "@/lib/academy/categories";
 import { COURSE_PURCHASE_ENABLED } from "@/lib/academy/flags";
@@ -110,14 +113,14 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   const category = isCourseCategory(course.category) ? course.category : null;
 
   const buyBox = (
-    <div className="rounded-xl border border-[#E6DFCC] bg-white p-5">
-      <p className={`ac-serif text-[26px] font-bold ${isPaid ? "text-[#173F35]" : "text-[#1F7A4D]"}`}>
+    <div className="rounded-xl border border-border bg-surface p-5">
+      <p className={`font-display text-[26px] font-bold ${isPaid ? "text-text-primary" : "text-[#1F7A4D]"}`}>
         {isPaid ? `¥${course.price.toLocaleString()}` : tHome("card.free")}
       </p>
       {!isPaid ? (
-        <p className="mt-2 text-[13px] text-[#5E6A62]">{t("freeNote")}</p>
+        <p className="mt-2 text-[13px] text-text-muted">{t("freeNote")}</p>
       ) : hasFullAccess ? (
-        <p className="mt-2 rounded-lg bg-[#F7F3E8] px-3 py-2 text-[12px] text-[#5E6A62]">
+        <p className="mt-2 rounded-lg bg-bg px-3 py-2 text-[12px] text-text-muted">
           {isAuthor ? t("authorPreview") : t("adminPreview")}
         </p>
       ) : (
@@ -129,10 +132,10 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
           >
             {COURSE_PURCHASE_ENABLED ? t("buy") : t("buyComingSoon")}
           </button>
-          <p className="mt-2 text-[11px] text-[#8A8F84]">{t("buyNote")}</p>
+          <p className="mt-2 text-[11px] text-text-dim">{t("buyNote")}</p>
         </>
       )}
-      <ul className="mt-4 space-y-1.5 border-t border-[#EFE9D8] pt-4 text-[12px] text-[#34463D]">
+      <ul className="mt-4 space-y-1.5 border-t border-border pt-4 text-[12px] text-text-secondary">
         <li>{tHome("card.chapters", { n: toc.filter((x) => x.level === 2).length || toc.length })}</li>
         {isPaid && lockedCount > 0 && <li>{t("lockedCount", { n: lockedCount })}</li>}
       </ul>
@@ -140,8 +143,8 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   );
 
   return (
-    <div className="min-h-screen bg-[#F7F3E8] text-[#1D2B25]">
-      <AcademyHeader isLoggedIn={Boolean(user)} />
+    <div className="flex min-h-screen flex-col bg-bg text-text-primary">
+      <Header />
 
       {!isPublished && (
         <div className="border-b border-[#C9A227]/40 bg-[#C9A227]/10 px-4 py-2.5 text-center text-[13px] text-[#6B5510]">
@@ -154,7 +157,19 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
         </div>
       )}
 
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_20rem]">
+      {/* Creativeの商品ページと同じく、白地に控えめな緑と金のぼかしで「Academyの中」だと分かるようにする */}
+      <main className="relative flex-1 overflow-hidden">
+      <AcademyBlurs subtle />
+      <div className="relative mx-auto max-w-6xl px-4 pt-8 sm:px-6">
+        <Link
+          href="/academy"
+          className="inline-flex items-center rounded-full border border-border bg-bg/80 px-3 py-1.5 backdrop-blur transition hover:border-border-strong"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/academy-logo.png" alt="BuildBay Academy" width={1400} height={182} className="h-4 w-auto" />
+        </Link>
+      </div>
+      <div className="relative mx-auto grid max-w-6xl gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[1fr_20rem]">
         {/* ------- 本文側 ------- */}
         <article className="min-w-0">
           {category && (
@@ -165,12 +180,12 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
               {tHome(`categories.${category}.name`)}
             </Link>
           )}
-          <h1 className="ac-serif mt-1 text-[28px] font-bold leading-snug text-[#173F35] sm:text-[36px]">
+          <h1 className="font-display mt-1 text-[28px] font-bold leading-snug text-text-primary sm:text-[36px]">
             {course.title}
           </h1>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] text-[#5E6A62]">
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] text-text-muted">
             {course.profiles?.handle ? (
-              <Link href={`/u/${course.profiles.handle}`} className="font-medium text-[#173F35] hover:underline">
+              <Link href={`/u/${course.profiles.handle}`} className="font-medium text-text-primary hover:underline">
                 {authorName}
               </Link>
             ) : (
@@ -201,15 +216,15 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
           {/* 目次：有料部分の見出しも含めて必ず公開する */}
           {toc.length > 0 && (
-            <nav className="mt-6 rounded-xl border border-[#E6DFCC] bg-white p-5">
-              <p className="ac-serif text-[16px] font-bold text-[#173F35]">{t("toc")}</p>
+            <nav className="mt-6 rounded-xl border border-border bg-surface p-5">
+              <p className="font-display text-[16px] font-bold text-text-primary">{t("toc")}</p>
               <ol className="mt-3 space-y-1.5">
                 {toc.map((item, i) => {
                   const locked = isPaid && !hasFullAccess && i >= freeHeadingCount;
                   return (
                     <li
                       key={i}
-                      className={`flex items-center gap-2 text-[13px] ${item.level === 3 ? "pl-5" : "font-medium"} ${locked ? "text-[#8A8F84]" : "text-[#1D2B25]"}`}
+                      className={`flex items-center gap-2 text-[13px] ${item.level === 3 ? "pl-5" : "font-medium"} ${locked ? "text-text-dim" : "text-text-primary"}`}
                     >
                       {locked ? (
                         <span className="text-[#C9A227]">
@@ -228,19 +243,19 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
           {/* 本文 */}
           <div
-            className="course-content mt-8 rounded-xl bg-white p-5 sm:p-8"
+            className="course-content mt-8 rounded-xl bg-surface p-5 sm:p-8"
             // 検証済みの要素・属性だけから生成したHTML（lib/academy/render.ts）
             dangerouslySetInnerHTML={{ __html: html }}
           />
 
           {/* 有料部分の手前で止める */}
           {isPaid && !hasFullAccess && (
-            <div className="relative -mt-2 rounded-b-xl border border-t-2 border-dashed border-[#C9A227] bg-gradient-to-b from-white to-[#FBF8F0] px-5 pb-8 pt-10 text-center sm:px-8">
-              <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#C9A227] bg-white px-3 py-0.5 text-[11px] font-bold text-[#9C7A12]">
+            <div className="relative -mt-2 rounded-b-xl border border-t-2 border-dashed border-[#C9A227] bg-surface px-5 pb-8 pt-10 text-center sm:px-8">
+              <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#C9A227] bg-surface px-3 py-0.5 text-[11px] font-bold text-[#9C7A12]">
                 {t("paywall")}
               </span>
-              <p className="ac-serif text-[18px] font-bold text-[#173F35]">{t("paywallTitle")}</p>
-              <p className="mt-2 text-[13px] text-[#5E6A62]">
+              <p className="font-display text-[18px] font-bold text-text-primary">{t("paywallTitle")}</p>
+              <p className="mt-2 text-[13px] text-text-muted">
                 {lockedCount > 0 ? t("paywallBody", { n: lockedCount }) : t("paywallBodyNoCount")}
               </p>
               <div className="mx-auto mt-5 max-w-xs">{buyBox}</div>
@@ -253,7 +268,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
           <div className="sticky top-20 space-y-4">
             {buyBox}
             {tools.length > 0 && (
-              <div className="rounded-xl border border-[#E6DFCC] bg-white p-5">
+              <div className="rounded-xl border border-border bg-surface p-5">
                 <p className="text-[12px] font-semibold text-[#9C7A12]">{t("toolsTitle")}</p>
                 <ul className="mt-3 space-y-3">
                   {tools.map((tool) => (
@@ -266,8 +281,8 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                           )}
                         </span>
                         <span className="min-w-0">
-                          <span className="block truncate text-[13px] font-semibold text-[#173F35]">{tool.name}</span>
-                          <span className="block truncate text-[11px] text-[#5E6A62]">{tool.tagline}</span>
+                          <span className="block truncate text-[13px] font-semibold text-text-primary">{tool.name}</span>
+                          <span className="block truncate text-[11px] text-text-muted">{tool.tagline}</span>
                         </span>
                       </Link>
                     </li>
@@ -275,7 +290,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                 </ul>
               </div>
             )}
-            <div className="flex gap-2 rounded-xl border border-[#E6DFCC] bg-white p-4 text-[12px] leading-relaxed text-[#5E6A62]">
+            <div className="flex gap-2 rounded-xl border border-border bg-surface p-4 text-[12px] leading-relaxed text-text-muted">
               <span className="text-[#C9A227]">
                 <AcIcon d={SHIELD} size={18} />
               </span>
@@ -285,7 +300,8 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
         </aside>
       </div>
 
-      <AcademyFooter isLoggedIn={Boolean(user)} />
+      </main>
+      <Footer />
     </div>
   );
 }
