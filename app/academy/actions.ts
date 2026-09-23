@@ -21,7 +21,8 @@ export type SaveCourseInput = {
   price: number;
   category: string | null;
   refundPolicy: string;
-  content: unknown;
+  /** 本文（TipTapのJSONを文字列にしたもの） */
+  content: string | unknown;
   /** true なら「審査に出す」、false なら「下書き保存」 */
   submit: boolean;
   toolIds: string[];
@@ -88,7 +89,14 @@ async function saveCourseInner(input: SaveCourseInput): Promise<SaveCourseResult
     return { error: t("errors.imageNotAllowed") };
   }
 
-  const validated = validateCourseDoc(input.content);
+  // 本文は文字列（JSON）で受け取り、ここで元に戻す（理由は CourseComposer 側のコメント参照）
+  let parsedContent: unknown;
+  try {
+    parsedContent = typeof input.content === "string" ? JSON.parse(input.content) : input.content;
+  } catch {
+    return { error: t("errors.invalidFormat") };
+  }
+  const validated = validateCourseDoc(parsedContent);
   if (!validated.ok) return { error: t(`errors.${validated.reason}`) };
   const doc = validated.doc;
 

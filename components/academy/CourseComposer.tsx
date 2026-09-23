@@ -124,7 +124,11 @@ export default function CourseComposer({
         price: priceNumber,
         category: category || null,
         refundPolicy,
-        content: docRef.current,
+        // 本文は文字列にしてから送る。エディタ（ProseMirror）の本文データには、
+        // 通常とは作りの違うオブジェクト（プロトタイプを持たない attrs）が含まれていて、
+        // そのまま送るとサーバー側で「読めない預かり物」として扱われ、
+        // 「Cannot access textAlign on the server」というエラーで保存できなかった。
+        content: JSON.stringify(docRef.current),
         submit,
         toolIds,
       });
