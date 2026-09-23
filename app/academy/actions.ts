@@ -3,6 +3,7 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slugify";
+import { isCourseCategory } from "@/lib/academy/categories";
 import {
   validateCourseDoc,
   splitAtPaywall,
@@ -15,6 +16,7 @@ export type SaveCourseInput = {
   title: string;
   thumbnailUrl: string | null;
   price: number;
+  category: string | null;
   content: unknown;
   /** true なら「審査に出す」、false なら「下書き保存」 */
   submit: boolean;
@@ -121,6 +123,8 @@ export async function saveCourse(input: SaveCourseInput): Promise<SaveCourseResu
       title,
       thumbnail_url: thumbnailUrl,
       price,
+      // 決められたカテゴリ以外は保存しない（DB側の制約とも一致させている）
+      category: isCourseCategory(input.category) ? input.category : null,
       status,
       free_content: freeContent,
       toc: buildToc(doc),

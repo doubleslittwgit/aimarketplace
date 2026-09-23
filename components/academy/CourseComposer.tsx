@@ -13,6 +13,7 @@ import {
   COMPRESS_PRESET_GALLERY,
 } from "@/lib/compress-image";
 import { EMPTY_DOC, type JSONNode } from "@/lib/course-content";
+import { COURSE_CATEGORIES } from "@/lib/academy/categories";
 
 const TOPBAR_HEIGHT = 56;
 
@@ -32,6 +33,7 @@ export default function CourseComposer({
     title: string;
     thumbnailUrl: string | null;
     price: number;
+    category: string | null;
     content: JSONNode | null;
     status: string;
     toolIds: string[];
@@ -41,6 +43,7 @@ export default function CourseComposer({
   canReceivePayments: boolean;
 }) {
   const t = useTranslations("academyEditor");
+  const tHome = useTranslations("academyHome");
   const router = useRouter();
 
   // 画像の保存先パスに講座IDを使うため、新規作成でも最初にIDを決めておく
@@ -48,6 +51,7 @@ export default function CourseComposer({
   const [title, setTitle] = useState(initial.title);
   const [thumbnailUrl, setThumbnailUrl] = useState(initial.thumbnailUrl);
   const [price, setPrice] = useState(String(initial.price));
+  const [category, setCategory] = useState(initial.category ?? "");
   const [toolIds, setToolIds] = useState<string[]>(initial.toolIds);
   const [status, setStatus] = useState(initial.status);
   const docRef = useRef<JSONNode>(initial.content ?? EMPTY_DOC);
@@ -104,6 +108,7 @@ export default function CourseComposer({
         title,
         thumbnailUrl,
         price: priceNumber,
+        category: category || null,
         content: docRef.current,
         submit,
         toolIds,
@@ -247,6 +252,25 @@ export default function CourseComposer({
               />
             </span>
             {!isPaid && <span className="text-[12px] text-text-dim">{t("free")}</span>}
+          </label>
+
+          <label className="flex items-center gap-2 text-[13px] text-text-secondary">
+            {t("category")}
+            <select
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setDirty(true);
+              }}
+              className="rounded-lg border border-border bg-surface px-2 py-1.5 text-[13px] text-text-primary outline-none focus:border-border-strong"
+            >
+              <option value="">{t("categoryNone")}</option>
+              {COURSE_CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {tHome(`categories.${c}.name`)}
+                </option>
+              ))}
+            </select>
           </label>
 
           {myTools.length > 0 && (

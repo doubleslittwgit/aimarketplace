@@ -172,3 +172,6 @@ body {
 /* エディタだけの調整 */
 .course-editor-area { outline: none; min-height: 50vh; padding-bottom: 30vh; }
 .course-editor-area p.is-editor-empty:first-child::before { content: attr(data-placeholder); color: var(--text-dim); float: left; height: 0; pointer-events: none; }
+
+/* BuildBay Academy：見出し用の明朝体（端末に入っているフォントを使い、追加の読み込みはしない） */
+.ac-serif { font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "Noto Serif CJK JP", "Songti TC", "PMingLiU", serif; }

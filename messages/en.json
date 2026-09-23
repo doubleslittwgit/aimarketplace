@@ -1139,6 +1139,154 @@
     },
     "payoutNoticeTitle": "Paid courses need payouts & ID verification",
     "payoutNoticeBody": "You can keep saving drafts. Finish the setup before submitting for review. Free courses don't need it.",
-    "payoutNoticeCta": "Go to setup"
+    "payoutNoticeCta": "Go to setup",
+    "category": "Category",
+    "categoryNone": "None"
+  },
+  "academyHome": {
+    "tagline": "Learn. Build. Share.",
+    "meta": {
+      "title": "BuildBay Academy | Learn to build tools with AI",
+      "description": "A marketplace of courses on building tools with AI, taught by people who actually built them. See the full table of contents and read the opening for free before you buy."
+    },
+    "nav": {
+      "browse": "Browse courses",
+      "categories": "Categories",
+      "makers": "From the makers",
+      "backToBuildBay": "Back to BuildBay"
+    },
+    "searchPlaceholder": "What do you want to learn?",
+    "login": "Log in",
+    "write": "Write a course",
+    "hero": {
+      "titleA": "Give everyone the ",
+      "titleGold": "power to build",
+      "titleB": "",
+      "titleLine2": "with AI.",
+      "description": "BuildBay Academy is a marketplace of courses on building tools with AI — passing one maker's know-how on to the next.",
+      "ctaBrowse": "Browse courses",
+      "ctaWrite": "Write a course",
+      "points": {
+        "toc": {
+          "value": "Full TOC",
+          "label": "See it all before buying"
+        },
+        "free": {
+          "value": "Free preview",
+          "label": "Read before you pay"
+        },
+        "fee": {
+          "value": "10% fee",
+          "label": "More goes to authors"
+        }
+      },
+      "preview": {
+        "title": "Build an inventory tool with Claude Code",
+        "toc": "CONTENTS",
+        "chapter": "Chapter {n}",
+        "paywall": "Paid from here",
+        "article": "Learn by reading",
+        "articleSub": "Take it in at your pace",
+        "video": "Learn by watching",
+        "videoSub": "Follow along on screen"
+      }
+    },
+    "sections": {
+      "categories": "Browse by category",
+      "newTitle": "New courses",
+      "newSub": "Recently published",
+      "makersTitle": "Taught by the makers",
+      "makersSub": "Hands-on know-how from developers and creators who have actually published tools on BuildBay.",
+      "makersQuote": "Having built it is the best teacher.",
+      "makersEmpty": "When people who publish tools write courses, they'll appear here. Pick your own tools in the course editor to be featured as a maker's course.",
+      "resultsFor": "Courses matching “{q}”",
+      "categoryResults": "{name} courses",
+      "clearFilter": "Clear filters",
+      "noResults": "No courses match yet."
+    },
+    "empty": {
+      "title": "Waiting for the first course",
+      "body": "BuildBay Academy has just opened. Why not turn your experience building tools with AI into a course? Save drafts as often as you like — free courses don't even need ID verification.",
+      "cta": "Write the first course"
+    },
+    "trust": {
+      "title": "Why you can buy with confidence",
+      "sub": "Built so even first-timers can learn safely.",
+      "review": {
+        "title": "Every course is reviewed",
+        "body": "We check content and turn away hype or claims that can't be reproduced."
+      },
+      "toc": {
+        "title": "See the whole TOC first",
+        "body": "Headings of paid sections are public too, so you know exactly what you'll learn."
+      },
+      "free": {
+        "title": "Read the opening free",
+        "body": "Anyone can read up to the point the author chose — enough to judge how clear they are."
+      },
+      "refund": {
+        "title": "Clear refund policies",
+        "body": "Each course shows its refund policy, and you can raise issues right in the app."
+      }
+    },
+    "creator": {
+      "title": "Your knowledge could be someone's next lesson.",
+      "body": "Developers, designers, business people — anyone logged in can write a course. Mix articles and video, and decide yourself where the paid part begins.",
+      "cta": "Write a course",
+      "feeLabel": "Platform fee",
+      "feeValue": "10%",
+      "idLabel": "Selling paid courses",
+      "idValue": "Requires ID verification"
+    },
+    "footer": {
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "tokushoho": "Commercial Disclosure",
+      "contact": "Contact"
+    },
+    "card": {
+      "verified": "ID verified",
+      "byMaker": "By the maker",
+      "free": "Free",
+      "allFree": "Entirely free",
+      "tocOnly": "TOC is public",
+      "freeUntil": "Free through chapter {n}",
+      "introFree": "Opening is free",
+      "chapters": "{n} chapters"
+    },
+    "categories": {
+      "beginner": {
+        "name": "First steps in AI dev",
+        "desc": "Start from zero"
+      },
+      "productivity": {
+        "name": "Productivity tools",
+        "desc": "Make work easier"
+      },
+      "product": {
+        "name": "Product building",
+        "desc": "Turn ideas into products"
+      },
+      "webapp": {
+        "name": "Web apps",
+        "desc": "Runs in the browser"
+      },
+      "automation": {
+        "name": "Automation",
+        "desc": "Escape repetitive work"
+      },
+      "creative": {
+        "name": "Design & creative",
+        "desc": "Expand what you can make"
+      },
+      "monetize": {
+        "name": "Selling & monetizing",
+        "desc": "Get your work to people"
+      },
+      "ai-usage": {
+        "name": "Using AI well",
+        "desc": "Get more out of AI"
+      }
+    }
   }
 }

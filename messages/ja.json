@@ -1139,6 +1139,154 @@
     },
     "payoutNoticeTitle": "有料で販売するには、売上の受け取り設定・本人確認が必要です",
     "payoutNoticeBody": "下書きはこのまま保存できます。審査に出す前に、設定を完了してください。無料の講座なら設定は不要です。",
-    "payoutNoticeCta": "設定に進む"
+    "payoutNoticeCta": "設定に進む",
+    "category": "カテゴリ",
+    "categoryNone": "未設定"
+  },
+  "academyHome": {
+    "tagline": "学ぶ、つくる、広がる。",
+    "meta": {
+      "title": "BuildBay Academy | AIでツールをつくる方法を学ぶ",
+      "description": "AIでツールをつくる方法を、実際につくった人から学べる講座のマーケットプレイス。目次は購入前に全部見られて、途中まで無料で読めます。"
+    },
+    "nav": {
+      "browse": "講座を探す",
+      "categories": "カテゴリー",
+      "makers": "作った人の講座",
+      "backToBuildBay": "BuildBay本体へ"
+    },
+    "searchPlaceholder": "どんな講座をお探しですか？",
+    "login": "ログイン",
+    "write": "講座を書く",
+    "hero": {
+      "titleA": "AIで、",
+      "titleGold": "つくる力",
+      "titleB": "を",
+      "titleLine2": "すべての人に。",
+      "description": "BuildBay Academyは、AIでツールをつくる方法を学べる講座のマーケットプレイスです。つくる人の知見を、次のつくる人へ。",
+      "ctaBrowse": "講座を探す",
+      "ctaWrite": "講座を書く",
+      "points": {
+        "toc": {
+          "value": "目次は全公開",
+          "label": "買う前に全部見られる"
+        },
+        "free": {
+          "value": "途中まで無料",
+          "label": "中身を確かめてから買える"
+        },
+        "fee": {
+          "value": "手数料10%",
+          "label": "書き手に多く還元"
+        }
+      },
+      "preview": {
+        "title": "Claude Codeで在庫管理ツールをつくる",
+        "toc": "目次",
+        "chapter": "第{n}章",
+        "paywall": "ここから有料",
+        "article": "記事で学ぶ",
+        "articleSub": "テキストでじっくり理解",
+        "video": "動画で学ぶ",
+        "videoSub": "実際の画面で手を動かす"
+      }
+    },
+    "sections": {
+      "categories": "カテゴリから探す",
+      "newTitle": "新着の講座",
+      "newSub": "新しく公開された講座をチェック",
+      "makersTitle": "作った人が教える講座",
+      "makersSub": "BuildBayで実際にツールを公開している開発者・クリエイターによる、リアルなノウハウが学べます。",
+      "makersQuote": "つくった経験は、最高の教材だ。",
+      "makersEmpty": "ツールを公開している人が講座を書くと、ここに並びます。講座の作成画面で自分のツールを選ぶと、「作った人の講座」として紹介されます。",
+      "resultsFor": "「{q}」の講座",
+      "categoryResults": "{name}の講座",
+      "clearFilter": "条件をクリア",
+      "noResults": "条件に合う講座はまだありません。"
+    },
+    "empty": {
+      "title": "最初の講座を待っています",
+      "body": "BuildBay Academyはオープンしたばかりです。AIでツールをつくった経験を、講座にしてみませんか？ 下書きは何度でも保存でき、無料の講座なら本人確認も不要です。",
+      "cta": "最初の講座を書く"
+    },
+    "trust": {
+      "title": "安心して買える理由",
+      "sub": "はじめての方でも、安心して学べる仕組みを整えています。",
+      "review": {
+        "title": "全講座を審査",
+        "body": "運営が内容を確認し、誇大な宣伝や再現性のない内容は掲載しません。"
+      },
+      "toc": {
+        "title": "目次は購入前に全部見られる",
+        "body": "有料部分の見出しも含めて公開しているので、何が学べるかを確かめてから選べます。"
+      },
+      "free": {
+        "title": "途中まで無料で読める",
+        "body": "書き手が決めた位置まで、誰でも無料で読めます。説明の分かりやすさも確かめられます。"
+      },
+      "refund": {
+        "title": "返金ポリシーを明記",
+        "body": "講座ごとの返金方針が分かり、困ったときはアプリから相談できます。"
+      }
+    },
+    "creator": {
+      "title": "あなたの知識・経験も、誰かの学びになる。",
+      "body": "開発者、デザイナー、ビジネスパーソンなど、ログインしていれば誰でも講座を書けます。記事と動画を組み合わせ、どこから有料にするかも自分で決められます。",
+      "cta": "講座を書く",
+      "feeLabel": "販売手数料",
+      "feeValue": "10%",
+      "idLabel": "有料で販売するには",
+      "idValue": "本人確認が必要"
+    },
+    "footer": {
+      "terms": "利用規約",
+      "privacy": "プライバシーポリシー",
+      "tokushoho": "特定商取引法に基づく表記",
+      "contact": "お問い合わせ"
+    },
+    "card": {
+      "verified": "本人確認済み",
+      "byMaker": "作った人の講座",
+      "free": "無料",
+      "allFree": "全文無料",
+      "tocOnly": "目次を公開中",
+      "freeUntil": "第{n}章まで無料で読める",
+      "introFree": "冒頭を無料で読める",
+      "chapters": "全{n}章"
+    },
+    "categories": {
+      "beginner": {
+        "name": "はじめてのAI開発",
+        "desc": "ゼロから学べる"
+      },
+      "productivity": {
+        "name": "業務効率化ツール",
+        "desc": "仕事をもっとラクに"
+      },
+      "product": {
+        "name": "プロダクト開発",
+        "desc": "アイデアを形に"
+      },
+      "webapp": {
+        "name": "Webアプリ",
+        "desc": "ブラウザで動く"
+      },
+      "automation": {
+        "name": "自動化",
+        "desc": "くり返し作業から解放"
+      },
+      "creative": {
+        "name": "デザイン・クリエイティブ",
+        "desc": "表現の幅を広げる"
+      },
+      "monetize": {
+        "name": "収益化・販売",
+        "desc": "つくったものを届ける"
+      },
+      "ai-usage": {
+        "name": "AI活用術",
+        "desc": "もっと使いこなす"
+      }
+    }
   }
 }

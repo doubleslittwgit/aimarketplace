@@ -1139,6 +1139,154 @@
     },
     "payoutNoticeTitle": "付費販售需要先完成收款設定・身分驗證",
     "payoutNoticeBody": "草稿可以照常儲存。送出審核前，請先完成設定。免費課程則不需要此設定。",
-    "payoutNoticeCta": "前往設定"
+    "payoutNoticeCta": "前往設定",
+    "category": "分類",
+    "categoryNone": "未設定"
+  },
+  "academyHome": {
+    "tagline": "學習、創作、擴散。",
+    "meta": {
+      "title": "BuildBay Academy｜學習用AI打造工具",
+      "description": "由實際打造過工具的人，教你用AI打造工具的課程市集。購買前可看完整目錄，並能免費閱讀前半部分。"
+    },
+    "nav": {
+      "browse": "探索課程",
+      "categories": "分類",
+      "makers": "創作者的課程",
+      "backToBuildBay": "回到BuildBay"
+    },
+    "searchPlaceholder": "想學什麼樣的課程？",
+    "login": "登入",
+    "write": "撰寫課程",
+    "hero": {
+      "titleA": "用AI，把",
+      "titleGold": "創造的力量",
+      "titleB": "",
+      "titleLine2": "交給每一個人。",
+      "description": "BuildBay Academy 是學習用AI打造工具的課程市集。把創作者的經驗，傳給下一位創作者。",
+      "ctaBrowse": "探索課程",
+      "ctaWrite": "撰寫課程",
+      "points": {
+        "toc": {
+          "value": "目錄全公開",
+          "label": "購買前全部看得到"
+        },
+        "free": {
+          "value": "前半免費",
+          "label": "確認內容後再購買"
+        },
+        "fee": {
+          "value": "手續費10%",
+          "label": "更多回饋給作者"
+        }
+      },
+      "preview": {
+        "title": "用Claude Code打造庫存管理工具",
+        "toc": "目錄",
+        "chapter": "第{n}章",
+        "paywall": "以下為付費內容",
+        "article": "透過文章學習",
+        "articleSub": "用文字深入理解",
+        "video": "透過影片學習",
+        "videoSub": "跟著實際畫面動手做"
+      }
+    },
+    "sections": {
+      "categories": "依分類探索",
+      "newTitle": "最新課程",
+      "newSub": "看看剛發布的課程",
+      "makersTitle": "由創作者親自授課",
+      "makersSub": "由在BuildBay實際發布工具的開發者與創作者，分享真實的經驗。",
+      "makersQuote": "親手打造的經驗，就是最好的教材。",
+      "makersEmpty": "發布工具的人撰寫課程後，就會出現在這裡。在課程編輯畫面選擇自己的工具，即可作為「創作者的課程」介紹。",
+      "resultsFor": "「{q}」的課程",
+      "categoryResults": "{name}的課程",
+      "clearFilter": "清除條件",
+      "noResults": "目前還沒有符合條件的課程。"
+    },
+    "empty": {
+      "title": "等待第一門課程",
+      "body": "BuildBay Academy 剛剛開幕。要不要把用AI打造工具的經驗寫成課程呢？草稿可以隨時儲存，免費課程也不需要身分驗證。",
+      "cta": "撰寫第一門課程"
+    },
+    "trust": {
+      "title": "可以安心購買的理由",
+      "sub": "即使是第一次，也能安心學習。",
+      "review": {
+        "title": "所有課程皆經審核",
+        "body": "營運團隊會確認內容，不刊登誇大宣傳或無法重現的內容。"
+      },
+      "toc": {
+        "title": "購買前可看完整目錄",
+        "body": "付費部分的標題也會公開，能先確認可以學到什麼。"
+      },
+      "free": {
+        "title": "前半部分免費閱讀",
+        "body": "任何人都能免費讀到作者設定的位置，也能確認說明是否清楚。"
+      },
+      "refund": {
+        "title": "明確標示退款方針",
+        "body": "每門課程都會標示退款方針，遇到問題也能在應用程式中諮詢。"
+      }
+    },
+    "creator": {
+      "title": "你的知識與經驗，也能成為別人的學習。",
+      "body": "開發者、設計師、商務人士⋯⋯只要登入，任何人都能撰寫課程。可以結合文章與影片，也能自行決定從哪裡開始付費。",
+      "cta": "撰寫課程",
+      "feeLabel": "販售手續費",
+      "feeValue": "10%",
+      "idLabel": "付費販售需要",
+      "idValue": "完成身分驗證"
+    },
+    "footer": {
+      "terms": "使用條款",
+      "privacy": "隱私權政策",
+      "tokushoho": "特定商業交易法標示",
+      "contact": "聯絡我們"
+    },
+    "card": {
+      "verified": "已完成身分驗證",
+      "byMaker": "創作者的課程",
+      "free": "免費",
+      "allFree": "全文免費",
+      "tocOnly": "目錄公開中",
+      "freeUntil": "可免費閱讀至第{n}章",
+      "introFree": "開頭可免費閱讀",
+      "chapters": "共{n}章"
+    },
+    "categories": {
+      "beginner": {
+        "name": "AI開發入門",
+        "desc": "從零開始學"
+      },
+      "productivity": {
+        "name": "工作效率工具",
+        "desc": "讓工作更輕鬆"
+      },
+      "product": {
+        "name": "產品開發",
+        "desc": "把點子變成產品"
+      },
+      "webapp": {
+        "name": "網頁應用",
+        "desc": "在瀏覽器上運作"
+      },
+      "automation": {
+        "name": "自動化",
+        "desc": "擺脫重複作業"
+      },
+      "creative": {
+        "name": "設計・創作",
+        "desc": "拓展表現的可能"
+      },
+      "monetize": {
+        "name": "營利・販售",
+        "desc": "把作品送到使用者手上"
+      },
+      "ai-usage": {
+        "name": "AI活用技巧",
+        "desc": "更善用AI"
+      }
+    }
   }
 }
