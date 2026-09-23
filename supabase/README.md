@@ -41,6 +41,7 @@
 | `create_academy_courses.sql` | BuildBay Academy の講座（後から足したもの） |
 | `add_course_category.sql` | Academy の講座カテゴリ（後から足したもの） |
 | `academy_purchases.sql` | Academy の講座の購入・返金ポリシー（後から足したもの） |
+| `academy_image_cleanup.sql` | Academy の未使用画像の一覧（後から足したもの） |
 | `increment_install.sql` | ダウンロード数を加算する関数 |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
 
@@ -94,9 +95,10 @@
 30. `create_academy_courses.sql`
 31. `add_course_category.sql`
 32. `academy_purchases.sql`
-33. `increment_install.sql`
-34. `protect_tool_columns.sql`
-35. `grants.sql` ← **必ず最後**
+33. `academy_image_cleanup.sql`
+34. `increment_install.sql`
+35. `protect_tool_columns.sql`
+36. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」

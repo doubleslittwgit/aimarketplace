@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatPrice } from "@/lib/mock-data";
+import CleanupImagesButton from "./CleanupImagesButton";
 
 export const metadata = { title: "管理ダッシュボード" };
 
@@ -56,6 +57,11 @@ export default async function AdminHomePage() {
       .eq("status", "completed")
       .gte("created_at", since30),
   ]);
+
+  // 使われていないAcademyの画像（メンテナンス欄に表示）
+  const { data: unusedImages } = await admin.rpc("list_unused_course_images", { p_min_age: "1 hour" });
+  const unused = (unusedImages ?? []) as { bytes: number }[];
+  const unusedBytes = unused.reduce((s, r) => s + Number(r.bytes || 0), 0);
 
   const sales = recentSales ?? [];
   const gmv = sales.reduce((s, p) => s + (p.price_paid ?? 0), 0);
@@ -147,6 +153,9 @@ export default async function AdminHomePage() {
             <StatCard label="流通総額（30日）" value={formatPrice(gmv)} />
             <StatCard label="手数料収入（30日）" value={formatPrice(revenue)} accent />
           </div>
+
+          <h2 className="mb-3 mt-8 text-[13px] font-medium text-text-secondary">メンテナンス</h2>
+          <CleanupImagesButton count={unused.length} bytes={unusedBytes} />
         </div>
       </main>
     </>

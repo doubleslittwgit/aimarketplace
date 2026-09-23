@@ -5,6 +5,8 @@ import { getTranslations } from "next-intl/server";
 import { notifyAdmins } from "@/lib/notifications/create";
 import { adminCoursePending } from "@/lib/notifications/content";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { removeUnusedCourseImages } from "@/lib/academy/cleanup";
 import { slugify } from "@/lib/slugify";
 import { isCourseCategory } from "@/lib/academy/categories";
 import {
@@ -184,6 +186,16 @@ async function saveCourseInner(input: SaveCourseInput): Promise<SaveCourseResult
       .insert(toolIds.map((tool_id) => ({ course_id: input.id, tool_id })));
     if (linkError) return { error: t("errors.saveFailed", { message: linkError.message }) };
   }
+
+  // この講座で使われなくなった画像（差し替えたサムネイル・本文から消した画像）を片付ける。
+  // 保存と同時に貼られた画像を誤って消さないよう、10分以上前の画像だけを対象にする。
+  after(async () => {
+    const result = await removeUnusedCourseImages(createAdminClient(), {
+      minAge: "10 minutes",
+      courseId: input.id,
+    });
+    if (result.error) console.error("[saveCourse] 未使用画像の片付けに失敗:", result.error);
+  });
 
   if (input.submit && !alreadyPending) {
     after(async () => {

@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { notify } from "@/lib/notifications/create";
 import { courseApproved, courseRejected } from "@/lib/notifications/content";
 import { COURSE_PURCHASE_ENABLED } from "@/lib/academy/flags";
+import { removeUnusedCourseImages } from "@/lib/academy/cleanup";
 
 async function requireAdmin(): Promise<boolean> {
   const supabase = await createClient();
@@ -79,4 +80,19 @@ export async function rejectCourse(courseId: string, reason: string): Promise<{ 
   );
   revalidatePath("/admin/courses");
   return { error: null };
+}
+
+/**
+ * 保存されずに放置された書きかけなどの、使われていない講座画像をまとめて削除する。
+ * 1時間以内の画像は、今まさに誰かが書いている途中の可能性があるので残す。
+ */
+export async function cleanupUnusedCourseImages(): Promise<{
+  error: string | null;
+  removed: number;
+  bytes: number;
+}> {
+  if (!(await requireAdmin())) return { error: "管理者権限がありません", removed: 0, bytes: 0 };
+  const result = await removeUnusedCourseImages(createAdminClient(), { minAge: "1 hour" });
+  revalidatePath("/admin");
+  return result;
 }
