@@ -119,3 +119,56 @@ body {
     animation: none !important;
   }
 }
+
+/* ================================================================
+   BuildBay Academy：講座本文の見た目
+   エディタと講座ページの両方で同じクラス（.course-content）を使い、
+   「書いた見た目」と「読者が見る見た目」を一致させる。
+   ================================================================ */
+.course-content { color: var(--text-primary); font-size: 16px; line-height: 1.85; word-break: break-word; }
+.course-content > * + * { margin-top: 0.9em; }
+.course-content h2 { font-size: 24px; font-weight: 700; line-height: 1.4; margin-top: 1.8em; padding-bottom: 0.3em; border-bottom: 1px solid var(--border); }
+.course-content h3 { font-size: 19px; font-weight: 700; line-height: 1.5; margin-top: 1.5em; }
+.course-content ul { list-style: disc; padding-left: 1.5em; }
+.course-content ol { list-style: decimal; padding-left: 1.5em; }
+.course-content li > p { margin: 0.2em 0; }
+.course-content blockquote { border-left: 3px solid var(--border-strong); padding: 0.2em 0 0.2em 1em; color: var(--text-secondary); }
+.course-content code { background: var(--surface-raised); border-radius: 4px; padding: 0.1em 0.35em; font-size: 0.9em; }
+.course-content pre { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 1em 1.1em; overflow-x: auto; font-size: 13.5px; line-height: 1.6; }
+.course-content pre code { background: none; padding: 0; color: inherit; }
+.course-content a { color: var(--accent-signal); text-decoration: underline; text-underline-offset: 2px; }
+.course-content hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+
+/* 画像：左・中央・右揃え（エディタではリサイズ用の枠、表示では画像そのものに適用） */
+.course-content img { max-width: 100%; height: auto; border-radius: 8px; display: block; }
+.course-content img[data-align="center"] { margin-left: auto; margin-right: auto; }
+.course-content img[data-align="right"] { margin-left: auto; }
+.course-content [data-resize-container] { max-width: 100%; }
+.course-content [data-resize-container]:has(img[data-align="center"]) { margin-left: auto; margin-right: auto; }
+.course-content [data-resize-container]:has(img[data-align="right"]) { margin-left: auto; }
+.course-content .ProseMirror-selectednode img,
+.course-content [data-resize-container].ProseMirror-selectednode { outline: 2px solid var(--accent-signal); outline-offset: 2px; border-radius: 8px; }
+.course-content [data-resize-handle] { background: var(--accent-signal); border: 2px solid var(--bg); border-radius: 50%; width: 12px; height: 12px; }
+
+/* 動画 */
+.course-video { position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #000; }
+.course-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.course-video-shield { position: absolute; inset: 0; cursor: pointer; }
+.course-video-editor.is-selected { outline: 2px solid var(--accent-signal); outline-offset: 2px; }
+
+/* リンクカード */
+.course-content .course-link-card { display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--border); border-radius: 10px; padding: 0.8em 1em; text-decoration: none; background: var(--surface); }
+.course-content .course-link-card:hover { border-color: var(--border-strong); }
+.course-link-card-title { color: var(--text-primary); font-weight: 600; font-size: 15px; }
+.course-link-card-host { color: var(--text-muted); font-size: 12px; }
+
+/* 有料ライン */
+.course-paywall, .course-paywall-editor { position: relative; display: flex; align-items: center; justify-content: center; margin: 2em 0; border-top: 2px dashed var(--accent-signal); height: 0; }
+.course-paywall-label { position: relative; top: -0.05em; transform: translateY(-50%); background: var(--bg); color: var(--accent-signal); font-size: 12px; font-weight: 700; padding: 0.1em 0.9em; border: 1.5px solid var(--accent-signal); border-radius: 999px; }
+.course-paywall-remove, .course-node-remove { position: absolute; right: 0; transform: translateY(-50%); width: 22px; height: 22px; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); font-size: 14px; line-height: 1; }
+.course-node-remove { top: 8px; right: 8px; transform: none; z-index: 2; }
+.course-paywall-editor.ProseMirror-selectednode .course-paywall-label { background: var(--accent-signal); color: #fff; }
+
+/* エディタだけの調整 */
+.course-editor-area { outline: none; min-height: 50vh; padding-bottom: 30vh; }
+.course-editor-area p.is-editor-empty:first-child::before { content: attr(data-placeholder); color: var(--text-dim); float: left; height: 0; pointer-events: none; }

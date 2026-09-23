@@ -38,6 +38,7 @@
 | `add_tips_and_notes.sql` | 使い方のコツ投稿・チップ（後から足したもの） |
 | `add_tool_video_url.sql` | 商品ページの紹介動画（後から足したもの） |
 | `create_tool_access_urls.sql` | クラウド型ツールのURLを購入者限定で保管（後から足したもの） |
+| `create_academy_courses.sql` | BuildBay Academy の講座（後から足したもの） |
 | `increment_install.sql` | ダウンロード数を加算する関数 |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
 
@@ -88,9 +89,10 @@
 27. `add_tips_and_notes.sql`
 28. `add_tool_video_url.sql`
 29. `create_tool_access_urls.sql`
-30. `increment_install.sql`
-31. `protect_tool_columns.sql`
-32. `grants.sql` ← **必ず最後**
+30. `create_academy_courses.sql`
+31. `increment_install.sql`
+32. `protect_tool_columns.sql`
+33. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」
