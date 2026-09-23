@@ -169,6 +169,7 @@ export default async function ToolDetailPage({
   if (!result) notFound();
   const { tool, related, isDemo, status, rejectionReason, authorId } = result;
   const t = await getTranslations("toolDetail");
+  const tCommon = await getTranslations("common");
   const tCategories = await getTranslations("categories");
 
   // ログイン状態と購入状態を取得する
@@ -188,6 +189,7 @@ export default async function ToolDetailPage({
     { data: reviewRows },
     { data: questionRows },
     { data: versionRows },
+    { data: relatedRows },
   ] = await Promise.all([
     user && !isDemo
       ? supabase
@@ -232,7 +234,52 @@ export default async function ToolDetailPage({
           .order("created_at", { ascending: false })
           .limit(20)
       : Promise.resolve({ data: null }),
+    // 「このツールを買った人はこれも」。購買履歴は他人のものを直接読めないため、
+    // 集計結果だけを返す専用の関数を経由する（誰が買ったかは一切返らない）。
+    !isDemo
+      ? supabase.rpc("get_related_tools", { p_tool_id: tool.id, p_limit: 4 })
+      : Promise.resolve({ data: null }),
   ]);
+
+  // 関連ツールの本体を取得する（RPCはIDと件数しか返さないため）
+  const relatedIds = (relatedRows ?? []).map(
+    (r: { tool_id: string }) => r.tool_id
+  );
+  let relatedTools: Tool[] = [];
+  if (relatedIds.length > 0) {
+    const { data: relatedToolRows } = await supabase
+      .from("tools")
+      .select("*, profiles:author_id(display_name, handle)")
+      .in("id", relatedIds)
+      .eq("status", "published");
+
+    const mapped = (relatedToolRows ?? []).map((r) => ({
+      id: r.id,
+      slug: r.slug,
+      name: r.name,
+      tagline: r.tagline,
+      description: r.description,
+      category: r.category,
+      categories: r.categories?.length ? r.categories : [r.category],
+      price: r.price,
+      version: r.version,
+      installs: r.install_count,
+      likes: r.like_count,
+      views: r.view_count,
+      author: {
+        name: r.profiles?.display_name || tCommon("unnamedDeveloper"),
+        handle: r.profiles?.handle ? `@${r.profiles.handle}` : "",
+      },
+      tags: r.tags || [],
+      updatedAt: (r.updated_at || "").slice(0, 10),
+      runtime: r.runtime,
+      thumbnailUrl: r.thumbnail_url || null,
+      salePrice: r.sale_price ?? null,
+      saleEndsAt: r.sale_ends_at ?? null,
+      isWip: r.is_wip ?? false,
+    }));
+    relatedTools = await applyToolTranslations(supabase, mapped, locale);
+  }
 
   const isPurchased = Boolean(purchase);
   const isLiked = Boolean(like);
@@ -378,13 +425,16 @@ export default async function ToolDetailPage({
               {/* Tags */}
               <section className="mb-8">
                 <div className="flex flex-wrap gap-2">
+                  {/* タグは、同じタグを持つツールの検索結果へ繋ぐ。
+                      タグはこれまで表示されるだけで、辿る導線が無かった */}
                   {tool.tags.map((tag) => (
-                    <span
+                    <Link
                       key={tag}
-                      className="rounded-full border border-border px-3 py-1 text-[12px] text-text-secondary"
+                      href={`/browse?q=${encodeURIComponent(tag)}`}
+                      className="rounded-full border border-border px-3 py-1 text-[12px] text-text-secondary transition hover:border-border-strong hover:bg-surface hover:text-text-primary"
                     >
                       #{tag}
-                    </span>
+                    </Link>
                   ))}
                 </div>
               </section>
@@ -421,6 +471,20 @@ export default async function ToolDetailPage({
                           {v.changelog}
                         </p>
                       </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* このツールを買った人はこれも */}
+              {relatedTools.length > 0 && (
+                <div className="mt-8">
+                  <h2 className="mb-4 font-display text-lg font-semibold text-text-primary">
+                    {t("relatedTools")}
+                  </h2>
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    {relatedTools.map((rt) => (
+                      <ToolCard key={rt.id} tool={rt} />
                     ))}
                   </div>
                 </div>
