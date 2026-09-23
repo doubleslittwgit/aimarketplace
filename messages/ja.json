@@ -111,7 +111,8 @@
     "adminReports": "通報の確認（管理者）",
     "logout": "ログアウト",
     "unnamedUser": "未設定のユーザー",
-    "adminRefundRequests": "返金・トラブル報告（管理者）"
+    "adminRefundRequests": "返金・トラブル報告（管理者）",
+    "adminDashboard": "管理ダッシュボード"
   },
   "notifications": {
     "title": "通知",

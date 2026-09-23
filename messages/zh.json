@@ -111,7 +111,8 @@
     "adminReports": "檢舉處理（管理員）",
     "logout": "登出",
     "unnamedUser": "未設定使用者",
-    "adminRefundRequests": "退款／問題回報（管理員）"
+    "adminRefundRequests": "退款／問題回報（管理員）",
+    "adminDashboard": "管理儀表板"
   },
   "notifications": {
     "title": "通知",

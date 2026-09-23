@@ -111,7 +111,8 @@
     "adminReports": "Review reports (admin)",
     "logout": "Log out",
     "unnamedUser": "Unnamed user",
-    "adminRefundRequests": "Refund requests (admin)"
+    "adminRefundRequests": "Refund requests (admin)",
+    "adminDashboard": "Admin dashboard"
   },
   "notifications": {
     "title": "Notifications",

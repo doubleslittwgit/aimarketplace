@@ -106,26 +106,14 @@ export default function UserMenu({ email, displayName, avatarUrl, isAdmin }: Pro
           {isAdmin && (
             <>
               <div className="my-1.5 border-t border-border" />
+              {/* 管理メニューは、未対応件数をまとめて見られるダッシュボードに集約した。
+                  個別ページへはそこから辿れる */}
               <Link
-                href="/admin/review"
+                href="/admin"
                 className="block px-3.5 py-2 text-[13px] text-accent-ai hover:bg-surface-raised"
                 onClick={() => setOpen(false)}
               >
-                {t("adminReview")}
-              </Link>
-              <Link
-                href="/admin/reports"
-                className="block px-3.5 py-2 text-[13px] text-accent-ai hover:bg-surface-raised"
-                onClick={() => setOpen(false)}
-              >
-                {t("adminReports")}
-              </Link>
-              <Link
-                href="/admin/refund-requests"
-                className="block px-3.5 py-2 text-[13px] text-accent-ai hover:bg-surface-raised"
-                onClick={() => setOpen(false)}
-              >
-                {t("adminRefundRequests")}
+                {t("adminDashboard")}
               </Link>
             </>
           )}

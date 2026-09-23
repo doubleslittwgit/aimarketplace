@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { formatPrice } from "@/lib/mock-data";
@@ -60,6 +61,12 @@ export default function AdminReviewClient({
   return (
     <main className="flex-1">
       <div className="mx-auto max-w-3xl px-6 py-10">
+        <Link
+          href="/admin"
+          className="mb-3 inline-flex items-center gap-1 text-[12px] text-text-muted transition hover:text-text-primary"
+        >
+          ← 管理ダッシュボード
+        </Link>
         <h1 className="mb-1 font-display text-2xl font-semibold text-text-primary">
           {t("reviewTitle")}
         </h1>
