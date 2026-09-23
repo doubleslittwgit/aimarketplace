@@ -106,12 +106,6 @@ export default async function Header() {
           >
             {t("academy")}
           </Link>
-          <Link
-            href="/submit"
-            className="hidden text-text-secondary transition hover:text-text-primary sm:block"
-          >
-            {t("submit")}
-          </Link>
 
           <LanguageSwitcher />
 
