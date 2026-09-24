@@ -268,15 +268,23 @@ export default async function Home() {
             />
 
             <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center text-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/logo.png"
-                alt="BuildBay"
-                className="h-32 w-auto drop-shadow-[0_0_18px_rgba(255,255,255,0.9)] sm:h-48 sm:drop-shadow-none md:h-56 lg:h-64"
-              />
+              {/* スマホでは背後の商品カードと重なるため、ロゴ・見出し・説明文の後ろに
+                  白いマスクを敷く。カードが見えなくならないよう、各要素の形にぴったり沿わせ、
+                  はみ出すのは縁のぼかし分（十数px）だけにしている。
+                  ロゴ画像は上に約18%・下に約26%の透明な余白があるので、絵のある範囲に合わせる */}
+              <span className="relative inline-block">
+                <span aria-hidden className="pointer-events-none absolute rounded-3xl bg-bg shadow-[0_0_14px_10px_var(--bg)] sm:hidden -inset-x-2 top-[15%] bottom-[23%]" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/logo.png"
+                  alt="BuildBay"
+                  className="relative h-32 w-auto drop-shadow-[0_0_18px_rgba(255,255,255,0.9)] sm:h-48 sm:drop-shadow-none md:h-56 lg:h-64"
+                />
+              </span>
 
               <HeroHeading />
-              <p className="mt-6 max-w-[15rem] text-base leading-relaxed text-text-secondary [text-shadow:0_0_14px_rgba(255,255,255,0.95)] sm:max-w-md sm:text-lg sm:[text-shadow:none]">
+              <p className="relative isolate mt-6 max-w-[15rem] text-base leading-relaxed text-text-secondary [text-shadow:0_0_14px_rgba(255,255,255,0.95)] sm:max-w-md sm:text-lg sm:[text-shadow:none]">
+                <span aria-hidden className="pointer-events-none absolute rounded-3xl bg-bg shadow-[0_0_14px_10px_var(--bg)] sm:hidden -inset-x-3 -inset-y-1 -z-10" />
                 {t("heroSubcopy")}
               </p>
 

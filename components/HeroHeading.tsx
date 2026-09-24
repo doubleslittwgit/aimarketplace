@@ -28,7 +28,9 @@ export default function HeroHeading() {
   });
 
   return (
-    <h1 className="mt-8 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-text-primary [text-shadow:0_0_20px_rgba(255,255,255,0.95),0_0_36px_rgba(255,255,255,0.85)] sm:text-[4rem] sm:[text-shadow:none] md:text-[4.5rem]">
+    <h1 className="relative isolate mt-8 font-display text-3xl font-semibold leading-[1.1] tracking-tight text-text-primary [text-shadow:0_0_20px_rgba(255,255,255,0.95),0_0_36px_rgba(255,255,255,0.85)] sm:text-[4rem] sm:[text-shadow:none] md:text-[4.5rem]">
+      {/* スマホでは背後の商品カードと重なるため、見出しの形に沿った白いマスクを敷く（トップページのロゴ・説明文と同じ） */}
+      <span aria-hidden className="pointer-events-none absolute rounded-3xl bg-bg shadow-[0_0_14px_10px_var(--bg)] sm:hidden -inset-x-2 -inset-y-1 -z-10" />
       {t("heroPrefix")}
       <HighlightWord text={t("heroHighlight")} active={isEmpty} />
       {t("heroConnector")}
