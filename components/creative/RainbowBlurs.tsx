@@ -6,17 +6,20 @@
  *
  * 親要素に relative と overflow-hidden を付けて使うこと。
  */
+// スマホ（sm未満）は、小さな色の「かたまり」を端と角に散らし、中央に白を残す。
+// パソコンと同じ大きさのまま狭い画面に置くと、ぼかし同士が重なって画面全体が
+// 色で塗りつぶされてしまうため（実際にそうなっていた）。sm以上は従来の配置。
 const BLURS = [
-  { c: "#e91ecf", cls: "-left-24 -top-28 h-[26rem] w-[26rem] opacity-30" },
-  { c: "#ff2d55", cls: "left-[22%] -top-40 h-80 w-80 opacity-25" },
-  { c: "#ff8a00", cls: "left-[42%] top-[-6rem] h-72 w-72 opacity-25" },
-  { c: "#ffd400", cls: "right-[24%] -top-24 h-80 w-80 opacity-30" },
-  { c: "#34d399", cls: "-right-20 top-[18%] h-96 w-96 opacity-25" },
-  { c: "#06b6d4", cls: "right-[12%] bottom-[-8rem] h-[24rem] w-[24rem] opacity-30" },
-  { c: "#3b5bff", cls: "left-[34%] bottom-[-10rem] h-[26rem] w-[26rem] opacity-25" },
-  { c: "#a855f7", cls: "-left-16 bottom-[-6rem] h-80 w-80 opacity-25" },
-  { c: "#ff4fa3", cls: "left-[60%] top-[30%] h-56 w-56 opacity-20" },
-  { c: "#22d3ee", cls: "left-[8%] top-[38%] h-48 w-48 opacity-20" },
+  { c: "#e91ecf", cls: "-left-12 -top-12 h-44 w-44 opacity-[0.6] sm:opacity-30 sm:-left-24 sm:-top-28 sm:h-[26rem] sm:w-[26rem]" },
+  { c: "#ff2d55", cls: "hidden sm:block sm:left-[22%] sm:-top-40 sm:h-80 sm:w-80 opacity-25" },
+  { c: "#ff8a00", cls: "left-[55%] -top-10 h-32 w-32 opacity-[0.6] sm:opacity-25 sm:left-[42%] sm:top-[-6rem] sm:h-72 sm:w-72" },
+  { c: "#ffd400", cls: "-right-8 top-[20%] h-32 w-32 opacity-[0.6] sm:opacity-30 sm:right-[24%] sm:-top-24 sm:h-80 sm:w-80" },
+  { c: "#34d399", cls: "-right-12 top-[48%] h-36 w-36 opacity-[0.6] sm:opacity-25 sm:-right-20 sm:top-[18%] sm:h-96 sm:w-96" },
+  { c: "#06b6d4", cls: "right-[5%] -bottom-12 h-40 w-40 opacity-[0.6] sm:opacity-30 sm:right-[12%] sm:bottom-[-8rem] sm:h-[24rem] sm:w-[24rem]" },
+  { c: "#3b5bff", cls: "-left-12 bottom-[12%] h-36 w-36 opacity-[0.6] sm:opacity-25 sm:left-[34%] sm:bottom-[-10rem] sm:h-[26rem] sm:w-[26rem]" },
+  { c: "#a855f7", cls: "hidden sm:block sm:-left-16 sm:bottom-[-6rem] sm:h-80 sm:w-80 opacity-25" },
+  { c: "#ff4fa3", cls: "hidden sm:block sm:left-[60%] sm:top-[30%] sm:h-56 sm:w-56 opacity-20" },
+  { c: "#22d3ee", cls: "hidden sm:block sm:left-[8%] sm:top-[38%] sm:h-48 sm:w-48 opacity-20" },
 ];
 
 export default function RainbowBlurs({ subtle = false }: { subtle?: boolean }) {
@@ -25,7 +28,7 @@ export default function RainbowBlurs({ subtle = false }: { subtle?: boolean }) {
       {BLURS.map((b, i) => (
         <div
           key={i}
-          className={`absolute rounded-full blur-[100px] ${b.cls}`}
+          className={`absolute rounded-full blur-[40px] sm:blur-[100px] ${b.cls}`}
           // 商品ページでは本文を読みやすくするため、少し控えめにする
           style={{ backgroundColor: b.c, ...(subtle ? { opacity: 0.16 } : {}) }}
         />
