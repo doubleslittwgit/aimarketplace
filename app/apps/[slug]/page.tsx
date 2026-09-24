@@ -24,7 +24,7 @@ import RainbowBlurs from "@/components/creative/RainbowBlurs";
 import { categoryToSlug } from "@/lib/category-slugs";
 import { applyToolTranslations, applyReviewTranslations } from "@/lib/apply-translations";
 import type { Locale } from "@/i18n/config";
-import { getToolBySlug, tools as mockTools, formatInstalls, type Tool } from "@/lib/mock-data";
+import { formatInstalls, type Tool } from "@/lib/mock-data";
 
 async function loadTool(
   slug: string,
@@ -130,18 +130,12 @@ async function loadTool(
         saleEndsAt: r.sale_ends_at ?? null,
       })) || [];
 
-    // 実際の出品がまだ少ない間は、デモ用のツールで欄を埋める
-    const filler = mockTools.filter((t) => t.slug !== slug).slice(0, 3 - related.length);
-
-    // 翻訳の適用はDBに実体があるもの（tool・related）だけに行う。
-    // filler（デモ用モックデータ）はDBに行が無く、翻訳を保存しようとすると
-    // 外部キー制約に違反するため対象外にする。
     const [translatedTool] = await applyToolTranslations(supabase, [tool], locale);
     const translatedRelated = await applyToolTranslations(supabase, related, locale);
 
     return {
       tool: translatedTool,
-      related: [...translatedRelated, ...filler],
+      related: translatedRelated,
       isDemo: false,
       status: row.status,
       rejectionReason: row.rejection_reason ?? null,
@@ -149,18 +143,8 @@ async function loadTool(
     };
   }
 
-  // データベースに無ければ、デモ用のモックデータにフォールバックする
-  const mockTool = getToolBySlug(slug);
-  if (!mockTool) return null;
-
-  return {
-    tool: mockTool,
-    related: mockTools.filter((t) => t.id !== mockTool.id).slice(0, 3),
-    isDemo: true,
-    status: "published",
-    rejectionReason: null,
-    authorId: null,
-  };
+  // 架空のデモ用ツールにはフォールバックしない（DBに無ければ404）
+  return null;
 }
 
 export default async function ToolDetailPage({
@@ -641,17 +625,19 @@ export default async function ToolDetailPage({
             </div>
           </div>
 
-          {/* Related tools */}
-          <section className="mt-16 border-t border-border pt-10">
-            <h2 className="mb-5 font-display text-lg font-semibold text-text-primary">
-              {t("relatedTools")}
-            </h2>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-              {related.map((t) => (
-                <ToolCard key={t.id} tool={t} />
-              ))}
-            </div>
-          </section>
+          {/* Related tools（他に公開中のツールが無ければ欄ごと出さない） */}
+          {related.length > 0 && (
+            <section className="mt-16 border-t border-border pt-10">
+              <h2 className="mb-5 font-display text-lg font-semibold text-text-primary">
+                {t("relatedTools")}
+              </h2>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+                {related.map((t) => (
+                  <ToolCard key={t.id} tool={t} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </main>
 

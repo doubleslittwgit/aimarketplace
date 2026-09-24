@@ -153,10 +153,12 @@
     "heroSubcopy": "Publish tools you built with AI — free or paid, your call.",
     "ctaPublish": "Publish a tool",
     "ctaBrowse": "Browse the market",
-    "statPublished": "Published tools",
-    "statDevelopers": "Developers",
-    "statDownloads": "Total downloads",
     "statPayoutRate": "Developer payout rate",
+    "statListingFee": "Listing fee",
+    "statLanguagesValue": "3 languages",
+    "statLanguages": "Auto-translated listings",
+    "statReviewValue": "AI + human",
+    "statReview": "Every tool reviewed",
     "categoryAll": "All",
     "browseHeading": "Browse tools",
     "browseHeadingSub": "Find the right tool by category",
@@ -169,13 +171,12 @@
     "onSale": "On sale"
   },
   "activity": {
-    "purchased": "{by} bought {tool} for {price}",
-    "published": "{by} published {tool}",
-    "updated": "{by} updated {tool} to {version}",
-    "userTaipei": "a user in Taipei",
-    "userTokyo": "a user in Tokyo",
-    "userOsaka": "a user in Osaka",
-    "userTaichung": "a user in Taichung"
+    "published": "{by} published “{tool}”",
+    "coursePublished": "{by} published the course “{course}”",
+    "updated": "“{tool}” was updated to {version}",
+    "purchased": "Someone bought “{tool}”",
+    "downloaded": "Someone downloaded “{tool}”",
+    "coursePurchased": "Someone bought the course “{course}”"
   },
   "browse": {
     "title": "Browse tools",

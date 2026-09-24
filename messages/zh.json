@@ -153,10 +153,12 @@
     "heroSubcopy": "把你用 AI 打造的工具，免費或付費公開販售。",
     "ctaPublish": "上架工具",
     "ctaBrowse": "瀏覽市集",
-    "statPublished": "已上架工具",
-    "statDevelopers": "開發者",
-    "statDownloads": "累計下載",
     "statPayoutRate": "開發者分潤比例",
+    "statListingFee": "上架費用",
+    "statLanguagesValue": "3 種語言",
+    "statLanguages": "工具說明自動翻譯",
+    "statReviewValue": "AI＋人工",
+    "statReview": "上架前全數審查",
     "categoryAll": "全部",
     "browseHeading": "探索工具",
     "browseHeadingSub": "從分類中，找到最適合你的工具",
@@ -169,13 +171,12 @@
     "onSale": "限時促銷"
   },
   "activity": {
-    "purchased": "{by} 以 {price} 購買了 {tool}",
-    "published": "{by} 上架了 {tool}",
-    "updated": "{by} 將 {tool} 更新至 {version}",
-    "userTaipei": "台北的使用者",
-    "userTokyo": "東京的使用者",
-    "userOsaka": "大阪的使用者",
-    "userTaichung": "台中的使用者"
+    "published": "{by} 上架了「{tool}」",
+    "coursePublished": "{by} 發布了課程「{course}」",
+    "updated": "「{tool}」已更新至 {version}",
+    "purchased": "「{tool}」被購買了",
+    "downloaded": "「{tool}」被下載了",
+    "coursePurchased": "課程「{course}」被購買了"
   },
   "browse": {
     "title": "探索工具",

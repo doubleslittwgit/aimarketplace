@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ALL_CATEGORIES_VALUE } from "@/lib/category-slugs";
 import { applyToolTranslations } from "@/lib/apply-translations";
 import type { Locale } from "@/i18n/config";
-import { tools as mockTools, type Tool } from "@/lib/mock-data";
+import type { Tool } from "@/lib/mock-data";
 
 async function loadRealTools(locale: Locale): Promise<Tool[]> {
   const tCommon = await getTranslations("common");
@@ -45,7 +45,6 @@ async function loadRealTools(locale: Locale): Promise<Tool[]> {
       isWip: r.is_wip ?? false,
     })) || [];
 
-  // デモ用のmockToolsはDBに実体が無いので、この時点（実データのみ）で翻訳を適用する
   return applyToolTranslations(supabase, tools, locale);
 }
 
@@ -57,8 +56,8 @@ export default async function BrowsePage({
   const { q, category } = await searchParams;
   const locale = (await getLocale()) as Locale;
   const realTools = await loadRealTools(locale);
-  // 実際の出品を先頭に、デモ用のツールをその後ろに並べる
-  const allTools = [...realTools, ...mockTools];
+  // 実際に公開されているツールだけを並べる（架空のデモ用ツールは混ぜない）
+  const allTools = realTools;
 
   return (
     <>

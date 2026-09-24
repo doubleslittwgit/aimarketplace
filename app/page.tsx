@@ -18,7 +18,6 @@ import { COURSE_CATEGORIES, CATEGORY_ICONS } from "@/lib/academy/categories";
 import AcademyBlurs from "@/components/academy/AcademyBlurs";
 import type { Locale } from "@/i18n/config";
 import {
-  tools as mockTools,
   categories,
   formatInstalls,
   formatPrice,
@@ -124,8 +123,8 @@ export default async function Home() {
   const feedPreview = feedResult.posts.slice(0, 3);
   const requestsPreview = requestsResult.requests.slice(0, 3);
 
-  // 実際の出品を先頭に、足りない分をデモ用ツールで埋める（最大6件表示）
-  const tools = [...realTools, ...mockTools].slice(0, 6);
+  // 実際に公開されているツールだけを表示する（架空のデモ用ツールでは埋めない）
+  const tools = realTools;
   // ヒーローで浮かせる4件（新着ツールと重複してよい紹介枠）
   const floatTools = tools.slice(0, 4);
 
@@ -313,10 +312,12 @@ export default async function Home() {
             </div>
 
             <div className="relative z-10 mx-auto mt-6 grid max-w-2xl grid-cols-4 gap-x-2 font-mono text-sm xl:flex xl:max-w-none xl:flex-wrap xl:justify-center xl:gap-x-12 xl:gap-y-5 xl:border-t xl:border-border xl:pt-9 xl:mt-24">
-              <Stat label={t("statPublished")} value={`${mockTools.length * 253 + realTools.length}+`} />
-              <Stat label={t("statDevelopers")} value="480+" />
-              <Stat label={t("statDownloads")} value="52.3k" />
+              {/* 架空の実績数字（公開数・開発者数・DL数）は景品表示法上のリスクがあるため置かない。
+                  代わりに、仕組みとして事実として約束できることだけを並べる */}
               <Stat label={t("statPayoutRate")} value="80%" accent />
+              <Stat label={t("statListingFee")} value="¥0" />
+              <Stat label={t("statLanguages")} value={t("statLanguagesValue")} />
+              <Stat label={t("statReview")} value={t("statReviewValue")} />
             </div>
           </div>
         </section>
@@ -377,23 +378,25 @@ export default async function Home() {
           </section>
         )}
 
-        {/* Listing */}
-        <section className="mx-auto max-w-7xl px-6 py-14">
-          <div className="mb-6 flex items-baseline justify-between">
-            <h2 className="font-display text-3xl font-semibold text-text-primary sm:text-4xl">
-              {t("newTools")}
-            </h2>
-            <a href="/browse" className="text-[13px] text-text-muted hover:text-text-primary">
-              {t("viewAll")}
-            </a>
-          </div>
+        {/* Listing（公開中のツールが1件も無いときは欄ごと出さない） */}
+        {tools.length > 0 && (
+          <section className="mx-auto max-w-7xl px-6 py-14">
+            <div className="mb-6 flex items-baseline justify-between">
+              <h2 className="font-display text-3xl font-semibold text-text-primary sm:text-4xl">
+                {t("newTools")}
+              </h2>
+              <a href="/browse" className="text-[13px] text-text-muted hover:text-text-primary">
+                {t("viewAll")}
+              </a>
+            </div>
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {tools.map((tool) => (
-              <ToolCard key={tool.id} tool={tool} />
-            ))}
-          </div>
-        </section>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {tools.map((tool) => (
+                <ToolCard key={tool.id} tool={tool} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* BuildBay Creativeへの導線。Creativeページと同じ「白地に虹色のぼかし＋ロゴ」で、
             BuildBay本体と地続きのまま「この先はCreativeの場所」だと分かるようにする */}

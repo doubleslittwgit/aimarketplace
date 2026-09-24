@@ -153,10 +153,12 @@
     "heroSubcopy": "AIを活用して開発したツールを、無料でも有料でも公開・販売。",
     "ctaPublish": "ツールを公開する",
     "ctaBrowse": "マーケットを見る",
-    "statPublished": "公開ツール",
-    "statDevelopers": "開発者",
-    "statDownloads": "累計ダウンロード",
     "statPayoutRate": "開発者への還元率",
+    "statListingFee": "出品・掲載料",
+    "statLanguagesValue": "3言語",
+    "statLanguages": "ツール説明を自動翻訳",
+    "statReviewValue": "AI＋人の目",
+    "statReview": "公開前に全件審査",
     "categoryAll": "すべて",
     "browseHeading": "ツールを探す",
     "browseHeadingSub": "カテゴリから、目的に合ったツールを見つける",
@@ -169,13 +171,12 @@
     "onSale": "セール中"
   },
   "activity": {
-    "purchased": "{by}さんが{tool}を{price}で購入",
-    "published": "{by}さんが{tool}を公開",
-    "updated": "{by}さんが{tool}を{version}に更新",
-    "userTaipei": "台北のユーザー",
-    "userTokyo": "東京のユーザー",
-    "userOsaka": "大阪のユーザー",
-    "userTaichung": "台中のユーザー"
+    "published": "{by}さんが「{tool}」を公開",
+    "coursePublished": "{by}さんが講座「{course}」を公開",
+    "updated": "「{tool}」が{version}に更新",
+    "purchased": "「{tool}」が購入されました",
+    "downloaded": "「{tool}」がダウンロードされました",
+    "coursePurchased": "講座「{course}」が購入されました"
   },
   "browse": {
     "title": "ツールを探す",
