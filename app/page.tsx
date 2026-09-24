@@ -106,6 +106,29 @@ async function loadSaleTools(locale: Locale): Promise<Tool[]> {
   return applyToolTranslations(supabase, tools, locale);
 }
 
+/**
+ * ヒーロー下に出す実績の数字。すべてDBの実データから数える（架空の数字は出さない）。
+ * - 公開ツール数 / 開発者数（公開中ツールを持つ出品者の人数） / 累計ダウンロード数
+ */
+async function loadSiteStats() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("tools")
+    .select("author_id, install_count")
+    .eq("status", "published");
+  const rows = data ?? [];
+  return {
+    tools: rows.length,
+    developers: new Set(rows.map((r) => r.author_id)).size,
+    downloads: rows.reduce((sum, r) => sum + (r.install_count ?? 0), 0),
+  };
+}
+
+function formatStat(n: number, locale: string) {
+  const intlLocale = ({ ja: "ja-JP", zh: "zh-TW", en: "en-US" } as Record<string, string>)[locale] ?? "ja-JP";
+  return new Intl.NumberFormat(intlLocale, n >= 10000 ? { notation: "compact", maximumFractionDigits: 1 } : {}).format(n);
+}
+
 export default async function Home() {
   const t = await getTranslations("home");
   const tCreative = await getTranslations("creativeHome");
@@ -114,11 +137,12 @@ export default async function Home() {
   const tCommon = await getTranslations("common");
   const locale = (await getLocale()) as Locale;
 
-  const [realTools, saleTools, feedResult, requestsResult] = await Promise.all([
+  const [realTools, saleTools, feedResult, requestsResult, stats] = await Promise.all([
     loadRealTools(locale),
     loadSaleTools(locale),
     fetchFeedPosts({ mode: "all" }),
     fetchRequests({ sort: "top" }),
+    loadSiteStats(),
   ]);
   const feedPreview = feedResult.posts.slice(0, 3);
   const requestsPreview = requestsResult.requests.slice(0, 3);
@@ -312,12 +336,11 @@ export default async function Home() {
             </div>
 
             <div className="relative z-10 mx-auto mt-6 grid max-w-2xl grid-cols-4 gap-x-2 font-mono text-sm xl:flex xl:max-w-none xl:flex-wrap xl:justify-center xl:gap-x-12 xl:gap-y-5 xl:border-t xl:border-border xl:pt-9 xl:mt-24">
-              {/* 架空の実績数字（公開数・開発者数・DL数）は景品表示法上のリスクがあるため置かない。
-                  代わりに、仕組みとして事実として約束できることだけを並べる */}
+              {/* 数字はすべてDBの実データ（架空の数字は景品表示法上のリスクがあるため使わない） */}
+              <Stat label={t("statPublished")} value={formatStat(stats.tools, locale)} />
+              <Stat label={t("statDevelopers")} value={formatStat(stats.developers, locale)} />
+              <Stat label={t("statDownloads")} value={formatStat(stats.downloads, locale)} />
               <Stat label={t("statPayoutRate")} value="80%" accent />
-              <Stat label={t("statListingFee")} value="¥0" />
-              <Stat label={t("statLanguages")} value={t("statLanguagesValue")} />
-              <Stat label={t("statReview")} value={t("statReviewValue")} />
             </div>
           </div>
         </section>
