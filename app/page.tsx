@@ -332,15 +332,23 @@ export default async function Home() {
             <p className="mt-2 text-[14px] text-text-muted">
               {t("browseHeadingSub")}
             </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              <CategoryPill label={t("categoryAll")} href="/browse" active />
-              {categories.map((c) => (
-                <CategoryPill
-                  key={c}
-                  label={tCategories(categoryToSlug(c))}
-                  href={`/browse?category=${encodeURIComponent(c)}`}
-                />
-              ))}
+            {/* スマホでは27個が縦に10行以上並んでしまうため、3段に並べて横にスワイプする形にする。
+                右端をフェードさせ、横に続きがあることが分かるようにしている。PCは従来どおり折り返し */}
+            <div className="relative -mx-6 mt-5 sm:mx-0">
+              <div className="grid auto-cols-max grid-flow-col grid-rows-3 gap-2 overflow-x-auto px-6 pb-1 [scrollbar-width:none] sm:flex sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
+                <CategoryPill label={t("categoryAll")} href="/browse" active />
+                {categories.map((c) => (
+                  <CategoryPill
+                    key={c}
+                    label={tCategories(categoryToSlug(c))}
+                    href={`/browse?category=${encodeURIComponent(c)}`}
+                  />
+                ))}
+              </div>
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-bg to-transparent sm:hidden"
+              />
             </div>
           </div>
         </section>
@@ -742,7 +750,7 @@ function CategoryPill({
   return (
     <Link
       href={href}
-      className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-1.5 text-[13px] transition ${
+      className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-[12px] transition sm:px-4 sm:py-1.5 sm:text-[13px] ${
         active
           ? "border-accent-signal/40 bg-accent-signal-dim text-accent-signal"
           : "border-border text-text-secondary hover:border-border-strong hover:text-text-primary"
