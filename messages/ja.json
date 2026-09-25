@@ -453,7 +453,8 @@
     "notFound": "ユーザーが見つかりませんでした",
     "backToBrowse": "ツールを探す",
     "avatarUploadFailed": "画像のアップロードに失敗しました: {message}",
-    "displayNameRequired": "表示名を入力してください"
+    "displayNameRequired": "表示名を入力してください",
+    "publishedCourses": "公開中の講座"
   },
   "feed": {
     "pageTitle": "フィード",
@@ -619,7 +620,10 @@
     "coursePendingNotice": "審査中です。結果はお知らせで届きます。",
     "preview": "プレビュー",
     "boughtCourses": "購入した講座",
-    "readCourse": "読む"
+    "readCourse": "読む",
+    "courseReadPercent": "{n}% 読了",
+    "courseFinished": "読了",
+    "continueCourse": "続きを読む"
   },
   "auth": {
     "loginRequiredTitle": "ログインが必要です",
@@ -1015,6 +1019,10 @@
     "coursePurchaseReceipt": {
       "title": "講座「{title}」のご購入ありがとうございます",
       "body": "{price}のお支払いが完了しました。講座ページで、有料部分を含む全文をいつでも読めます。"
+    },
+    "courseNewReview": {
+      "title": "講座「{title}」に新しいレビューがつきました",
+      "body": "評価: {stars}"
     }
   },
   "refundRequest": {
@@ -1128,6 +1136,7 @@
     "back": "戻る",
     "saving": "保存中…",
     "unsaved": "未保存の変更があります",
+    "unsavedAuto": "編集中…（自動で保存されます）",
     "saveDraft": "下書き保存",
     "submit": "審査に出す",
     "uploading": "アップロード中…",
@@ -1175,6 +1184,7 @@
       "home": "Academyトップへ"
     },
     "savedAt": "保存 {time}",
+    "autoSavedAt": "自動保存 {time}",
     "saveFailedShort": "⚠️ 保存できませんでした",
     "alreadyInReview": "この講座はすでに審査中です。内容の変更は保存し、審査には最新の内容が使われます。",
     "celebrate": {
@@ -1243,7 +1253,9 @@
       "resultsFor": "「{q}」の講座",
       "categoryResults": "{name}の講座",
       "clearFilter": "条件をクリア",
-      "noResults": "条件に合う講座はまだありません。"
+      "noResults": "条件に合う講座はまだありません。",
+      "topRatedTitle": "評価の高い講座",
+      "topRatedSub": "読んだ人のレビューで評価が高い講座"
     },
     "empty": {
       "title": "最初の講座を待っています",
@@ -1293,7 +1305,8 @@
       "tocOnly": "目次を公開中",
       "freeUntil": "第{n}章まで無料で読める",
       "introFree": "冒頭を無料で読める",
-      "chapters": "全{n}章"
+      "chapters": "全{n}章",
+      "ratingLabel": "5点中{avg}"
     },
     "categories": {
       "beginner": {
@@ -1381,6 +1394,39 @@
       "body": "有料部分を含む全文を、いつでも読めるようになりました。マイページの「購入した講座」からも開けます。",
       "read": "講座を読む",
       "toDashboard": "マイページへ"
+    },
+    "progress": {
+      "resumeFrom": "前回の続き：「{heading}」",
+      "resumeAt": "前回は {percent}% まで読みました",
+      "resume": "続きから読む",
+      "dismiss": "閉じる"
+    },
+    "reviews": {
+      "title": "レビュー",
+      "avgLabel": "5点中{avg}",
+      "count": "（{n}件）",
+      "yours": "あなたのレビュー",
+      "edit": "編集",
+      "delete": "削除",
+      "confirmDelete": "このレビューを削除しますか？",
+      "editTitle": "レビューを編集",
+      "writeTitle": "この講座のレビューを書く",
+      "ratingLabel": "評価",
+      "placeholder": "読んでみた感想（任意・1000文字まで）",
+      "submit": "投稿する",
+      "submitting": "投稿中…",
+      "cancel": "キャンセル",
+      "loginToReview": "ログインするとレビューを書けます",
+      "purchaseToReview": "購入すると、この講座のレビューを書けるようになります。",
+      "empty": "まだレビューはありません。",
+      "anonymous": "名前未設定のユーザー",
+      "errors": {
+        "login": "レビューを書くにはログインしてください。",
+        "notAllowed": "この講座にはレビューを書けません（有料講座は購入した人だけが書けます。作者本人は書けません）。",
+        "rating": "評価は1〜5の星で選んでください。",
+        "pickRating": "星をタップして評価を選んでください。",
+        "failed": "保存できませんでした：{message}"
+      }
     }
   },
   "creativeHome": {

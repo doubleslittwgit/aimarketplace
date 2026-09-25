@@ -453,7 +453,8 @@
     "notFound": "User not found",
     "backToBrowse": "Browse tools",
     "avatarUploadFailed": "Image upload failed: {message}",
-    "displayNameRequired": "Please enter a display name"
+    "displayNameRequired": "Please enter a display name",
+    "publishedCourses": "Published courses"
   },
   "feed": {
     "pageTitle": "Feed",
@@ -619,7 +620,10 @@
     "coursePendingNotice": "In review. You'll get a notification with the result.",
     "preview": "Preview",
     "boughtCourses": "Purchased courses",
-    "readCourse": "Read"
+    "readCourse": "Read",
+    "courseReadPercent": "{n}% read",
+    "courseFinished": "Finished",
+    "continueCourse": "Continue reading"
   },
   "auth": {
     "loginRequiredTitle": "Login required",
@@ -1015,6 +1019,10 @@
     "coursePurchaseReceipt": {
       "title": "Thanks for buying “{title}”",
       "body": "Your payment of {price} is complete. You can read the full course, paid sections included, anytime on the course page."
+    },
+    "courseNewReview": {
+      "title": "New review on your course “{title}”",
+      "body": "Rating: {stars}"
     }
   },
   "refundRequest": {
@@ -1128,6 +1136,7 @@
     "back": "Back",
     "saving": "Saving…",
     "unsaved": "Unsaved changes",
+    "unsavedAuto": "Editing… (saves automatically)",
     "saveDraft": "Save draft",
     "submit": "Submit for review",
     "uploading": "Uploading…",
@@ -1175,6 +1184,7 @@
       "home": "Academy home"
     },
     "savedAt": "Saved {time}",
+    "autoSavedAt": "Auto-saved {time}",
     "saveFailedShort": "⚠️ Couldn't save",
     "alreadyInReview": "This course is already in review. Your changes were saved, and the review will use the latest version.",
     "celebrate": {
@@ -1243,7 +1253,9 @@
       "resultsFor": "Courses matching “{q}”",
       "categoryResults": "{name} courses",
       "clearFilter": "Clear filters",
-      "noResults": "No courses match yet."
+      "noResults": "No courses match yet.",
+      "topRatedTitle": "Top-rated courses",
+      "topRatedSub": "Courses readers rated highly"
     },
     "empty": {
       "title": "Waiting for the first course",
@@ -1293,7 +1305,8 @@
       "tocOnly": "TOC is public",
       "freeUntil": "Free through chapter {n}",
       "introFree": "Opening is free",
-      "chapters": "{n} chapters"
+      "chapters": "{n} chapters",
+      "ratingLabel": "{avg} out of 5"
     },
     "categories": {
       "beginner": {
@@ -1381,6 +1394,39 @@
       "body": "The full course, paid sections included, is now yours to read anytime. You'll also find it under Purchased courses in your dashboard.",
       "read": "Start reading",
       "toDashboard": "Go to dashboard"
+    },
+    "progress": {
+      "resumeFrom": "Pick up where you left off: “{heading}”",
+      "resumeAt": "You read {percent}% last time",
+      "resume": "Continue reading",
+      "dismiss": "Dismiss"
+    },
+    "reviews": {
+      "title": "Reviews",
+      "avgLabel": "{avg} out of 5",
+      "count": "({n})",
+      "yours": "Your review",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Delete this review?",
+      "editTitle": "Edit your review",
+      "writeTitle": "Review this course",
+      "ratingLabel": "Rating",
+      "placeholder": "Your thoughts (optional, up to 1,000 characters)",
+      "submit": "Post",
+      "submitting": "Posting…",
+      "cancel": "Cancel",
+      "loginToReview": "Log in to write a review",
+      "purchaseToReview": "Buy this course to write a review.",
+      "empty": "No reviews yet.",
+      "anonymous": "Unnamed user",
+      "errors": {
+        "login": "Please log in to write a review.",
+        "notAllowed": "You can't review this course (paid courses can only be reviewed by buyers, and authors can't review their own).",
+        "rating": "Please choose 1 to 5 stars.",
+        "pickRating": "Tap the stars to choose a rating.",
+        "failed": "Couldn't save: {message}"
+      }
     }
   },
   "creativeHome": {

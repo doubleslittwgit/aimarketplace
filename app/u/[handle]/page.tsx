@@ -3,6 +3,8 @@ import { getTranslations, getLocale } from "next-intl/server";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ToolCard from "@/components/ToolCard";
+import CourseCard from "@/components/academy/CourseCard";
+import { loadCourses } from "@/lib/academy/load-courses";
 import ProfileHeader from "@/components/ProfileHeader";
 import { createClient } from "@/lib/supabase/server";
 import { applyToolTranslations } from "@/lib/apply-translations";
@@ -33,8 +35,14 @@ export default async function ProfilePage({
   } = await supabase.auth.getUser();
   const isOwner = user?.id === profile.id;
 
-  const [{ count: followerCount }, { count: followingCount }, followingRow, { data: rows }, { data: badgeStatsRows }] =
-    await Promise.all([
+  const [
+    { count: followerCount },
+    { count: followingCount },
+    followingRow,
+    { data: rows },
+    { data: badgeStatsRows },
+    courses,
+  ] = await Promise.all([
       supabase
         .from("follows")
         .select("follower_id", { count: "exact", head: true })
@@ -58,6 +66,8 @@ export default async function ProfilePage({
         .eq("status", "published")
         .order("created_at", { ascending: false }),
       supabase.rpc("get_seller_badge_stats", { p_user_id: profile.id }),
+      // BuildBay Academy で公開している講座
+      loadCourses({ authorId: profile.id, limit: 20 }),
     ]);
   const isFollowing = Boolean(followingRow?.data);
   const badgeStats = badgeStatsRows?.[0] ?? {
@@ -141,6 +151,22 @@ export default async function ProfilePage({
             </div>
           )}
         </section>
+
+        {/* BuildBay Academy で公開している講座（1件も無ければ欄ごと出さない） */}
+        {courses.length > 0 && (
+          <section className="mx-auto max-w-7xl px-6 pb-16">
+            <div className="mb-5 flex items-center gap-2.5">
+              <h2 className="font-display text-lg font-semibold text-text-primary">{t("publishedCourses")}</h2>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/academy-logo.png" alt="BuildBay Academy" width={1400} height={182} className="h-3.5 w-auto opacity-80" />
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+              {courses.map((c) => (
+                <CourseCard key={c.id} course={c} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
       <Footer />
     </>

@@ -111,6 +111,7 @@ export default async function DashboardPage() {
     { count: followerCount },
     { data: myCoursesData },
     { data: boughtCoursesData },
+    { data: progressData },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -157,6 +158,8 @@ export default async function DashboardPage() {
       .eq("buyer_id", user.id)
       .eq("status", "completed")
       .order("created_at", { ascending: false }),
+    // 講座をどこまで読んだか（「◯%読了」「続きを読む」の表示用）
+    supabase.from("course_progress").select("course_id, max_percent").eq("user_id", user.id),
   ]);
 
   const purchases = (purchasesData ?? []) as unknown as PurchaseRow[];
@@ -170,6 +173,9 @@ export default async function DashboardPage() {
     (refundRequestsData ?? []).map((r) => r.course_purchase_id).filter(Boolean)
   );
   const boughtCourses = (boughtCoursesData ?? []) as unknown as BoughtCourseRow[];
+  const readPercentByCourse = new Map(
+    (progressData ?? []).map((p) => [p.course_id as string, Number(p.max_percent)])
+  );
 
   const totalEarnings = sales.reduce((sum, s) => sum + s.seller_earnings, 0);
 
@@ -378,6 +384,21 @@ export default async function DashboardPage() {
                         <p className="mt-0.5 font-mono text-[11px] text-text-dim">
                           {formatPrice(bc.price_paid)} ・ {new Date(bc.created_at).toLocaleDateString(intlLocale)}
                         </p>
+                        {bc.courses && (readPercentByCourse.get(bc.courses.id) ?? 0) > 0 && (
+                          <div className="mt-1.5 flex items-center gap-2">
+                            <span className="h-1 w-24 overflow-hidden rounded-full bg-border">
+                              <span
+                                className="block h-full rounded-full bg-[#C9A227]"
+                                style={{ width: `${readPercentByCourse.get(bc.courses.id)}%` }}
+                              />
+                            </span>
+                            <span className="text-[11px] text-text-muted">
+                              {readPercentByCourse.get(bc.courses.id) === 100
+                                ? t("courseFinished")
+                                : t("courseReadPercent", { n: readPercentByCourse.get(bc.courses.id) ?? 0 })}
+                            </span>
+                          </div>
+                        )}
                         <ReportTroubleButton
                           purchaseId={bc.id}
                           toolName={bc.courses?.title ?? ""}
@@ -391,7 +412,10 @@ export default async function DashboardPage() {
                         href={`/academy/courses/${bc.courses.slug}`}
                         className="shrink-0 rounded-lg bg-accent-success px-3.5 py-2 text-[13px] font-medium text-white transition hover:brightness-105"
                       >
-                        {t("readCourse")}
+                        {(() => {
+                          const read = readPercentByCourse.get(bc.courses.id) ?? 0;
+                          return read > 0 && read < 100 ? t("continueCourse") : t("readCourse");
+                        })()}
                       </Link>
                     )}
                   </div>

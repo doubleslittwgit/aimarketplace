@@ -1,99 +1,16 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import CourseCard, { type CourseCardData } from "@/components/academy/CourseCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AcademyBlurs from "@/components/academy/AcademyBlurs";
-import {
-  COURSE_CATEGORIES,
-  CATEGORY_ICONS,
-  isCourseCategory,
-  type CourseCategory,
-} from "@/lib/academy/categories";
-import type { JSONNode, TocItem } from "@/lib/course-content";
+import { COURSE_CATEGORIES, CATEGORY_ICONS, isCourseCategory } from "@/lib/academy/categories";
+import { loadCourses, loadTopRatedCourses } from "@/lib/academy/load-courses";
 
 export async function generateMetadata() {
   const t = await getTranslations("academyHome");
   return { title: t("meta.title"), description: t("meta.description") };
-}
-
-type CourseRow = {
-  id: string;
-  slug: string;
-  title: string;
-  thumbnail_url: string | null;
-  price: number;
-  toc: TocItem[] | null;
-  free_content: JSONNode | null;
-  author_id: string;
-  category: string | null;
-  profiles: { display_name: string | null; handle: string | null } | null;
-};
-
-function countH2(doc: JSONNode | null): number {
-  return (doc?.content ?? []).filter((b) => b.type === "heading" && b.attrs?.level !== 3).length;
-}
-
-/**
- * 公開中の講座を取得し、カード表示用の形に整える。
- * 「本人確認済み」の判定元（seller_accounts）は非公開なので、管理者権限で
- * 真偽だけを取り出す（口座情報などは一切画面に渡さない）。
- */
-async function loadCourses(filter: { q?: string; category?: CourseCategory }) {
-  const supabase = await createClient();
-  let query = supabase
-    .from("courses")
-    .select(
-      "id, slug, title, thumbnail_url, price, toc, free_content, author_id, category, profiles:author_id(display_name, handle)"
-    )
-    .eq("status", "published")
-    .order("published_at", { ascending: false })
-    .limit(40);
-
-  if (filter.q) {
-    // 検索語に含まれるワイルドカード記号は、ただの文字として扱う
-    const safe = filter.q.replace(/[%_\\]/g, "").slice(0, 50);
-    if (safe) query = query.ilike("title", `%${safe}%`);
-  }
-  if (filter.category) query = query.eq("category", filter.category);
-
-  const { data } = await query;
-  const rows = (data ?? []) as unknown as CourseRow[];
-  if (rows.length === 0) return [];
-
-  const ids = rows.map((r) => r.id);
-  const authorIds = Array.from(new Set(rows.map((r) => r.author_id)));
-
-  const [{ data: links }, { data: accounts }] = await Promise.all([
-    supabase.from("course_tool_links").select("course_id").in("course_id", ids),
-    createAdminClient()
-      .from("seller_accounts")
-      .select("user_id, transfers_enabled, payouts_enabled")
-      .in("user_id", authorIds),
-  ]);
-  const makerIds = new Set((links ?? []).map((l) => l.course_id));
-  const verifiedIds = new Set(
-    (accounts ?? []).filter((a) => a.transfers_enabled && a.payouts_enabled).map((a) => a.user_id)
-  );
-
-  return rows.map((r): CourseCardData & { byMaker: boolean } => {
-    const toc = r.toc ?? [];
-    const h2 = toc.filter((x) => x.level === 2).length;
-    return {
-      slug: r.slug,
-      title: r.title,
-      thumbnailUrl: r.thumbnail_url,
-      price: r.price,
-      authorName: r.profiles?.display_name || r.profiles?.handle || "—",
-      verified: verifiedIds.has(r.author_id),
-      byMaker: makerIds.has(r.id),
-      chapters: h2 || toc.length,
-      freeChapters: countH2(r.free_content),
-      hasPaywall: (r.free_content?.content ?? []).length > 0,
-    };
-  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -154,7 +71,10 @@ export default async function AcademyHomePage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const courses = await loadCourses({ q: q || undefined, category });
+  const [courses, topRated] = await Promise.all([
+    loadCourses({ q: q || undefined, category }),
+    filtering ? Promise.resolve([]) : loadTopRatedCourses(5),
+  ]);
   const makerCourses = courses.filter((c) => c.byMaker).slice(0, 5);
   const newCourses = courses.slice(0, 10);
 
@@ -289,6 +209,17 @@ export default async function AcademyHomePage({
             </>
           ) : (
             <>
+              {/* レビュー評価の高い講座（評価の付いた講座が無いうちは出さない） */}
+              {topRated.length > 0 && (
+                <div className="mb-12">
+                  <SectionTitle
+                    title={t("sections.topRatedTitle")}
+                    sub={t("sections.topRatedSub")}
+                    icon="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"
+                  />
+                  <CourseGrid courses={topRated} />
+                </div>
+              )}
               <SectionTitle
                 title={t("sections.newTitle")}
                 sub={t("sections.newSub")}

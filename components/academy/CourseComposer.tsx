@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useEffectEvent, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -17,6 +17,17 @@ import { EMPTY_DOC, type JSONNode } from "@/lib/course-content";
 import { COURSE_CATEGORIES } from "@/lib/academy/categories";
 
 const TOPBAR_HEIGHT = 56;
+/** 最後の変更から、これだけ手が止まったら自動で下書き保存する */
+const AUTOSAVE_IDLE_MS = 8000;
+/** 書き続けていても、最初の変更からこれだけ経ったら一度保存する */
+const AUTOSAVE_MAX_WAIT_MS = 60000;
+
+/** 本文に文字や画像などが1つでも入っているか（空の講座を自動保存で作らないため） */
+function docHasContent(node: JSONNode): boolean {
+  if (node.type === "text" && node.text?.trim()) return true;
+  if (["image", "videoEmbed", "linkCard"].includes(node.type)) return true;
+  return (node.content ?? []).some(docHasContent);
+}
 
 type ToolOption = { id: string; name: string; thumbnail_url: string | null };
 
@@ -66,6 +77,14 @@ export default function CourseComposer({
   const [status, setStatus] = useState(initial.status);
   const docRef = useRef<JSONNode>(initial.content ?? EMPTY_DOC);
   const [dirty, setDirty] = useState(false);
+  // 変更のたびに増える番号。保存中に書き足された分を「保存済み」と誤って扱わないよう、
+  // 保存を始めた時点の番号と、保存が終わった時点の番号を比べる
+  const changeRef = useRef(0);
+  const [changeTick, setChangeTick] = useState(0);
+  const dirtySinceRef = useRef<number | null>(null);
+  // 一度でも保存できたか（新規の講座は、最初の保存でデータベースに行ができる）
+  const persistedRef = useRef(Boolean(courseId));
+  const [lastSaveWasAuto, setLastSaveWasAuto] = useState(false);
   // 最後に保存できた日時。保存ボタンの横に「✅ 保存 9/24 5:41」と出し、
   // 押した結果が分からない状態をなくす
   const [celebrate, setCelebrate] = useState(celebrateOnMount);
@@ -77,6 +96,17 @@ export default function CourseComposer({
 
   const formatSavedAt = (d: Date) =>
     new Intl.DateTimeFormat(locale, { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }).format(d);
+
+  function markDirty() {
+    changeRef.current += 1;
+    if (dirtySinceRef.current === null) dirtySinceRef.current = Date.now();
+    setChangeTick(changeRef.current);
+    setDirty(true);
+  }
+
+  // 公開中・非公開中の講座は、まだ編集後の再審査の流れが無いため保存できない。
+  // その状態で自動保存を試みると、同じエラーが何度も出てしまうので止めておく
+  const autoSaveEnabled = status !== "published" && status !== "suspended";
 
   const priceNumber = Math.max(0, Math.round(Number(price) || 0));
   const isPaid = priceNumber > 0;
@@ -106,7 +136,7 @@ export default function CourseComposer({
     if (thumbRef.current) thumbRef.current.value = "";
     if (url) {
       setThumbnailUrl(url);
-      setDirty(true);
+      markDirty();
     }
   }
 
@@ -114,11 +144,13 @@ export default function CourseComposer({
     return (docRef.current.content ?? []).some((b) => b.type === "paywall");
   }
 
-  function save(submit: boolean) {
-    setMessage(null);
+  function save(submit: boolean, auto = false) {
+    // 自動保存では、手動保存で出したメッセージ（審査中のお知らせなど）を消さない
+    if (!auto) setMessage(null);
     // 有料なのに有料ラインが無い場合、全文が有料（目次だけ公開）になることを確認する
     if (submit && isPaid && !hasPaywall() && !window.confirm(t("confirmNoPaywall"))) return;
 
+    const versionAtStart = changeRef.current;
     startSaving(async () => {
       let result: Awaited<ReturnType<typeof saveCourse>>;
       try {
@@ -149,18 +181,59 @@ export default function CourseComposer({
         setMessage({ kind: "error", text: result.error });
         return;
       }
-      setDirty(false);
+      // 保存している間に書き足された分があれば「未保存」のまま残し、次の自動保存に任せる
+      if (changeRef.current === versionAtStart) {
+        setDirty(false);
+        dirtySinceRef.current = null;
+      }
       setSavedAt(new Date());
+      setLastSaveWasAuto(auto);
       if (submit) setStatus("pending_review");
       const repeat = "alreadyPending" in result && Boolean(result.alreadyPending);
       // 初めての提出は、中央のお祝い演出で知らせる（再提出は帯で「すでに審査中」と伝える）
-      setMessage(submit && repeat ? { kind: "ok", text: t("alreadyInReview") } : null);
-      if (submit && !repeat && courseId) setCelebrate(true);
+      if (!auto) setMessage(submit && repeat ? { kind: "ok", text: t("alreadyInReview") } : null);
+      else setMessage((m) => (m?.kind === "error" ? null : m));
+      if (submit && !repeat) setCelebrate(true);
       // 新規作成だった場合は、再読み込みしても続きから編集できるURLへ切り替える。
-      // 画面が切り替わるので、演出は切り替わった先で出す（?submitted=1 で合図する）
-      if (!courseId) router.replace(`/academy/${id}/edit${submit && !repeat ? "?submitted=1" : ""}`);
+      // 画面を読み込み直すと書いている途中の本文が巻き戻るおそれがあるため、
+      // 画面はそのままでURLだけを書き換える
+      if (!courseId && !persistedRef.current) {
+        window.history.replaceState(null, "", `/academy/${id}/edit`);
+      }
+      persistedRef.current = true;
     });
   }
+
+  // ------- 自動保存 -------
+  const runAutoSave = useEffectEvent(() => {
+    if (!dirty || !autoSaveEnabled) return;
+    // 保存中・サムネイルのアップロード中は、少し待ってからやり直す
+    if (isSaving || thumbUploading) {
+      setChangeTick((n) => n + 1);
+      return;
+    }
+    // まだ何も書いていない新規の講座は、空の下書きを作らないよう保存しない
+    if (!persistedRef.current && !title.trim() && !docHasContent(docRef.current) && !thumbnailUrl) return;
+    save(false, true);
+  });
+
+  useEffect(() => {
+    if (!dirty || !autoSaveEnabled) return;
+    const waited = dirtySinceRef.current ? Date.now() - dirtySinceRef.current : 0;
+    const delay = Math.max(0, Math.min(AUTOSAVE_IDLE_MS, AUTOSAVE_MAX_WAIT_MS - waited));
+    const timer = window.setTimeout(runAutoSave, delay);
+    return () => window.clearTimeout(timer);
+  }, [changeTick, dirty, autoSaveEnabled]);
+
+  // 保存されていない変更があるままページを閉じようとしたら、確認を出す
+  useEffect(() => {
+    if (!dirty) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dirty]);
 
   const statusLabel =
     status === "pending_review"
@@ -216,9 +289,11 @@ export default function CourseComposer({
               : message?.kind === "error"
                 ? t("saveFailedShort")
                 : savedAt && !dirty
-                  ? `✅ ${t("savedAt", { time: formatSavedAt(savedAt) })}`
+                  ? `✅ ${t(lastSaveWasAuto ? "autoSavedAt" : "savedAt", { time: formatSavedAt(savedAt) })}`
                   : dirty
-                    ? t("unsaved")
+                    ? autoSaveEnabled
+                      ? t("unsavedAuto")
+                      : t("unsaved")
                     : ""}
           </span>
           <button
@@ -300,7 +375,7 @@ export default function CourseComposer({
           value={title}
           onChange={(e) => {
             setTitle(e.target.value.replace(/\n/g, ""));
-            setDirty(true);
+            markDirty();
           }}
           rows={1}
           maxLength={120}
@@ -327,7 +402,7 @@ export default function CourseComposer({
                 value={price}
                 onChange={(e) => {
                   setPrice(e.target.value);
-                  setDirty(true);
+                  markDirty();
                 }}
                 className="w-32 rounded-lg border border-border bg-surface py-1.5 pl-6 pr-2 text-[14px] text-text-primary outline-none focus:border-border-strong"
               />
@@ -341,7 +416,7 @@ export default function CourseComposer({
               value={category}
               onChange={(e) => {
                 setCategory(e.target.value);
-                setDirty(true);
+                markDirty();
               }}
               className="rounded-lg border border-border bg-surface px-2 py-1.5 text-[13px] text-text-primary outline-none focus:border-border-strong"
             >
@@ -362,7 +437,7 @@ export default function CourseComposer({
                 value={refundPolicy}
                 onChange={(e) => {
                   setRefundPolicy(e.target.value as "none" | "conditional" | "full");
-                  setDirty(true);
+                  markDirty();
                 }}
                 className="rounded-lg border border-border bg-surface px-2 py-1.5 text-[13px] text-text-primary outline-none focus:border-border-strong"
               >
@@ -385,7 +460,7 @@ export default function CourseComposer({
                       type="button"
                       onClick={() => {
                         setToolIds((prev) => (on ? prev.filter((x) => x !== tool.id) : [...prev, tool.id]));
-                        setDirty(true);
+                        markDirty();
                       }}
                       className={`rounded-full border px-3 py-1 text-[12px] transition ${
                         on
@@ -427,7 +502,7 @@ export default function CourseComposer({
             initialContent={initial.content ?? EMPTY_DOC}
             onChange={(doc) => {
               docRef.current = doc;
-              setDirty(true);
+              markDirty();
             }}
             uploadImage={(file) => upload(file, "img")}
             isPaid={isPaid}

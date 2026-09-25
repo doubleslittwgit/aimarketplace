@@ -404,6 +404,21 @@ export function courseApproved(title: string, slug: string, locale: SupportedLoc
   };
 }
 
+export function courseNewReview(
+  title: string,
+  rating: number,
+  slug: string,
+  locale: SupportedLocale
+): NotificationContent {
+  return {
+    title: tNotif(locale, "courseNewReview.title", { title }),
+    body: tNotif(locale, "courseNewReview.body", {
+      stars: `${"★".repeat(rating)}${"☆".repeat(5 - rating)}`,
+    }),
+    linkUrl: `${SITE_URL}/academy/courses/${slug}#reviews`,
+  };
+}
+
 export function courseRejected(
   title: string,
   courseId: string,

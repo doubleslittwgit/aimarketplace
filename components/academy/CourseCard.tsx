@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import Stars from "@/components/academy/Stars";
 
 export type CourseCardData = {
   slug: string;
@@ -17,6 +18,9 @@ export type CourseCardData = {
   freeChapters: number;
   /** 有料ラインが引かれているか */
   hasPaywall: boolean;
+  /** レビューの平均（まだ無ければ null） */
+  ratingAvg: number | null;
+  ratingCount: number;
 };
 
 /**
@@ -76,6 +80,13 @@ export default function CourseCard({ course }: { course: CourseCardData }) {
         <h3 className="line-clamp-2 text-[14px] font-bold leading-snug text-text-primary">
           {course.title}
         </h3>
+        {course.ratingAvg !== null && course.ratingCount > 0 && (
+          <span className="mt-1.5 flex items-center gap-1">
+            <Stars value={course.ratingAvg} size={12} label={t("card.ratingLabel", { avg: course.ratingAvg.toFixed(1) })} />
+            <span className="text-[11px] font-semibold text-text-primary">{course.ratingAvg.toFixed(1)}</span>
+            <span className="text-[11px] text-text-dim">({course.ratingCount})</span>
+          </span>
+        )}
         <div className="mt-auto flex items-center justify-between gap-2 pt-3">
           <span className="flex min-w-0 items-center gap-1.5">
             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#173F35] text-[10px] font-semibold text-[#F7F3E8]">

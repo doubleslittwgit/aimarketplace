@@ -453,7 +453,8 @@
     "notFound": "找不到這位使用者",
     "backToBrowse": "探索工具",
     "avatarUploadFailed": "圖片上傳失敗：{message}",
-    "displayNameRequired": "請輸入顯示名稱"
+    "displayNameRequired": "請輸入顯示名稱",
+    "publishedCourses": "已發布的課程"
   },
   "feed": {
     "pageTitle": "動態",
@@ -619,7 +620,10 @@
     "coursePendingNotice": "審核中，結果會以通知告知您。",
     "preview": "預覽",
     "boughtCourses": "已購買的課程",
-    "readCourse": "閱讀"
+    "readCourse": "閱讀",
+    "courseReadPercent": "已讀 {n}%",
+    "courseFinished": "已讀完",
+    "continueCourse": "繼續閱讀"
   },
   "auth": {
     "loginRequiredTitle": "需要登入",
@@ -1015,6 +1019,10 @@
     "coursePurchaseReceipt": {
       "title": "感謝您購買課程「{title}」",
       "body": "已完成 {price} 的付款。您可隨時在課程頁面閱讀包含付費部分的全文。"
+    },
+    "courseNewReview": {
+      "title": "課程「{title}」收到新的評價",
+      "body": "評分：{stars}"
     }
   },
   "refundRequest": {
@@ -1128,6 +1136,7 @@
     "back": "返回",
     "saving": "儲存中…",
     "unsaved": "有尚未儲存的變更",
+    "unsavedAuto": "編輯中…（會自動儲存）",
     "saveDraft": "儲存草稿",
     "submit": "送出審核",
     "uploading": "上傳中…",
@@ -1175,6 +1184,7 @@
       "home": "回到Academy首頁"
     },
     "savedAt": "已儲存 {time}",
+    "autoSavedAt": "已自動儲存 {time}",
     "saveFailedShort": "⚠️ 無法儲存",
     "alreadyInReview": "此課程已在審核中。變更內容已儲存，審核將使用最新版本。",
     "celebrate": {
@@ -1243,7 +1253,9 @@
       "resultsFor": "「{q}」的課程",
       "categoryResults": "{name}的課程",
       "clearFilter": "清除條件",
-      "noResults": "目前還沒有符合條件的課程。"
+      "noResults": "目前還沒有符合條件的課程。",
+      "topRatedTitle": "高評價課程",
+      "topRatedSub": "讀者評價較高的課程"
     },
     "empty": {
       "title": "等待第一門課程",
@@ -1293,7 +1305,8 @@
       "tocOnly": "目錄公開中",
       "freeUntil": "可免費閱讀至第{n}章",
       "introFree": "開頭可免費閱讀",
-      "chapters": "共{n}章"
+      "chapters": "共{n}章",
+      "ratingLabel": "5 分中 {avg} 分"
     },
     "categories": {
       "beginner": {
@@ -1381,6 +1394,39 @@
       "body": "現在可以隨時閱讀包含付費部分的全文，也能從會員中心的「已購買的課程」開啟。",
       "read": "開始閱讀",
       "toDashboard": "前往會員中心"
+    },
+    "progress": {
+      "resumeFrom": "上次讀到：「{heading}」",
+      "resumeAt": "上次讀到 {percent}%",
+      "resume": "繼續閱讀",
+      "dismiss": "關閉"
+    },
+    "reviews": {
+      "title": "評價",
+      "avgLabel": "5 分中 {avg} 分",
+      "count": "（{n} 則）",
+      "yours": "你的評價",
+      "edit": "編輯",
+      "delete": "刪除",
+      "confirmDelete": "確定要刪除這則評價嗎？",
+      "editTitle": "編輯評價",
+      "writeTitle": "為這門課程寫評價",
+      "ratingLabel": "評分",
+      "placeholder": "閱讀心得（選填，最多 1000 字）",
+      "submit": "送出",
+      "submitting": "送出中…",
+      "cancel": "取消",
+      "loginToReview": "登入後即可撰寫評價",
+      "purchaseToReview": "購買後即可為這門課程撰寫評價。",
+      "empty": "目前還沒有評價。",
+      "anonymous": "未設定名稱的使用者",
+      "errors": {
+        "login": "請先登入再撰寫評價。",
+        "notAllowed": "無法為這門課程撰寫評價（付費課程僅限購買者，作者本人無法評價）。",
+        "rating": "請選擇 1～5 顆星。",
+        "pickRating": "請點選星星來評分。",
+        "failed": "無法儲存：{message}"
+      }
     }
   },
   "creativeHome": {

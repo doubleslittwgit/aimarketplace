@@ -12,6 +12,8 @@ import { isCourseCategory } from "@/lib/academy/categories";
 import { COURSE_PURCHASE_ENABLED } from "@/lib/academy/flags";
 import BuyCourseButton from "@/components/academy/BuyCourseButton";
 import PurchasedCelebration from "@/components/academy/PurchasedCelebration";
+import ReadingProgress, { type SavedProgress } from "@/components/academy/ReadingProgress";
+import CourseReviews, { type CourseReview } from "@/components/academy/CourseReviews";
 import type { JSONNode, TocItem } from "@/lib/course-content";
 
 type CourseRow = {
@@ -114,7 +116,11 @@ export default async function CoursePage({
   const lockedCount = toc.length - freeHeadingCount;
   const isPaid = course.price > 0;
 
-  const [{ data: links }, { data: account }] = await Promise.all([
+  // 読んだ位置は、全文を読める読者（購入者・無料講座の読者）の分だけ記録する。
+  // 作者・管理者のプレビューは記録しない
+  const trackProgress = Boolean(user) && hasFullAccess && !isAuthor && !(isAdmin && !purchased && isPaid);
+
+  const [{ data: links }, { data: account }, { data: progressRow }, { data: reviewRows }] = await Promise.all([
     supabase
       .from("course_tool_links")
       .select("tools(id, slug, name, tagline, thumbnail_url, status)")
@@ -125,7 +131,49 @@ export default async function CoursePage({
       .select("transfers_enabled, payouts_enabled")
       .eq("user_id", course.author_id)
       .maybeSingle(),
+    trackProgress && user
+      ? supabase
+          .from("course_progress")
+          .select("heading_index, percent, max_percent")
+          .eq("course_id", course.id)
+          .eq("user_id", user.id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    isPublished
+      ? supabase
+          .from("course_reviews")
+          .select("id, rating, comment, created_at, user_id, profiles:user_id(display_name, handle)")
+          .eq("course_id", course.id)
+          .order("created_at", { ascending: false })
+          .limit(100)
+      : Promise.resolve({ data: null }),
   ]);
+  const savedProgress: SavedProgress | null = progressRow
+    ? {
+        headingIndex: progressRow.heading_index,
+        percent: progressRow.percent,
+        maxPercent: progressRow.max_percent,
+      }
+    : null;
+  type ReviewRow = {
+    id: string;
+    rating: number;
+    comment: string | null;
+    created_at: string;
+    user_id: string;
+    profiles: { display_name: string | null; handle: string | null } | null;
+  };
+  const reviews: CourseReview[] = ((reviewRows ?? []) as unknown as ReviewRow[]).map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    comment: r.comment,
+    createdAt: r.created_at,
+    userId: r.user_id,
+    authorName: r.profiles?.display_name || r.profiles?.handle || t("reviews.anonymous"),
+    authorHandle: r.profiles?.handle ?? null,
+  }));
+  // レビューを書けるのは: 公開中の講座で、作者以外の、有料なら購入済みの人・無料ならログイン中の人
+  const canReview = Boolean(user) && isPublished && !isAuthor && (!isPaid || purchased);
   const verified = Boolean(account?.transfers_enabled && account?.payouts_enabled);
   type LinkedTool = { id: string; slug: string; name: string; tagline: string; thumbnail_url: string | null; status: string };
   const tools = ((links ?? []) as unknown as { tools: LinkedTool | null }[])
@@ -276,7 +324,14 @@ export default async function CoursePage({
                       ) : (
                         <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#C9A227]" />
                       )}
-                      {item.text}
+                      {/* 読める章は、押すとその見出しへ移動する（見出しのIDは ReadingProgress が付ける） */}
+                      {locked ? (
+                        item.text
+                      ) : (
+                        <a href={`#ch-${i}`} className="hover:text-[#9C7A12] hover:underline">
+                          {item.text}
+                        </a>
+                      )}
                     </li>
                   );
                 })}
@@ -285,7 +340,15 @@ export default async function CoursePage({
           )}
 
           {/* 本文 */}
+          <ReadingProgress
+            courseId={course.id}
+            userId={user?.id ?? null}
+            trackable={trackProgress}
+            initial={savedProgress}
+            headingTexts={toc.map((x) => x.text)}
+          />
           <div
+            id="course-body"
             className="course-content mt-8 rounded-xl bg-surface p-5 sm:p-8"
             // 検証済みの要素・属性だけから生成したHTML（lib/academy/render.ts）
             dangerouslySetInnerHTML={{ __html: html }}
@@ -303,6 +366,17 @@ export default async function CoursePage({
               </p>
               <div className="mx-auto mt-5 max-w-xs">{buyBox}</div>
             </div>
+          )}
+
+          {isPublished && (
+            <CourseReviews
+              courseId={course.id}
+              reviews={reviews}
+              currentUserId={user?.id ?? null}
+              canReview={canReview}
+              isPaid={isPaid}
+              loginHref={`/login?next=/academy/courses/${course.slug}`}
+            />
           )}
         </article>
 
