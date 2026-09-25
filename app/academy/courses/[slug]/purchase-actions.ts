@@ -45,6 +45,12 @@ export async function startCoursePurchase(courseId: string): Promise<{ error: st
     .maybeSingle();
   if (existing) redirect(`/academy/courses/${course.slug}`);
 
+  // 販売部数の上限に達していたら売らない
+  // （決済中に他の人が買って上限を超えることはありうる。その場合も支払い済みの購入は有効として記録する）
+  const { data: stock } = await supabase.rpc("course_stock", { p_ids: [course.id] });
+  const row = ((stock ?? []) as { remaining: number }[])[0];
+  if (row && row.remaining <= 0) return { error: t("soldOut") };
+
   // 作者が売上を受け取れる状態か（seller_accounts は本人以外非公開なので管理者権限で読む）
   const { data: account } = await createAdminClient()
     .from("seller_accounts")

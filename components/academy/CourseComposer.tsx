@@ -48,6 +48,8 @@ export default function CourseComposer({
     price: number;
     category: string | null;
     refundPolicy: "none" | "conditional" | "full";
+    /** 販売部数の上限（無ければ null） */
+    salesLimit?: number | null;
     content: JSONNode | null;
     /** 最後に保存された日時（新規作成時は無し） */
     savedAt?: string | null;
@@ -73,6 +75,7 @@ export default function CourseComposer({
   const [price, setPrice] = useState(String(initial.price));
   const [category, setCategory] = useState(initial.category ?? "");
   const [refundPolicy, setRefundPolicy] = useState(initial.refundPolicy);
+  const [salesLimit, setSalesLimit] = useState(initial.salesLimit ? String(initial.salesLimit) : "");
   const [toolIds, setToolIds] = useState<string[]>(initial.toolIds);
   const [status, setStatus] = useState(initial.status);
   const docRef = useRef<JSONNode>(initial.content ?? EMPTY_DOC);
@@ -149,6 +152,8 @@ export default function CourseComposer({
     if (!auto) setMessage(null);
     // 有料なのに有料ラインが無い場合、全文が有料（目次だけ公開）になることを確認する
     if (submit && isPaid && !hasPaywall() && !window.confirm(t("confirmNoPaywall"))) return;
+    // 公開後は本文などを変更できないことを、審査に出す前に必ず確認してもらう
+    if (submit && !window.confirm(t("confirmLockAfterPublish"))) return;
 
     const versionAtStart = changeRef.current;
     startSaving(async () => {
@@ -161,6 +166,7 @@ export default function CourseComposer({
         price: priceNumber,
         category: category || null,
         refundPolicy,
+        salesLimit: isPaid && salesLimit.trim() !== "" ? Number(salesLimit) : null,
         // 本文は文字列にしてから送る。エディタ（ProseMirror）の本文データには、
         // 通常とは作りの違うオブジェクト（プロトタイプを持たない attrs）が含まれていて、
         // そのまま送るとサーバー側で「読めない預かり物」として扱われ、
@@ -445,6 +451,25 @@ export default function CourseComposer({
                 <option value="conditional">{tCourse("refund.conditional")}</option>
                 <option value="full">{tCourse("refund.full")}</option>
               </select>
+            </label>
+          )}
+
+          {/* 販売部数の上限（任意）。Brainと同じく「◯部限定」で売れる。無料講座には付けない */}
+          {isPaid && (
+            <label className="flex items-center gap-2 text-[13px] text-text-secondary">
+              {t("salesLimit")}
+              <input
+                type="number"
+                min={1}
+                max={100000}
+                value={salesLimit}
+                placeholder={t("salesLimitPlaceholder")}
+                onChange={(e) => {
+                  setSalesLimit(e.target.value);
+                  markDirty();
+                }}
+                className="w-24 rounded-lg border border-border bg-surface px-2 py-1.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
+              />
             </label>
           )}
 

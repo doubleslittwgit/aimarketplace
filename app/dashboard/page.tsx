@@ -585,15 +585,17 @@ export default async function DashboardPage() {
                       >
                         {t("preview")}
                       </Link>
-                      {/* 公開中・非公開中の講座の編集は、再審査の流れを作るまで受け付けていない */}
-                      {course.status !== "published" && course.status !== "suspended" && (
-                        <Link
-                          href={`/academy/${course.id}/edit`}
-                          className="rounded-lg border border-border px-3 py-1.5 text-[12px] text-text-secondary transition hover:bg-surface-raised"
-                        >
-                          {course.status === "draft" ? t("continueEditing") : t("edit")}
-                        </Link>
-                      )}
+                      {/* 公開中・非公開中の講座は本文を編集できないため、価格などを変える「管理」画面へ */}
+                      <Link
+                        href={`/academy/${course.id}/edit`}
+                        className="rounded-lg border border-border px-3 py-1.5 text-[12px] text-text-secondary transition hover:bg-surface-raised"
+                      >
+                        {course.status === "published" || course.status === "suspended"
+                          ? t("manageCourse")
+                          : course.status === "draft"
+                            ? t("continueEditing")
+                            : t("edit")}
+                      </Link>
                     </div>
                   </div>
                 ))}

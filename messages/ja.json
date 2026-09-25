@@ -623,7 +623,8 @@
     "readCourse": "読む",
     "courseReadPercent": "{n}% 読了",
     "courseFinished": "読了",
-    "continueCourse": "続きを読む"
+    "continueCourse": "続きを読む",
+    "manageCourse": "管理"
   },
   "auth": {
     "loginRequiredTitle": "ログインが必要です",
@@ -1153,12 +1154,11 @@
       "loginRequired": "ログインが必要です",
       "invalidFormat": "本文の形式が正しくありません",
       "titleRequired": "タイトルを入力してください",
-      "invalidPrice": "価格は0〜100,000円の範囲で入力してください",
+      "invalidPrice": "価格は無料（0円）か、100〜100,000円の範囲で入力してください",
       "imageNotAllowed": "画像はエディタからアップロードしたものだけ使えます",
       "contentRequired": "本文を入力してください",
       "payoutRequired": "有料講座を出すには、先に売上の受け取り設定・本人確認を完了してください",
       "notFound": "講座が見つかりません",
-      "publishedEditNotYet": "公開済みの講座の編集は、まだ対応していません（近日対応予定）",
       "saveFailed": "保存に失敗しました：{message}",
       "tooLong": "本文が長すぎます",
       "tooDeep": "本文の入れ子が深すぎます",
@@ -1169,7 +1169,9 @@
       "multiplePaywalls": "有料ラインは1本だけ引けます",
       "disallowedMark": "使用できない装飾が含まれています",
       "invalidLink": "リンクは http:// または https:// のURLのみ使えます",
-      "unexpected": "保存中に予期しないエラーが起きました（書いた内容は画面に残っています）。もう一度お試しください：{message}"
+      "unexpected": "保存中に予期しないエラーが起きました（書いた内容は画面に残っています）。もう一度お試しください：{message}",
+      "invalidSalesLimit": "販売部数の上限は1〜100,000の範囲で入力してください",
+      "publishedLocked": "公開後の講座は内容を変更できません。価格などの変更や改訂版の作成は、講座の管理画面から行ってください。"
     },
     "payoutNoticeTitle": "有料で販売するには、売上の受け取り設定・本人確認が必要です",
     "payoutNoticeBody": "下書きはこのまま保存できます。審査に出す前に、設定を完了してください。無料の講座なら設定は不要です。",
@@ -1192,7 +1194,10 @@
       "body": "審査が終わると BuildBay Academy に公開され、結果はお知らせで届きます。審査中も下書きの編集はできます。",
       "toDashboard": "マイページで確認する",
       "close": "閉じる"
-    }
+    },
+    "confirmLockAfterPublish": "審査に出しますか？\n\n公開された後は、本文・タイトル・サムネイル・返金ポリシーを変更できません（価格・カテゴリ・販売部数は変更できます）。内容をよく確認してから提出してください。",
+    "salesLimit": "販売部数",
+    "salesLimitPlaceholder": "上限なし"
   },
   "academyHome": {
     "tagline": "学ぶ、つくる、広がる。",
@@ -1306,7 +1311,9 @@
       "freeUntil": "第{n}章まで無料で読める",
       "introFree": "冒頭を無料で読める",
       "chapters": "全{n}章",
-      "ratingLabel": "5点中{avg}"
+      "ratingLabel": "5点中{avg}",
+      "remaining": "残り{n}部",
+      "soldOut": "売り切れ"
     },
     "categories": {
       "beginner": {
@@ -1368,7 +1375,8 @@
       "draft": "下書きのプレビューです（まだ公開されていません）",
       "pending_review": "審査中のプレビューです（まだ公開されていません）",
       "rejected": "差し戻された講座のプレビューです",
-      "suspended": "非公開中の講座です"
+      "suspended": "非公開中の講座です",
+      "suspendedBuyer": "この講座は現在販売を停止していますが、購入済みのため読むことができます"
     },
     "purchasedNote": "購入済み：有料部分を含む全文を読めます",
     "buyUnavailable": "現在は購入できません",
@@ -1387,7 +1395,8 @@
       "comingSoon": "購入手続きは準備中です",
       "ownCourse": "自分の講座は購入できません",
       "sellerCannotReceive": "作者の受け取り設定が完了していないため、現在は購入できません",
-      "checkoutFailed": "決済の準備に失敗しました：{message}"
+      "checkoutFailed": "決済の準備に失敗しました：{message}",
+      "soldOut": "この講座は売り切れました。"
     },
     "celebrate": {
       "title": "ご購入ありがとうございます！",
@@ -1427,7 +1436,10 @@
         "pickRating": "星をタップして評価を選んでください。",
         "failed": "保存できませんでした：{message}"
       }
-    }
+    },
+    "soldOut": "売り切れ（販売終了）",
+    "notOnSale": "現在は販売していません",
+    "remaining": "残り{n}部（{limit}部限定）"
   },
   "creativeHome": {
     "meta": {
@@ -1476,6 +1488,46 @@
       "title": "クリエイティブツール",
       "sub": "動画編集・デザイン・写真・音楽など、単体で動くクリエイター向けのツール。",
       "empty": "まだクリエイティブツールの出品がありません。"
+    }
+  },
+  "academyPublished": {
+    "statusPublished": "公開中",
+    "statusHidden": "非公開",
+    "viewPage": "講座ページを見る",
+    "soldCount": "販売数 {n}部",
+    "remaining": "残り {n}部",
+    "lockedTitle": "公開後は内容を変更できません",
+    "lockedBody": "本文・タイトル・サムネイル・返金ポリシーは、審査を通った内容のまま固定されます（購入した人が、買った時と同じ内容を読めるようにするため）。内容を直したいときは、下の「改訂版を作る」から新しい講座として審査に出してください。",
+    "quickEditTitle": "価格・カテゴリ・販売部数",
+    "quickEditSub": "ここは審査なしで、すぐに反映されます。",
+    "freeStaysFree": "無料講座は、公開後に有料へ変えることはできません。",
+    "salesLimit": "販売部数の上限（任意）",
+    "salesLimitPlaceholder": "上限なし",
+    "salesLimitHint": "「◯部限定」で販売できます。空欄なら上限なし。すでに売れた部数より少なくはできません。",
+    "saving": "保存中…",
+    "save": "変更を保存",
+    "saved": "保存しました。講座ページにすぐ反映されます。",
+    "visibilityTitle": "公開・非公開",
+    "visibilityBody": "非公開にすると、一覧や検索に出なくなり、新しく買うこともできなくなります。購入済みの人は、これまでどおり読めます。",
+    "hide": "非公開にする",
+    "show": "公開に戻す",
+    "confirmHide": "この講座を非公開にしますか？（購入済みの人は引き続き読めます）",
+    "confirmShow": "この講座を公開に戻しますか？",
+    "revisionTitle": "改訂版を作る",
+    "revisionBody": "本文・画像・価格などをそのまま引き継いだ新しい下書きを作ります。直したら審査に出し、公開されたら、必要に応じてこの講座を非公開にしてください。",
+    "makeRevision": "改訂版を作る",
+    "confirmRevision": "この講座を元に、改訂版の下書きを作りますか？",
+    "errors": {
+      "login": "ログインしてください。",
+      "notFound": "講座が見つかりません。",
+      "notPublished": "公開中の講座ではありません。",
+      "price": "有料講座の価格は100〜100,000円の範囲で入力してください。",
+      "freeToPaid": "無料講座を公開後に有料にすることはできません。",
+      "paidToFree": "有料講座を公開後に無料にすることはできません。",
+      "salesLimit": "販売部数の上限は1〜100,000の範囲で入力してください。",
+      "salesLimitBelowSold": "すでに{n}部売れているため、それより少ない上限にはできません。",
+      "failed": "保存できませんでした：{message}",
+      "imageCopyFailed": "画像をコピーできませんでした：{message}"
     }
   }
 }

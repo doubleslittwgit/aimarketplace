@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import CourseComposer from "@/components/academy/CourseComposer";
+import PublishedCoursePanel from "@/components/academy/PublishedCoursePanel";
 import { getMyPublishedTools } from "@/app/feed/actions";
 import type { JSONNode } from "@/lib/course-content";
 
@@ -23,12 +24,32 @@ export default async function EditCoursePage({
 
   const { data: course } = await supabase
     .from("courses")
-    .select("id, author_id, title, thumbnail_url, price, status, category, refund_policy, updated_at")
+    .select("id, slug, author_id, title, thumbnail_url, price, status, category, refund_policy, sales_limit, updated_at")
     .eq("id", id)
     .maybeSingle();
 
   // 他人の講座の編集画面は、存在自体を教えない
   if (!course || course.author_id !== user.id) notFound();
+
+  // 公開後は本文を編集できない。価格などの変更・公開/非公開・改訂版の作成だけができる管理画面を出す
+  if (course.status === "published" || course.status === "suspended") {
+    const { data: sold } = await supabase.rpc("course_sold_count", { p_course_id: course.id });
+    return (
+      <PublishedCoursePanel
+        soldCount={typeof sold === "number" ? sold : 0}
+        course={{
+          id: course.id,
+          slug: course.slug,
+          title: course.title,
+          thumbnailUrl: course.thumbnail_url,
+          price: course.price,
+          category: course.category,
+          salesLimit: course.sales_limit,
+          status: course.status,
+        }}
+      />
+    );
+  }
 
   const [{ data: body }, { data: links }, myTools, { data: canReceive }] = await Promise.all([
     // 全文（有料部分を含む）は金庫側にある。作者本人なので読める
@@ -51,6 +72,7 @@ export default async function EditCoursePage({
         price: course.price,
         category: course.category,
         refundPolicy: course.refund_policy,
+        salesLimit: course.sales_limit,
         savedAt: course.updated_at,
         content: (body?.content as JSONNode) ?? null,
         status: course.status,

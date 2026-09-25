@@ -23,6 +23,8 @@ export type SaveCourseInput = {
   price: number;
   category: string | null;
   refundPolicy: string;
+  /** 販売部数の上限（有料講座のみ・任意） */
+  salesLimit?: number | null;
   /** 本文（TipTapのJSONを文字列にしたもの） */
   content: string | unknown;
   /** true なら「審査に出す」、false なら「下書き保存」 */
@@ -81,6 +83,16 @@ async function saveCourseInner(input: SaveCourseInput): Promise<SaveCourseResult
 
   const price = Math.round(Number(input.price) || 0);
   if (price < 0 || price > 100000) return { error: t("errors.invalidPrice") };
+  // 有料にするなら100円以上（決済の最低額と、公開後の価格変更のルールに合わせる）
+  if (price > 0 && price < 100) return { error: t("errors.invalidPrice") };
+
+  let salesLimit: number | null = null;
+  if (price > 0 && input.salesLimit !== null && input.salesLimit !== undefined) {
+    salesLimit = Math.round(Number(input.salesLimit));
+    if (!Number.isFinite(salesLimit) || salesLimit < 1 || salesLimit > 100000) {
+      return { error: t("errors.invalidSalesLimit") };
+    }
+  }
 
   // サムネイルは、本人がエディタからアップロードした画像だけを受け付ける
   // 設定値の末尾に「/」が付いていても、正しく比較できるようにする
@@ -122,9 +134,9 @@ async function saveCourseInner(input: SaveCourseInput): Promise<SaveCourseResult
     .maybeSingle();
   if (existing && existing.author_id !== user.id) return { error: t("errors.notFound") };
 
-  // 公開中・非公開中の講座の編集は、再審査の流れを作る段階で対応する
+  // 公開後は本文などを変更できない（価格などは公開後の管理画面から変更する）
   if (existing && (existing.status === "published" || existing.status === "suspended")) {
-    return { error: t("errors.publishedEditNotYet") };
+    return { error: t("errors.publishedLocked") };
   }
 
   // 無料で見せる部分を決める
@@ -164,6 +176,7 @@ async function saveCourseInner(input: SaveCourseInput): Promise<SaveCourseResult
       free_content: freeContent,
       toc: buildToc(doc),
       has_paid_part: price > 0,
+      sales_limit: salesLimit,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "id" }

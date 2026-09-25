@@ -83,17 +83,6 @@ export default async function CoursePage({
 
   const isAuthor = user?.id === course.author_id;
   const isPublished = course.status === "published";
-  if (!isPublished && !isAuthor && !isAdmin) notFound();
-
-  // 全文（有料部分を含む）は金庫側にある。読めるのは作者・無料公開の講座（・今後は購入者）。
-  // 管理者が他人の講座を審査する場合だけ、管理者権限で読む。
-  const bodyReader = isAdmin && !isAuthor ? admin : supabase;
-  const { data: body } = await bodyReader
-    .from("course_bodies")
-    .select("content")
-    .eq("course_id", course.id)
-    .maybeSingle();
-  const fullDoc = (body?.content as JSONNode | undefined) ?? null;
   // 購入済みか（購入記録は本人のものだけ読める）
   let purchased = false;
   if (user && course.price > 0 && !isAuthor) {
@@ -106,6 +95,18 @@ export default async function CoursePage({
       .maybeSingle();
     purchased = Boolean(p);
   }
+  // 非公開になった講座も、購入済みの人は引き続き読める
+  if (!isPublished && !isAuthor && !isAdmin && !purchased) notFound();
+
+  // 全文（有料部分を含む）は金庫側にある。読めるのは作者・無料公開の講座（・今後は購入者）。
+  // 管理者が他人の講座を審査する場合だけ、管理者権限で読む。
+  const bodyReader = isAdmin && !isAuthor ? admin : supabase;
+  const { data: body } = await bodyReader
+    .from("course_bodies")
+    .select("content")
+    .eq("course_id", course.id)
+    .maybeSingle();
+  const fullDoc = (body?.content as JSONNode | undefined) ?? null;
   const hasFullAccess =
     Boolean(fullDoc) && (course.price === 0 || isAuthor || isAdmin || purchased);
 
@@ -120,7 +121,7 @@ export default async function CoursePage({
   // 作者・管理者のプレビューは記録しない
   const trackProgress = Boolean(user) && hasFullAccess && !isAuthor && !(isAdmin && !purchased && isPaid);
 
-  const [{ data: links }, { data: account }, { data: progressRow }, { data: reviewRows }] = await Promise.all([
+  const [{ data: links }, { data: account }, { data: progressRow }, { data: reviewRows }, { data: stockRows }] = await Promise.all([
     supabase
       .from("course_tool_links")
       .select("tools(id, slug, name, tagline, thumbnail_url, status)")
@@ -147,7 +148,11 @@ export default async function CoursePage({
           .order("created_at", { ascending: false })
           .limit(100)
       : Promise.resolve({ data: null }),
+    // 販売部数の上限がある講座だけ、残り部数が返ってくる
+    supabase.rpc("course_stock", { p_ids: [course.id] }),
   ]);
+  const stock = ((stockRows ?? []) as { remaining: number; sales_limit: number }[])[0] ?? null;
+  const soldOut = Boolean(stock && stock.remaining <= 0);
   const savedProgress: SavedProgress | null = progressRow
     ? {
         headingIndex: progressRow.heading_index,
@@ -198,8 +203,17 @@ export default async function CoursePage({
         <p className="mt-2 rounded-lg bg-bg px-3 py-2 text-[12px] text-text-muted">
           {isAuthor ? t("authorPreview") : t("adminPreview")}
         </p>
+      ) : soldOut || !isPublished ? (
+        <p className="mt-2 rounded-lg bg-bg px-3 py-2 text-center text-[13px] font-semibold text-text-muted">
+          {soldOut ? t("soldOut") : t("notOnSale")}
+        </p>
       ) : (
         <>
+          {stock && (
+            <p className="mt-2 text-[12px] font-semibold text-[#9C7A12]">
+              {t("remaining", { n: stock.remaining, limit: stock.sales_limit })}
+            </p>
+          )}
           <BuyCourseButton
             courseId={course.id}
             enabled={COURSE_PURCHASE_ENABLED && verified}
@@ -239,7 +253,7 @@ export default async function CoursePage({
 
       {!isPublished && (
         <div className="border-b border-[#C9A227]/40 bg-[#C9A227]/10 px-4 py-2.5 text-center text-[13px] text-[#6B5510]">
-          {t(`statusBanner.${course.status}`)}
+          {!isAuthor && !isAdmin && purchased ? t("statusBanner.suspendedBuyer") : t(`statusBanner.${course.status}`)}
           {isAuthor && (
             <Link href={`/academy/${course.id}/edit`} className="ml-2 font-semibold underline">
               {t("editCourse")}

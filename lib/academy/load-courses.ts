@@ -64,14 +64,18 @@ export async function loadCourses(filter: {
   const ids = rows.map((r) => r.id);
   const authorIds = Array.from(new Set(rows.map((r) => r.author_id)));
 
-  const [{ data: links }, { data: accounts }, { data: ratings }] = await Promise.all([
+  const [{ data: links }, { data: accounts }, { data: ratings }, { data: stock }] = await Promise.all([
     supabase.from("course_tool_links").select("course_id").in("course_id", ids),
     createAdminClient()
       .from("seller_accounts")
       .select("user_id, transfers_enabled, payouts_enabled")
       .in("user_id", authorIds),
     supabase.from("course_rating_stats").select("course_id, avg_rating, review_count").in("course_id", ids),
+    supabase.rpc("course_stock", { p_ids: ids }),
   ]);
+  const remainingById = new Map(
+    ((stock ?? []) as { course_id: string; remaining: number }[]).map((s) => [s.course_id, s.remaining])
+  );
   const makerIds = new Set((links ?? []).map((l) => l.course_id));
   const verifiedIds = new Set(
     (accounts ?? []).filter((a) => a.transfers_enabled && a.payouts_enabled).map((a) => a.user_id)
@@ -98,6 +102,7 @@ export async function loadCourses(filter: {
       hasPaywall: (r.free_content?.content ?? []).length > 0,
       ratingAvg: rating?.avg ?? null,
       ratingCount: rating?.count ?? 0,
+      remaining: remainingById.get(r.id) ?? null,
     };
   });
 }

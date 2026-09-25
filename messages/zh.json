@@ -623,7 +623,8 @@
     "readCourse": "閱讀",
     "courseReadPercent": "已讀 {n}%",
     "courseFinished": "已讀完",
-    "continueCourse": "繼續閱讀"
+    "continueCourse": "繼續閱讀",
+    "manageCourse": "管理"
   },
   "auth": {
     "loginRequiredTitle": "需要登入",
@@ -1153,12 +1154,11 @@
       "loginRequired": "請先登入",
       "invalidFormat": "內文格式不正確",
       "titleRequired": "請輸入標題",
-      "invalidPrice": "價格請設定在 0～100,000 日圓之間",
+      "invalidPrice": "價格請設為免費（0 日圓）或 100～100,000 日圓",
       "imageNotAllowed": "僅能使用透過編輯器上傳的圖片",
       "contentRequired": "請輸入內文",
       "payoutRequired": "發布付費課程前，請先完成收款設定・身分驗證",
       "notFound": "找不到課程",
-      "publishedEditNotYet": "目前尚不支援編輯已發布的課程（即將推出）",
       "saveFailed": "儲存失敗：{message}",
       "tooLong": "內文過長",
       "tooDeep": "內文的巢狀層級過深",
@@ -1169,7 +1169,9 @@
       "multiplePaywalls": "付費線只能設定一條",
       "disallowedMark": "內文包含無法使用的格式",
       "invalidLink": "連結僅支援 http:// 或 https:// 開頭的網址",
-      "unexpected": "儲存時發生未預期的錯誤（撰寫的內容仍保留在畫面上）。請再試一次：{message}"
+      "unexpected": "儲存時發生未預期的錯誤（撰寫的內容仍保留在畫面上）。請再試一次：{message}",
+      "invalidSalesLimit": "販售份數上限請設定在 1～100,000 之間",
+      "publishedLocked": "已發布的課程無法修改內容。價格等設定與建立改訂版，請在課程管理頁面進行。"
     },
     "payoutNoticeTitle": "付費販售需要先完成收款設定・身分驗證",
     "payoutNoticeBody": "草稿可以照常儲存。送出審核前，請先完成設定。免費課程則不需要此設定。",
@@ -1192,7 +1194,10 @@
       "body": "審核通過後將在 BuildBay Academy 上架，結果會以通知告知您。審核期間仍可編輯草稿。",
       "toDashboard": "前往會員中心確認",
       "close": "關閉"
-    }
+    },
+    "confirmLockAfterPublish": "要送出審查嗎？\n\n發布後將無法修改內文、標題、縮圖與退款政策（價格、分類、販售份數仍可修改）。請確認內容後再送出。",
+    "salesLimit": "販售份數",
+    "salesLimitPlaceholder": "不設上限"
   },
   "academyHome": {
     "tagline": "學習、創作、擴散。",
@@ -1306,7 +1311,9 @@
       "freeUntil": "可免費閱讀至第{n}章",
       "introFree": "開頭可免費閱讀",
       "chapters": "共{n}章",
-      "ratingLabel": "5 分中 {avg} 分"
+      "ratingLabel": "5 分中 {avg} 分",
+      "remaining": "剩 {n} 份",
+      "soldOut": "已售完"
     },
     "categories": {
       "beginner": {
@@ -1368,7 +1375,8 @@
       "draft": "草稿預覽（尚未發布）",
       "pending_review": "審核中的預覽（尚未發布）",
       "rejected": "被退回課程的預覽",
-      "suspended": "此課程目前未公開"
+      "suspended": "此課程目前未公開",
+      "suspendedBuyer": "這門課程目前已停止販售，但你已購買，仍可閱讀"
     },
     "purchasedNote": "已購買：可閱讀包含付費部分的全文",
     "buyUnavailable": "目前無法購買",
@@ -1387,7 +1395,8 @@
       "comingSoon": "購買功能即將推出",
       "ownCourse": "無法購買自己的課程",
       "sellerCannotReceive": "作者尚未完成收款設定，目前無法購買",
-      "checkoutFailed": "無法準備付款：{message}"
+      "checkoutFailed": "無法準備付款：{message}",
+      "soldOut": "這門課程已售完。"
     },
     "celebrate": {
       "title": "感謝您的購買！",
@@ -1427,7 +1436,10 @@
         "pickRating": "請點選星星來評分。",
         "failed": "無法儲存：{message}"
       }
-    }
+    },
+    "soldOut": "已售完（停止販售）",
+    "notOnSale": "目前未販售",
+    "remaining": "剩餘 {n} 份（限量 {limit} 份）"
   },
   "creativeHome": {
     "meta": {
@@ -1476,6 +1488,46 @@
       "title": "創意工具",
       "sub": "影片剪輯、設計、攝影、音樂等，可獨立運作的創作者工具。",
       "empty": "目前還沒有上架的創意工具。"
+    }
+  },
+  "academyPublished": {
+    "statusPublished": "已發布",
+    "statusHidden": "未公開",
+    "viewPage": "查看課程頁面",
+    "soldCount": "已售出 {n} 份",
+    "remaining": "剩餘 {n} 份",
+    "lockedTitle": "發布後無法修改內容",
+    "lockedBody": "內文、標題、縮圖與退款政策會固定為通過審查時的內容（讓購買者讀到與購買時相同的內容）。若想修改內容，請從下方「建立改訂版」以新課程送審。",
+    "quickEditTitle": "價格・分類・販售份數",
+    "quickEditSub": "這裡的變更不需審查，會立即生效。",
+    "freeStaysFree": "免費課程發布後無法改為付費。",
+    "salesLimit": "販售份數上限（選填）",
+    "salesLimitPlaceholder": "不設上限",
+    "salesLimitHint": "可以「限量◯份」販售。留空表示不設上限。不能少於已售出的份數。",
+    "saving": "儲存中…",
+    "save": "儲存變更",
+    "saved": "已儲存，課程頁面會立即更新。",
+    "visibilityTitle": "公開・不公開",
+    "visibilityBody": "設為不公開後，課程不會出現在列表與搜尋中，也無法再被購買。已購買的人仍可照常閱讀。",
+    "hide": "設為不公開",
+    "show": "重新公開",
+    "confirmHide": "確定要將這門課程設為不公開嗎？（已購買的人仍可閱讀）",
+    "confirmShow": "確定要重新公開這門課程嗎？",
+    "revisionTitle": "建立改訂版",
+    "revisionBody": "建立一份沿用內文、圖片、價格等的新草稿。修改後送審，發布後可視需要將這門課程設為不公開。",
+    "makeRevision": "建立改訂版",
+    "confirmRevision": "要以這門課程為基礎建立改訂版草稿嗎？",
+    "errors": {
+      "login": "請先登入。",
+      "notFound": "找不到課程。",
+      "notPublished": "這不是已發布的課程。",
+      "price": "付費課程的價格請設定在 100～100,000 日圓之間。",
+      "freeToPaid": "免費課程發布後無法改為付費。",
+      "paidToFree": "付費課程發布後無法改為免費。",
+      "salesLimit": "販售份數上限請設定在 1～100,000 之間。",
+      "salesLimitBelowSold": "已售出 {n} 份，上限不能少於這個數字。",
+      "failed": "無法儲存：{message}",
+      "imageCopyFailed": "無法複製圖片：{message}"
     }
   }
 }

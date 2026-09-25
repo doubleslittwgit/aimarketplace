@@ -623,7 +623,8 @@
     "readCourse": "Read",
     "courseReadPercent": "{n}% read",
     "courseFinished": "Finished",
-    "continueCourse": "Continue reading"
+    "continueCourse": "Continue reading",
+    "manageCourse": "Manage"
   },
   "auth": {
     "loginRequiredTitle": "Login required",
@@ -1153,12 +1154,11 @@
       "loginRequired": "Please log in",
       "invalidFormat": "The content format is invalid",
       "titleRequired": "Please enter a title",
-      "invalidPrice": "Price must be between ¥0 and ¥100,000",
+      "invalidPrice": "Price must be free (¥0) or between ¥100 and ¥100,000",
       "imageNotAllowed": "Only images uploaded through the editor can be used",
       "contentRequired": "Please write some content",
       "payoutRequired": "Complete payouts & ID verification before submitting a paid course",
       "notFound": "Course not found",
-      "publishedEditNotYet": "Editing published courses isn't supported yet (coming soon)",
       "saveFailed": "Couldn't save: {message}",
       "tooLong": "The content is too long",
       "tooDeep": "The content is nested too deeply",
@@ -1169,7 +1169,9 @@
       "multiplePaywalls": "Only one paywall is allowed",
       "disallowedMark": "The content contains unsupported formatting",
       "invalidLink": "Links must start with http:// or https://",
-      "unexpected": "Something unexpected went wrong while saving (your writing is still on screen). Please try again: {message}"
+      "unexpected": "Something unexpected went wrong while saving (your writing is still on screen). Please try again: {message}",
+      "invalidSalesLimit": "The copy limit must be between 1 and 100,000",
+      "publishedLocked": "Published courses can't be edited. Change the price or create a revision from the course management page."
     },
     "payoutNoticeTitle": "Paid courses need payouts & ID verification",
     "payoutNoticeBody": "You can keep saving drafts. Finish the setup before submitting for review. Free courses don't need it.",
@@ -1192,7 +1194,10 @@
       "body": "Once it passes review it'll be published on BuildBay Academy, and you'll get a notification. You can keep editing the draft meanwhile.",
       "toDashboard": "Go to dashboard",
       "close": "Close"
-    }
+    },
+    "confirmLockAfterPublish": "Submit for review?\n\nOnce published, the body, title, thumbnail and refund policy can't be changed (price, category and copy limit still can). Please check everything before submitting.",
+    "salesLimit": "Copies",
+    "salesLimitPlaceholder": "No limit"
   },
   "academyHome": {
     "tagline": "Learn. Build. Share.",
@@ -1306,7 +1311,9 @@
       "freeUntil": "Free through chapter {n}",
       "introFree": "Opening is free",
       "chapters": "{n} chapters",
-      "ratingLabel": "{avg} out of 5"
+      "ratingLabel": "{avg} out of 5",
+      "remaining": "{n} left",
+      "soldOut": "Sold out"
     },
     "categories": {
       "beginner": {
@@ -1368,7 +1375,8 @@
       "draft": "Draft preview (not published yet)",
       "pending_review": "In-review preview (not published yet)",
       "rejected": "Preview of a returned course",
-      "suspended": "This course is unpublished"
+      "suspended": "This course is unpublished",
+      "suspendedBuyer": "This course is no longer on sale, but you bought it, so you can keep reading"
     },
     "purchasedNote": "Purchased: you can read the full course, paid sections included",
     "buyUnavailable": "Not available right now",
@@ -1387,7 +1395,8 @@
       "comingSoon": "Checkout is coming soon",
       "ownCourse": "You can't buy your own course",
       "sellerCannotReceive": "The author hasn't finished payout setup, so this course can't be bought yet",
-      "checkoutFailed": "Couldn't start checkout: {message}"
+      "checkoutFailed": "Couldn't start checkout: {message}",
+      "soldOut": "This course is sold out."
     },
     "celebrate": {
       "title": "Thanks for your purchase!",
@@ -1427,7 +1436,10 @@
         "pickRating": "Tap the stars to choose a rating.",
         "failed": "Couldn't save: {message}"
       }
-    }
+    },
+    "soldOut": "Sold out",
+    "notOnSale": "Not currently on sale",
+    "remaining": "{n} left (limited to {limit})"
   },
   "creativeHome": {
     "meta": {
@@ -1476,6 +1488,46 @@
       "title": "Creative tools",
       "sub": "Standalone tools for creators — video editing, design, photography, music and more.",
       "empty": "No creative tools have been published yet."
+    }
+  },
+  "academyPublished": {
+    "statusPublished": "Published",
+    "statusHidden": "Hidden",
+    "viewPage": "View course page",
+    "soldCount": "{n} sold",
+    "remaining": "{n} left",
+    "lockedTitle": "Content can't be changed after publishing",
+    "lockedBody": "The body, title, thumbnail and refund policy stay exactly as approved, so buyers always read what they paid for. To change the content, use “Create a revision” below and submit it for review as a new course.",
+    "quickEditTitle": "Price, category and copies",
+    "quickEditSub": "Changes here take effect immediately, without review.",
+    "freeStaysFree": "A free course can't be made paid after publishing.",
+    "salesLimit": "Limit on copies (optional)",
+    "salesLimitPlaceholder": "No limit",
+    "salesLimitHint": "Sell a limited number of copies. Leave blank for no limit. Can't be lower than copies already sold.",
+    "saving": "Saving…",
+    "save": "Save changes",
+    "saved": "Saved. The course page is updated right away.",
+    "visibilityTitle": "Visibility",
+    "visibilityBody": "Hidden courses don't appear in lists or search and can't be bought. People who already bought it can keep reading.",
+    "hide": "Hide course",
+    "show": "Publish again",
+    "confirmHide": "Hide this course? (Buyers can keep reading it.)",
+    "confirmShow": "Publish this course again?",
+    "revisionTitle": "Create a revision",
+    "revisionBody": "Creates a new draft with the same body, images and price. Edit it, submit it for review, and once it's published you can hide this course if needed.",
+    "makeRevision": "Create a revision",
+    "confirmRevision": "Create a revision draft based on this course?",
+    "errors": {
+      "login": "Please log in.",
+      "notFound": "Course not found.",
+      "notPublished": "This course isn't published.",
+      "price": "Paid courses must cost between ¥100 and ¥100,000.",
+      "freeToPaid": "A free course can't be made paid after publishing.",
+      "paidToFree": "A paid course can't be made free after publishing.",
+      "salesLimit": "The limit must be between 1 and 100,000.",
+      "salesLimitBelowSold": "{n} copies are already sold, so the limit can't be lower than that.",
+      "failed": "Couldn't save: {message}",
+      "imageCopyFailed": "Couldn't copy images: {message}"
     }
   }
 }

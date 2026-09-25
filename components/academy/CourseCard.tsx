@@ -21,6 +21,8 @@ export type CourseCardData = {
   /** レビューの平均（まだ無ければ null） */
   ratingAvg: number | null;
   ratingCount: number;
+  /** 販売部数の上限がある講座の残り部数（上限が無ければ null・省略） */
+  remaining?: number | null;
 };
 
 /**
@@ -57,6 +59,15 @@ export default function CourseCard({ course }: { course: CourseCardData }) {
         ) : (
           <span className="font-display absolute inset-0 flex items-center p-4 text-[18px] font-bold leading-snug text-[#F7F3E8]">
             {course.title}
+          </span>
+        )}
+        {course.remaining !== null && course.remaining !== undefined && (
+          <span
+            className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+              course.remaining > 0 ? "bg-[#C9A227] text-white" : "bg-text-primary/80 text-white"
+            }`}
+          >
+            {course.remaining > 0 ? t("card.remaining", { n: course.remaining }) : t("card.soldOut")}
           </span>
         )}
         <div className="absolute bottom-2 left-2 flex flex-wrap gap-1">
