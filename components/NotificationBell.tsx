@@ -106,8 +106,10 @@ export default function NotificationBell({
         )}
       </button>
 
+      {/* スマホでは、ベルの位置に合わせて右端をそろえると画面の左にはみ出してしまうため、
+          画面の左右いっぱい（余白12px）にヘッダーのすぐ下へ出す。PCは従来どおりベルの下に出す */}
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-border bg-bg shadow-[0_16px_40px_-12px_rgba(22,35,45,0.25)]">
+        <div className="fixed inset-x-3 top-[4.25rem] z-50 rounded-xl border border-border bg-bg shadow-[0_16px_40px_-12px_rgba(22,35,45,0.25)] sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <span className="text-[13px] font-medium text-text-primary">{t("title")}</span>
             {unreadCount > 0 && (
