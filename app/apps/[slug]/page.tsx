@@ -347,6 +347,38 @@ export default async function ToolDetailPage({
     },
   }));
 
+  // 購入・ダウンロード欄と、いいね・開発者。スマホとPCで置き場所が違うため、1か所で定義して両方で使う
+  const purchaseBlock = (
+    <>
+      <BuyBox
+        tool={tool}
+        isLoggedIn={Boolean(user)}
+        isOwner={isOwner}
+        isPurchased={isPurchased}
+        isDemo={isDemo}
+      />
+      {/* チップ（投げ銭）。無料ツールの作り手にも報いられるようにするもの */}
+      {!isDemo && sellerCanReceiveTips && (
+        <TipBox
+          toolId={tool.id}
+          slug={tool.slug}
+          isLoggedIn={Boolean(user)}
+          isOwner={isOwner}
+        />
+      )}
+      {/* デモ用ツールはDBに実体が無いのでいいねできない */}
+      {!isDemo && (
+        <LikeButton
+          toolId={tool.id}
+          slug={tool.slug}
+          initialLiked={isLiked}
+          initialCount={tool.likes}
+        />
+      )}
+      <AuthorCard tool={tool} isDemo={isDemo} verified={sellerVerified} />
+    </>
+  );
+
   return (
     <>
       <Header />
@@ -471,6 +503,10 @@ export default async function ToolDetailPage({
                 </p>
               </section>
 
+              {/* スマホでは購入欄を作品説明のすぐ下に出す（右の列はスマホだとページの最後になり、
+                  ダウンロードボタンまでかなりスクロールしないと届かなかったため） */}
+              <div className="mb-8 space-y-5 lg:hidden">{purchaseBlock}</div>
+
               {/* Tags */}
               <section className="mb-8">
                 <div className="flex flex-wrap gap-2">
@@ -566,32 +602,8 @@ export default async function ToolDetailPage({
 
             {/* Sidebar */}
             <div className="space-y-5">
-              <BuyBox
-                tool={tool}
-                isLoggedIn={Boolean(user)}
-                isOwner={isOwner}
-                isPurchased={isPurchased}
-                isDemo={isDemo}
-              />
-              {/* チップ（投げ銭）。無料ツールの作り手にも報いられるようにするもの */}
-              {!isDemo && sellerCanReceiveTips && (
-                <TipBox
-                  toolId={tool.id}
-                  slug={tool.slug}
-                  isLoggedIn={Boolean(user)}
-                  isOwner={isOwner}
-                />
-              )}
-              {/* デモ用ツールはDBに実体が無いのでいいねできない */}
-              {!isDemo && (
-                <LikeButton
-                  toolId={tool.id}
-                  slug={tool.slug}
-                  initialLiked={isLiked}
-                  initialCount={tool.likes}
-                />
-              )}
-              <AuthorCard tool={tool} isDemo={isDemo} verified={sellerVerified} />
+              {/* 購入欄。PCでは右の列の一番上、スマホでは作品説明のすぐ下に出す */}
+              <div className="hidden space-y-5 lg:block">{purchaseBlock}</div>
               {learnCourses.length > 0 && (
                 <div className="rounded-xl border border-[#C9A227]/40 bg-[#F7F3E8] p-5">
                   <p className="text-[12px] font-semibold text-[#9C7A12]">{t("learnCourses")}</p>
