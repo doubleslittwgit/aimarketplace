@@ -20,6 +20,8 @@ export type Tool = {
   runtime: "cloud" | "local";
   /** インターネット接続の要否（未設定の古い出品は null） */
   internetAccess?: "required" | "partial" | "offline" | null;
+  /** 対応言語（lib/tool-languages.ts のコード。未設定の古い出品は空） */
+  uiLanguages?: string[];
   thumbnailUrl?: string | null;
   galleryUrls?: string[];
   fileSizeBytes?: number | null;

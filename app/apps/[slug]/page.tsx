@@ -1,4 +1,5 @@
 import { parseInternetAccess } from "@/lib/internet-access";
+import { parseToolLanguages, TOOL_LANGUAGE_NATIVE_NAMES } from "@/lib/tool-languages";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
@@ -72,6 +73,7 @@ async function loadTool(
       updatedAt: (row.updated_at || "").slice(0, 10),
       runtime: row.runtime,
       internetAccess: parseInternetAccess(row.internet_access),
+      uiLanguages: parseToolLanguages(row.ui_languages),
       thumbnailUrl: row.thumbnail_url || null,
       salePrice: row.sale_price ?? null,
       saleEndsAt: row.sale_ends_at ?? null,
@@ -483,6 +485,18 @@ export default async function ToolDetailPage({
                   </svg>
                   {t("stats.views", { count: formatInstalls(tool.views) })}
                 </span>
+                {/* 対応言語。買う前に「自分の言語で使えるか」が一目で分かるよう、実績と並べて出す */}
+                {(tool.uiLanguages ?? []).length > 0 && (
+                  <span className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-[13px] text-text-secondary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-ai" aria-hidden>
+                      <circle cx="12" cy="12" r="9.5" />
+                      <path d="M2.5 12h19M12 2.5c2.6 2.8 3.9 6 3.9 9.5s-1.3 6.7-3.9 9.5c-2.6-2.8-3.9-6-3.9-9.5s1.3-6.7 3.9-9.5Z" />
+                    </svg>
+                    {parseToolLanguages(tool.uiLanguages ?? [])
+                      .map((l) => (l === "other" ? t("languageOther") : TOOL_LANGUAGE_NATIVE_NAMES[l]))
+                      .join(" / ")}
+                  </span>
+                )}
               </div>
 
               {/* Preview image(s) */}

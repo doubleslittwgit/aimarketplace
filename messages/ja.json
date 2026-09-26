@@ -71,7 +71,8 @@
     "unsupportedFileType": "対応していないファイル形式です",
     "invalidVideoUrl": "紹介動画はYouTubeまたはVimeoのURLのみ登録できます",
     "invalidToolUrl": "ツールのURLは http:// または https:// で始まるURLを入力してください",
-    "internetAccessRequired": "インターネット接続が必要かどうかを選んでください"
+    "internetAccessRequired": "インターネット接続が必要かどうかを選んでください",
+    "uiLanguagesRequired": "対応言語を1つ以上選んでください"
   },
   "cookieNotice": {
     "text": "本サービスは、ログイン状態を維持するために必要なCookieを使用しています。詳しくは<link>プライバシーポリシー</link>をご覧ください。",
@@ -298,7 +299,9 @@
         "required": "必要",
         "partial": "一部の機能で必要",
         "offline": "不要（オフライン可）"
-      }
+      },
+      "languages": "対応言語",
+      "languageOther": "その他"
     },
     "purchaseButton": {
       "ownerNotice": "あなたが出品したツールです",
@@ -366,7 +369,8 @@
     "versionHistory": "更新履歴",
     "noVersionHistory": "更新履歴はまだありません。",
     "videoSlide": "紹介動画",
-    "learnCourses": "このツールの作り方を学ぶ"
+    "learnCourses": "このツールの作り方を学ぶ",
+    "languageOther": "その他"
   },
   "mfa": {
     "title": "二段階認証",
@@ -871,6 +875,11 @@
         "label": "不要",
         "description": "インストール後はオフラインで完全に動く"
       }
+    },
+    "languages": {
+      "title": "対応言語",
+      "hint": "ツールの画面や説明書で使われている言語を、すべて選んでください（複数選択可）。ツールのページに表示されます。",
+      "other": "その他"
     }
   },
   "categories": {

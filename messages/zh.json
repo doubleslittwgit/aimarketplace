@@ -71,7 +71,8 @@
     "unsupportedFileType": "不支援的檔案格式",
     "invalidVideoUrl": "介紹影片僅能登錄 YouTube 或 Vimeo 的網址",
     "invalidToolUrl": "工具網址請輸入以 http:// 或 https:// 開頭的網址",
-    "internetAccessRequired": "請選擇是否需要網路連線"
+    "internetAccessRequired": "請選擇是否需要網路連線",
+    "uiLanguagesRequired": "請至少選擇一種支援語言"
   },
   "cookieNotice": {
     "text": "本服務使用維持登入狀態所必需的Cookie。詳情請參閱<link>隱私權政策</link>。",
@@ -298,7 +299,9 @@
         "required": "需要",
         "partial": "部分功能需要",
         "offline": "不需要（可離線）"
-      }
+      },
+      "languages": "支援語言",
+      "languageOther": "其他"
     },
     "purchaseButton": {
       "ownerNotice": "這是您上架的工具",
@@ -366,7 +369,8 @@
     "versionHistory": "更新紀錄",
     "noVersionHistory": "目前還沒有更新紀錄。",
     "videoSlide": "介紹影片",
-    "learnCourses": "學習這個工具的製作方法"
+    "learnCourses": "學習這個工具的製作方法",
+    "languageOther": "其他"
   },
   "mfa": {
     "title": "雙重驗證",
@@ -871,6 +875,11 @@
         "label": "不需要",
         "description": "安裝後可完全離線運作"
       }
+    },
+    "languages": {
+      "title": "支援語言",
+      "hint": "請選擇工具畫面與說明文件使用的所有語言（可複選），會顯示在工具頁面上。",
+      "other": "其他"
     }
   },
   "categories": {

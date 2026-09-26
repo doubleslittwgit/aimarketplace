@@ -1,6 +1,7 @@
 "use server";
 
 import { parseInternetAccess } from "@/lib/internet-access";
+import { parseToolLanguages } from "@/lib/tool-languages";
 import { redirect } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
@@ -78,6 +79,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   const videoUrl = videoUrlRaw || null;
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
   const internetAccess = parseInternetAccess(formData.get("internetAccess"));
+  const uiLanguages = parseToolLanguages(formData.get("uiLanguages"));
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)));
   const platformsRaw = String(formData.get("platforms") || "");
@@ -130,6 +132,10 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   // インターネット接続の要否は、買う人が「オフラインで使えるか」を判断する材料なので必須にする
   if (!internetAccess) {
     return { error: t("internetAccessRequired") };
+  }
+  // 対応言語は、買う人が「自分の言語で使えるか」を判断する材料なので、1つ以上を必須にする
+  if (uiLanguages.length === 0) {
+    return { error: t("uiLanguagesRequired") };
   }
   if (uploadedFileSize && uploadedFileSize > MAX_FILE_SIZE) {
     return { error: t("fileSizeLimit300mb") };
@@ -233,6 +239,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       price,
       runtime,
       internet_access: internetAccess,
+      ui_languages: uiLanguages,
       platforms,
       min_os_version: minOsVersion,
       file_key: fileKey,
@@ -329,6 +336,7 @@ export async function saveDraft(
   const videoUrl = videoUrlRaw || null;
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
   const internetAccess = parseInternetAccess(formData.get("internetAccess"));
+  const uiLanguages = parseToolLanguages(formData.get("uiLanguages"));
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)) || 0);
   const platformsRaw = String(formData.get("platforms") || "");
@@ -423,6 +431,7 @@ export async function saveDraft(
       price,
       runtime,
       internet_access: internetAccess,
+      ui_languages: uiLanguages,
       platforms,
       min_os_version: minOsVersion,
       file_key: fileKey,

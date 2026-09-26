@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Tool, formatPrice, formatFileSize } from "@/lib/mock-data";
 import { isSaleActive } from "@/lib/sale-price";
+import { TOOL_LANGUAGE_NATIVE_NAMES, parseToolLanguages } from "@/lib/tool-languages";
 import PurchaseButton from "@/components/PurchaseButton";
 
 type Props = {
@@ -95,6 +96,14 @@ export default function BuyBox({
         {tool.internetAccess && (
           <Row label={t("internet")} value={t(`internetValue.${tool.internetAccess}`)} />
         )}
+        {parseToolLanguages(tool.uiLanguages ?? []).length > 0 && (
+          <Row
+            label={t("languages")}
+            value={parseToolLanguages(tool.uiLanguages ?? [])
+              .map((l) => (l === "other" ? t("languageOther") : TOOL_LANGUAGE_NATIVE_NAMES[l]))
+              .join(" / ")}
+          />
+        )}
         <Row label={t("installs")} value={tool.installs.toLocaleString()} />
         <Row label={t("updatedAt")} value={tool.updatedAt} />
         {tool.runtime === "local" && formatFileSize(tool.fileSizeBytes) && (
@@ -143,9 +152,9 @@ export default function BuyBox({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between">
-      <dt className="text-text-muted">{label}</dt>
-      <dd className="text-text-secondary">{value}</dd>
+    <div className="flex items-start justify-between gap-3">
+      <dt className="shrink-0 text-text-muted">{label}</dt>
+      <dd className="text-right text-text-secondary">{value}</dd>
     </div>
   );
 }

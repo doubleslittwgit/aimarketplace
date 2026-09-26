@@ -71,7 +71,8 @@
     "unsupportedFileType": "Unsupported file type",
     "invalidVideoUrl": "The intro video must be a YouTube or Vimeo link",
     "invalidToolUrl": "The tool URL must start with http:// or https://",
-    "internetAccessRequired": "Please choose whether an internet connection is required"
+    "internetAccessRequired": "Please choose whether an internet connection is required",
+    "uiLanguagesRequired": "Please choose at least one language"
   },
   "cookieNotice": {
     "text": "This site uses cookies required to keep you logged in. See our <link>Privacy Policy</link> for details.",
@@ -298,7 +299,9 @@
         "required": "Required",
         "partial": "For some features",
         "offline": "Not needed (works offline)"
-      }
+      },
+      "languages": "Languages",
+      "languageOther": "Other"
     },
     "purchaseButton": {
       "ownerNotice": "This is your own listing",
@@ -366,7 +369,8 @@
     "versionHistory": "Changelog",
     "noVersionHistory": "No update history yet.",
     "videoSlide": "Intro video",
-    "learnCourses": "Learn how this tool was built"
+    "learnCourses": "Learn how this tool was built",
+    "languageOther": "Other"
   },
   "mfa": {
     "title": "Two-factor authentication",
@@ -871,6 +875,11 @@
         "label": "Not needed",
         "description": "Works fully offline once installed"
       }
+    },
+    "languages": {
+      "title": "Languages",
+      "hint": "Select every language used in the tool's interface and docs (multiple allowed). Shown on the tool page.",
+      "other": "Other"
     }
   },
   "categories": {

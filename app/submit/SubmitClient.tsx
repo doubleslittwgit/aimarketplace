@@ -3,6 +3,8 @@
 import { useState, useTransition, useRef, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import InternetAccessPicker from "@/components/InternetAccessPicker";
+import ToolLanguagePicker from "@/components/ToolLanguagePicker";
+import type { ToolLanguage } from "@/lib/tool-languages";
 import type { InternetAccess } from "@/lib/internet-access";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
@@ -26,6 +28,7 @@ export type DraftInitialValues = {
   price: number;
   runtime: "cloud" | "local";
   internetAccess: InternetAccess | null;
+  uiLanguages: ToolLanguage[];
   platforms: string[];
   minOsVersion: string | null;
   demoUrl: string | null;
@@ -57,6 +60,7 @@ export default function SubmitClient({
   const [internetAccess, setInternetAccess] = useState<InternetAccess | null>(
     initialDraft?.internetAccess ?? null
   );
+  const [uiLanguages, setUiLanguages] = useState<ToolLanguage[]>(initialDraft?.uiLanguages ?? []);
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState<string | null>(
     initialDraft?.fileName ?? null
@@ -483,6 +487,13 @@ export default function SubmitClient({
           {(priceType === "free" || (priceType === "paid" && canReceivePayments)) && (
             <Field label={t("internetAccess.title")} required>
               <InternetAccessPicker value={internetAccess} onChange={setInternetAccess} />
+            </Field>
+          )}
+
+          {/* ツールの対応言語（複数選択） */}
+          {(priceType === "free" || (priceType === "paid" && canReceivePayments)) && (
+            <Field label={t("languages.title")} required>
+              <ToolLanguagePicker value={uiLanguages} onChange={setUiLanguages} />
             </Field>
           )}
 

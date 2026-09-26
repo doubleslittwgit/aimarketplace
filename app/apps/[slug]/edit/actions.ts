@@ -8,6 +8,7 @@ import { MAX_TOOL_FILE_SIZE, formatPrice } from "@/lib/mock-data";
 import { isAllowedToolFile } from "@/lib/tool-file-types";
 import { parseVideoUrl } from "@/lib/video-embed";
 import { parseInternetAccess } from "@/lib/internet-access";
+import { parseToolLanguages } from "@/lib/tool-languages";
 import { syncToolAccessUrl, isValidToolUrl } from "@/lib/tool-access-url";
 import { translateAndSaveTool } from "@/lib/translate-tool";
 import { notify, notifyAdmins } from "@/lib/notifications/create";
@@ -117,6 +118,7 @@ export async function updateTool(
   const platforms = platformsRaw ? platformsRaw.split(",").filter(Boolean) : [];
   const minOsVersion = String(formData.get("minOsVersion") || "").trim() || null;
   const internetAccess = parseInternetAccess(formData.get("internetAccess"));
+  const uiLanguages = parseToolLanguages(formData.get("uiLanguages"));
   const demoUrl = String(formData.get("demoUrl") || "").trim() || null;
   // ツールのURLは http/https のみ（それ以外の形式は、開く時に予期せぬ動作をしうるため）
   if (demoUrl && !isValidToolUrl(demoUrl)) {
@@ -157,6 +159,9 @@ export async function updateTool(
   // インターネット接続の要否は必須（この項目ができる前の出品は、編集時に選んでもらう）
   if (!internetAccess) {
     return { error: t("internetAccessRequired") };
+  }
+  if (uiLanguages.length === 0) {
+    return { error: t("uiLanguagesRequired") };
   }
   if (uploadedFileSize && uploadedFileSize > MAX_FILE_SIZE) {
     return { error: t("fileSizeLimit300mb") };
@@ -235,6 +240,7 @@ export async function updateTool(
       sale_price: salePrice,
       sale_ends_at: saleEndsAt,
       internet_access: internetAccess,
+      ui_languages: uiLanguages,
       platforms,
       min_os_version: minOsVersion,
       file_key: fileKey,

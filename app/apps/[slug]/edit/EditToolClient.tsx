@@ -4,6 +4,8 @@ import { useState, useTransition, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import InternetAccessPicker from "@/components/InternetAccessPicker";
+import ToolLanguagePicker from "@/components/ToolLanguagePicker";
+import { parseToolLanguages, type ToolLanguage } from "@/lib/tool-languages";
 import { parseInternetAccess, type InternetAccess } from "@/lib/internet-access";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
@@ -33,6 +35,7 @@ type Tool = {
   video_url: string | null;
   runtime: "cloud" | "local";
   internet_access: string | null;
+  ui_languages: string[] | null;
   platforms: string[] | null;
   min_os_version: string | null;
   demo_url: string | null;
@@ -91,6 +94,7 @@ export default function EditToolClient({
   const [internetAccess, setInternetAccess] = useState<InternetAccess | null>(
     parseInternetAccess(tool.internet_access)
   );
+  const [uiLanguages, setUiLanguages] = useState<ToolLanguage[]>(parseToolLanguages(tool.ui_languages ?? []));
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
     tool.thumbnail_url
   );
@@ -516,6 +520,11 @@ export default function EditToolClient({
           {/* インターネット接続の要否（ローカル実行・クラウドのどちらでも選ぶ） */}
           <Field label={tSubmit("internetAccess.title")} required>
             <InternetAccessPicker value={internetAccess} onChange={setInternetAccess} />
+          </Field>
+
+          {/* ツールの対応言語（複数選択） */}
+          <Field label={tSubmit("languages.title")} required>
+            <ToolLanguagePicker value={uiLanguages} onChange={setUiLanguages} />
           </Field>
 
           {/* ファイル / デモURL */}
