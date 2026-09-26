@@ -70,7 +70,8 @@
     "claimFailed": "Failed to claim: {message}",
     "unsupportedFileType": "Unsupported file type",
     "invalidVideoUrl": "The intro video must be a YouTube or Vimeo link",
-    "invalidToolUrl": "The tool URL must start with http:// or https://"
+    "invalidToolUrl": "The tool URL must start with http:// or https://",
+    "internetAccessRequired": "Please choose whether an internet connection is required"
   },
   "cookieNotice": {
     "text": "This site uses cookies required to keep you logged in. See our <link>Privacy Policy</link> for details.",
@@ -291,7 +292,13 @@
       "refundPolicyTitle": "Refunds",
       "refundPolicyNone": "No refunds",
       "refundPolicyConditional": "Case by case",
-      "refundPolicyFull": "Refunds offered"
+      "refundPolicyFull": "Refunds offered",
+      "internet": "Internet",
+      "internetValue": {
+        "required": "Required",
+        "partial": "For some features",
+        "offline": "Not needed (works offline)"
+      }
     },
     "purchaseButton": {
       "ownerNotice": "This is your own listing",
@@ -848,7 +855,23 @@
     "videoUrlLabel": "Intro video (optional)",
     "videoUrlPlaceholder": "https://www.youtube.com/watch?v=...",
     "videoUrlHint": "Paste a YouTube or Vimeo link (unlisted is fine). It's shown first on the tool page.",
-    "videoUrlInvalid": "Only YouTube or Vimeo links are supported"
+    "videoUrlInvalid": "Only YouTube or Vimeo links are supported",
+    "internetAccess": {
+      "title": "Internet connection",
+      "hint": "Buyers use this to judge whether the tool works offline. It's shown on the tool page.",
+      "required": {
+        "label": "Required",
+        "description": "Needs a connection the whole time it's in use"
+      },
+      "partial": {
+        "label": "For some features",
+        "description": "Works offline, but AI features, updates, etc. need a connection"
+      },
+      "offline": {
+        "label": "Not needed",
+        "description": "Works fully offline once installed"
+      }
+    }
   },
   "categories": {
     "automation": "Automation & Workflows",

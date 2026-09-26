@@ -18,6 +18,8 @@ export type Tool = {
   tags: string[];
   updatedAt: string; // ISO date
   runtime: "cloud" | "local";
+  /** インターネット接続の要否（未設定の古い出品は null） */
+  internetAccess?: "required" | "partial" | "offline" | null;
   thumbnailUrl?: string | null;
   galleryUrls?: string[];
   fileSizeBytes?: number | null;

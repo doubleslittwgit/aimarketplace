@@ -70,7 +70,8 @@
     "claimFailed": "取得に失敗しました: {message}",
     "unsupportedFileType": "対応していないファイル形式です",
     "invalidVideoUrl": "紹介動画はYouTubeまたはVimeoのURLのみ登録できます",
-    "invalidToolUrl": "ツールのURLは http:// または https:// で始まるURLを入力してください"
+    "invalidToolUrl": "ツールのURLは http:// または https:// で始まるURLを入力してください",
+    "internetAccessRequired": "インターネット接続が必要かどうかを選んでください"
   },
   "cookieNotice": {
     "text": "本サービスは、ログイン状態を維持するために必要なCookieを使用しています。詳しくは<link>プライバシーポリシー</link>をご覧ください。",
@@ -291,7 +292,13 @@
       "refundPolicyTitle": "返金対応",
       "refundPolicyNone": "返金なし",
       "refundPolicyConditional": "条件により対応",
-      "refundPolicyFull": "返金対応あり"
+      "refundPolicyFull": "返金対応あり",
+      "internet": "ネット接続",
+      "internetValue": {
+        "required": "必要",
+        "partial": "一部の機能で必要",
+        "offline": "不要（オフライン可）"
+      }
     },
     "purchaseButton": {
       "ownerNotice": "あなたが出品したツールです",
@@ -848,7 +855,23 @@
     "videoUrlLabel": "紹介動画（任意）",
     "videoUrlPlaceholder": "https://www.youtube.com/watch?v=...",
     "videoUrlHint": "YouTubeまたはVimeoのURLを貼ってください（限定公開でも可）。商品ページの一番最初に表示されます。",
-    "videoUrlInvalid": "YouTubeまたはVimeoのURLのみ登録できます"
+    "videoUrlInvalid": "YouTubeまたはVimeoのURLのみ登録できます",
+    "internetAccess": {
+      "title": "インターネット接続",
+      "hint": "買う人が「オフラインでも使えるか」を判断する大事な情報です。ツールのページに表示されます。",
+      "required": {
+        "label": "必要",
+        "description": "使っている間はずっとネット接続が必要"
+      },
+      "partial": {
+        "label": "一部の機能で必要",
+        "description": "基本はオフラインで動くが、AI機能や更新などで接続が必要"
+      },
+      "offline": {
+        "label": "不要",
+        "description": "インストール後はオフラインで完全に動く"
+      }
+    }
   },
   "categories": {
     "automation": "自動化・ワークフロー",

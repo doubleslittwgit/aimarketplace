@@ -100,7 +100,8 @@
 35. `protect_tool_columns.sql`
 36. `academy_reviews_progress.sql`
 37. `academy_publish_lock.sql`
-38. `grants.sql` ← **必ず最後**
+38. `add_tool_internet_access.sql`
+39. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」

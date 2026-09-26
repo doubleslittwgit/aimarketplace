@@ -3,6 +3,8 @@
 import { useState, useTransition, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import InternetAccessPicker from "@/components/InternetAccessPicker";
+import { parseInternetAccess, type InternetAccess } from "@/lib/internet-access";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
 import { CREATIVE_APPS } from "@/lib/creative-apps";
@@ -30,6 +32,7 @@ type Tool = {
   is_wip: boolean;
   video_url: string | null;
   runtime: "cloud" | "local";
+  internet_access: string | null;
   platforms: string[] | null;
   min_os_version: string | null;
   demo_url: string | null;
@@ -85,6 +88,9 @@ export default function EditToolClient({
   }
   const [platforms, setPlatforms] = useState<string[]>(tool.platforms ?? []);
   const [minOsVersion, setMinOsVersion] = useState(tool.min_os_version ?? "");
+  const [internetAccess, setInternetAccess] = useState<InternetAccess | null>(
+    parseInternetAccess(tool.internet_access)
+  );
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
     tool.thumbnail_url
   );
@@ -506,6 +512,11 @@ export default function EditToolClient({
               </Field>
 
           <input type="hidden" name="platforms" value={platforms.join(",")} readOnly />
+
+          {/* インターネット接続の要否（ローカル実行・クラウドのどちらでも選ぶ） */}
+          <Field label={tSubmit("internetAccess.title")} required>
+            <InternetAccessPicker value={internetAccess} onChange={setInternetAccess} />
+          </Field>
 
           {/* ファイル / デモURL */}
           {tool.runtime === "local" ? (

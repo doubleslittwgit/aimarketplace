@@ -92,6 +92,9 @@ export default function BuyBox({
           label={t("runtime")}
           value={tool.runtime === "local" ? t("runtimeLocal") : t("runtimeCloud")}
         />
+        {tool.internetAccess && (
+          <Row label={t("internet")} value={t(`internetValue.${tool.internetAccess}`)} />
+        )}
         <Row label={t("installs")} value={tool.installs.toLocaleString()} />
         <Row label={t("updatedAt")} value={tool.updatedAt} />
         {tool.runtime === "local" && formatFileSize(tool.fileSizeBytes) && (

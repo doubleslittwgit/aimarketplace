@@ -70,7 +70,8 @@
     "claimFailed": "取得失敗：{message}",
     "unsupportedFileType": "不支援的檔案格式",
     "invalidVideoUrl": "介紹影片僅能登錄 YouTube 或 Vimeo 的網址",
-    "invalidToolUrl": "工具網址請輸入以 http:// 或 https:// 開頭的網址"
+    "invalidToolUrl": "工具網址請輸入以 http:// 或 https:// 開頭的網址",
+    "internetAccessRequired": "請選擇是否需要網路連線"
   },
   "cookieNotice": {
     "text": "本服務使用維持登入狀態所必需的Cookie。詳情請參閱<link>隱私權政策</link>。",
@@ -291,7 +292,13 @@
       "refundPolicyTitle": "退款方針",
       "refundPolicyNone": "不接受退款",
       "refundPolicyConditional": "視情況而定",
-      "refundPolicyFull": "接受退款"
+      "refundPolicyFull": "接受退款",
+      "internet": "網路連線",
+      "internetValue": {
+        "required": "需要",
+        "partial": "部分功能需要",
+        "offline": "不需要（可離線）"
+      }
     },
     "purchaseButton": {
       "ownerNotice": "這是您上架的工具",
@@ -848,7 +855,23 @@
     "videoUrlLabel": "介紹影片（選填）",
     "videoUrlPlaceholder": "https://www.youtube.com/watch?v=...",
     "videoUrlHint": "請貼上 YouTube 或 Vimeo 的網址（不公開影片也可以）。會顯示在商品頁面的最前面。",
-    "videoUrlInvalid": "僅能登錄 YouTube 或 Vimeo 的網址"
+    "videoUrlInvalid": "僅能登錄 YouTube 或 Vimeo 的網址",
+    "internetAccess": {
+      "title": "網路連線",
+      "hint": "這是買家判斷「能否離線使用」的重要資訊，會顯示在工具頁面上。",
+      "required": {
+        "label": "需要",
+        "description": "使用期間需要一直連網"
+      },
+      "partial": {
+        "label": "部分功能需要",
+        "description": "基本上可離線運作，但 AI 功能或更新等需要連網"
+      },
+      "offline": {
+        "label": "不需要",
+        "description": "安裝後可完全離線運作"
+      }
+    }
   },
   "categories": {
     "automation": "自動化與工作流程",

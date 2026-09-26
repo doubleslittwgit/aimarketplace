@@ -2,6 +2,8 @@
 
 import { useState, useTransition, useRef, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import InternetAccessPicker from "@/components/InternetAccessPicker";
+import type { InternetAccess } from "@/lib/internet-access";
 import { categories, MAX_TOOL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE, formatFileSize } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
 import { CREATIVE_APPS } from "@/lib/creative-apps";
@@ -23,6 +25,7 @@ export type DraftInitialValues = {
   categories: string[];
   price: number;
   runtime: "cloud" | "local";
+  internetAccess: InternetAccess | null;
   platforms: string[];
   minOsVersion: string | null;
   demoUrl: string | null;
@@ -50,6 +53,9 @@ export default function SubmitClient({
   );
   const [runtime, setRuntime] = useState<"cloud" | "local">(
     initialDraft?.runtime ?? "cloud"
+  );
+  const [internetAccess, setInternetAccess] = useState<InternetAccess | null>(
+    initialDraft?.internetAccess ?? null
   );
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState<string | null>(
@@ -470,6 +476,13 @@ export default function SubmitClient({
                   {t("cloudPaidWarning")}
                 </p>
               )}
+            </Field>
+          )}
+
+          {/* インターネット接続の要否（ローカル実行・クラウドのどちらでも選ぶ） */}
+          {(priceType === "free" || (priceType === "paid" && canReceivePayments)) && (
+            <Field label={t("internetAccess.title")} required>
+              <InternetAccessPicker value={internetAccess} onChange={setInternetAccess} />
             </Field>
           )}
 

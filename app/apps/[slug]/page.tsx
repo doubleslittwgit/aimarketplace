@@ -1,3 +1,4 @@
+import { parseInternetAccess } from "@/lib/internet-access";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
@@ -70,6 +71,7 @@ async function loadTool(
       tags: row.tags || [],
       updatedAt: (row.updated_at || "").slice(0, 10),
       runtime: row.runtime,
+      internetAccess: parseInternetAccess(row.internet_access),
       thumbnailUrl: row.thumbnail_url || null,
       salePrice: row.sale_price ?? null,
       saleEndsAt: row.sale_ends_at ?? null,

@@ -1,3 +1,4 @@
+import { parseInternetAccess } from "@/lib/internet-access";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import Header from "@/components/Header";
@@ -88,7 +89,7 @@ export default async function SubmitPage({
     const { data: draft } = await supabase
       .from("tools")
       .select(
-        "id, author_id, status, name, tagline, description, category, categories, price, runtime, platforms, min_os_version, thumbnail_url, gallery_urls, file_key"
+        "id, author_id, status, name, tagline, description, category, categories, price, runtime, internet_access, platforms, min_os_version, thumbnail_url, gallery_urls, file_key"
       )
       .eq("id", draftId)
       .maybeSingle();
@@ -113,6 +114,7 @@ export default async function SubmitPage({
         runtime: draft.runtime,
         platforms: draft.platforms ?? [],
         minOsVersion: draft.min_os_version,
+        internetAccess: parseInternetAccess(draft.internet_access),
         demoUrl: access?.url ?? null,
         thumbnailUrl: draft.thumbnail_url,
         galleryUrls: draft.gallery_urls ?? [],

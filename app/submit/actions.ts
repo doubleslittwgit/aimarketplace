@@ -1,5 +1,6 @@
 "use server";
 
+import { parseInternetAccess } from "@/lib/internet-access";
 import { redirect } from "next/navigation";
 import { getTranslations, getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
@@ -76,6 +77,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   }
   const videoUrl = videoUrlRaw || null;
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
+  const internetAccess = parseInternetAccess(formData.get("internetAccess"));
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)));
   const platformsRaw = String(formData.get("platforms") || "");
@@ -124,6 +126,10 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   // 実際のチェックは、下書きの既存ファイルと合わせた後（fileKey確定後）に行う。
   if (runtime === "cloud" && !demoUrl) {
     return { error: t("demoUrlRequiredForCloud") };
+  }
+  // インターネット接続の要否は、買う人が「オフラインで使えるか」を判断する材料なので必須にする
+  if (!internetAccess) {
+    return { error: t("internetAccessRequired") };
   }
   if (uploadedFileSize && uploadedFileSize > MAX_FILE_SIZE) {
     return { error: t("fileSizeLimit300mb") };
@@ -226,6 +232,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       video_url: videoUrl,
       price,
       runtime,
+      internet_access: internetAccess,
       platforms,
       min_os_version: minOsVersion,
       file_key: fileKey,
@@ -321,6 +328,7 @@ export async function saveDraft(
   }
   const videoUrl = videoUrlRaw || null;
   const runtime = String(formData.get("runtime") || "cloud") as "cloud" | "local";
+  const internetAccess = parseInternetAccess(formData.get("internetAccess"));
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)) || 0);
   const platformsRaw = String(formData.get("platforms") || "");
@@ -414,6 +422,7 @@ export async function saveDraft(
       video_url: videoUrl,
       price,
       runtime,
+      internet_access: internetAccess,
       platforms,
       min_os_version: minOsVersion,
       file_key: fileKey,
