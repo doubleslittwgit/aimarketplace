@@ -34,6 +34,12 @@ export async function login(formData: FormData): Promise<AuthResult> {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
+    // メールアドレスの確認がまだ（確認メールの期限切れ・紛失など）の場合は、確認メールを送り直す。
+    // このエラーはパスワードが正しいときだけ返るため、登録の有無を第三者に知られる心配はない。
+    if (error.code === "email_not_confirmed" || error.message === "Email not confirmed") {
+      const { error: resendError } = await supabase.auth.resend({ type: "signup", email });
+      return { error: resendError ? t("emailNotConfirmedWait") : t("emailNotConfirmedResent") };
+    }
     // Supabaseの生のエラーメッセージは英語のため、翻訳済みの文言に置き換える
     const message =
       error.message === "Invalid login credentials"

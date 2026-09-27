@@ -9,6 +9,12 @@ import { createClient } from "@/lib/supabase/server";
  * メールアプリ内のブラウザで開く人も多いため、Supabaseのメール文面を
  *   {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password
  * の形にしておくと、どのブラウザで開いても使える。
+ * メールの文面は supabase/email-templates/ にある（Supabaseの管理画面に貼り付けて使う）。
+ *
+ * 対応する type:
+ *   - email / signup … 新規登録の確認 → next（既定はトップ）へ
+ *   - recovery       … パスワード再設定 → /reset-password へ
+ *   - email_change   … メールアドレス変更の確認 → next（既定はアカウント設定）へ
  */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -25,7 +31,9 @@ export async function GET(request: Request) {
     }
   }
 
+  // リンクが無効（期限切れ・使用済み）の場合。
+  // 登録確認のリンクなら、ログインを試せば確認メールが自動で送り直される（app/auth/actions.ts の login）。
   return NextResponse.redirect(
-    type === "recovery" ? `${origin}/forgot-password?error=expired` : `${origin}/login`
+    type === "recovery" ? `${origin}/forgot-password?error=expired` : `${origin}/login?error=link`
   );
 }

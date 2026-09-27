@@ -14,6 +14,8 @@ export default function LoginForm() {
   const searchParams = useSearchParams();
   const justSignedUp = searchParams.get("confirm") === "1";
   const googleError = searchParams.get("error") === "google";
+  // メール内のリンク（登録確認など）が期限切れ・使用済みだった場合
+  const linkError = searchParams.get("error") === "link";
   const next = searchParams.get("next") || "/";
 
   function handleSubmit(formData: FormData) {
@@ -45,6 +47,12 @@ export default function LoginForm() {
       {googleError && (
         <div className="rounded-lg border border-accent-danger/30 bg-accent-danger/10 px-3.5 py-2.5 text-[13px] text-accent-danger">
           {t("googleError")}
+        </div>
+      )}
+
+      {linkError && (
+        <div className="rounded-lg border border-accent-danger/30 bg-accent-danger/10 px-3.5 py-2.5 text-[13px] text-accent-danger">
+          {t("emailLinkInvalid")}
         </div>
       )}
 

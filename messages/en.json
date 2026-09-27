@@ -77,7 +77,9 @@
     "passwordMismatch": "The passwords don't match",
     "resetLinkExpired": "This reset link has expired. Please request a new one.",
     "passwordSameAsOld": "You can't reuse your previous password",
-    "passwordWeak": "This password isn't safe (it's known to be leaked or easy to guess). Please choose another."
+    "passwordWeak": "This password isn't safe (it's known to be leaked or easy to guess). Please choose another.",
+    "emailNotConfirmedResent": "Your email address hasn't been confirmed yet. We've sent the confirmation email again—open the link in it, then log in (check your spam folder if you can't find it).",
+    "emailNotConfirmedWait": "Your email address hasn't been confirmed yet. A confirmation email was sent just a moment ago—please wait a few minutes and try logging in again."
   },
   "cookieNotice": {
     "text": "This site uses cookies required to keep you logged in. See our <link>Privacy Policy</link> for details.",
@@ -688,7 +690,8 @@
       "passwordHint": "At least 8 characters",
       "save": "Change password",
       "saving": "Changing…"
-    }
+    },
+    "emailLinkInvalid": "The link in the email is invalid or has expired. Please log in with the email and password you signed up with (if your email isn't confirmed yet, we'll send the confirmation email again)."
   },
   "legal": {
     "termsTitle": "Terms of Service",

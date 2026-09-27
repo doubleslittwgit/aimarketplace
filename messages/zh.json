@@ -77,7 +77,9 @@
     "passwordMismatch": "兩次輸入的密碼不一致",
     "resetLinkExpired": "重設連結已過期，請重新申請。",
     "passwordSameAsOld": "不能使用與先前相同的密碼",
-    "passwordWeak": "此密碼不安全（已知外洩或容易被猜到），請改用其他密碼。"
+    "passwordWeak": "此密碼不安全（已知外洩或容易被猜到），請改用其他密碼。",
+    "emailNotConfirmedResent": "您的電子郵件尚未驗證。我們已重新寄出驗證郵件，請開啟郵件中的連結後再登入（若沒收到，請檢查垃圾郵件匣）。",
+    "emailNotConfirmedWait": "您的電子郵件尚未驗證。驗證郵件剛剛才寄出，請稍候幾分鐘後再嘗試登入。"
   },
   "cookieNotice": {
     "text": "本服務使用維持登入狀態所必需的Cookie。詳情請參閱<link>隱私權政策</link>。",
@@ -688,7 +690,8 @@
       "passwordHint": "8 個字元以上",
       "save": "變更密碼",
       "saving": "變更中…"
-    }
+    },
+    "emailLinkInvalid": "郵件中的連結無效或已過期。請使用註冊時的電子郵件與密碼登入（若尚未完成驗證，我們會再寄一次驗證郵件）。"
   },
   "legal": {
     "termsTitle": "使用條款",

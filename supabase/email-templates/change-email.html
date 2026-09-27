@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <body style="margin:0;padding:0;background-color:#f5fafd;font-family:'Hiragino Sans','Yu Gothic','Microsoft JhengHei',sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5fafd;padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e3edf2;">
+            <tr>
+              <td style="padding:28px 32px 8px;">
+                <span style="font-size:18px;font-weight:700;color:#16232d;">BuildBay</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 32px 0;">
+                <h1 style="font-size:18px;line-height:1.5;color:#16232d;margin:16px 0 8px;">メールアドレス変更の確認</h1>
+                <p style="font-size:14px;line-height:1.8;color:#4a5b64;margin:0 0 24px;">BuildBay アカウントのメールアドレスを <strong>{{ .Email }}</strong> から <strong>{{ .NewEmail }}</strong> に変更するお申し込みを受け付けました。<br>下のボタンを押して、変更を確定してください。</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 32px 24px;">
+                <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=email_change&amp;next=/settings/account" style="display:inline-block;background-color:#ff6b4a;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 24px;border-radius:8px;">メールアドレスの変更を確定する</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 32px 24px;">
+                <p style="font-size:12px;line-height:1.7;color:#7a8b94;margin:0;">お申し込みに心当たりがない場合は、このメールを無視してください（メールアドレスは変更されません）。</p>
+                <p style="font-size:12px;line-height:1.7;color:#7a8b94;margin:12px 0 0;">我們收到了變更電子郵件地址的申請。請點擊上方按鈕確認變更。<br>We received a request to change your email address. Click the button above to confirm.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:16px 32px 28px;border-top:1px solid #eef4f7;">
+                <p style="font-size:12px;line-height:1.7;color:#9aa8b0;margin:16px 0 0;">
+                  このメールは BuildBay（<a href="https://www.getbuildbay.com" style="color:#9aa8b0;">getbuildbay.com</a>）から自動送信されています。お心当たりのない場合は、このメールを破棄してください。
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
