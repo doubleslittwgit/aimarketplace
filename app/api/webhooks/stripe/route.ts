@@ -44,28 +44,41 @@ import { formatPrice } from "@/lib/mock-data";
 export async function POST(request: Request) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  // Stripeでは「自分のアカウントのイベント」と「連結アカウント（出品者）のイベント」を
+  // 別々の送信先で受け取ることがあり、送信先ごとに署名の鍵が違う。
+  // そのため鍵は複数登録できるようにし、どれか1つで検証が通れば正規の通知とみなす。
+  const webhookSecrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_WEBHOOK_SECRET_2]
+    .flatMap((v) => (v ?? "").split(","))
+    .map((v) => v.trim())
+    .filter(Boolean);
 
-  if (!signature || !webhookSecret) {
+  if (!signature || webhookSecrets.length === 0) {
     return NextResponse.json(
       { error: "Webhookの署名設定が未完了です" },
       { status: 400 }
     );
   }
 
-  let event: Stripe.Event;
 
   // --- 1. 署名検証 ---
   // Stripe以外が送ってきた偽の通知をここで弾く。
-  try {
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-  } catch (e) {
-    const message = e instanceof Error ? e.message : "不明なエラー";
+  let verified: Stripe.Event | null = null;
+  let lastError = "不明なエラー";
+  for (const secret of webhookSecrets) {
+    try {
+      verified = stripe.webhooks.constructEvent(body, signature, secret);
+      break;
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : "不明なエラー";
+    }
+  }
+  if (!verified) {
     return NextResponse.json(
-      { error: `署名の検証に失敗しました: ${message}` },
+      { error: `署名の検証に失敗しました: ${lastError}` },
       { status: 400 }
     );
   }
+  const event: Stripe.Event = verified;
 
   // --- 出品者（連結アカウント）の審査状況が変わったとき ---
   // 本人確認が通った、追加情報が必要になった、入金が止められた等で届く。
