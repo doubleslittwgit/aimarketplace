@@ -108,6 +108,8 @@ export async function startCoursePurchase(courseId: string): Promise<{ error: st
         course_id: course.id,
         buyer_id: user.id,
         seller_id: course.author_id,
+        // 決済を作った時点の価格（支払い中に価格が変わっても、正しい支払いとして記録するため）
+        price: String(course.price),
       },
     }, "purchase", await getLocale());
     checkoutUrl = session.url;

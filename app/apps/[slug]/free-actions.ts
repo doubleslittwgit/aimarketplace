@@ -21,21 +21,27 @@ export async function claimFreeTool(toolId: string): Promise<ClaimResult | never
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { error } = await supabase.rpc("claim_free_tool", { p_tool_id: toolId });
-
-  if (error) {
-    return { error: t("claimFailed", { message: error.message }) };
-  }
-
   const { data: tool } = await supabase
     .from("tools")
     .select("slug")
     .eq("id", toolId)
     .maybeSingle();
+
+  if (!user) {
+    redirect(`/login?next=${encodeURIComponent(tool ? `/apps/${tool.slug}` : "/browse")}`);
+  }
+
+  const { error } = await supabase.rpc("claim_free_tool", { p_tool_id: toolId });
+
+  if (error) {
+    // データベースからの英語のメッセージは、そのまま見せずに案内文に置き換える
+    if (error.message.includes("own tool")) return { error: t("claimOwnTool") };
+    if (error.message.includes("not available") || error.message.includes("not free")) {
+      return { error: t("claimUnavailable") };
+    }
+    console.error("[claimFreeTool]", error.message);
+    return { error: t("claimFailedGeneric") };
+  }
 
   revalidatePath(`/apps/${tool?.slug ?? ""}`);
   redirect(`/apps/${tool?.slug ?? ""}?claimed=1`);

@@ -79,7 +79,21 @@
     "passwordSameAsOld": "You can't reuse your previous password",
     "passwordWeak": "This password isn't safe (it's known to be leaked or easy to guess). Please choose another.",
     "emailNotConfirmedResent": "Your email address hasn't been confirmed yet. We've sent the confirmation email again—open the link in it, then log in (check your spam folder if you can't find it).",
-    "emailNotConfirmedWait": "Your email address hasn't been confirmed yet. A confirmation email was sent just a moment ago—please wait a few minutes and try logging in again."
+    "emailNotConfirmedWait": "Your email address hasn't been confirmed yet. A confirmation email was sent just a moment ago—please wait a few minutes and try logging in again.",
+    "priceTooLow": "Paid prices must be at least ¥{min} (use ¥0 for free).",
+    "salePriceTooLow": "The sale price must be at least ¥{min}.",
+    "salePriceNotLower": "The sale price must be lower than the regular price.",
+    "invalidImageUrl": "We couldn't use that image. Please choose the image again and save.",
+    "cannotPublishInThisState": "This tool can't be switched right now. Tools under review or sent back can be resubmitted by editing and saving.",
+    "takenDownByAdmin": "This was unpublished by BuildBay, so you can’t republish it yourself. Edit and save it to send it for review again.",
+    "aiSearchLoginRequired": "Please log in to use AI search.",
+    "aiSearchRateLimited": "You've reached the AI search limit. Please try again later.",
+    "aiSearchQueryTooLong": "Please keep your search under {max} characters.",
+    "tooManyRequests": "You're sending too many requests. Please wait a moment and try again.",
+    "claimOwnTool": "You can download your own tool without claiming it.",
+    "claimUnavailable": "This tool can't be claimed right now (it may have been unpublished or made paid).",
+    "claimFailedGeneric": "Couldn't claim the tool. Please try again later.",
+    "cannotReviewOwnTool": "You can't review your own tool."
   },
   "cookieNotice": {
     "text": "This site uses cookies required to keep you logged in. See our <link>Privacy Policy</link> for details.",
@@ -197,7 +211,8 @@
     "sortPriceDesc": "Price: high to low",
     "emptyTitle": "No matching tools found",
     "emptyHint": "Try different keywords or categories",
-    "freeOnly": "Free only"
+    "freeOnly": "Free only",
+    "metaDescription": "Find tools built with AI by category, keyword, or AI search — from free to paid."
   },
   "aiSearch": {
     "title": "Ask AI to find a tool",
@@ -377,7 +392,14 @@
     "noVersionHistory": "No update history yet.",
     "videoSlide": "Intro video",
     "learnCourses": "Learn how this tool was built",
-    "languageOther": "Other"
+    "languageOther": "Other",
+    "downloadError": {
+      "not_purchased": "Purchase this tool to use it.",
+      "not_ready": "This tool isn't ready yet. Please wait while the seller's update is reviewed.",
+      "no_file": "No file (or tool URL) is set. Please add one from the edit page.",
+      "failed": "We couldn't prepare the download. Please try again later.",
+      "close": "Close"
+    }
   },
   "mfa": {
     "title": "Two-factor authentication",
@@ -530,7 +552,8 @@
     "reportDoneTitle": "Report received",
     "reportDoneBody": "We'll review it and take action if needed. Thanks for letting us know.",
     "close": "Close",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "noTools": "You don't have any published tools yet."
   },
   "favorites": {
     "title": "Favorites",
@@ -1003,7 +1026,7 @@
     },
     "toolEditTriggeredReview": {
       "title": "\"{toolName}\" is back under review",
-      "body": "A price increase or a thumbnail, video, or file change temporarily unpublished it while it's re-reviewed. It won't show to new buyers until review finishes (existing buyers can still download it)."
+      "body": "Because the price was raised or the thumbnail, video, gallery images, file, or tool URL changed, your tool is being re-reviewed. Until then it won’t be shown to new buyers (existing buyers can keep using the previously approved version)."
     },
     "toolUnpublishedByAdmin": {
       "title": "\"{toolName}\" was unpublished",
@@ -1090,6 +1113,10 @@
     "purchaseRefundedSeller": {
       "title": "A sale of “{itemName}” was refunded",
       "body": "The {amount} payment was refunded to the buyer, so your earnings for this sale are reversed."
+    },
+    "courseUnpublishedByAdmin": {
+      "title": "Your course \"{title}\" has been unpublished",
+      "body": "It was unpublished by BuildBay. Reason: {reason}"
     }
   },
   "refundRequest": {
@@ -1592,7 +1619,8 @@
       "salesLimit": "The limit must be between 1 and 100,000.",
       "salesLimitBelowSold": "{n} copies are already sold, so the limit can't be lower than that.",
       "failed": "Couldn't save: {message}",
-      "imageCopyFailed": "Couldn't copy images: {message}"
+      "imageCopyFailed": "Couldn't copy images: {message}",
+      "takenDownByAdmin": "Courses unpublished by BuildBay can’t be republished by the author."
     }
   },
   "accountSettings": {

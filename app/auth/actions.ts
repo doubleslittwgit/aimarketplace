@@ -16,8 +16,29 @@ export type AuthResult = { error: string } | { error: null };
  */
 function safeNextPath(value: FormDataEntryValue | string | null): string {
   const path = typeof value === "string" ? value : "";
-  if (path.startsWith("/") && !path.startsWith("//")) return path;
+  // 「/\evil.com」のようにバックスラッシュを使うと、ブラウザが「//evil.com」（外部サイト）と
+  // 解釈してしまうため、バックスラッシュ・制御文字を含むものは受け付けない
+  if (
+    path.startsWith("/") &&
+    !path.startsWith("//") &&
+    !path.includes("\\") &&
+    !/[\u0000-\u001f\u007f]/.test(path)
+  ) {
+    return path;
+  }
   return "/";
+}
+
+/**
+ * Googleログイン後に戻ってくる先のサイト（オリジン）。
+ * ブラウザから渡された値は使わず、サーバー側の設定から決める
+ * （渡された値をそのまま使うと、ログインの結果を外部のサイトへ送らせる細工ができてしまうため）。
+ */
+async function trustedOrigin(): Promise<string> {
+  const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.getbuildbay.com").replace(/\/+$/, "");
+  const requestOrigin = (await headers()).get("origin");
+  const allowed = [site, "http://localhost:3000"];
+  return requestOrigin && allowed.includes(requestOrigin) ? requestOrigin : site;
 }
 
 export async function login(formData: FormData): Promise<AuthResult> {
@@ -96,9 +117,10 @@ export async function logout() {
   redirect("/");
 }
 
-export async function signInWithGoogle(origin: string, next?: string) {
+export async function signInWithGoogle(_origin: string, next?: string) {
   const supabase = await createClient();
   const safeNext = safeNextPath(next ?? null);
+  const origin = await trustedOrigin();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",

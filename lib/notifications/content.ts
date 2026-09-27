@@ -42,11 +42,14 @@ export type NotificationType =
   | "tip_received"
   | "course_approved"
   | "course_rejected"
+  | "course_unpublished_by_admin"
   | "admin_course_pending"
   | "admin_course_double_payment"
   | "purchase_refunded"
   | "admin_dispute"
-  | "admin_refund_detected";
+  | "admin_refund_detected"
+  | "admin_double_payment"
+  | "admin_payment_mismatch";
 
 // ------------------------------------------------------------
 // 通知設定でオフにできる種類。
@@ -435,6 +438,18 @@ export function courseRejected(
   };
 }
 
+export function courseUnpublishedByAdmin(
+  title: string,
+  reason: string,
+  locale: SupportedLocale
+): NotificationContent {
+  return {
+    title: tNotif(locale, "courseUnpublishedByAdmin.title", { title }),
+    body: tNotif(locale, "courseUnpublishedByAdmin.body", { reason: reason.slice(0, 300) }),
+    linkUrl: `${SITE_URL}/dashboard`,
+  };
+}
+
 /** 管理者（Shuさん）宛：講座が審査に提出された */
 export function adminCoursePending(title: string, authorName: string): NotificationContent {
   return {
@@ -458,7 +473,44 @@ export function coursePurchaseReceipt(
   };
 }
 
-/** 管理者（Shuさん）宛：講座の二重決済。Stripeの管理画面から返金が必要 */
+/**
+ * 管理者宛：同じ人が同じ商品に2回支払った（2回目は自動で返金を試みた結果を知らせる）
+ */
+export function adminDoublePayment(params: {
+  itemName: string;
+  paymentIntentId: string;
+  amount: string;
+  refunded: boolean;
+  error?: string;
+}): NotificationContent {
+  return {
+    title: params.refunded
+      ? `二重決済を自動で返金しました: ${params.itemName}`
+      : `⚠️ 二重決済の自動返金に失敗（要対応）: ${params.itemName}`,
+    body: params.refunded
+      ? `同じ購入者が同じ商品に2回支払ったため、2回目の支払い（${params.paymentIntentId}、${params.amount}）を自動で全額返金しました。出品者への送金と手数料も取り消しています。対応は不要です。`
+      : `同じ購入者が同じ商品に2回支払いました。2回目の支払い（${params.paymentIntentId}、${params.amount}）の自動返金に失敗したため、管理画面の「返金・トラブル報告」→「報告の無い支払いを返金する」から返金してください。\n理由: ${params.error ?? "不明"}`,
+    linkUrl: params.refunded
+      ? `https://dashboard.stripe.com/payments/${params.paymentIntentId}`
+      : `${SITE_URL}/admin/refund-requests`,
+  };
+}
+
+/** 管理者宛：支払われた金額が想定と違った（購入は記録済み。念のため確認を促す） */
+export function adminPaymentMismatch(params: {
+  itemName: string;
+  paymentIntentId: string;
+  paid: string;
+  expected: string;
+}): NotificationContent {
+  return {
+    title: `⚠️ 支払額が想定と異なります: ${params.itemName}`,
+    body: `支払額 ${params.paid}（想定 ${params.expected}）。購入者は代金を支払っているため購入は記録しました。Stripeで ${params.paymentIntentId} を確認してください。`,
+    linkUrl: `https://dashboard.stripe.com/payments/${params.paymentIntentId}`,
+  };
+}
+
+/** 管理者（Shuさん）宛：講座の二重決済（旧方式。今は adminDoublePayment で自動返金の結果を知らせる） */
 export function adminCourseDoublePayment(title: string, paymentIntentId: string, amount: string): NotificationContent {
   return {
     title: `⚠️ 講座の二重決済（要・返金）: ${title}`,

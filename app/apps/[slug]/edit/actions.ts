@@ -1,9 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { MAX_TOOL_FILE_SIZE, formatPrice } from "@/lib/mock-data";
 import { isAllowedToolFile } from "@/lib/tool-file-types";
 import { parseVideoUrl } from "@/lib/video-embed";
@@ -11,6 +13,8 @@ import { parseInternetAccess } from "@/lib/internet-access";
 import { parseToolLanguages } from "@/lib/tool-languages";
 import { syncToolAccessUrl, isValidToolUrl } from "@/lib/tool-access-url";
 import { translateAndSaveTool } from "@/lib/translate-tool";
+import { MIN_PAID_PRICE } from "@/lib/pricing";
+import { isOwnToolImageUrl, allOwnToolImageUrls, isValidToolFileKey } from "@/lib/storage-urls";
 import { notify, notifyAdmins } from "@/lib/notifications/create";
 import {
   toolEditTriggeredReview,
@@ -63,7 +67,7 @@ export async function updateTool(
   // 「他人のツールを編集しようとした」という分かりやすいエラーを返せる。
   const { data: existing, error: fetchError } = await supabase
     .from("tools")
-    .select("id, slug, author_id, runtime, file_key, thumbnail_url, status, price, sale_price, video_url")
+    .select("id, slug, author_id, runtime, file_key, thumbnail_url, status, price, sale_price, video_url, gallery_urls, rejection_reason")
     .eq("id", toolId)
     .maybeSingle();
 
@@ -109,10 +113,20 @@ export async function updateTool(
   let saleEndsAt: string | null = null;
   if (saleEnabled && salePriceRaw && saleEndsAtRaw) {
     const parsed = Math.max(0, Math.round(Number(salePriceRaw)));
-    if (!Number.isNaN(parsed) && parsed < price) {
-      salePrice = parsed;
-      saleEndsAt = new Date(saleEndsAtRaw).toISOString();
+    const endsAt = new Date(saleEndsAtRaw);
+    if (Number.isNaN(parsed) || Number.isNaN(endsAt.getTime())) {
+      return { error: t("invalidPriceFormat") };
     }
+    // セール価格も100円以上（0円のセールは「無料」と表示されるのに決済できなくなるため）
+    if (parsed < MIN_PAID_PRICE) {
+      return { error: t("salePriceTooLow", { min: MIN_PAID_PRICE }) };
+    }
+    if (parsed >= price) {
+      return { error: t("salePriceNotLower") };
+    }
+    salePrice = parsed;
+    // ブラウザ側で「日本時間などの現地時刻 → 世界標準時」に変換済みの値が届く
+    saleEndsAt = endsAt.toISOString();
   }
   const platformsRaw = String(formData.get("platforms") || "");
   const platforms = platformsRaw ? platformsRaw.split(",").filter(Boolean) : [];
@@ -134,6 +148,9 @@ export async function updateTool(
   }
   if (Number.isNaN(price)) {
     return { error: t("invalidPriceFormat") };
+  }
+  if (price > 0 && price < MIN_PAID_PRICE) {
+    return { error: t("priceTooLow", { min: MIN_PAID_PRICE }) };
   }
   if (price > 0) {
     // 出品時と同じチェック。既に有料公開中でも、その後Stripe側の状態が
@@ -172,7 +189,7 @@ export async function updateTool(
 
   // 新しいファイルが指定された場合だけ差し替える（ブラウザ側でアップロード済み）
   if (existing.runtime === "local" && uploadedFileKey) {
-    if (!uploadedFileKey.startsWith(`${user.id}/`)) {
+    if (!isValidToolFileKey(uploadedFileKey, user.id, toolId)) {
       return { error: t("fileUploadFailed", { message: "invalid path" }) };
     }
     // ブラウザ側のacceptは回避できてしまうため、サーバー側でも形式を確認する
@@ -183,6 +200,10 @@ export async function updateTool(
   }
 
   if (uploadedThumbnailUrl) {
+    // 本人のフォルダにある BuildBay の画像だけを受け付ける（外部の画像URLを載せられないように）
+    if (!isOwnToolImageUrl(uploadedThumbnailUrl, user.id)) {
+      return { error: t("invalidImageUrl") };
+    }
     thumbnailUrl = uploadedThumbnailUrl;
   }
 
@@ -190,25 +211,54 @@ export async function updateTool(
   if (galleryResult.error) {
     return { error: galleryResult.error };
   }
+  // ギャラリーは「今すでに載っている画像」か「本人が今アップロードした画像」だけ
+  const currentGallery = new Set<string>(existing.gallery_urls ?? []);
+  const addedGallery = galleryResult.urls.filter((u) => !currentGallery.has(u));
+  if (!allOwnToolImageUrls(addedGallery, user.id)) {
+    return { error: t("invalidImageUrl") };
+  }
+
+  // クラウド型のツールのURLが変わったか（変わった場合は再審査）
+  let accessUrlChanged = false;
+  if (existing.runtime === "cloud") {
+    const { data: currentAccess } = await supabase
+      .from("tool_access_urls")
+      .select("url")
+      .eq("tool_id", toolId)
+      .maybeSingle();
+    accessUrlChanged = (currentAccess?.url ?? null) !== demoUrl;
+  }
 
   // 公開中のツールが、詐欺的な差し替え（値上げ・サムネイル差し替え・
   // ファイル差し替え）でこっそり中身を変えられてしまわないよう、これらの変更が
   // あった場合は一時的に「審査待ち」に戻し、管理者の再確認を必須にする。
   // 説明文の修正など、それ以外の変更では今まで通り即座に反映される。
   // （AI審査は現在停止中のため、判断は管理者の目視確認に委ねている）
+  // 非公開中（自分で非公開にした・運営が停止した）のツールも対象にする。
+  // そうしないと「非公開にして差し替え → 公開に戻す」で審査を通らずに済んでしまうため。
+  // 同じルールをデータベース側（supabase/launch_hardening.sql）でも強制している。
   const priceIncreased = price > existing.price;
+  const wasApproved = existing.status === "published" || existing.status === "suspended";
   const needsReReview =
-    existing.status === "published" &&
+    wasApproved &&
     (priceIncreased ||
       Boolean(uploadedThumbnailUrl) ||
-      Boolean(uploadedFileKey) ||
+      Boolean(uploadedFileKey && uploadedFileKey !== existing.file_key) ||
       // 紹介動画の差し替えも、サムネイルと同じく「見た目で釣る」差し替えに使えるため再審査。
       // （動画を外すだけなら審査は不要）
-      (Boolean(videoUrl) && videoUrl !== existing.video_url));
+      (Boolean(videoUrl) && videoUrl !== existing.video_url) ||
+      addedGallery.length > 0 ||
+      accessUrlChanged);
 
-  const nextStatus: string | undefined = needsReReview ? "pending_review" : undefined;
+  // 差し戻されたツール・運営が非公開にしたツールは、直して保存したら、そのまま審査に出し直す
+  const resubmitting =
+    existing.status === "rejected" ||
+    (existing.status === "suspended" && Boolean(existing.rejection_reason));
 
-  if (needsReReview) {
+  const nextStatus: string | undefined =
+    needsReReview || resubmitting ? "pending_review" : undefined;
+
+  if (needsReReview || resubmitting) {
     after(async () => {
       const { data: authorProfile } = await supabase
         .from("profiles")
@@ -218,7 +268,9 @@ export async function updateTool(
       const authorName =
         authorProfile?.display_name || authorProfile?.handle || "出品者";
 
-      await notify(user.id, "tool_edit_triggered_review", (locale) => toolEditTriggeredReview(name, locale));
+      if (needsReReview) {
+        await notify(user.id, "tool_edit_triggered_review", (locale) => toolEditTriggeredReview(name, locale));
+      }
       await notifyAdmins("admin_new_pending_review", adminNewPendingReview(name, authorName));
     });
   }
@@ -273,6 +325,8 @@ export async function updateTool(
   // 「最終更新日だけ見えて中身が分からない」状態を避けるための記録なので、
   // 変更内容が書かれていない場合は履歴として残さない。
   if (uploadedFileKey && newVersion && changelog) {
+    // 履歴は残すが、購入者への「更新しました」の通知は、購入者が実際に新しいファイルを
+    // 受け取れるようになってから（＝管理者が承認したとき。app/admin/review/actions.ts）送る
     const { error: versionError } = await supabase.from("tool_versions").insert({
       tool_id: toolId,
       version: newVersion,
@@ -281,7 +335,7 @@ export async function updateTool(
     if (versionError) {
       // 履歴が残せなくても、更新自体は成立しているのでエラーにはしない
       console.error("[updateTool] バージョン履歴の保存に失敗:", versionError.message);
-    } else {
+    } else if (!needsReReview) {
       // 購入者に更新を知らせる。
       // 履歴を残しても、購入者が商品ページを再訪しなければ気づけないため、
       // ここまでやって初めて「更新履歴」が機能する。
@@ -363,6 +417,23 @@ export async function setToolPublished(
     return { error: t("loginRequired") };
   }
 
+  const { data: tool } = await supabase
+    .from("tools")
+    .select("slug, status, rejection_reason")
+    .eq("id", toolId)
+    .eq("author_id", user.id)
+    .maybeSingle();
+  if (!tool) return { error: t("toolNotFound") };
+
+  // 切り替えられるのは「公開中 ⇔ 自分で非公開にしたもの」だけ。
+  // 審査中・差し戻し・運営による停止中のツールは、ここでは切り替えられない
+  if (published) {
+    if (tool.status !== "suspended") return { error: t("cannotPublishInThisState") };
+    if (tool.rejection_reason) return { error: t("takenDownByAdmin") };
+  } else if (tool.status !== "published") {
+    return { error: t("cannotPublishInThisState") };
+  }
+
   const { error } = await supabase
     .from("tools")
     .update({ status: published ? "published" : "suspended" })
@@ -373,6 +444,9 @@ export async function setToolPublished(
     return { error: t("updateFailed", { message: error.message }) };
   }
 
+  revalidatePath(`/apps/${tool.slug}`);
+  revalidatePath(`/apps/${tool.slug}/edit`);
+  revalidatePath("/dashboard");
   return { error: null };
 }
 
@@ -418,19 +492,6 @@ export async function deleteTool(toolId: string): Promise<EditActionResult> {
     };
   }
 
-  // 参照しているファイルを片付ける（失敗しても削除処理は続行する）
-  if (tool.file_key) {
-    await supabase.storage.from("tool-files").remove([tool.file_key]);
-  }
-  if (tool.thumbnail_url) {
-    const marker = "/tool-images/";
-    const idx = tool.thumbnail_url.indexOf(marker);
-    if (idx !== -1) {
-      const path = tool.thumbnail_url.slice(idx + marker.length);
-      await supabase.storage.from("tool-images").remove([path]);
-    }
-  }
-
   const { error: deleteError } = await supabase
     .from("tools")
     .delete()
@@ -438,6 +499,35 @@ export async function deleteTool(toolId: string): Promise<EditActionResult> {
 
   if (deleteError) {
     return { error: t("deleteFailed", { message: deleteError.message }) };
+  }
+
+  // 参照していたファイルを片付ける（失敗しても削除自体は完了している）。
+  // 公開中のツールの画像・承認済みのファイルは、本人の権限では消せないようにしているため
+  // （審査なしの差し替え防止）、所有者の確認と行の削除が済んだこの時点で管理者権限で消す。
+  const admin = createAdminClient();
+  const filePrefix = `${user.id}/${toolId}/`;
+  const fileKeys = new Set<string>();
+  if (tool.file_key?.startsWith(filePrefix)) fileKeys.add(tool.file_key);
+  // 差し替えのたびに別フォルダ（{ツールID}/{ランダム}/ファイル名）へ保存しているため、1階層下まで見る
+  const { data: entries } = await admin.storage.from("tool-files").list(`${user.id}/${toolId}`, { limit: 1000 });
+  for (const entry of entries ?? []) {
+    if (entry.id) {
+      fileKeys.add(filePrefix + entry.name);
+    } else {
+      const { data: inner } = await admin.storage
+        .from("tool-files")
+        .list(`${user.id}/${toolId}/${entry.name}`, { limit: 1000 });
+      for (const f of inner ?? []) if (f.id) fileKeys.add(`${filePrefix}${entry.name}/${f.name}`);
+    }
+  }
+  if (fileKeys.size > 0) await admin.storage.from("tool-files").remove([...fileKeys]);
+  if (tool.thumbnail_url) {
+    const marker = "/tool-images/";
+    const idx = tool.thumbnail_url.indexOf(marker);
+    if (idx !== -1) {
+      const path = tool.thumbnail_url.slice(idx + marker.length);
+      if (path.startsWith(filePrefix)) await admin.storage.from("tool-images").remove([path]);
+    }
   }
 
   redirect("/dashboard");

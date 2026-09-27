@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { notify } from "@/lib/notifications/create";
+import { isRateLimited } from "@/lib/rate-limit";
 import { newQuestion, questionAnswered } from "@/lib/notifications/content";
 
 export type QAItem = {
@@ -29,8 +30,12 @@ export async function askQuestion(
   } = await supabase.auth.getUser();
   if (!user) return { error: t("loginRequired") };
 
-  const trimmed = question.trim();
+  const trimmed = question.trim().slice(0, 2000);
   if (!trimmed) return { error: tQa("questionRequired") };
+  // 質問は出品者にメールで届くため、連投できないようにする（1時間に10件まで）
+  if (await isRateLimited(supabase, "tool_questions", "asker_id", user.id, 60, 10)) {
+    return { error: t("tooManyRequests") };
+  }
 
   const { data: tool } = await supabase
     .from("tools")

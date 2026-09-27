@@ -79,7 +79,21 @@
     "passwordSameAsOld": "不能使用與先前相同的密碼",
     "passwordWeak": "此密碼不安全（已知外洩或容易被猜到），請改用其他密碼。",
     "emailNotConfirmedResent": "您的電子郵件尚未驗證。我們已重新寄出驗證郵件，請開啟郵件中的連結後再登入（若沒收到，請檢查垃圾郵件匣）。",
-    "emailNotConfirmedWait": "您的電子郵件尚未驗證。驗證郵件剛剛才寄出，請稍候幾分鐘後再嘗試登入。"
+    "emailNotConfirmedWait": "您的電子郵件尚未驗證。驗證郵件剛剛才寄出，請稍候幾分鐘後再嘗試登入。",
+    "priceTooLow": "付費價格請設定為 {min} 日圓以上（免費請設為 0 日圓）",
+    "salePriceTooLow": "特價請設定為 {min} 日圓以上",
+    "salePriceNotLower": "特價必須低於原價",
+    "invalidImageUrl": "無法讀取圖片。請重新選擇圖片後再儲存",
+    "cannotPublishInThisState": "此工具目前無法切換公開狀態（審核中或被退回的工具，編輯並儲存後即可重新送審）",
+    "takenDownByAdmin": "此內容已被營運方設為不公開，無法自行重新公開。修改內容並儲存後即可重新送審",
+    "aiSearchLoginRequired": "使用 AI 搜尋前請先登入",
+    "aiSearchRateLimited": "AI 搜尋的使用次數已達上限，請稍後再試",
+    "aiSearchQueryTooLong": "搜尋內容請在 {max} 字以內",
+    "tooManyRequests": "短時間內送出次數過多，請稍後再試",
+    "claimOwnTool": "您自己的工具不需取得即可下載",
+    "claimUnavailable": "目前無法取得此工具（可能已停止公開或改為付費）",
+    "claimFailedGeneric": "取得失敗，請稍後再試",
+    "cannotReviewOwnTool": "無法為自己的工具撰寫評論"
   },
   "cookieNotice": {
     "text": "本服務使用維持登入狀態所必需的Cookie。詳情請參閱<link>隱私權政策</link>。",
@@ -197,7 +211,8 @@
     "sortPriceDesc": "價格由高到低",
     "emptyTitle": "找不到符合條件的工具",
     "emptyHint": "請試著更換關鍵字或分類再試一次",
-    "freeOnly": "只看免費"
+    "freeOnly": "只看免費",
+    "metaDescription": "透過分類、關鍵字與 AI 搜尋，找到運用 AI 打造的各種工具。從免費到付費應有盡有。"
   },
   "aiSearch": {
     "title": "問AI找工具",
@@ -377,7 +392,14 @@
     "noVersionHistory": "目前還沒有更新紀錄。",
     "videoSlide": "介紹影片",
     "learnCourses": "學習這個工具的製作方法",
-    "languageOther": "其他"
+    "languageOther": "其他",
+    "downloadError": {
+      "not_purchased": "購買後即可使用此工具",
+      "not_ready": "此工具目前準備中，請稍候賣家的更新完成審核",
+      "no_file": "尚未登錄可下載的檔案（或使用網址），請於編輯頁面設定",
+      "failed": "準備下載時發生錯誤，請稍後再試",
+      "close": "關閉"
+    }
   },
   "mfa": {
     "title": "雙重驗證",
@@ -530,7 +552,8 @@
     "reportDoneTitle": "已收到您的檢舉",
     "reportDoneBody": "我們確認後將進行必要處理，感謝您的協助。",
     "close": "關閉",
-    "cancel": "取消"
+    "cancel": "取消",
+    "noTools": "目前還沒有公開中的工具"
   },
   "favorites": {
     "title": "收藏",
@@ -1003,7 +1026,7 @@
     },
     "toolEditTriggeredReview": {
       "title": "「{toolName}」已重新進入審核",
-      "body": "因為漲價、更換縮圖、介紹影片或檔案，已暫時下架並重新審核。審核完成前，新買家將看不到此工具（已購買的使用者仍可繼續下載）。"
+      "body": "由於價格調漲，或縮圖、介紹影片、圖庫圖片、檔案、工具網址有所變更，目前正在重新審核。審核完成前，新買家將看不到此工具（已購買者可繼續使用審核前的版本）。"
     },
     "toolUnpublishedByAdmin": {
       "title": "「{toolName}」已被下架",
@@ -1090,6 +1113,10 @@
     "purchaseRefundedSeller": {
       "title": "「{itemName}」的銷售已退款",
       "body": "這筆 {amount} 的付款已退還給買家，因此這筆銷售的收款將被取消。"
+    },
+    "courseUnpublishedByAdmin": {
+      "title": "課程「{title}」已被設為不公開",
+      "body": "已由營運方設為不公開。原因：{reason}"
     }
   },
   "refundRequest": {
@@ -1592,7 +1619,8 @@
       "salesLimit": "販售份數上限請設定在 1～100,000 之間。",
       "salesLimitBelowSold": "已售出 {n} 份，上限不能少於這個數字。",
       "failed": "無法儲存：{message}",
-      "imageCopyFailed": "無法複製圖片：{message}"
+      "imageCopyFailed": "無法複製圖片：{message}",
+      "takenDownByAdmin": "被營運方設為不公開的課程，無法自行重新公開"
     }
   },
   "accountSettings": {

@@ -31,7 +31,9 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?next=/apps");
+    // ログイン後に、この商品ページへ戻ってこられるようにする
+    const { data: target } = await supabase.from("tools").select("slug").eq("id", toolId).maybeSingle();
+    redirect(`/login?next=${encodeURIComponent(target ? `/apps/${target.slug}` : "/browse")}`);
   }
 
   // 価格は必ずDBから取得する（ブラウザからの金額は信用しない）

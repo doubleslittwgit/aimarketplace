@@ -21,6 +21,7 @@ type PendingTool = {
   demo_url: string | null;
   thumbnail_url: string | null;
   file_key: string | null;
+  updated_at: string | null;
   ai_review_summary: string | null;
   ai_review_risk: "low" | "medium" | "high" | "unknown" | null;
   created_at: string;
@@ -250,7 +251,7 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
   function handleApprove() {
     setError(null);
     startApprove(async () => {
-      const result = await approveTool(tool.id);
+      const result = await approveTool(tool.id, { fileKey: tool.file_key, url: tool.demo_url, updatedAt: tool.updated_at });
       if (result?.error) setError(result.error);
       else setDone("approved");
     });

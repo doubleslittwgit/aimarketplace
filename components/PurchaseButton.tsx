@@ -67,7 +67,8 @@ export default function PurchaseButton({
     setError(null);
 
     if (!isLoggedIn) {
-      router.push("/login");
+      // ログイン後に、今見ている商品ページへ戻ってこられるようにする
+      router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
 

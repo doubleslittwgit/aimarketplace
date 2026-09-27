@@ -7,10 +7,12 @@ import Footer from "@/components/Footer";
 import AcademyBlurs from "@/components/academy/AcademyBlurs";
 import { COURSE_CATEGORIES, CATEGORY_ICONS, isCourseCategory } from "@/lib/academy/categories";
 import { loadCourses, loadTopRatedCourses } from "@/lib/academy/load-courses";
+import { shareMetadata } from "@/lib/seo";
 
 export async function generateMetadata() {
   const t = await getTranslations("academyHome");
-  return { title: t("meta.title"), description: t("meta.description") };
+  // SNSでシェアしたときに、トップページではなくこのページの題名・URLが出るようにする
+  return shareMetadata({ title: t("meta.title"), description: t("meta.description"), path: "/academy" });
 }
 
 /* ------------------------------------------------------------------ */

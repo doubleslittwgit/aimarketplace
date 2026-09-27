@@ -34,7 +34,9 @@ export async function startTip(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?next=/apps");
+    // ログイン後に、この商品ページへ戻ってこられるようにする
+    const { data: target } = await supabase.from("tools").select("slug").eq("id", toolId).maybeSingle();
+    redirect(`/login?next=${encodeURIComponent(target ? `/apps/${target.slug}` : "/browse")}`);
   }
 
   // 金額は許可リストにあるものだけを受け付ける。

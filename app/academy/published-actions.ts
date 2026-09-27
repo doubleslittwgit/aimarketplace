@@ -32,7 +32,7 @@ async function loadOwnCourse(courseId: string) {
   if (!user || !UUID.test(courseId)) return { supabase, user: null, course: null };
   const { data: course } = await supabase
     .from("courses")
-    .select("id, slug, author_id, status, price, title, thumbnail_url, category, refund_policy, toc, free_content, has_paid_part, sales_limit")
+    .select("id, slug, author_id, status, price, title, thumbnail_url, category, refund_policy, toc, free_content, has_paid_part, sales_limit, rejection_reason")
     .eq("id", courseId)
     .maybeSingle();
   if (!course || course.author_id !== user.id) return { supabase, user, course: null };
@@ -102,6 +102,8 @@ export async function setCourseVisibility(courseId: string, visible: boolean): P
   if (!user) return { error: t("login") };
   if (!course) return { error: t("notFound") };
   if (course.status !== "published" && course.status !== "suspended") return { error: t("notPublished") };
+  // 運営が非公開にした講座は、作者が公開に戻せない（データベース側でも禁止している）
+  if (visible && course.status === "suspended" && course.rejection_reason) return { error: t("takenDownByAdmin") };
 
   const { error } = await supabase
     .from("courses")

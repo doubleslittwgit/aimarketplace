@@ -13,6 +13,7 @@ import { TOOL_FILE_ACCEPT, isAllowedToolFile } from "@/lib/tool-file-types";
 import { parseVideoUrl } from "@/lib/video-embed";
 import { compressImage, compressImagesSequentially, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
 import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
+import { uploadNonce } from "@/lib/storage-urls";
 import { createClient as createBrowserSupabase } from "@/lib/supabase/client";
 import { createTool, saveDraft } from "./actions";
 
@@ -247,7 +248,8 @@ export default function SubmitClient({
       setUploadPercent(0);
       const result = await uploadToStorage({
         bucket: "tool-files",
-        key: `${user.id}/${toolId}/${sanitizeFileName(file.name)}`,
+        // 差し替えのたびに別のフォルダへ保存する（承認済みのファイルを上書きしないため）
+        key: `${user.id}/${toolId}/${uploadNonce()}/${sanitizeFileName(file.name)}`,
         file,
         onProgress: ({ percent }) => setUploadPercent(percent),
       });
@@ -263,7 +265,7 @@ export default function SubmitClient({
       setUploadPercent(0);
       const result = await uploadToStorage({
         bucket: "tool-images",
-        key: `${user.id}/${toolId}/${sanitizeFileName(thumb.name)}`,
+        key: `${user.id}/${toolId}/thumb-${uploadNonce()}-${sanitizeFileName(thumb.name)}`,
         file: thumb,
         onProgress: ({ percent }) => setUploadPercent(percent),
       });
@@ -433,8 +435,8 @@ export default function SubmitClient({
                     type="number"
                     name="price"
                     required
-                    min={1}
-                    step={100}
+                    min={0}
+                    step={1}
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     placeholder="0"

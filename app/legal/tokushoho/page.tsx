@@ -1,9 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import LegalPageContent from "@/components/LegalPageContent";
+import { shareMetadata } from "@/lib/seo";
 
 export async function generateMetadata() {
   const t = await getTranslations("legal");
-  return { title: t("tokushohoTitle"), description: t("tokushohoDescription") };
+  // SNSでシェアしたときに、トップページではなくこのページの題名・URLが出るようにする
+  return shareMetadata({ title: t("tokushohoTitle"), description: t("tokushohoDescription"), path: "/legal/tokushoho" });
 }
 
 // ============================================================

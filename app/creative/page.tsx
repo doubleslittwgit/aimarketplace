@@ -9,10 +9,12 @@ import { applyToolTranslations } from "@/lib/apply-translations";
 import { CREATIVE_APPS, CREATIVE_CATEGORIES, CREATIVE_TOOL_CATEGORIES, getCreativeApp } from "@/lib/creative-apps";
 import type { Locale } from "@/i18n/config";
 import type { Tool } from "@/lib/mock-data";
+import { shareMetadata } from "@/lib/seo";
 
 export async function generateMetadata() {
   const t = await getTranslations("creativeHome");
-  return { title: t("meta.title"), description: t("meta.description") };
+  // SNSでシェアしたときに、トップページではなくこのページの題名・URLが出るようにする
+  return shareMetadata({ title: t("meta.title"), description: t("meta.description"), path: "/creative" });
 }
 
 

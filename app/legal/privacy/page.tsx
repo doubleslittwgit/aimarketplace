@@ -1,9 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import LegalPageContent from "@/components/LegalPageContent";
+import { shareMetadata } from "@/lib/seo";
 
 export async function generateMetadata() {
   const t = await getTranslations("legal");
-  return { title: t("privacyTitle"), description: t("privacyDescription") };
+  // SNSでシェアしたときに、トップページではなくこのページの題名・URLが出るようにする
+  return shareMetadata({ title: t("privacyTitle"), description: t("privacyDescription"), path: "/legal/privacy" });
 }
 
 const HTML = `
@@ -83,7 +85,7 @@ const HTML = `
   <li><strong>Supabase</strong> — データベース、認証基盤、ファイル保管</li>
   <li><strong>Stripe, Inc.</strong> — 決済処理、出品者への送金、本人確認</li>
   <li><strong>Anthropic, PBC</strong> — 出品されたツールの審査（第3項）</li>
-  <li><strong>Vercel Inc.</strong> — 本サービスのホスティング</li>
+  <li><strong>Vercel Inc.</strong> — 本サービスのホスティング、アクセス解析（Cookieを使わず、個人を特定しない形でページの閲覧数等を集計します）</li>
   <li><strong>Cloudflare, Inc.</strong> — ドメイン管理</li>
   <li><strong>Resend, Inc.</strong> — 会員登録の確認・パスワード再設定・各種お知らせのメール送信</li>
   <li><strong>DeepL SE</strong> — ツールの説明文・レビュー等の自動翻訳</li>

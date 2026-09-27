@@ -82,5 +82,9 @@ export async function createCheckoutSessionWithConsent(
 
 /** 決済完了の通知（Checkout Session）から、規約への同意の日時を取り出す */
 export function termsAcceptedAt(session: Stripe.Checkout.Session): string | null {
-  return session.consent?.terms_of_service === "accepted" ? new Date().toISOString() : null;
+  // 通知の処理が遅れたり再送されたりしても、実際に決済した時刻に近い値になるよう、
+  // 処理した時刻ではなく決済画面が作られた時刻を使う（同意は決済の直前に行われる）
+  if (session.consent?.terms_of_service !== "accepted") return null;
+  const created = typeof session.created === "number" ? session.created * 1000 : Date.now();
+  return new Date(created).toISOString();
 }

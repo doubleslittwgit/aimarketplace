@@ -79,7 +79,21 @@
     "passwordSameAsOld": "以前と同じパスワードは使えません",
     "passwordWeak": "このパスワードは安全ではありません（流出が確認されているか、推測されやすいパスワードです）。別のパスワードにしてください。",
     "emailNotConfirmedResent": "メールアドレスの確認が済んでいません。確認メールをもう一度送りましたので、メールのリンクを開いてからログインしてください（届かない場合は迷惑メールフォルダもご確認ください）。",
-    "emailNotConfirmedWait": "メールアドレスの確認が済んでいません。確認メールは少し前に送ったばかりです。数分待ってから、もう一度ログインをお試しください。"
+    "emailNotConfirmedWait": "メールアドレスの確認が済んでいません。確認メールは少し前に送ったばかりです。数分待ってから、もう一度ログインをお試しください。",
+    "priceTooLow": "有料の価格は{min}円以上にしてください（無料にする場合は0円）",
+    "salePriceTooLow": "セール価格は{min}円以上にしてください",
+    "salePriceNotLower": "セール価格は、通常の価格より安くしてください",
+    "invalidImageUrl": "画像を読み込めませんでした。画像を選び直してから、もう一度保存してください",
+    "cannotPublishInThisState": "このツールは今の状態では公開・非公開を切り替えられません（審査中・差し戻し中のツールは、編集して保存すると審査に出せます）",
+    "takenDownByAdmin": "運営によって非公開にされたため、ご自身で公開に戻すことはできません。内容を直して保存すると、再審査に出せます",
+    "aiSearchLoginRequired": "AI検索を使うには、ログインしてください",
+    "aiSearchRateLimited": "AI検索の利用回数が上限に達しました。しばらく時間をおいてからお試しください",
+    "aiSearchQueryTooLong": "検索する文章は{max}文字以内にしてください",
+    "tooManyRequests": "短い時間に続けて送信されています。しばらく時間をおいてからお試しください",
+    "claimOwnTool": "ご自身のツールは、取得しなくてもダウンロードできます",
+    "claimUnavailable": "このツールは現在取得できません（公開が停止されたか、有料になった可能性があります）",
+    "claimFailedGeneric": "取得できませんでした。時間をおいてもう一度お試しください",
+    "cannotReviewOwnTool": "ご自身のツールにはレビューを書けません"
   },
   "cookieNotice": {
     "text": "本サービスは、ログイン状態を維持するために必要なCookieを使用しています。詳しくは<link>プライバシーポリシー</link>をご覧ください。",
@@ -197,7 +211,8 @@
     "sortPriceDesc": "価格が高い順",
     "emptyTitle": "該当するツールが見つかりませんでした",
     "emptyHint": "キーワードやカテゴリを変えて、もう一度お試しください",
-    "freeOnly": "無料のみ"
+    "freeOnly": "無料のみ",
+    "metaDescription": "AIを活用して作られたツールを、カテゴリ・キーワード・AI検索で探せます。無料のツールから有料のツールまで。"
   },
   "aiSearch": {
     "title": "AIに相談して探す",
@@ -377,7 +392,14 @@
     "noVersionHistory": "更新履歴はまだありません。",
     "videoSlide": "紹介動画",
     "learnCourses": "このツールの作り方を学ぶ",
-    "languageOther": "その他"
+    "languageOther": "その他",
+    "downloadError": {
+      "not_purchased": "このツールは購入すると使えるようになります",
+      "not_ready": "このツールは現在準備中です。出品者の更新が確認されるまで、少しお待ちください",
+      "no_file": "ダウンロードできるファイル（または利用先のURL）が登録されていません。編集画面から設定してください",
+      "failed": "ダウンロードの準備に失敗しました。時間をおいてもう一度お試しください",
+      "close": "閉じる"
+    }
   },
   "mfa": {
     "title": "二段階認証",
@@ -530,7 +552,8 @@
     "reportDoneTitle": "通報を受け付けました",
     "reportDoneBody": "確認のうえ、必要な対応を行います。ご協力ありがとうございます。",
     "close": "閉じる",
-    "cancel": "キャンセル"
+    "cancel": "キャンセル",
+    "noTools": "公開中のツールがまだありません"
   },
   "favorites": {
     "title": "お気に入り",
@@ -1003,7 +1026,7 @@
     },
     "toolEditTriggeredReview": {
       "title": "「{toolName}」が再審査待ちになりました",
-      "body": "価格の値上げ・サムネイル・紹介動画・ファイルの変更があったため、公開を一時停止し再審査しています。審査が終わるまで、新規購入者には表示されません（既に購入済みの方はダウンロードを継続できます）。"
+      "body": "価格の値上げ・サムネイル・紹介動画・ギャラリー画像・ファイル・ツールのURLの変更があったため、再審査しています。審査が終わるまで、新規購入者には表示されません（すでに購入済みの方は、審査前の内容を引き続き利用できます）。"
     },
     "toolUnpublishedByAdmin": {
       "title": "「{toolName}」が非公開になりました",
@@ -1090,6 +1113,10 @@
     "purchaseRefundedSeller": {
       "title": "「{itemName}」の売上が返金されました",
       "body": "{amount} の支払いが購入者に返金されたため、この売上の受取額は取り消されます。"
+    },
+    "courseUnpublishedByAdmin": {
+      "title": "講座「{title}」が非公開になりました",
+      "body": "運営により非公開にされました。理由: {reason}"
     }
   },
   "refundRequest": {
@@ -1592,7 +1619,8 @@
       "salesLimit": "販売部数の上限は1〜100,000の範囲で入力してください。",
       "salesLimitBelowSold": "すでに{n}部売れているため、それより少ない上限にはできません。",
       "failed": "保存できませんでした：{message}",
-      "imageCopyFailed": "画像をコピーできませんでした：{message}"
+      "imageCopyFailed": "画像をコピーできませんでした：{message}",
+      "takenDownByAdmin": "運営によって非公開にされた講座は、ご自身で公開に戻すことはできません"
     }
   },
   "accountSettings": {

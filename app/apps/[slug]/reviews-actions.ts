@@ -37,6 +37,12 @@ export async function upsertReview(
     return { error: t("ratingRangeInvalid") };
   }
 
+  // 自分のツールにはレビューを書けない（データベース側でも禁止している）
+  const { data: target } = await supabase.from("tools").select("author_id").eq("id", toolId).maybeSingle();
+  if (target?.author_id === user.id) {
+    return { error: t("cannotReviewOwnTool") };
+  }
+
   // 新規投稿か上書き編集かを先に判定しておく。
   // 出品者への通知は「新しいレビューがついた」ことを知らせるものなので、
   // 星の数を書き直しただけの編集では、毎回は送らない。

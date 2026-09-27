@@ -51,10 +51,14 @@ export async function updateProfile(
     if (uploadedAvatar.size > MAX_AVATAR_SIZE) {
       return { error: tProfile("avatarUploadFailed", { message: "5MBまでです" }) };
     }
-    const key = `${user.id}/${sanitizeFileName(uploadedAvatar.name)}`;
+    // 同じ名前でも上書きせず、毎回新しい場所に保存する（画像の置き場は上書きを許可していないため）
+    const key = `${user.id}/avatar-${crypto.randomUUID().slice(0, 8)}-${sanitizeFileName(uploadedAvatar.name)}`;
+    if (!uploadedAvatar.type.startsWith("image/")) {
+      return { error: tProfile("avatarUploadFailed", { message: "image only" }) };
+    }
     const { error: uploadError } = await supabase.storage
       .from("tool-images")
-      .upload(key, uploadedAvatar, { upsert: true });
+      .upload(key, uploadedAvatar, { contentType: uploadedAvatar.type });
 
     if (uploadError) {
       return { error: tProfile("avatarUploadFailed", { message: uploadError.message }) };

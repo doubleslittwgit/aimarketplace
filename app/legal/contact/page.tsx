@@ -1,9 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import LegalPageContent from "@/components/LegalPageContent";
+import { shareMetadata } from "@/lib/seo";
 
 export async function generateMetadata() {
   const t = await getTranslations("legal");
-  return { title: t("contactTitle"), description: t("contactDescription") };
+  // SNSでシェアしたときに、トップページではなくこのページの題名・URLが出るようにする
+  return shareMetadata({ title: t("contactTitle"), description: t("contactDescription"), path: "/legal/contact" });
 }
 
 // 実際の問い合わせ用メールアドレス

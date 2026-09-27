@@ -14,7 +14,7 @@ import { createClient } from "@/lib/supabase/client";
  * 「ページが読み込めない」というクラッシュのような表示になっていた。
  *
  * ブラウザからSupabaseへ直接送ることで、この制限を完全に回避できる。
- * 保存先パスは「ユーザーID/ツールID/ファイル名」で固定しており、Storage側の
+ * 保存先パスは「ユーザーID/ツールID/…」の形にしており、Storage側の
  * RLSが「先頭のフォルダ名 = 自分のユーザーID」であることを検証するため、
  * 他人のフォルダに書き込むことはできない。
  */
@@ -68,7 +68,9 @@ export async function uploadToStorage(params: {
   upsert?: boolean;
   onProgress?: (progress: UploadProgress) => void;
 }): Promise<DirectUploadResult> {
-  const { bucket, key, file, upsert = true, onProgress } = params;
+  // 既定は「上書きしない」。同じ場所への上書きを許すと、審査の後にファイルや画像を
+  // こっそり差し替えられてしまうため、差し替えは必ず新しい場所へ保存する（lib/storage-urls.ts の uploadNonce）。
+  const { bucket, key, file, upsert = false, onProgress } = params;
   const supabase = createClient();
 
   const {

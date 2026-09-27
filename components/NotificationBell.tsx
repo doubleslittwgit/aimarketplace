@@ -22,7 +22,7 @@ type NotificationItem = {
 function dotColor(type: string) {
   if (type.startsWith("admin_high_risk")) return "bg-accent-danger";
   if (type === "sale" || type === "purchase_receipt") return "bg-accent-success";
-  if (type.includes("rejected") || type === "tool_unpublished_by_admin")
+  if (type.includes("rejected") || type === "tool_unpublished_by_admin" || type === "course_unpublished_by_admin")
     return "bg-accent-danger";
   return "bg-accent-ai";
 }

@@ -4,10 +4,12 @@ import Footer from "@/components/Footer";
 import Feed from "@/components/Feed";
 import { createClient } from "@/lib/supabase/server";
 import { fetchFeedPosts } from "./actions";
+import { shareMetadata } from "@/lib/seo";
 
 export async function generateMetadata() {
   const t = await getTranslations("feed");
-  return { title: t("pageTitle"), description: t("pageDescription") };
+  // SNSでシェアしたときに、トップページではなくこのページの題名・URLが出るようにする
+  return shareMetadata({ title: t("pageTitle"), description: t("pageDescription"), path: "/feed" });
 }
 
 export default async function FeedPage() {

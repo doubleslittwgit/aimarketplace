@@ -25,7 +25,7 @@ export default async function AdminReviewPage() {
     admin
       .from("tools")
       .select(
-        "id, slug, name, tagline, description, category, price, runtime, platforms, min_os_version, thumbnail_url, file_key, ai_review_summary, ai_review_risk, created_at, author_id, profiles:author_id(display_name, handle)"
+        "id, slug, name, tagline, description, category, price, runtime, platforms, min_os_version, thumbnail_url, file_key, updated_at, ai_review_summary, ai_review_risk, created_at, author_id, profiles:author_id(display_name, handle)"
       )
       .eq("status", "pending_review")
       .order("created_at", { ascending: true }),

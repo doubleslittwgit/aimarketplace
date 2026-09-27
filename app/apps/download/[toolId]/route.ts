@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
- * ツールのダウンロード。
+ * ツールのダウンロード（クラウド型は利用先URLへの案内）。
  *
  * URLを知っているだけではダウンロードできないようにするため、
  * 以下を順に確認してから、有効期限つきの一時URLを発行する。
@@ -12,14 +12,21 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *   1. ログインしているか
  *   2. そのツールを購入済みか（または無料ツール、または出品者本人か）
  *
- * 有効期限を短くしているのは、発行されたURLが第三者に共有されても、
- * すぐに使えなくなるようにするため。
+ * 【購入者に渡すのは「承認済み」のファイル・URLだけ】
+ * 出品者が公開後にファイルやURLを差し替えると、ツールは審査待ちに戻る。
+ * その間も購入者は使い続けられるよう、管理者が最後に承認した時点のもの
+ * （tools.approved_file_key / tool_access_urls.approved_url）を渡す。
+ * 差し替え後のものは、管理者が承認して初めて購入者に届く。
+ *
+ * 失敗した場合は、JSONではなく商品ページに戻して、翻訳済みの案内を出す
+ * （components/DownloadErrorNotice.tsx）。
  */
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ toolId: string }> }
 ) {
   const { toolId } = await params;
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
   const supabase = await createClient();
 
   const {
@@ -27,20 +34,24 @@ export async function GET(
   } = await supabase.auth.getUser();
 
   if (!user) {
+    // ログイン後に、もう一度このダウンロードをやり直せるようにする
     return NextResponse.redirect(
-      new URL("/login", process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000")
+      new URL(`/login?next=${encodeURIComponent(`/apps/download/${toolId}`)}`, site)
     );
   }
 
   const { data: tool } = await supabase
     .from("tools")
-    .select("id, slug, price, author_id, file_key, runtime, status")
+    .select("id, slug, price, author_id, file_key, approved_file_key, runtime, status")
     .eq("id", toolId)
     .maybeSingle();
 
   if (!tool) {
-    return NextResponse.json({ error: "ツールが見つかりません" }, { status: 404 });
+    return NextResponse.redirect(new URL("/browse", site));
   }
+
+  const back = (code: string) =>
+    NextResponse.redirect(new URL(`/apps/${tool.slug}?download_error=${code}`, site));
 
   const isOwner = tool.author_id === user.id;
 
@@ -61,15 +72,13 @@ export async function GET(
     .eq("status", "completed")
     .maybeSingle();
 
-  const hasAccess =
-    isOwner || Boolean(purchase) || tool.price === 0 || isReviewingAdmin;
+  const isFreeAndPublic = tool.price === 0 && tool.status === "published";
+  const hasAccess = isOwner || Boolean(purchase) || isFreeAndPublic || isReviewingAdmin;
 
-  if (!hasAccess) {
-    return NextResponse.json(
-      { error: "このツールを購入していません" },
-      { status: 403 }
-    );
-  }
+  if (!hasAccess) return back("not_purchased");
+
+  // 出品者本人と、審査中の管理者は「最新の（審査前の）内容」、それ以外は「承認済みの内容」
+  const seesLatest = isOwner || isReviewingAdmin;
 
   // 有料で購入した人がダウンロード・利用したことを記録する（返金の判断・チャージバックの証拠用。
   // lib/access-log.ts 参照）。出品者本人や無料の取得は記録しない。応答は遅らせない
@@ -86,44 +95,35 @@ export async function GET(
     );
   }
 
-  // クラウド型のツールは、ファイルではなくデモURLへ案内する
+  // クラウド型のツールは、ファイルではなく利用先URLへ案内する
   if (tool.runtime === "cloud") {
-    // ツールのURLは tool_access_urls から取り出す。通常は本人のセッションで読み、
-    // データベース側の制限（購入者・出品者・無料のみ）を二重の守りとして効かせる。
-    // 審査中のツールを確認する管理者だけは、その制限に当てはまらないので管理者権限で読む。
-    const reader = isReviewingAdmin && !isOwner ? createAdminClient() : supabase;
+    // この表を直接読めるのは出品者本人だけにしている（購入者に未承認のURLが漏れないように）。
+    // 購入・無料の利用の確認は上で済ませているので、それ以外の人の分は管理者権限で読む
+    const reader = isOwner ? supabase : createAdminClient();
     const { data: access } = await reader
       .from("tool_access_urls")
-      .select("url")
+      .select("url, approved_url")
       .eq("tool_id", tool.id)
       .maybeSingle();
 
-    if (!access?.url) {
-      return NextResponse.json(
-        { error: "利用先URLが設定されていません" },
-        { status: 404 }
-      );
-    }
-    return NextResponse.redirect(access.url);
+    const target = seesLatest ? access?.url : access?.approved_url;
+    if (!target) return back(seesLatest ? "no_file" : "not_ready");
+    return NextResponse.redirect(target);
   }
 
-  if (!tool.file_key) {
-    return NextResponse.json(
-      { error: "ダウンロードできるファイルがありません" },
-      { status: 404 }
-    );
-  }
+  const fileKey = seesLatest ? tool.file_key : tool.approved_file_key;
+  if (!fileKey) return back(seesLatest ? "no_file" : "not_ready");
 
-  // 60秒だけ有効な一時URLを発行する
-  const { data: signed, error: signError } = await supabase.storage
+  // 60秒だけ有効な一時URLを発行する。
+  // 審査中の管理者は、ファイル置き場の制限（出品者本人・購入者のみ）に当てはまらないので管理者権限で発行する
+  const storage = isReviewingAdmin && !isOwner ? createAdminClient().storage : supabase.storage;
+  const { data: signed, error: signError } = await storage
     .from("tool-files")
-    .createSignedUrl(tool.file_key, 60, { download: true });
+    .createSignedUrl(fileKey, 60, { download: true });
 
   if (signError || !signed) {
-    return NextResponse.json(
-      { error: `ダウンロードURLの発行に失敗しました: ${signError?.message ?? ""}` },
-      { status: 500 }
-    );
+    console.error("[download] 一時URLの発行に失敗:", signError?.message, tool.id);
+    return back("failed");
   }
 
   return NextResponse.redirect(signed.signedUrl);

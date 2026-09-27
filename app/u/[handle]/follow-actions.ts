@@ -5,6 +5,7 @@ import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { notify } from "@/lib/notifications/create";
+import { takeThrottle } from "@/lib/throttle";
 import { newFollower } from "@/lib/notifications/content";
 
 export type FollowResult = { error: string | null; following: boolean };
@@ -66,6 +67,8 @@ export async function toggleFollow(
       .maybeSingle();
     const name = followerProfile?.display_name || followerProfile?.handle || "";
     const handle = followerProfile?.handle || "";
+    // フォロー・解除を繰り返してメールを大量に送りつけられないよう、同じ人からのフォロー通知は1日1回まで
+    if (!(await takeThrottle(`follow-notify:${user.id}:${targetProfileId}`, 24 * 60, 1))) return;
     await notify(targetProfileId, "new_follower", (locale) => newFollower(name, handle, locale), { email: true });
   });
 

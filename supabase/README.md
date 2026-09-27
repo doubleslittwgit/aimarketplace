@@ -43,6 +43,8 @@
 | `academy_purchases.sql` | Academy の講座の購入・返金ポリシー（後から足したもの） |
 | `academy_image_cleanup.sql` | Academy の未使用画像の一覧（後から足したもの） |
 | `increment_install.sql` | ダウンロード数を加算する関数 |
+| `launch_hardening.sql` | リリース前の総点検：審査のすり抜け防止・承認済みファイル・価格の下限・レビュー等（後から足したもの） |
+| `action_throttle.sql` | AI検索・フォロー通知の回数制限（後から足したもの） |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
 
 ---
@@ -106,7 +108,9 @@
 41. `security_hardening.sql`
 42. `fix_tool_status_transitions.sql`
 43. `purchase_evidence.sql`
-44. `grants.sql` ← **必ず最後**
+44. `launch_hardening.sql`
+45. `action_throttle.sql`
+46. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」

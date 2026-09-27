@@ -5,9 +5,9 @@ import { sellerAccountFieldsFromStripe } from "@/lib/stripe/seller-account";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { notify, notifyAdmins } from "@/lib/notifications/create";
 import { COURSE_PLATFORM_FEE_RATE } from "@/lib/academy/flags";
+import { PLATFORM_FEE_RATE } from "@/lib/stripe/server";
 import {
   coursePurchaseReceipt,
-  adminCourseDoublePayment,
   sale as saleContent,
   purchaseReceipt,
   sellerAccountStatusChanged,
@@ -15,6 +15,9 @@ import {
   adminDisputeCreated,
   adminDisputeClosed,
   adminRefundDetected,
+  adminDoublePayment,
+  adminPaymentMismatch,
+  purchaseRefundedBuyer,
 } from "@/lib/notifications/content";
 import { findPaymentRecord, markPaymentRefunded, getRecordAccessSummary } from "@/lib/stripe/payment-records";
 import { formatJst } from "@/lib/access-log";
@@ -81,6 +84,19 @@ export async function POST(request: Request) {
     );
   }
   const event: Stripe.Event = verified;
+
+  // --- テスト環境と本番環境の取り違えを防ぐ ---
+  // 本番のキーで動いているのに「テスト環境の支払い」の通知が届いた（またはその逆）場合は無視する。
+  // テスト用の送信先の鍵が残っていると、テストカードの支払いが本物の購入として記録されてしまうため。
+  // 200を返す（エラーを返すとStripeが何度も再送してくるため）。
+  const secretKey = process.env.STRIPE_SECRET_KEY ?? "";
+  const serverIsLive = secretKey.startsWith("sk_live") || secretKey.startsWith("rk_live");
+  if (event.livemode !== serverIsLive) {
+    console.warn(
+      `[webhook] 環境の異なる通知を無視しました: event.livemode=${event.livemode}, server=${serverIsLive ? "live" : "test"}, type=${event.type}, id=${event.id}`
+    );
+    return NextResponse.json({ received: true, ignored: "mode_mismatch" });
+  }
 
   // --- 出品者（連結アカウント）の審査状況が変わったとき ---
   // 本人確認が通った、追加情報が必要になった、入金が止められた等で届く。
@@ -231,16 +247,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true });
     }
 
-    // 結果が出た。負けた場合はお金が戻されているので、購入者の権限を外す
+    // 結果が出た。負けた場合はお金が購入者に戻されているので、購入者の権限を外し、
+    // 出品者に送った売上も取り戻す（取り戻さないと、出品者の取り分までBuildBayが負担することになる）
     const won = dispute.status === "won";
-    if (!won && dispute.status === "lost" && record && record.status !== "refunded") {
-      const { error } = await markPaymentRefunded(admin, record);
-      if (error) console.error("[webhook] チャージバック敗北の反映に失敗:", error);
+    let reversalNote: string | null = null;
+    if (!won && dispute.status === "lost") {
+      if (record && record.status !== "refunded") {
+        const { error } = await markPaymentRefunded(admin, record);
+        if (error) console.error("[webhook] チャージバック敗北の反映に失敗:", error);
+      }
+      reversalNote = await reverseSellerTransfer(dispute);
     }
     if (dispute.status === "won" || dispute.status === "lost") {
+      const closed = adminDisputeClosed({ disputeId: dispute.id, won, itemName, amount, livemode: event.livemode });
       await notifyAdmins(
         "admin_dispute",
-        adminDisputeClosed({ disputeId: dispute.id, won, itemName, amount, livemode: event.livemode })
+        reversalNote ? { ...closed, body: `${closed.body}\n${reversalNote}` } : closed
       );
     }
     return NextResponse.json({ received: true });
@@ -353,18 +375,22 @@ export async function POST(request: Request) {
   // タイミングのズレでも正規の購入を弾いてしまわないよう、sale_priceは
   // 期限を問わず「設定されていれば許容する価格」として扱う
   // （sale_priceの値自体はDBの正規の値であり、ブラウザからは改変できないため安全）。
+  //
+  // 【価格が途中で変わった場合】
+  // 購入者がStripeの支払い画面にいる間（最長24時間）に出品者が価格を変えると、
+  // 支払額とDBの今の価格が食い違う。ここで記録を拒むと「代金を払ったのに商品が届かない」
+  // 状態になり、Stripeの再送も失敗し続けるため、決済を作った時点の価格（metadata.price。
+  // サーバー側で設定した値で、署名検証済みの通知に含まれるため改ざんできない）とも照合する。
+  // それでも一致しない場合も、購入者は実際に代金を支払っているので記録したうえで、管理者に確認を促す。
   const amountPaid = session.amount_total ?? 0;
-  const validAmounts = [tool.price, tool.sale_price].filter(
+  const priceAtCheckout = Number(meta.price);
+  const validAmounts = [tool.price, tool.sale_price, Number.isFinite(priceAtCheckout) ? priceAtCheckout : null].filter(
     (v): v is number => v != null
   );
-  if (!validAmounts.includes(amountPaid)) {
-    // 一致しない場合は記録せず、調査できるようログに残す
+  const amountMismatch = !validAmounts.includes(amountPaid);
+  if (amountMismatch) {
     console.error(
-      `[webhook] 金額の不一致を検出: 支払額=${amountPaid}, DB価格=${tool.price}, セール価格=${tool.sale_price}, tool=${toolId}`
-    );
-    return NextResponse.json(
-      { error: "支払金額が商品価格と一致しません" },
-      { status: 400 }
+      `[webhook] 金額の不一致を検出（記録は行う）: 支払額=${amountPaid}, 決済時=${meta.price}, DB価格=${tool.price}, セール価格=${tool.sale_price}, tool=${toolId}`
     );
   }
 
@@ -378,7 +404,7 @@ export async function POST(request: Request) {
   // 「DBの現在価格」ではなく「実際にStripeで支払われた金額」を基準にする
   // （セール価格での購入の場合、tool.priceは通常価格のままなので、
   //  これを基準にすると手数料も出品者の取り分もズレてしまう）。
-  const platformFee = Math.round(amountPaid * 0.2);
+  const platformFee = Math.round(amountPaid * PLATFORM_FEE_RATE);
   const sellerEarnings = amountPaid - platformFee;
 
   // --- 4. 購入記録の作成 ---
@@ -410,13 +436,20 @@ export async function POST(request: Request) {
     // 代わりに、返金対応が必要な事象として大きくログに残した上で
     // 200を返し、Stripeの再送ループを止める。
     if (insertError.code === "23505") {
+      // 重複には2種類ある。
+      // (1) 同じ支払いの通知がほぼ同時に2回届いた（先に確認した時点ではまだ記録が無かった）→ 何もしない
+      const { data: samePayment } = await supabase
+        .from("purchases")
+        .select("id")
+        .eq("stripe_payment_intent_id", paymentIntentId)
+        .maybeSingle();
+      if (samePayment) return NextResponse.json({ received: true, duplicate: true });
+      // (2) 同じ人が同じツールに、別々の支払いを2回した（実際にお金が2回動いている）→ 2回目を自動で返金する
       console.error(
-        `[webhook] ⚠️ 二重決済を検出（要・返金対応）: tool=${toolId}, buyer=${buyerId}, payment_intent=${paymentIntentId}, amount=${amountPaid}`
+        `[webhook] ⚠️ 二重決済を検出（自動返金）: tool=${toolId}, buyer=${buyerId}, payment_intent=${paymentIntentId}, amount=${amountPaid}`
       );
-      return NextResponse.json({
-        received: true,
-        error: "duplicate_completed_purchase_needs_refund",
-      });
+      await refundDuplicatePayment({ paymentIntentId, buyerId, itemName: tool.name, amount: amountPaid });
+      return NextResponse.json({ received: true, duplicate: "refunded" });
     }
 
     // ここで失敗すると「支払ったのに購入記録が無い」状態になる。
@@ -425,6 +458,18 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: `購入記録の作成に失敗: ${insertError.message}` },
       { status: 500 }
+    );
+  }
+
+  if (amountMismatch) {
+    await notifyAdmins(
+      "admin_payment_mismatch",
+      adminPaymentMismatch({
+        itemName: tool.name,
+        paymentIntentId,
+        paid: formatPrice(amountPaid),
+        expected: validAmounts.map((v) => formatPrice(v)).join(" / "),
+      })
     );
   }
 
@@ -495,7 +540,7 @@ async function handleTip(
   if (amountPaid <= 0) {
     return NextResponse.json({ error: "金額が不正です" }, { status: 400 });
   }
-  const platformFee = Math.round(amountPaid * 0.2);
+  const platformFee = Math.round(amountPaid * PLATFORM_FEE_RATE);
 
   const { error: insertError } = await supabase.from("tips").insert({
     tool_id: toolId || null,
@@ -579,13 +624,16 @@ async function handleCoursePurchase(
     return NextResponse.json({ error: "講座が見つかりません" }, { status: 400 });
   }
 
-  // 実際に支払われた額が、講座の価格と一致するか確認する
+  // 実際に支払われた額が、講座の価格と一致するか確認する。
+  // 支払い画面にいる間に作者が価格を変えることがあるため、決済を作った時点の価格（metadata.price）とも照合し、
+  // それでも一致しない場合も、代金は支払われているので記録したうえで管理者に確認を促す
   const amountPaid = session.amount_total ?? 0;
-  if (amountPaid !== course.price) {
+  const priceAtCheckout = Number(meta.price);
+  const amountMismatch = amountPaid !== course.price && amountPaid !== priceAtCheckout;
+  if (amountMismatch) {
     console.error(
-      `[webhook] 講座の金額不一致: 支払額=${amountPaid}, 価格=${course.price}, course=${courseId}`
+      `[webhook] 講座の金額不一致（記録は行う）: 支払額=${amountPaid}, 決済時=${meta.price}, 価格=${course.price}, course=${courseId}`
     );
-    return NextResponse.json({ error: "支払金額が講座の価格と一致しません" }, { status: 400 });
   }
 
   const platformFee = Math.round(amountPaid * COURSE_PLATFORM_FEE_RATE);
@@ -618,19 +666,28 @@ async function handleCoursePurchase(
         return NextResponse.json({ received: true, duplicate: true });
       }
       // (2) 同じ人が同じ講座に、別々の支払いを2回してしまった（実際にお金が2回動いている）。
-      //     再送させても解決しないので200を返し、返金対応が必要なことを管理者に知らせる。
+      //     2回目の支払いを自動で返金する（出品者への送金・手数料も取り消す）
       console.error(
-        `[webhook] ⚠️ 講座の二重決済（要・返金対応）: course=${courseId}, buyer=${buyerId}, payment_intent=${paymentIntentId}`
+        `[webhook] ⚠️ 講座の二重決済（自動返金）: course=${courseId}, buyer=${buyerId}, payment_intent=${paymentIntentId}`
       );
-      await notifyAdmins(
-        "admin_course_double_payment",
-        adminCourseDoublePayment(course.title, paymentIntentId, formatPrice(amountPaid))
-      );
-      return NextResponse.json({ received: true, error: "duplicate_course_purchase_needs_refund" });
+      await refundDuplicatePayment({ paymentIntentId, buyerId, itemName: course.title, amount: amountPaid });
+      return NextResponse.json({ received: true, duplicate: "refunded" });
     }
     // 「支払ったのに購入記録が無い」状態を避けるため、500を返してStripeに再送させる
     console.error("[webhook] 講座の購入記録の作成に失敗:", insertError.message);
     return NextResponse.json({ error: insertError.message }, { status: 500 });
+  }
+
+  if (amountMismatch) {
+    await notifyAdmins(
+      "admin_payment_mismatch",
+      adminPaymentMismatch({
+        itemName: course.title,
+        paymentIntentId,
+        paid: formatPrice(amountPaid),
+        expected: formatPrice(course.price),
+      })
+    );
   }
 
   const { data: buyerProfile } = await supabase
@@ -648,4 +705,80 @@ async function handleCoursePurchase(
   );
 
   return NextResponse.json({ received: true });
+}
+
+/**
+ * 二重決済の2回目の支払いを全額返金する。
+ * 出品者への送金（reverse_transfer）とBuildBayの手数料（refund_application_fee）も取り消すので、
+ * 誰の負担も残らない（Stripeの決済手数料を除く）。同じ支払いを二重に返金しないよう冪等キーを付ける。
+ */
+async function refundDuplicatePayment(params: {
+  paymentIntentId: string;
+  buyerId: string;
+  itemName: string;
+  amount: number;
+}): Promise<void> {
+  const { paymentIntentId, buyerId, itemName, amount } = params;
+  try {
+    // 同じ通知が再送されてきた場合は、すでに返金済みなので何もしない（通知も二重に送らない）
+    const existing = await stripe.refunds.list({ payment_intent: paymentIntentId, limit: 10 });
+    if (existing.data.some((r) => r.status !== "failed" && r.status !== "canceled")) return;
+
+    await stripe.refunds.create(
+      {
+        payment_intent: paymentIntentId,
+        reverse_transfer: true,
+        refund_application_fee: true,
+        reason: "duplicate",
+        metadata: { source: "buildbay_duplicate" },
+      },
+      { idempotencyKey: `buildbay-duplicate-refund-${paymentIntentId}` }
+    );
+    await notify(buyerId, "purchase_refunded", (locale) =>
+      purchaseRefundedBuyer(itemName, formatPrice(amount), locale)
+    );
+    await notifyAdmins(
+      "admin_double_payment",
+      adminDoublePayment({ itemName, paymentIntentId, amount: formatPrice(amount), refunded: true })
+    );
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[webhook] 二重決済の自動返金に失敗:", message);
+    await notifyAdmins(
+      "admin_double_payment",
+      adminDoublePayment({ itemName, paymentIntentId, amount: formatPrice(amount), refunded: false, error: message })
+    );
+  }
+}
+
+/**
+ * チャージバックに負けたとき、出品者に送った売上を取り戻す。
+ * 戻り値は管理者への通知に添える一文（取り戻せなかった場合は、その理由）。
+ */
+async function reverseSellerTransfer(dispute: Stripe.Dispute): Promise<string | null> {
+  try {
+    const chargeId = typeof dispute.charge === "string" ? dispute.charge : dispute.charge?.id;
+    if (!chargeId) return null;
+    const charge = await stripe.charges.retrieve(chargeId);
+    const transferId = typeof charge.transfer === "string" ? charge.transfer : charge.transfer?.id;
+    if (!transferId) return "出品者への送金が見つからないため、売上の取り戻しは行っていません。";
+    const transfer = await stripe.transfers.retrieve(transferId);
+    const remaining = transfer.amount - transfer.amount_reversed;
+    if (remaining <= 0) return "出品者への送金は、すでに取り消されています。";
+    // 一部の金額だけの申し立ての場合は、その割合の分だけ取り戻す
+    const share =
+      charge.amount > 0 ? Math.round((transfer.amount * Math.min(dispute.amount, charge.amount)) / charge.amount) : remaining;
+    const toReverse = Math.min(remaining, share);
+    if (toReverse <= 0) return null;
+    await stripe.transfers.createReversal(
+      transferId,
+      { amount: toReverse, metadata: { source: "buildbay_dispute_lost", dispute: dispute.id } },
+      { idempotencyKey: `buildbay-dispute-reversal-${dispute.id}` }
+    );
+    return `出品者に送った売上（${formatPrice(toReverse)}）を取り戻しました。`;
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[webhook] チャージバック敗北時の売上の取り戻しに失敗:", message);
+    return `⚠️ 出品者に送った売上の取り戻しに失敗しました（Stripeの「送金」から手動で取り消してください）: ${message}`;
+  }
 }

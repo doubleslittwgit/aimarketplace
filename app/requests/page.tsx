@@ -4,10 +4,12 @@ import Footer from "@/components/Footer";
 import RequestBoard from "@/components/RequestBoard";
 import { createClient } from "@/lib/supabase/server";
 import { fetchRequests } from "./actions";
+import { shareMetadata } from "@/lib/seo";
 
 export async function generateMetadata() {
   const t = await getTranslations("requests");
-  return { title: t("pageTitle"), description: t("pageDescription") };
+  // SNSでシェアしたときに、トップページではなくこのページの題名・URLが出るようにする
+  return shareMetadata({ title: t("pageTitle"), description: t("pageDescription"), path: "/requests" });
 }
 
 export default async function RequestsPage() {

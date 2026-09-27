@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition, useRef, useEffect, useMemo } from "react";
+import { useState, useTransition, useRef, useEffect, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import InternetAccessPicker from "@/components/InternetAccessPicker";
 import ToolLanguagePicker from "@/components/ToolLanguagePicker";
@@ -14,6 +15,7 @@ import { TOOL_FILE_ACCEPT, isAllowedToolFile } from "@/lib/tool-file-types";
 import { parseVideoUrl } from "@/lib/video-embed";
 import { compressImage, compressImagesSequentially, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
 import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
+import { uploadNonce } from "@/lib/storage-urls";
 import { createClient as createBrowserSupabase } from "@/lib/supabase/client";
 import { updateTool, setToolPublished, deleteTool } from "./actions";
 
@@ -55,6 +57,7 @@ export default function EditToolClient({
   hasPurchases: boolean;
 }) {
   const t = useTranslations("edit");
+  const router = useRouter();
   const tSubmit = useTranslations("submit");
   const tCategories = useTranslations("categories");
   const tCommon = useTranslations("common");
@@ -62,9 +65,17 @@ export default function EditToolClient({
   const [salePrice, setSalePrice] = useState(
     tool.sale_price != null ? String(tool.sale_price) : ""
   );
-  const [saleEndsAt, setSaleEndsAt] = useState(
-    tool.sale_ends_at ? tool.sale_ends_at.slice(0, 16) : ""
+  // 保存されているのは世界標準時（UTC）なので、入力欄には閲覧者の現地時刻で出す。
+  // サーバー側で描画するときは時差が分からないため空にし、ブラウザで現地時刻を入れる
+  // （サーバーでの描画とブラウザでの最初の描画をそろえるため、表示できるのは読み込み後）
+  const isClient = useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false
   );
+  const [saleEndsAtInput, setSaleEndsAt] = useState<string | null>(null);
+  const saleEndsAt =
+    saleEndsAtInput ?? (isClient && tool.sale_ends_at ? toLocalDateTimeInput(tool.sale_ends_at) : "");
   const [saleEnabled, setSaleEnabled] = useState(tool.sale_price != null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     tool.categories?.length ? tool.categories : tool.category ? [tool.category] : []
@@ -227,7 +238,8 @@ export default function EditToolClient({
       setUploadPercent(0);
       const result = await uploadToStorage({
         bucket: "tool-files",
-        key: `${user.id}/${tool.id}/${sanitizeFileName(file.name)}`,
+        // 差し替えのたびに別のフォルダへ保存する（承認済みのファイルを上書きしないため）
+        key: `${user.id}/${tool.id}/${uploadNonce()}/${sanitizeFileName(file.name)}`,
         file,
         onProgress: ({ percent }) => setUploadPercent(percent),
       });
@@ -242,7 +254,7 @@ export default function EditToolClient({
       setUploadPercent(0);
       const result = await uploadToStorage({
         bucket: "tool-images",
-        key: `${user.id}/${tool.id}/${sanitizeFileName(thumb.name)}`,
+        key: `${user.id}/${tool.id}/thumb-${uploadNonce()}-${sanitizeFileName(thumb.name)}`,
         file: thumb,
         onProgress: ({ percent }) => setUploadPercent(percent),
       });
@@ -293,6 +305,12 @@ export default function EditToolClient({
     startTransition(async () => {
       // 出品時と同じく、ファイル本体はブラウザから直接Supabaseへ送る
       // （Vercelの1リクエスト4.5MB制限を回避するため）
+      // セール終了日時は「現地時刻」で入力されるので、世界標準時に直して送る
+      const localEndsAt = String(formData.get("saleEndsAt") || "");
+      if (localEndsAt) {
+        const d = new Date(localEndsAt);
+        if (!Number.isNaN(d.getTime())) formData.set("saleEndsAt", d.toISOString());
+      }
       const uploadError = await prepareUploads(formData);
       if (uploadError) {
         setUploadLabel(null);
@@ -316,6 +334,7 @@ export default function EditToolClient({
         setStatusMessage(
           willPublish ? t("publishedMessage") : t("unpublishedMessage")
         );
+        router.refresh();
       }
     });
   }
@@ -362,7 +381,8 @@ export default function EditToolClient({
           </div>
         )}
 
-        {/* 公開・非公開の切り替え */}
+        {/* 公開・非公開の切り替え（公開中か、自分で非公開にしたツールだけ） */}
+        {(tool.status === "published" || tool.status === "suspended") && (
         <div className="mb-8 flex items-center justify-between rounded-lg border border-border bg-surface px-4 py-3">
           <div>
             <p className="text-[13px] font-medium text-text-primary">
@@ -385,6 +405,7 @@ export default function EditToolClient({
                 : t("publish")}
           </button>
         </div>
+        )}
 
         <form action={handleFormAction} className="space-y-7">
           {/* サムネイル画像 */}
@@ -795,7 +816,7 @@ export default function EditToolClient({
                 name="price"
                 required
                 min={0}
-                step={100}
+                step={1}
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 className="w-full rounded-lg border border-border bg-surface py-2.5 pl-8 pr-3.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
@@ -851,9 +872,9 @@ export default function EditToolClient({
                       <input
                         type="number"
                         name="salePrice"
-                        min={0}
-                        step={100}
-                        max={Math.max(0, priceNumber - 1)}
+                        min={100}
+                        step={1}
+                        max={Math.max(100, priceNumber - 1)}
                         value={salePrice}
                         onChange={(e) => setSalePrice(e.target.value)}
                         className="w-full rounded-lg border border-border bg-surface py-2.5 pl-8 pr-3.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
@@ -1000,4 +1021,16 @@ function Field({
       {children}
     </div>
   );
+}
+
+function noopSubscribe() {
+  return () => {};
+}
+
+/** 世界標準時の日時を、datetime-local の入力欄用の「現地時刻」の文字列にする */
+function toLocalDateTimeInput(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }

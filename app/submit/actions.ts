@@ -12,6 +12,8 @@ import { syncToolAccessUrl, isValidToolUrl } from "@/lib/tool-access-url";
 import { parseVideoUrl } from "@/lib/video-embed";
 import { notifyAdmins } from "@/lib/notifications/create";
 import { adminNewPendingReview } from "@/lib/notifications/content";
+import { MIN_PAID_PRICE } from "@/lib/pricing";
+import { isOwnToolImageUrl, allOwnToolImageUrls, isValidToolFileKey } from "@/lib/storage-urls";
 
 export type CreateToolResult = { error: string } | { error: null };
 
@@ -105,6 +107,10 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   if (Number.isNaN(price)) {
     return { error: t("invalidPriceFormat") };
   }
+  // 有料は100円以上（カード決済の最低金額を下回ると、買う時に決済エラーになるため）
+  if (price > 0 && price < MIN_PAID_PRICE) {
+    return { error: t("priceTooLow", { min: MIN_PAID_PRICE }) };
+  }
   if (price > 0) {
     // 有料ツールは、実際に売上を受け取れる状態の出品者しか出せないようにする。
     // これをしないと「買えるのに出品者が代金を受け取れない」商品が生まれてしまう。
@@ -188,7 +194,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   if (runtime === "local" && uploadedFileKey) {
     // 他人のフォルダのパスを送りつけられないよう、必ず自分のIDで始まることを確認する。
     // （Storage側のRLSでも防がれているが、DBに不正なパスを記録させないための二重の防御）
-    if (!uploadedFileKey.startsWith(`${user.id}/`)) {
+    if (!isValidToolFileKey(uploadedFileKey, user.id, id)) {
       return { error: t("fileUploadFailed", { message: "invalid path" }) };
     }
     // ブラウザ側のacceptは回避できてしまうため、サーバー側でも形式を確認する
@@ -205,12 +211,19 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   }
 
   if (uploadedThumbnailUrl) {
+    // 本人のフォルダにある BuildBay の画像だけを受け付ける（外部の画像URLを載せられないように）
+    if (!isOwnToolImageUrl(uploadedThumbnailUrl, user.id)) {
+      return { error: t("invalidImageUrl") };
+    }
     thumbnailUrl = uploadedThumbnailUrl;
   }
 
   const galleryResult = processGalleryImages(formData);
   if (galleryResult.error) {
     return { error: galleryResult.error };
+  }
+  if (!allOwnToolImageUrls(galleryResult.urls, user.id)) {
+    return { error: t("invalidImageUrl") };
   }
 
   // AI審査は一旦停止中（Shuさんの判断）。ブラウザからSupabaseへ直接
@@ -339,6 +352,9 @@ export async function saveDraft(
   const uiLanguages = parseToolLanguages(formData.get("uiLanguages"));
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)) || 0);
+  if (price > 0 && price < MIN_PAID_PRICE) {
+    return { error: t("priceTooLow", { min: MIN_PAID_PRICE }) };
+  }
   const platformsRaw = String(formData.get("platforms") || "");
   const platforms = platformsRaw ? platformsRaw.split(",").filter(Boolean) : [];
   const minOsVersion = String(formData.get("minOsVersion") || "").trim() || null;
@@ -393,7 +409,7 @@ export async function saveDraft(
   let thumbnailUrl = existingThumbnailUrl;
 
   if (runtime === "local" && uploadedFileKey) {
-    if (!uploadedFileKey.startsWith(`${user.id}/`)) {
+    if (!isValidToolFileKey(uploadedFileKey, user.id, id)) {
       return { error: t("fileUploadFailed", { message: "invalid path" }) };
     }
     // ブラウザ側のacceptは回避できてしまうため、サーバー側でも形式を確認する
@@ -405,12 +421,19 @@ export async function saveDraft(
   }
 
   if (uploadedThumbnailUrl) {
+    // 本人のフォルダにある BuildBay の画像だけを受け付ける（外部の画像URLを載せられないように）
+    if (!isOwnToolImageUrl(uploadedThumbnailUrl, user.id)) {
+      return { error: t("invalidImageUrl") };
+    }
     thumbnailUrl = uploadedThumbnailUrl;
   }
 
   const galleryResult = processGalleryImages(formData);
   if (galleryResult.error) {
     return { error: galleryResult.error };
+  }
+  if (!allOwnToolImageUrls(galleryResult.urls, user.id)) {
+    return { error: t("invalidImageUrl") };
   }
 
   const { error: upsertError } = await supabase.from("tools").upsert(

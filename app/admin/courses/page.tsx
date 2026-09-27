@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import CourseReviewClient, { type PendingCourse } from "./CourseReviewClient";
+import PublishedCoursesClient, { type PublishedCourse } from "./PublishedCoursesClient";
 import { COURSE_PURCHASE_ENABLED } from "@/lib/academy/flags";
 
 export const metadata = { title: "講座の審査 | 管理" };
@@ -17,11 +18,19 @@ export default async function AdminCoursesPage() {
   const { data: isAdmin } = await supabase.rpc("is_admin", { p_user_id: user.id });
   if (!isAdmin) redirect("/");
 
-  const { data } = await createAdminClient()
-    .from("courses")
-    .select("id, slug, title, price, toc, updated_at, profiles:author_id(display_name, handle)")
-    .eq("status", "pending_review")
-    .order("updated_at", { ascending: true });
+  const admin = createAdminClient();
+  const [{ data }, { data: live }] = await Promise.all([
+    admin
+      .from("courses")
+      .select("id, slug, title, price, toc, updated_at, profiles:author_id(display_name, handle)")
+      .eq("status", "pending_review")
+      .order("updated_at", { ascending: true }),
+    admin
+      .from("courses")
+      .select("id, slug, title, price, status, rejection_reason, published_at, profiles:author_id(display_name, handle)")
+      .in("status", ["published", "suspended"])
+      .order("published_at", { ascending: false }),
+  ]);
 
   return (
     <>
@@ -40,6 +49,12 @@ export default async function AdminCoursesPage() {
           </p>
         )}
         <CourseReviewClient courses={(data ?? []) as unknown as PendingCourse[]} />
+
+        <h2 className="mt-12 font-display text-lg font-semibold text-text-primary">公開中の講座</h2>
+        <p className="mt-1 text-[12px] text-text-muted">
+          問題のある講座は、理由を付けて非公開にできます。作者は自分で公開に戻せません（購入済みの人は引き続き読めます）。
+        </p>
+        <PublishedCoursesClient courses={(live ?? []) as unknown as PublishedCourse[]} />
       </main>
     </>
   );

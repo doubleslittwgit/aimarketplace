@@ -17,6 +17,7 @@ import TipBox from "@/components/TipBox";
 import ToolCard from "@/components/ToolCard";
 import ToolReviews from "@/components/ToolReviews";
 import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
+import DownloadErrorNotice from "@/components/DownloadErrorNotice";
 import ImageCarousel from "@/components/ImageCarousel";
 import { createClient } from "@/lib/supabase/server";
 import { shareMetadata } from "@/lib/seo";
@@ -410,6 +411,7 @@ export default async function ToolDetailPage({
       <Header />
       <Suspense fallback={null}>
         <PurchaseSuccessModal />
+        <DownloadErrorNotice />
       </Suspense>
 
       {/* Creative対象のツール（プラグイン、またはクリエイティブ系のカテゴリ）は、

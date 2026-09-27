@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { notify } from "@/lib/notifications/create";
-import { courseApproved, courseRejected } from "@/lib/notifications/content";
+import { courseApproved, courseRejected, courseUnpublishedByAdmin } from "@/lib/notifications/content";
 import { COURSE_PURCHASE_ENABLED } from "@/lib/academy/flags";
 import { removeUnusedCourseImages } from "@/lib/academy/cleanup";
 
@@ -79,6 +79,42 @@ export async function rejectCourse(courseId: string, reason: string): Promise<{ 
     courseRejected(course.title, course.id, trimmed, locale)
   );
   revalidatePath("/admin/courses");
+  return { error: null };
+}
+
+/**
+ * 公開中（または作者が非公開にしている）講座を、運営として非公開にする。
+ * 理由は作者に通知される。作者は自分で公開に戻せない（データベース側でも禁止）。
+ * 購入済みの人は、引き続き講座を読める（返金するかどうかは別途判断する）。
+ */
+export async function unpublishCourseByAdmin(courseId: string, reason: string): Promise<{ error: string | null }> {
+  if (!(await requireAdmin())) return { error: "管理者権限がありません" };
+  const trimmed = reason.trim();
+  if (!trimmed) return { error: "非公開にする理由を入力してください" };
+  const admin = createAdminClient();
+
+  const { data: course } = await admin
+    .from("courses")
+    .select("id, title, slug, status, author_id")
+    .eq("id", courseId)
+    .maybeSingle();
+  if (!course) return { error: "講座が見つかりません" };
+  if (course.status !== "published" && course.status !== "suspended") {
+    return { error: "公開中の講座ではありません" };
+  }
+
+  const { error } = await admin
+    .from("courses")
+    .update({ status: "suspended", rejection_reason: trimmed.slice(0, 1000) })
+    .eq("id", courseId);
+  if (error) return { error: error.message };
+
+  await notify(course.author_id, "course_unpublished_by_admin", (locale) =>
+    courseUnpublishedByAdmin(course.title, trimmed, locale)
+  );
+  revalidatePath("/admin/courses");
+  revalidatePath("/academy");
+  revalidatePath(`/academy/courses/${course.slug}`);
   return { error: null };
 }
 

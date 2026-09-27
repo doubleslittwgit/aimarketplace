@@ -4,8 +4,11 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { applyToolTranslations } from "@/lib/apply-translations";
 import { searchToolsWithAI, type AiSearchMatch } from "@/lib/ai/search-tools";
+import { takeThrottle } from "@/lib/throttle";
 import type { Locale } from "@/i18n/config";
 import type { Tool } from "@/lib/mock-data";
+
+const MAX_QUERY_LENGTH = 200;
 
 export async function aiSearchTools(
   query: string
@@ -13,10 +16,23 @@ export async function aiSearchTools(
   const t = await getTranslations("errors");
   const trimmed = query.trim();
   if (!trimmed) return { tools: [], error: t("aiSearchQueryRequired") };
+  // AI検索は1回ごとにAIの利用料がかかるため、長すぎる入力・ログインなしの利用・連続利用を制限する
+  if (trimmed.length > MAX_QUERY_LENGTH) {
+    return { tools: [], error: t("aiSearchQueryTooLong", { max: MAX_QUERY_LENGTH }) };
+  }
 
   const locale = (await getLocale()) as Locale;
   const supabase = await createClient();
   const tCommon = await getTranslations("common");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { tools: [], error: t("aiSearchLoginRequired") };
+  const allowed =
+    (await takeThrottle(`ai-search:hour:${user.id}`, 60, 20)) &&
+    (await takeThrottle(`ai-search:day:${user.id}`, 24 * 60, 60));
+  if (!allowed) return { tools: [], error: t("aiSearchRateLimited") };
 
   const { data } = await supabase
     .from("tools")

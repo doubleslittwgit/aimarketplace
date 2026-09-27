@@ -8,6 +8,12 @@ import { ALL_CATEGORIES_VALUE } from "@/lib/category-slugs";
 import { applyToolTranslations } from "@/lib/apply-translations";
 import type { Locale } from "@/i18n/config";
 import type { Tool } from "@/lib/mock-data";
+import { shareMetadata } from "@/lib/seo";
+
+export async function generateMetadata() {
+  const t = await getTranslations("browse");
+  return shareMetadata({ title: t("title"), description: t("metaDescription"), path: "/browse" });
+}
 
 async function loadRealTools(locale: Locale): Promise<Tool[]> {
   const tCommon = await getTranslations("common");
