@@ -92,9 +92,10 @@ export async function getAccessSummaries(
   return result;
 }
 
+/** 通知・メールに書く時刻。サーバーでは見る人の時刻が分からないので、日本時間と明記する */
 export function formatJst(iso: string | null): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+  return `${new Date(iso).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}（日本時間）`;
 }
 
 /** 講座の閲覧記録。同じ購入について、指定時間内にすでに記録があれば記録しない */

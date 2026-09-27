@@ -318,9 +318,11 @@ function RefundByPaymentId() {
   );
 }
 
+// 管理画面の時刻は、報告の日時などと同じく、見ている人のブラウザの時刻で表示する
+// （一部だけ日本時間にすると、台湾から見たときに1時間ずれて見えてしまうため）
 function formatJst(iso: string | null | undefined): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+  return new Date(iso).toLocaleString("ja-JP");
 }
 
 function accessWarningText(w: { count: number; first: string; last: string }): string {

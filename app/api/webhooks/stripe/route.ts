@@ -199,7 +199,7 @@ export async function POST(request: Request) {
 
     if (event.type === "charge.dispute.created") {
       const dueBy = dispute.evidence_details?.due_by
-        ? new Date(dispute.evidence_details.due_by * 1000).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })
+        ? `${new Date(dispute.evidence_details.due_by * 1000).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}（日本時間）`
         : null;
       // 証拠として出せる記録（購入者が商品を受け取った日時・IPアドレス、決済時の規約同意）をまとめて知らせる
       let evidence: string | null = null;
