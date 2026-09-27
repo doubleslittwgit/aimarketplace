@@ -123,7 +123,12 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
             product_data: {
               name: tool.name,
               description: tool.tagline,
-              ...(tool.thumbnail_url ? { images: [tool.thumbnail_url] } : {}),
+              // Stripeの決済画面に出す画像は、https から始まる完全なURLでないと受け付けられない
+              // （「Not a valid URL」で決済の準備ごと失敗する）。サイト内の画像（/samples/...）は
+              // サイトのURLを付けて完全なURLにし、それ以外の形式なら画像なしで進める。
+              ...(toAbsoluteHttpsUrl(tool.thumbnail_url, origin)
+                ? { images: [toAbsoluteHttpsUrl(tool.thumbnail_url, origin)!] }
+                : {}),
             },
           },
           quantity: 1,
@@ -167,4 +172,14 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
   // redirect は try の外で呼ぶ。
   // （Next.jsのredirectは内部的に例外を投げるため、tryの中だとcatchに拾われてしまう）
   redirect(checkoutUrl);
+}
+
+function toAbsoluteHttpsUrl(url: string | null | undefined, origin: string): string | null {
+  if (!url) return null;
+  try {
+    const absolute = new URL(url, origin.startsWith("https://") ? origin : "https://www.getbuildbay.com");
+    return absolute.protocol === "https:" ? absolute.toString() : null;
+  } catch {
+    return null;
+  }
 }
