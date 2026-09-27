@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -79,6 +80,11 @@ export default function LoginForm() {
           placeholder="••••••••"
           className="w-full rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
         />
+        <div className="mt-1.5 text-right">
+          <Link href="/forgot-password" className="text-[12px] text-text-muted hover:text-accent-signal hover:underline">
+            {t("forgotPassword")}
+          </Link>
+        </div>
       </div>
 
       <button

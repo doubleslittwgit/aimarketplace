@@ -4,6 +4,7 @@ import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { notifyAdmins, notify } from "@/lib/notifications/create";
 import { adminPostReported, postLiked, newPostComment } from "@/lib/notifications/content";
 import { isRateLimited } from "@/lib/rate-limit";
@@ -542,6 +543,7 @@ export async function reportPost(
 }
 
 export async function incrementPostView(postId: string): Promise<void> {
-  const supabase = await createClient();
-  await supabase.rpc("increment_post_view_count", { p_post_id: postId });
+  // 閲覧数を増やす関数は、外部から直接呼んで水増しできないよう、管理者権限でしか呼べなくしている
+  if (!/^[0-9a-f-]{36}$/i.test(postId)) return;
+  await createAdminClient().rpc("increment_post_view_count", { p_post_id: postId });
 }

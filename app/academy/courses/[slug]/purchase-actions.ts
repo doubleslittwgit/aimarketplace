@@ -68,6 +68,10 @@ export async function startCoursePurchase(courseId: string): Promise<{ error: st
   let checkoutUrl: string | null = null;
   try {
     const session = await stripe.checkout.sessions.create({
+      // 支払い方法はカード（Apple Pay・Google Payを含む）に限定する。
+      // コンビニ払いなどの「後から支払う」方式は、特定商取引法の表記（クレジットカード決済）と合わず、
+      // 支払いの完了が遅れて届くため購入の記録・権限付与の流れとも合わないため。
+      payment_method_types: ["card"],
       mode: "payment",
       customer_email: user.email ?? undefined,
       line_items: [

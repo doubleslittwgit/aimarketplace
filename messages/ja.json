@@ -72,7 +72,12 @@
     "invalidVideoUrl": "紹介動画はYouTubeまたはVimeoのURLのみ登録できます",
     "invalidToolUrl": "ツールのURLは http:// または https:// で始まるURLを入力してください",
     "internetAccessRequired": "インターネット接続が必要かどうかを選んでください",
-    "uiLanguagesRequired": "対応言語を1つ以上選んでください"
+    "uiLanguagesRequired": "対応言語を1つ以上選んでください",
+    "emailRequired": "メールアドレスを入力してください",
+    "passwordMismatch": "確認用のパスワードが一致しません",
+    "resetLinkExpired": "再設定用のリンクの有効期限が切れています。もう一度お手続きください。",
+    "passwordSameAsOld": "以前と同じパスワードは使えません",
+    "passwordWeak": "このパスワードは安全ではありません（流出が確認されているか、推測されやすいパスワードです）。別のパスワードにしてください。"
   },
   "cookieNotice": {
     "text": "本サービスは、ログイン状態を維持するために必要なCookieを使用しています。詳しくは<link>プライバシーポリシー</link>をご覧ください。",
@@ -117,7 +122,8 @@
     "logout": "ログアウト",
     "unnamedUser": "未設定のユーザー",
     "adminRefundRequests": "返金・トラブル報告（管理者）",
-    "adminDashboard": "管理ダッシュボード"
+    "adminDashboard": "管理ダッシュボード",
+    "accountSettings": "アカウント設定"
   },
   "notifications": {
     "title": "通知",
@@ -634,7 +640,8 @@
     "courseReadPercent": "{n}% 読了",
     "courseFinished": "読了",
     "continueCourse": "続きを読む",
-    "manageCourse": "管理"
+    "manageCourse": "管理",
+    "passwordUpdated": "パスワードを変更しました。"
   },
   "auth": {
     "loginRequiredTitle": "ログインが必要です",
@@ -663,7 +670,25 @@
     "signupConfirmedNotice": "登録が完了しました。届いた確認メールのリンクを開いてから、ログインしてください。",
     "googleError": "Googleログインに失敗しました。もう一度お試しください。",
     "agreementText": "<terms>利用規約</terms>と<privacy>プライバシーポリシー</privacy>に同意します",
-    "agreementRequired": "登録には利用規約・プライバシーポリシーへの同意が必要です"
+    "agreementRequired": "登録には利用規約・プライバシーポリシーへの同意が必要です",
+    "forgotPassword": "パスワードをお忘れの方",
+    "reset": {
+      "forgotTitle": "パスワードの再設定",
+      "forgotSubtitle": "登録したメールアドレスに、再設定用のリンクをお送りします。",
+      "send": "再設定リンクを送る",
+      "sending": "送信中…",
+      "sent": "入力されたメールアドレスが登録されていれば、再設定用のリンクを送りました。メールのリンクから新しいパスワードを設定してください（届かない場合は迷惑メールフォルダもご確認ください）。",
+      "expired": "再設定用のリンクの有効期限が切れているか、すでに使われています。もう一度お手続きください。",
+      "requestAgain": "再設定リンクをもう一度送る",
+      "backToLogin": "ログイン画面に戻る",
+      "resetTitle": "新しいパスワードを設定",
+      "resetSubtitle": "新しいパスワードを入力してください。",
+      "newPassword": "新しいパスワード",
+      "confirmPassword": "新しいパスワード（確認）",
+      "passwordHint": "8文字以上",
+      "save": "パスワードを変更する",
+      "saving": "変更中…"
+    }
   },
   "legal": {
     "termsTitle": "利用規約",
@@ -1054,6 +1079,14 @@
     "courseNewReview": {
       "title": "講座「{title}」に新しいレビューがつきました",
       "body": "評価: {stars}"
+    },
+    "purchaseRefundedBuyer": {
+      "title": "「{itemName}」の返金が完了しました",
+      "body": "{amount} を、お支払いに使われたカードへ返金しました。カード会社によっては、明細への反映まで数日〜数週間かかります。"
+    },
+    "purchaseRefundedSeller": {
+      "title": "「{itemName}」の売上が返金されました",
+      "body": "{amount} の支払いが購入者に返金されたため、この売上の受取額は取り消されます。"
     }
   },
   "refundRequest": {
@@ -1558,5 +1591,37 @@
       "failed": "保存できませんでした：{message}",
       "imageCopyFailed": "画像をコピーできませんでした：{message}"
     }
+  },
+  "accountSettings": {
+    "title": "アカウント設定",
+    "passwordTitle": "パスワード",
+    "passwordBody": "パスワードの変更（Googleでログインしている場合は、パスワードの追加）ができます。",
+    "passwordButton": "パスワードを変更する",
+    "otherTitle": "その他の設定",
+    "notificationSettings": "通知設定",
+    "mfa": "二段階認証",
+    "deleteTitle": "退会する",
+    "deletePoint1": "名前・メールアドレス・プロフィール・投稿・レビュー・いいねなどは削除され、元に戻せません。",
+    "deletePoint2": "購入したツールのダウンロードや、講座の閲覧はできなくなります。",
+    "deletePoint3": "出品中のツール・講座は非公開になります（すでに購入した人は引き続き利用できます）。",
+    "deletePoint4": "購入・売上の記録は、法令に基づき、あなたを特定できない形で保存されます。",
+    "deletePoint5": "受け取り前の売上がある場合、Stripeからの入金は通常どおり行われます。",
+    "deleteTypeEmail": "確認のため、登録しているメールアドレスを入力してください",
+    "deleteButton": "退会する",
+    "deleting": "処理中…",
+    "deleteFinalConfirm": "本当に退会しますか？この操作は取り消せません。",
+    "errors": {
+      "login": "ログインしてください。",
+      "emailMismatch": "入力したメールアドレスが、登録しているものと一致しません。",
+      "adminCannotDelete": "運営者のアカウントは、この画面からは退会できません。",
+      "failed": "退会の処理に失敗しました：{message}"
+    }
+  },
+  "notFound": {
+    "title": "ページが見つかりません",
+    "body": "URLが間違っているか、ページが削除・非公開になった可能性があります。",
+    "home": "トップへ戻る",
+    "browse": "ツールを探す",
+    "academy": "Academyを見る"
   }
 }

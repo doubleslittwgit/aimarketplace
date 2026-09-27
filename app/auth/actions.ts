@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -106,4 +107,53 @@ export async function signInWithGoogle(origin: string, next?: string) {
   }
 
   redirect(data.url);
+}
+
+/**
+ * パスワード再設定のメールを送る。
+ * 登録されていないメールアドレスでも「送信しました」と同じ表示にする
+ * （登録の有無を第三者に知られないようにするため）。
+ */
+export async function requestPasswordReset(formData: FormData): Promise<AuthResult> {
+  const t = await getTranslations("errors");
+  const email = String(formData.get("email") || "").trim();
+  if (!email || !email.includes("@")) return { error: t("emailRequired") };
+
+  const origin =
+    (await headers()).get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "https://www.getbuildbay.com";
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/callback?next=${encodeURIComponent("/reset-password")}`,
+  });
+  // 送信回数の上限に達した場合だけは伝える（それ以外は、登録の有無が分からないよう成功扱い）
+  if (error && /rate limit|too many/i.test(error.message)) {
+    return { error: t("rateLimited") };
+  }
+  if (error) console.error("[requestPasswordReset]", error.message);
+  return { error: null };
+}
+
+/** 再設定用のリンクからログインした状態で、新しいパスワードを設定する */
+export async function updatePassword(formData: FormData): Promise<AuthResult> {
+  const t = await getTranslations("errors");
+  const password = String(formData.get("password") || "");
+  const confirm = String(formData.get("confirm") || "");
+  if (password.length < 8) return { error: t("passwordTooShort") };
+  if (password !== confirm) return { error: t("passwordMismatch") };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: t("resetLinkExpired") };
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    if (/same.*password|different from the old/i.test(error.message)) return { error: t("passwordSameAsOld") };
+    if (/weak|pwned|leaked/i.test(error.message)) return { error: t("passwordWeak") };
+    return { error: error.message };
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/dashboard?passwordUpdated=1");
 }

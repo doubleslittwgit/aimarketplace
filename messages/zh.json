@@ -72,7 +72,12 @@
     "invalidVideoUrl": "介紹影片僅能登錄 YouTube 或 Vimeo 的網址",
     "invalidToolUrl": "工具網址請輸入以 http:// 或 https:// 開頭的網址",
     "internetAccessRequired": "請選擇是否需要網路連線",
-    "uiLanguagesRequired": "請至少選擇一種支援語言"
+    "uiLanguagesRequired": "請至少選擇一種支援語言",
+    "emailRequired": "請輸入電子郵件",
+    "passwordMismatch": "兩次輸入的密碼不一致",
+    "resetLinkExpired": "重設連結已過期，請重新申請。",
+    "passwordSameAsOld": "不能使用與先前相同的密碼",
+    "passwordWeak": "此密碼不安全（已知外洩或容易被猜到），請改用其他密碼。"
   },
   "cookieNotice": {
     "text": "本服務使用維持登入狀態所必需的Cookie。詳情請參閱<link>隱私權政策</link>。",
@@ -117,7 +122,8 @@
     "logout": "登出",
     "unnamedUser": "未設定使用者",
     "adminRefundRequests": "退款／問題回報（管理員）",
-    "adminDashboard": "管理儀表板"
+    "adminDashboard": "管理儀表板",
+    "accountSettings": "帳戶設定"
   },
   "notifications": {
     "title": "通知",
@@ -634,7 +640,8 @@
     "courseReadPercent": "已讀 {n}%",
     "courseFinished": "已讀完",
     "continueCourse": "繼續閱讀",
-    "manageCourse": "管理"
+    "manageCourse": "管理",
+    "passwordUpdated": "已變更密碼。"
   },
   "auth": {
     "loginRequiredTitle": "需要登入",
@@ -663,7 +670,25 @@
     "signupConfirmedNotice": "註冊完成。請點擊收到的確認信中的連結，再進行登入。",
     "googleError": "Google登入失敗，請再試一次。",
     "agreementText": "我同意<terms>使用條款</terms>與<privacy>隱私權政策</privacy>",
-    "agreementRequired": "註冊前請先同意使用條款與隱私權政策"
+    "agreementRequired": "註冊前請先同意使用條款與隱私權政策",
+    "forgotPassword": "忘記密碼？",
+    "reset": {
+      "forgotTitle": "重設密碼",
+      "forgotSubtitle": "我們會寄送重設連結到您註冊的電子郵件。",
+      "send": "寄送重設連結",
+      "sending": "寄送中…",
+      "sent": "若該電子郵件已註冊，我們已寄出重設連結。請從郵件中的連結設定新密碼（若未收到，請確認垃圾郵件匣）。",
+      "expired": "重設連結已過期或已被使用，請重新申請。",
+      "requestAgain": "重新寄送重設連結",
+      "backToLogin": "返回登入頁面",
+      "resetTitle": "設定新密碼",
+      "resetSubtitle": "請輸入新密碼。",
+      "newPassword": "新密碼",
+      "confirmPassword": "新密碼（確認）",
+      "passwordHint": "8 個字元以上",
+      "save": "變更密碼",
+      "saving": "變更中…"
+    }
   },
   "legal": {
     "termsTitle": "使用條款",
@@ -1054,6 +1079,14 @@
     "courseNewReview": {
       "title": "課程「{title}」收到新的評價",
       "body": "評分：{stars}"
+    },
+    "purchaseRefundedBuyer": {
+      "title": "「{itemName}」已完成退款",
+      "body": "已將 {amount} 退回至付款時使用的信用卡。依發卡機構不同，可能需要數天至數週才會反映在帳單上。"
+    },
+    "purchaseRefundedSeller": {
+      "title": "「{itemName}」的銷售已退款",
+      "body": "這筆 {amount} 的付款已退還給買家，因此這筆銷售的收款將被取消。"
     }
   },
   "refundRequest": {
@@ -1558,5 +1591,37 @@
       "failed": "無法儲存：{message}",
       "imageCopyFailed": "無法複製圖片：{message}"
     }
+  },
+  "accountSettings": {
+    "title": "帳戶設定",
+    "passwordTitle": "密碼",
+    "passwordBody": "可以變更密碼（若使用 Google 登入，可新增密碼）。",
+    "passwordButton": "變更密碼",
+    "otherTitle": "其他設定",
+    "notificationSettings": "通知設定",
+    "mfa": "兩步驟驗證",
+    "deleteTitle": "刪除帳戶",
+    "deletePoint1": "名稱、電子郵件、個人檔案、貼文、評價、按讚等將被刪除，且無法復原。",
+    "deletePoint2": "將無法再下載已購買的工具或閱讀課程。",
+    "deletePoint3": "上架中的工具與課程將設為不公開（已購買的人仍可使用）。",
+    "deletePoint4": "購買與銷售紀錄將依法令以無法識別您的形式保存。",
+    "deletePoint5": "若有尚未入帳的銷售款項，Stripe 仍會照常匯款。",
+    "deleteTypeEmail": "為了確認，請輸入您註冊的電子郵件",
+    "deleteButton": "刪除帳戶",
+    "deleting": "處理中…",
+    "deleteFinalConfirm": "確定要刪除帳戶嗎？此操作無法復原。",
+    "errors": {
+      "login": "請先登入。",
+      "emailMismatch": "輸入的電子郵件與註冊的不一致。",
+      "adminCannotDelete": "營運者帳戶無法從此畫面刪除。",
+      "failed": "刪除帳戶失敗：{message}"
+    }
+  },
+  "notFound": {
+    "title": "找不到頁面",
+    "body": "網址可能有誤，或該頁面已被刪除或設為不公開。",
+    "home": "回到首頁",
+    "browse": "尋找工具",
+    "academy": "前往 Academy"
   }
 }

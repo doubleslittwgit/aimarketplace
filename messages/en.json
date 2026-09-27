@@ -72,7 +72,12 @@
     "invalidVideoUrl": "The intro video must be a YouTube or Vimeo link",
     "invalidToolUrl": "The tool URL must start with http:// or https://",
     "internetAccessRequired": "Please choose whether an internet connection is required",
-    "uiLanguagesRequired": "Please choose at least one language"
+    "uiLanguagesRequired": "Please choose at least one language",
+    "emailRequired": "Please enter your email",
+    "passwordMismatch": "The passwords don't match",
+    "resetLinkExpired": "This reset link has expired. Please request a new one.",
+    "passwordSameAsOld": "You can't reuse your previous password",
+    "passwordWeak": "This password isn't safe (it's known to be leaked or easy to guess). Please choose another."
   },
   "cookieNotice": {
     "text": "This site uses cookies required to keep you logged in. See our <link>Privacy Policy</link> for details.",
@@ -117,7 +122,8 @@
     "logout": "Log out",
     "unnamedUser": "Unnamed user",
     "adminRefundRequests": "Refund requests (admin)",
-    "adminDashboard": "Admin dashboard"
+    "adminDashboard": "Admin dashboard",
+    "accountSettings": "Account settings"
   },
   "notifications": {
     "title": "Notifications",
@@ -634,7 +640,8 @@
     "courseReadPercent": "{n}% read",
     "courseFinished": "Finished",
     "continueCourse": "Continue reading",
-    "manageCourse": "Manage"
+    "manageCourse": "Manage",
+    "passwordUpdated": "Your password has been changed."
   },
   "auth": {
     "loginRequiredTitle": "Login required",
@@ -663,7 +670,25 @@
     "signupConfirmedNotice": "Sign-up complete. Please open the link in the confirmation email before logging in.",
     "googleError": "Google login failed. Please try again.",
     "agreementText": "I agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>",
-    "agreementRequired": "You must agree to the Terms of Service and Privacy Policy to sign up"
+    "agreementRequired": "You must agree to the Terms of Service and Privacy Policy to sign up",
+    "forgotPassword": "Forgot your password?",
+    "reset": {
+      "forgotTitle": "Reset your password",
+      "forgotSubtitle": "We'll email a reset link to the address you signed up with.",
+      "send": "Send reset link",
+      "sending": "Sending…",
+      "sent": "If that email is registered, we've sent a reset link. Use it to set a new password (check your spam folder if it doesn't arrive).",
+      "expired": "This reset link has expired or has already been used. Please request a new one.",
+      "requestAgain": "Send a new reset link",
+      "backToLogin": "Back to log in",
+      "resetTitle": "Set a new password",
+      "resetSubtitle": "Enter your new password.",
+      "newPassword": "New password",
+      "confirmPassword": "New password (again)",
+      "passwordHint": "At least 8 characters",
+      "save": "Change password",
+      "saving": "Changing…"
+    }
   },
   "legal": {
     "termsTitle": "Terms of Service",
@@ -1054,6 +1079,14 @@
     "courseNewReview": {
       "title": "New review on your course “{title}”",
       "body": "Rating: {stars}"
+    },
+    "purchaseRefundedBuyer": {
+      "title": "Your refund for “{itemName}” is complete",
+      "body": "{amount} has been refunded to the card you paid with. It can take a few days to a few weeks to appear on your statement, depending on your card issuer."
+    },
+    "purchaseRefundedSeller": {
+      "title": "A sale of “{itemName}” was refunded",
+      "body": "The {amount} payment was refunded to the buyer, so your earnings for this sale are reversed."
     }
   },
   "refundRequest": {
@@ -1558,5 +1591,37 @@
       "failed": "Couldn't save: {message}",
       "imageCopyFailed": "Couldn't copy images: {message}"
     }
+  },
+  "accountSettings": {
+    "title": "Account settings",
+    "passwordTitle": "Password",
+    "passwordBody": "Change your password (or add one if you sign in with Google).",
+    "passwordButton": "Change password",
+    "otherTitle": "Other settings",
+    "notificationSettings": "Notification settings",
+    "mfa": "Two-factor authentication",
+    "deleteTitle": "Delete account",
+    "deletePoint1": "Your name, email, profile, posts, reviews and likes will be deleted. This can't be undone.",
+    "deletePoint2": "You'll no longer be able to download tools or read courses you bought.",
+    "deletePoint3": "Your listed tools and courses will be hidden (people who already bought them can keep using them).",
+    "deletePoint4": "Purchase and sales records are kept as required by law, in a form that can't identify you.",
+    "deletePoint5": "If you have earnings not yet paid out, Stripe will still pay them out as usual.",
+    "deleteTypeEmail": "To confirm, type the email address you signed up with",
+    "deleteButton": "Delete my account",
+    "deleting": "Deleting…",
+    "deleteFinalConfirm": "Delete your account? This can't be undone.",
+    "errors": {
+      "login": "Please log in.",
+      "emailMismatch": "That email doesn't match the one on your account.",
+      "adminCannotDelete": "Operator accounts can't be deleted from this page.",
+      "failed": "Couldn't delete your account: {message}"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The URL may be wrong, or the page may have been removed or made private.",
+    "home": "Back to home",
+    "browse": "Browse tools",
+    "academy": "Visit Academy"
   }
 }

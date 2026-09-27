@@ -24,6 +24,8 @@ import {
   type Tool,
 } from "@/lib/mock-data";
 
+export const metadata = { alternates: { canonical: "/" } };
+
 async function loadRealTools(locale: Locale): Promise<Tool[]> {
   const tCommon = await getTranslations("common");
   const supabase = await createClient();

@@ -7,9 +7,27 @@ import CourseCard from "@/components/academy/CourseCard";
 import { loadCourses } from "@/lib/academy/load-courses";
 import ProfileHeader from "@/components/ProfileHeader";
 import { createClient } from "@/lib/supabase/server";
+import { shareMetadata } from "@/lib/seo";
 import { applyToolTranslations } from "@/lib/apply-translations";
 import type { Locale } from "@/i18n/config";
 import type { Tool } from "@/lib/mock-data";
+
+export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }) {
+  const { handle } = await params;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("display_name, bio, avatar_url, handle")
+    .eq("handle", handle)
+    .maybeSingle();
+  if (!data || data.handle.startsWith("deleted-")) return { title: "BuildBay", robots: { index: false, follow: false } };
+  return shareMetadata({
+    title: `${data.display_name || data.handle}（@${data.handle}）`,
+    description: data.bio || `${data.display_name || data.handle} さんが BuildBay で公開しているツール・講座`,
+    path: `/u/${data.handle}`,
+    image: data.avatar_url,
+  });
+}
 
 export default async function ProfilePage({
   params,
@@ -28,7 +46,8 @@ export default async function ProfilePage({
     .eq("handle", handle)
     .maybeSingle();
 
-  if (!profile) notFound();
+  // 退会したユーザーのページは表示しない
+  if (!profile || profile.handle.startsWith("deleted-")) notFound();
 
   const {
     data: { user },

@@ -12,7 +12,11 @@ import {
   purchaseReceipt,
   sellerAccountStatusChanged,
   tipReceived,
+  adminDisputeCreated,
+  adminDisputeClosed,
+  adminRefundDetected,
 } from "@/lib/notifications/content";
+import { findPaymentRecord, markPaymentRefunded } from "@/lib/stripe/payment-records";
 import { formatPrice } from "@/lib/mock-data";
 
 /**
@@ -127,8 +131,97 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true });
   }
 
-  // 支払い完了以外のイベントは、受け取ったことだけ伝えて何もしない
-  if (event.type !== "checkout.session.completed") {
+  // --- 返金 ---
+  // BuildBayの返金ボタンで返金した場合は、記録はその場で「返金済み」にしているので何もしない。
+  // それ以外（Stripeの画面から直接返金された等）の場合は、購入者の権限を外したうえで、
+  // 出品者への送金が取り消されているか確認するよう管理者に知らせる。
+  if (event.type === "charge.refunded") {
+    const charge = event.data.object as Stripe.Charge;
+    // 一部だけの返金では権限を外さない（全額返金されたときだけ）
+    if (!charge.refunded) return NextResponse.json({ received: true, skipped: "partial" });
+    const paymentIntentId =
+      typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
+    if (!paymentIntentId) return NextResponse.json({ received: true });
+
+    const admin = createAdminClient();
+    const record = await findPaymentRecord(admin, paymentIntentId);
+    if (!record || record.status === "refunded") {
+      return NextResponse.json({ received: true });
+    }
+    const { error } = await markPaymentRefunded(admin, record);
+    if (error) {
+      console.error("[webhook] 返金の反映に失敗:", error);
+      return NextResponse.json({ error: `返金の反映に失敗しました: ${error}` }, { status: 500 });
+    }
+    // BuildBayの返金ボタンからの返金なら、記録の更新より通知が先に届いただけなので、管理者には知らせない
+    const refunds = await stripe.refunds.list({ payment_intent: paymentIntentId, limit: 10 });
+    if (refunds.data.some((r) => r.metadata?.source === "buildbay_admin")) {
+      return NextResponse.json({ received: true });
+    }
+    await notifyAdmins(
+      "admin_refund_detected",
+      adminRefundDetected({
+        paymentIntentId,
+        itemName: record.itemName,
+        amount: formatPrice(record.amount),
+        livemode: event.livemode,
+      })
+    );
+    return NextResponse.json({ received: true });
+  }
+
+  // --- チャージバック（購入者がカード会社に支払いの取り消しを申し立てた） ---
+  // この決済方式では、チャージバックの責任はBuildBay（プラットフォーム）側にある。
+  // 期限内に証拠を出さないと自動的に負けるため、すぐ管理者に知らせる。
+  if (event.type === "charge.dispute.created" || event.type === "charge.dispute.closed") {
+    const dispute = event.data.object as Stripe.Dispute;
+    const paymentIntentId =
+      typeof dispute.payment_intent === "string" ? dispute.payment_intent : dispute.payment_intent?.id;
+    const admin = createAdminClient();
+    const record = paymentIntentId ? await findPaymentRecord(admin, paymentIntentId) : null;
+    const itemName = record?.itemName ?? "（不明な支払い）";
+    const amount = formatPrice(dispute.amount);
+
+    if (event.type === "charge.dispute.created") {
+      const dueBy = dispute.evidence_details?.due_by
+        ? new Date(dispute.evidence_details.due_by * 1000).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })
+        : null;
+      await notifyAdmins(
+        "admin_dispute",
+        adminDisputeCreated({
+          disputeId: dispute.id,
+          amount,
+          reason: dispute.reason,
+          itemName,
+          dueBy,
+          livemode: event.livemode,
+        })
+      );
+      return NextResponse.json({ received: true });
+    }
+
+    // 結果が出た。負けた場合はお金が戻されているので、購入者の権限を外す
+    const won = dispute.status === "won";
+    if (!won && dispute.status === "lost" && record && record.status !== "refunded") {
+      const { error } = await markPaymentRefunded(admin, record);
+      if (error) console.error("[webhook] チャージバック敗北の反映に失敗:", error);
+    }
+    if (dispute.status === "won" || dispute.status === "lost") {
+      await notifyAdmins(
+        "admin_dispute",
+        adminDisputeClosed({ disputeId: dispute.id, won, itemName, amount, livemode: event.livemode })
+      );
+    }
+    return NextResponse.json({ received: true });
+  }
+
+  // 支払い完了以外のイベントは、受け取ったことだけ伝えて何もしない。
+  // （カード払いのみに限定しているが、後払い系の支払い方法が有効になっていた場合に備え、
+  //  「後から支払いが完了した」通知も支払い完了として扱う）
+  if (
+    event.type !== "checkout.session.completed" &&
+    event.type !== "checkout.session.async_payment_succeeded"
+  ) {
     return NextResponse.json({ received: true });
   }
 

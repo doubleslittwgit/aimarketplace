@@ -102,6 +102,13 @@ export default function UserMenu({ email, displayName, avatarUrl, isAdmin }: Pro
           >
             {t("mfa")}
           </Link>
+          <Link
+            href="/settings/account"
+            className="block px-3.5 py-2 text-[13px] text-text-secondary hover:bg-surface-raised hover:text-text-primary"
+            onClick={() => setOpen(false)}
+          >
+            {t("accountSettings")}
+          </Link>
 
           {isAdmin && (
             <>

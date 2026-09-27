@@ -108,6 +108,10 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
 
   try {
     const session = await stripe.checkout.sessions.create({
+      // 支払い方法はカード（Apple Pay・Google Payを含む）に限定する。
+      // コンビニ払いなどの「後から支払う」方式は、特定商取引法の表記（クレジットカード決済）と合わず、
+      // 支払いの完了が遅れて届くため購入の記録・権限付与の流れとも合わないため。
+      payment_method_types: ["card"],
       mode: "payment",
       // 購入者のメールを引き継いで、入力の手間を減らす
       customer_email: user.email ?? undefined,

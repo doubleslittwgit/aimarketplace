@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { shareMetadata } from "@/lib/seo";
 import { createAdminClient } from "@/lib/supabase/admin";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -44,8 +45,21 @@ function countHeadings(doc: JSONNode | null): number {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
-  const { data } = await supabase.from("courses").select("title, status").eq("slug", slug).maybeSingle();
-  return { title: data?.title ? `${data.title} | BuildBay Academy` : "BuildBay Academy" };
+  const { data } = await supabase
+    .from("courses")
+    .select("title, status, thumbnail_url, price, toc")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (!data) return { title: "BuildBay Academy", robots: { index: false, follow: false } };
+  const toc = ((data.toc as TocItem[] | null) ?? []).map((x) => x.text).slice(0, 6);
+  const price = data.price > 0 ? `¥${Number(data.price).toLocaleString()}` : null;
+  return shareMetadata({
+    title: data.title,
+    description: [price, toc.length > 0 ? `目次: ${toc.join(" / ")}` : null].filter(Boolean).join(" ・ ") || "BuildBay Academy の講座",
+    path: `/academy/courses/${slug}`,
+    image: data.thumbnail_url,
+    noindex: data.status !== "published",
+  });
 }
 
 export default async function CoursePage({

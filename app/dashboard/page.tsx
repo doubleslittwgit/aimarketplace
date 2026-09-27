@@ -78,7 +78,12 @@ type SaleRow = {
   profiles: { display_name: string; handle: string } | null;
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ passwordUpdated?: string }>;
+}) {
+  const passwordUpdated = (await searchParams).passwordUpdated === "1";
   const t = await getTranslations("dashboard");
   const tAnalytics = await getTranslations("analytics");
   const locale = (await getLocale()) as Locale;
@@ -217,6 +222,11 @@ export default async function DashboardPage() {
       <SubmitSuccessModal />
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-6 py-10">
+          {passwordUpdated && (
+            <div className="mb-6 rounded-lg border border-accent-success/30 bg-accent-success/10 px-4 py-3 text-[13px] text-accent-success">
+              {t("passwordUpdated")}
+            </div>
+          )}
           <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-surface-raised">

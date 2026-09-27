@@ -43,7 +43,10 @@ export type NotificationType =
   | "course_approved"
   | "course_rejected"
   | "admin_course_pending"
-  | "admin_course_double_payment";
+  | "admin_course_double_payment"
+  | "purchase_refunded"
+  | "admin_dispute"
+  | "admin_refund_detected";
 
 // ------------------------------------------------------------
 // 通知設定でオフにできる種類。
@@ -461,5 +464,95 @@ export function adminCourseDoublePayment(title: string, paymentIntentId: string,
     title: `⚠️ 講座の二重決済（要・返金）: ${title}`,
     body: `同じ購入者が同じ講座に2回支払いました。Stripeで ${paymentIntentId}（${amount}）を返金してください。`,
     linkUrl: `https://dashboard.stripe.com/payments/${paymentIntentId}`,
+  };
+}
+
+
+// ------------------------------------------------------------
+// 返金・チャージバック
+// ------------------------------------------------------------
+
+/** 購入者宛：返金が完了した */
+export function purchaseRefundedBuyer(
+  itemName: string,
+  amount: string,
+  locale: SupportedLocale
+): NotificationContent {
+  return {
+    title: tNotif(locale, "purchaseRefundedBuyer.title", { itemName }),
+    body: tNotif(locale, "purchaseRefundedBuyer.body", { amount }),
+    linkUrl: `${SITE_URL}/dashboard`,
+  };
+}
+
+/** 出品者宛：売上が返金された（受取額も取り消される） */
+export function purchaseRefundedSeller(
+  itemName: string,
+  amount: string,
+  locale: SupportedLocale
+): NotificationContent {
+  return {
+    title: tNotif(locale, "purchaseRefundedSeller.title", { itemName }),
+    body: tNotif(locale, "purchaseRefundedSeller.body", { amount }),
+    linkUrl: `${SITE_URL}/dashboard`,
+  };
+}
+
+function stripeDashboardUrl(path: string, livemode: boolean) {
+  return `https://dashboard.stripe.com/${livemode ? "" : "test/"}${path}`;
+}
+
+/** 管理者（Shuさん）宛：チャージバック（支払いへの異議申し立て）が起きた */
+export function adminDisputeCreated(params: {
+  disputeId: string;
+  amount: string;
+  reason: string;
+  itemName: string;
+  dueBy: string | null;
+  livemode: boolean;
+}): NotificationContent {
+  return {
+    title: `⚠️ チャージバック発生: ${params.itemName}（${params.amount}）`,
+    body:
+      `購入者がカード会社に支払いの取り消しを申し立てました（理由: ${params.reason}）。` +
+      (params.dueBy ? `${params.dueBy} までに、Stripeの画面から証拠を提出してください。` : "Stripeの画面から内容を確認してください。") +
+      "期限までに対応しないと自動的に負けとなり、返金額と手数料がBuildBayの残高から差し引かれます。",
+    linkUrl: stripeDashboardUrl(`disputes/${params.disputeId}`, params.livemode),
+    emailSubject: `【要対応】チャージバックが発生しました: ${params.itemName}`,
+  };
+}
+
+/** 管理者宛：チャージバックの結果が出た */
+export function adminDisputeClosed(params: {
+  disputeId: string;
+  won: boolean;
+  itemName: string;
+  amount: string;
+  livemode: boolean;
+}): NotificationContent {
+  return {
+    title: params.won
+      ? `✅ チャージバックに勝ちました: ${params.itemName}`
+      : `❌ チャージバックに負けました: ${params.itemName}（${params.amount}）`,
+    body: params.won
+      ? "支払いはそのまま有効です。対応は不要です。"
+      : "支払いは取り消されました。購入者の閲覧・ダウンロード権限は自動で外しています。出品者への送金の扱いはStripeの画面で確認してください。",
+    linkUrl: stripeDashboardUrl(`disputes/${params.disputeId}`, params.livemode),
+  };
+}
+
+/** 管理者宛：BuildBayの返金ボタン以外（Stripeの画面など）で返金されたのを検知した */
+export function adminRefundDetected(params: {
+  paymentIntentId: string;
+  itemName: string;
+  amount: string;
+  livemode: boolean;
+}): NotificationContent {
+  return {
+    title: `返金を検知しました: ${params.itemName}（${params.amount}）`,
+    body:
+      "BuildBayの返金ボタン以外（Stripeの画面など）で返金されました。購入者の権限は自動で外しています。" +
+      "出品者への送金と手数料が取り消されているか、Stripeの画面で確認してください（取り消されていない場合、返金額はBuildBayの残高から支払われています）。",
+    linkUrl: stripeDashboardUrl(`payments/${params.paymentIntentId}`, params.livemode),
   };
 }

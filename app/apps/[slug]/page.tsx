@@ -19,6 +19,7 @@ import ToolReviews from "@/components/ToolReviews";
 import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
 import ImageCarousel from "@/components/ImageCarousel";
 import { createClient } from "@/lib/supabase/server";
+import { shareMetadata } from "@/lib/seo";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { parseVideoUrl } from "@/lib/video-embed";
 import { isCreativeTool } from "@/lib/creative-apps";
@@ -27,6 +28,26 @@ import { categoryToSlug } from "@/lib/category-slugs";
 import { applyToolTranslations, applyReviewTranslations } from "@/lib/apply-translations";
 import type { Locale } from "@/i18n/config";
 import { formatInstalls, type Tool } from "@/lib/mock-data";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const supabase = await createClient();
+  // 公開中でないツールは、RLSにより本人・購入者以外には見えない（見えても検索には出さない）
+  const { data } = await supabase
+    .from("tools")
+    .select("name, tagline, description, thumbnail_url, status, price")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (!data) return { title: "BuildBay", robots: { index: false, follow: false } };
+  const price = data.price > 0 ? `¥${Number(data.price).toLocaleString()}` : null;
+  return shareMetadata({
+    title: data.name,
+    description: [data.tagline, price, data.description].filter(Boolean).join(" ・ "),
+    path: `/apps/${slug}`,
+    image: data.thumbnail_url,
+    noindex: data.status !== "published",
+  });
+}
 
 async function loadTool(
   slug: string,
@@ -94,7 +115,8 @@ async function loadTool(
     // かつ実行環境を処理が終わるまで保持してくれるので、これに置き換える。
     after(async () => {
       try {
-        await supabase.rpc("increment_view_count", { p_tool_id: row.id });
+        // 閲覧数を増やす関数は、外部から直接呼んで水増しできないよう、管理者権限でしか呼べなくしている
+        await createAdminClient().rpc("increment_view_count", { p_tool_id: row.id });
       } catch {
         // 閲覧数の記録に失敗しても、ユーザー体験には影響させない
       }

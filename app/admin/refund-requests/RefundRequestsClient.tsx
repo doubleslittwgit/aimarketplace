@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/mock-data";
-import { updateRefundRequestStatus } from "./actions";
+import { updateRefundRequestStatus, refundPayment } from "./actions";
 import type { RefundRequestRow } from "./page";
 
 const STATUS_STYLE: Record<string, string> = {
@@ -42,6 +42,8 @@ export default function RefundRequestsClient({
         <p className="mb-6 text-[13px] text-text-muted">
           買い手からアプリ内で寄せられた、返金・トラブルの申告一覧です。
         </p>
+
+        <RefundByPaymentId />
 
         <div className="mb-6 flex gap-1 border-b border-border">
           <TabButton
@@ -114,6 +116,28 @@ function RequestRowItem({
   const [isPending, startTransition] = useTransition();
   const [note, setNote] = useState(request.admin_note ?? "");
 
+  const [refundError, setRefundError] = useState<string | null>(null);
+  const payment = request.purchases ?? request.course_purchases;
+  const alreadyRefunded = payment?.status === "refunded";
+  const canRefund = Boolean(payment && payment.price_paid > 0 && !alreadyRefunded);
+
+  function refund() {
+    if (!payment) return;
+    const ok = window.confirm(
+      `${formatPrice(payment.price_paid)} を購入者に返金します。\n\n` +
+        "・出品者への送金とBuildBayの手数料も取り消されます\n" +
+        "・購入者のダウンロード／閲覧はできなくなります\n" +
+        "・Stripeの決済手数料は戻りません\n\nこの操作は取り消せません。返金しますか？"
+    );
+    if (!ok) return;
+    setRefundError(null);
+    startTransition(async () => {
+      const result = await refundPayment({ requestId: request.id, note });
+      if (result.error) setRefundError(result.error);
+      else onUpdate("resolved", note || "返金済み");
+    });
+  }
+
   function handle(status: "resolved" | "dismissed") {
     startTransition(async () => {
       const result = await updateRefundRequestStatus(request.id, status, note);
@@ -151,6 +175,9 @@ function RequestRowItem({
         <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${STATUS_STYLE[request.status]}`}>
           {STATUS_LABEL[request.status]}
         </span>
+        {alreadyRefunded && (
+          <span className="shrink-0 rounded-full bg-text-primary/80 px-2 py-0.5 text-[10px] text-white">返金済み</span>
+        )}
       </div>
 
       <p className="mt-1.5 whitespace-pre-wrap rounded-lg bg-bg px-3 py-2 text-[13px] text-text-secondary">
@@ -176,7 +203,18 @@ function RequestRowItem({
             rows={2}
             className="w-full resize-none rounded-lg border border-border bg-bg px-3 py-2 text-[12px] text-text-primary outline-none focus:border-border-strong"
           />
+          {refundError && <p className="text-[12px] text-accent-danger">{refundError}</p>}
           <div className="flex flex-wrap gap-2">
+            {canRefund && (
+              <button
+                type="button"
+                onClick={refund}
+                disabled={isPending}
+                className="rounded-lg bg-accent-danger px-3 py-1.5 text-[12px] font-medium text-white transition hover:brightness-105 disabled:opacity-60"
+              >
+                返金する
+              </button>
+            )}
             <button
               type="button"
               onClick={() => handle("resolved")}
@@ -198,6 +236,72 @@ function RequestRowItem({
       )}
       {request.status !== "pending" && request.admin_note && (
         <p className="mt-2 text-[12px] text-text-muted">メモ: {request.admin_note}</p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * 報告が無い支払い（二重決済など）を、Stripeの支払いID（pi_...）で返金する欄。
+ * 支払いIDは、Stripeの画面の「支払い」から確認できる。
+ */
+function RefundByPaymentId() {
+  const [open, setOpen] = useState(false);
+  const [paymentIntentId, setPaymentIntentId] = useState("");
+  const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  function submit() {
+    const id = paymentIntentId.trim();
+    if (!id) return;
+    const ok = window.confirm(
+      `支払い ${id} を返金します。\n出品者への送金とBuildBayの手数料も取り消され、購入者の権限は外れます。\nこの操作は取り消せません。返金しますか？`
+    );
+    if (!ok) return;
+    setMessage(null);
+    startTransition(async () => {
+      const result = await refundPayment({ paymentIntentId: id });
+      setMessage(result.error ? { kind: "error", text: result.error } : { kind: "ok", text: "返金しました" });
+      if (!result.error) setPaymentIntentId("");
+    });
+  }
+
+  return (
+    <div className="mb-6 rounded-xl border border-border bg-surface p-4">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="text-[13px] font-medium text-text-primary"
+      >
+        {open ? "▾" : "▸"} 報告の無い支払いを返金する（二重決済など）
+      </button>
+      {open && (
+        <div className="mt-3 space-y-2">
+          <p className="text-[12px] text-text-muted">
+            Stripeの画面の「支払い」にある支払いID（pi_ で始まるID）を入力してください。必ずここから返金してください（Stripeの画面から返金すると、出品者への送金が取り消されません）。
+          </p>
+          <div className="flex gap-2">
+            <input
+              value={paymentIntentId}
+              onChange={(e) => setPaymentIntentId(e.target.value)}
+              placeholder="pi_..."
+              className="min-w-0 flex-1 rounded-lg border border-border bg-bg px-3 py-2 font-mono text-[12px] text-text-primary outline-none focus:border-border-strong"
+            />
+            <button
+              type="button"
+              onClick={submit}
+              disabled={isPending || !paymentIntentId.trim()}
+              className="shrink-0 rounded-lg bg-accent-danger px-3 py-2 text-[12px] font-medium text-white transition hover:brightness-105 disabled:opacity-60"
+            >
+              {isPending ? "処理中..." : "返金する"}
+            </button>
+          </div>
+          {message && (
+            <p className={`text-[12px] ${message.kind === "ok" ? "text-accent-success" : "text-accent-danger"}`}>
+              {message.text}
+            </p>
+          )}
+        </div>
       )}
     </div>
   );
