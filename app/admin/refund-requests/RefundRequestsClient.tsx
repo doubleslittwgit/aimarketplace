@@ -68,9 +68,19 @@ export default function RefundRequestsClient({
               <RequestRowItem
                 key={r.id}
                 request={r}
-                onUpdate={(status, note) => {
+                onUpdate={(status, note, refunded) => {
                   setItems((prev) =>
-                    prev.map((p) => (p.id === r.id ? { ...p, status, admin_note: note } : p))
+                    prev.map((p) => {
+                      if (p.id !== r.id) return p;
+                      const next = { ...p, status, admin_note: note };
+                      // 返金した場合は、再読み込みしなくても「返金済み」の表示が出るようにする
+                      if (refunded) {
+                        if (next.purchases) next.purchases = { ...next.purchases, status: "refunded" };
+                        if (next.course_purchases)
+                          next.course_purchases = { ...next.course_purchases, status: "refunded" };
+                      }
+                      return next;
+                    })
                   );
                 }}
               />
@@ -111,7 +121,7 @@ function RequestRowItem({
   onUpdate,
 }: {
   request: RefundRequestRow;
-  onUpdate: (status: "resolved" | "dismissed", note: string) => void;
+  onUpdate: (status: "resolved" | "dismissed", note: string, refunded?: boolean) => void;
 }) {
   const [isPending, startTransition] = useTransition();
   const [note, setNote] = useState(request.admin_note ?? "");
@@ -139,7 +149,7 @@ function RequestRowItem({
         result = await refundPayment({ requestId: request.id, note, acknowledgeAccess: true });
       }
       if (result.error) setRefundError(result.error);
-      else if (!result.accessWarning) onUpdate("resolved", note || "返金済み");
+      else if (!result.accessWarning) onUpdate("resolved", note || "返金済み", true);
     });
   }
 
