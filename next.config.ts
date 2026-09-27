@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
@@ -25,4 +26,23 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+const config = withNextIntl(nextConfig);
+
+// エラー監視（Sentry）。エラーの送信自体は instrumentation*.ts だけで動く。
+// ここでは、ビルド時にソースマップ（圧縮前のコードとの対応表）を Sentry へ送り、
+// エラーの場所を元のファイル名・行番号で読めるようにする。
+// SENTRY_AUTH_TOKEN が設定されているときだけ有効にする（未設定ならビルドは今までどおり）。
+export default process.env.SENTRY_AUTH_TOKEN
+  ? withSentryConfig(config, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      silent: true,
+      telemetry: false,
+      // 速度計測は使わないため、ビルド時の自動計測の組み込みは行わない
+      buildTimeInstrumentation: false,
+      // ソースマップは Sentry へ送った後に削除し、サイトからは配信しない
+      sourcemaps: { deleteSourcemapsAfterUpload: true },
+      suppressOnRouterTransitionStartWarning: true,
+    })
+  : config;
