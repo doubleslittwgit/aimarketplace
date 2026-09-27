@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { getTranslations, getLocale } from "next-intl/server";
 import { createCheckoutSessionWithConsent } from "@/lib/stripe/checkout-consent";
+import { paymentIntentDetails } from "@/lib/stripe/payment-description";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { COURSE_PURCHASE_ENABLED, COURSE_PLATFORM_FEE_RATE } from "@/lib/academy/flags";
@@ -92,6 +93,14 @@ export async function startCoursePurchase(courseId: string): Promise<{ error: st
       payment_intent_data: {
         application_fee_amount: platformFee,
         transfer_data: { destination: account.stripe_account_id },
+        // Stripeの管理画面で何の支払いかわかるようにする
+        ...paymentIntentDetails({
+          kind: "course",
+          itemName: course.title,
+          itemId: course.id,
+          buyerId: user.id,
+          sellerId: course.author_id,
+        }),
       },
       // Webhook側は kind を見て、ツールの購入・チップ・講座の購入を振り分ける
       metadata: {

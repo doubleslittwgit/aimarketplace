@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { getTranslations, getLocale } from "next-intl/server";
 import { createCheckoutSessionWithConsent } from "@/lib/stripe/checkout-consent";
+import { paymentIntentDetails } from "@/lib/stripe/payment-description";
 import { PLATFORM_FEE_RATE } from "@/lib/stripe/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -147,6 +148,14 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
         transfer_data: {
           destination: sellerAccount.stripe_account_id,
         },
+        // Stripeの管理画面で何の支払いかわかるようにする
+        ...paymentIntentDetails({
+          kind: "tool",
+          itemName: tool.name,
+          itemId: tool.id,
+          buyerId: user.id,
+          sellerId: tool.author_id,
+        }),
       },
       // Webhookで「誰が何を買ったか」を特定するための情報。
       // 金額もここに記録し、後でDBの値と突き合わせて検証する。
