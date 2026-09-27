@@ -6,7 +6,7 @@ import ForgotPasswordForm from "./ForgotPasswordForm";
 
 export async function generateMetadata() {
   const t = await getTranslations("auth.reset");
-  return { title: `${t("forgotTitle")} | BuildBay` };
+  return { title: t("forgotTitle") };
 }
 
 export default async function ForgotPasswordPage() {

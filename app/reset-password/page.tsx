@@ -6,7 +6,7 @@ import ResetPasswordForm from "./ResetPasswordForm";
 
 export async function generateMetadata() {
   const t = await getTranslations("auth.reset");
-  return { title: `${t("resetTitle")} | BuildBay` };
+  return { title: t("resetTitle") };
 }
 
 /**

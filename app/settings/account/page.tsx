@@ -8,7 +8,7 @@ import DeleteAccountForm from "./DeleteAccountForm";
 
 export async function generateMetadata() {
   const t = await getTranslations("accountSettings");
-  return { title: `${t("title")} | BuildBay` };
+  return { title: t("title") };
 }
 
 export default async function AccountSettingsPage() {
