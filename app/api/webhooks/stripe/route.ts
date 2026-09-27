@@ -16,7 +16,9 @@ import {
   adminDisputeClosed,
   adminRefundDetected,
 } from "@/lib/notifications/content";
-import { findPaymentRecord, markPaymentRefunded } from "@/lib/stripe/payment-records";
+import { findPaymentRecord, markPaymentRefunded, getRecordAccessSummary } from "@/lib/stripe/payment-records";
+import { formatJst } from "@/lib/access-log";
+import { termsAcceptedAt } from "@/lib/stripe/checkout-consent";
 import { formatPrice } from "@/lib/mock-data";
 
 /**
@@ -199,6 +201,21 @@ export async function POST(request: Request) {
       const dueBy = dispute.evidence_details?.due_by
         ? new Date(dispute.evidence_details.due_by * 1000).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })
         : null;
+      // 証拠として出せる記録（購入者が商品を受け取った日時・IPアドレス、決済時の規約同意）をまとめて知らせる
+      let evidence: string | null = null;
+      if (record) {
+        const summary = await getRecordAccessSummary(admin, record);
+        const lines = [
+          summary && summary.count > 0
+            ? `・購入後の受け取り（ダウンロード・利用・閲覧）: ${summary.count}回（初回 ${formatJst(summary.first)}、最終 ${formatJst(summary.last)}${summary.lastIp ? `、最終IP ${summary.lastIp}` : ""}）`
+            : "・購入後の受け取りの記録: なし",
+          record.termsAcceptedAt
+            ? `・決済時に利用規約（デジタルコンテンツのため原則返金不可）へ同意: ${formatJst(record.termsAcceptedAt)}`
+            : "・決済時の規約同意の記録: なし",
+          `・支払いID: ${paymentIntentId}`,
+        ];
+        evidence = lines.join("\n");
+      }
       await notifyAdmins(
         "admin_dispute",
         adminDisputeCreated({
@@ -208,6 +225,7 @@ export async function POST(request: Request) {
           itemName,
           dueBy,
           livemode: event.livemode,
+          evidence,
         })
       );
       return NextResponse.json({ received: true });
@@ -373,6 +391,8 @@ export async function POST(request: Request) {
     seller_earnings: sellerEarnings,
     stripe_payment_intent_id: paymentIntentId,
     status: "completed",
+    // 決済画面で利用規約（原則返金不可）に同意した日時。チャージバックの証拠になる
+    terms_accepted_at: termsAcceptedAt(session),
     completed_at: new Date().toISOString(),
   });
 
@@ -486,6 +506,8 @@ async function handleTip(
     seller_earnings: amountPaid - platformFee,
     stripe_payment_intent_id: paymentIntentId,
     status: "completed",
+    // 決済画面で利用規約（原則返金不可）に同意した日時。チャージバックの証拠になる
+    terms_accepted_at: termsAcceptedAt(session),
   });
 
   if (insertError) {
@@ -579,6 +601,8 @@ async function handleCoursePurchase(
     seller_earnings: sellerEarnings,
     stripe_payment_intent_id: paymentIntentId,
     status: "completed",
+    // 決済画面で利用規約（原則返金不可）に同意した日時。チャージバックの証拠になる
+    terms_accepted_at: termsAcceptedAt(session),
   });
 
   if (insertError) {

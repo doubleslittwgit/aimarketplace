@@ -510,13 +510,16 @@ export function adminDisputeCreated(params: {
   itemName: string;
   dueBy: string | null;
   livemode: boolean;
+  /** 証拠としてStripeに提出できる、受け取り・規約同意の記録（あれば） */
+  evidence?: string | null;
 }): NotificationContent {
   return {
     title: `⚠️ チャージバック発生: ${params.itemName}（${params.amount}）`,
     body:
       `購入者がカード会社に支払いの取り消しを申し立てました（理由: ${params.reason}）。` +
       (params.dueBy ? `${params.dueBy} までに、Stripeの画面から証拠を提出してください。` : "Stripeの画面から内容を確認してください。") +
-      "期限までに対応しないと自動的に負けとなり、返金額と手数料がBuildBayの残高から差し引かれます。",
+      "期限までに対応しないと自動的に負けとなり、返金額と手数料がBuildBayの残高から差し引かれます。" +
+      (params.evidence ? `\n\n【証拠として提出できる記録】\n${params.evidence}` : ""),
     linkUrl: stripeDashboardUrl(`disputes/${params.disputeId}`, params.livemode),
     emailSubject: `【要対応】チャージバックが発生しました: ${params.itemName}`,
   };

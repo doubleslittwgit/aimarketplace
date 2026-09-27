@@ -74,6 +74,13 @@ export async function deleteAccount(formData: FormData): Promise<{ error: string
     if (error) return { error: t("failed", { message: `${table}: ${error.message}` }) };
   }
 
+  // 購入後の受け取り記録は、取引の証拠として日時だけ残し、IPアドレス・ブラウザの情報は消す
+  const { error: logError } = await admin
+    .from("purchase_access_logs")
+    .update({ ip: null, user_agent: null })
+    .eq("user_id", uid);
+  if (logError) return { error: t("failed", { message: `purchase_access_logs: ${logError.message}` }) };
+
   // 3. プロフィール画像を消す（本人のフォルダの画像のうち、プロフィール画像だけ）
   const { data: profile } = await admin.from("profiles").select("avatar_url").eq("id", uid).maybeSingle();
   const marker = "/storage/v1/object/public/tool-images/";

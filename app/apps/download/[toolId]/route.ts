@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { clientInfoFromHeaders, logPurchaseAccess } from "@/lib/access-log";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -15,7 +16,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * すぐに使えなくなるようにするため。
  */
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ toolId: string }> }
 ) {
   const { toolId } = await params;
@@ -54,7 +55,7 @@ export async function GET(
   // 購入済みかどうかを確認する
   const { data: purchase } = await supabase
     .from("purchases")
-    .select("id")
+    .select("id, price_paid")
     .eq("tool_id", tool.id)
     .eq("buyer_id", user.id)
     .eq("status", "completed")
@@ -67,6 +68,21 @@ export async function GET(
     return NextResponse.json(
       { error: "このツールを購入していません" },
       { status: 403 }
+    );
+  }
+
+  // 有料で購入した人がダウンロード・利用したことを記録する（返金の判断・チャージバックの証拠用。
+  // lib/access-log.ts 参照）。出品者本人や無料の取得は記録しない。応答は遅らせない
+  if (purchase && purchase.price_paid > 0 && !isOwner) {
+    const info = clientInfoFromHeaders(request.headers);
+    after(() =>
+      logPurchaseAccess(createAdminClient(), {
+        userId: user.id,
+        kind: tool.runtime === "cloud" ? "open" : "download",
+        toolId: tool.id,
+        purchaseId: purchase.id,
+        ...info,
+      })
     );
   }
 

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getAccessSummaries } from "@/lib/access-log";
 
 /**
  * Stripeの支払い（payment_intent）から、BuildBay側の記録を探す。
@@ -23,6 +24,8 @@ export type PaymentRecord = {
   itemName: string;
   /** 商品ページのパス（/apps/xxx など） */
   path: string | null;
+  /** 決済画面で利用規約に同意した日時（記録が無ければ null） */
+  termsAcceptedAt: string | null;
 };
 
 export async function findPaymentRecord(
@@ -32,17 +35,17 @@ export async function findPaymentRecord(
   const [{ data: purchase }, { data: coursePurchase }, { data: tip }] = await Promise.all([
     admin
       .from("purchases")
-      .select("id, status, price_paid, buyer_id, seller_id, tools(name, slug)")
+      .select("id, status, price_paid, buyer_id, seller_id, terms_accepted_at, tools(name, slug)")
       .eq("stripe_payment_intent_id", paymentIntentId)
       .maybeSingle(),
     admin
       .from("course_purchases")
-      .select("id, status, price_paid, buyer_id, seller_id, courses(title, slug)")
+      .select("id, status, price_paid, buyer_id, seller_id, terms_accepted_at, courses(title, slug)")
       .eq("stripe_payment_intent_id", paymentIntentId)
       .maybeSingle(),
     admin
       .from("tips")
-      .select("id, status, amount, tipper_id, seller_id, tools(name, slug)")
+      .select("id, status, amount, tipper_id, seller_id, terms_accepted_at, tools(name, slug)")
       .eq("stripe_payment_intent_id", paymentIntentId)
       .maybeSingle(),
   ]);
@@ -58,6 +61,7 @@ export async function findPaymentRecord(
       sellerId: purchase.seller_id,
       itemName: tool?.name ?? "—",
       path: tool ? `/apps/${tool.slug}` : null,
+      termsAcceptedAt: purchase.terms_accepted_at ?? null,
     };
   }
   if (coursePurchase) {
@@ -71,6 +75,7 @@ export async function findPaymentRecord(
       sellerId: coursePurchase.seller_id,
       itemName: course?.title ?? "—",
       path: course ? `/academy/courses/${course.slug}` : null,
+      termsAcceptedAt: coursePurchase.terms_accepted_at ?? null,
     };
   }
   if (tip) {
@@ -84,6 +89,7 @@ export async function findPaymentRecord(
       sellerId: tip.seller_id,
       itemName: tool?.name ?? "—",
       path: tool ? `/apps/${tool.slug}` : null,
+      termsAcceptedAt: tip.terms_accepted_at ?? null,
     };
   }
   return null;
@@ -106,4 +112,14 @@ export async function markPaymentRefunded(
 ): Promise<{ error: string | null }> {
   const { error } = await admin.from(TABLE[record.kind]).update({ status: "refunded" }).eq("id", record.id);
   return { error: error?.message ?? null };
+}
+
+/** 購入者が商品を受け取った記録の要約を、支払いの種類に合わせて取り出す（チップは対象外） */
+export async function getRecordAccessSummary(admin: SupabaseClient, record: PaymentRecord) {
+  if (record.kind === "tip") return null;
+  const map = await getAccessSummaries(
+    admin,
+    record.kind === "tool" ? { purchaseIds: [record.id] } : { coursePurchaseIds: [record.id] }
+  );
+  return map.get(record.id) ?? null;
 }

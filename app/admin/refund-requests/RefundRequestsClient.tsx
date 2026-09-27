@@ -132,9 +132,14 @@ function RequestRowItem({
     if (!ok) return;
     setRefundError(null);
     startTransition(async () => {
-      const result = await refundPayment({ requestId: request.id, note });
+      let result = await refundPayment({ requestId: request.id, note });
+      // すでにダウンロード・利用・閲覧している場合は、内容を見せてもう一度確認する
+      if (result.accessWarning) {
+        if (!window.confirm(accessWarningText(result.accessWarning))) return;
+        result = await refundPayment({ requestId: request.id, note, acknowledgeAccess: true });
+      }
       if (result.error) setRefundError(result.error);
-      else onUpdate("resolved", note || "返金済み");
+      else if (!result.accessWarning) onUpdate("resolved", note || "返金済み");
     });
   }
 
@@ -193,6 +198,8 @@ function RequestRowItem({
             : ""} ・{" "}
         {new Date(request.created_at).toLocaleString("ja-JP")}
       </p>
+
+      <DeliveryEvidence request={request} />
 
       {request.status === "pending" && (
         <div className="mt-3 space-y-2">
@@ -260,7 +267,11 @@ function RefundByPaymentId() {
     if (!ok) return;
     setMessage(null);
     startTransition(async () => {
-      const result = await refundPayment({ paymentIntentId: id });
+      let result = await refundPayment({ paymentIntentId: id });
+      if (result.accessWarning) {
+        if (!window.confirm(accessWarningText(result.accessWarning))) return;
+        result = await refundPayment({ paymentIntentId: id, acknowledgeAccess: true });
+      }
       setMessage(result.error ? { kind: "error", text: result.error } : { kind: "ok", text: "返金しました" });
       if (!result.error) setPaymentIntentId("");
     });
@@ -303,6 +314,43 @@ function RefundByPaymentId() {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function formatJst(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+}
+
+function accessWarningText(w: { count: number; first: string; last: string }): string {
+  return (
+    `⚠️ この購入者は、すでに商品を受け取っています（ダウンロード・利用・閲覧 ${w.count}回）。\n` +
+    `初回: ${formatJst(w.first)}\n最終: ${formatJst(w.last)}\n\n` +
+    "返金しても、ダウンロードしたファイルや利用先URLは購入者の手元に残ります。\n" +
+    "・出品者に不具合や状況を確認しましたか？\n" +
+    "・返金の条件（場合によって返金あり／重大な不具合／決済の誤り）に当てはまりますか？\n\n" +
+    "それでも返金しますか？"
+  );
+}
+
+/** 返金の判断材料: 購入者がすでに受け取っているか、決済時に規約へ同意しているか */
+function DeliveryEvidence({ request }: { request: RefundRequestRow }) {
+  const payment = request.purchases ?? request.course_purchases;
+  if (!payment || payment.price_paid <= 0) return null;
+  const access = request.access;
+  return (
+    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+      {access && access.count > 0 ? (
+        <span className="font-medium text-accent-danger">
+          受け取り済み: {access.count}回（初回 {formatJst(access.first)} / 最終 {formatJst(access.last)}）
+        </span>
+      ) : (
+        <span className="text-text-muted">受け取りの記録: なし</span>
+      )}
+      <span className="text-text-muted">
+        規約への同意: {payment.terms_accepted_at ? `あり（${formatJst(payment.terms_accepted_at)}）` : "記録なし"}
+      </span>
     </div>
   );
 }

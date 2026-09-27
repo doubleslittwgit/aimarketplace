@@ -2,8 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { getTranslations } from "next-intl/server";
-import { stripe } from "@/lib/stripe/server";
+import { getTranslations, getLocale } from "next-intl/server";
+import { createCheckoutSessionWithConsent } from "@/lib/stripe/checkout-consent";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { COURSE_PURCHASE_ENABLED, COURSE_PLATFORM_FEE_RATE } from "@/lib/academy/flags";
@@ -67,7 +67,7 @@ export async function startCoursePurchase(courseId: string): Promise<{ error: st
 
   let checkoutUrl: string | null = null;
   try {
-    const session = await stripe.checkout.sessions.create({
+    const session = await createCheckoutSessionWithConsent({
       // 支払い方法はカード（Apple Pay・Google Payを含む）に限定する。
       // コンビニ払いなどの「後から支払う」方式は、特定商取引法の表記（クレジットカード決済）と合わず、
       // 支払いの完了が遅れて届くため購入の記録・権限付与の流れとも合わないため。
@@ -100,7 +100,7 @@ export async function startCoursePurchase(courseId: string): Promise<{ error: st
         buyer_id: user.id,
         seller_id: course.author_id,
       },
-    });
+    }, "purchase", await getLocale());
     checkoutUrl = session.url;
   } catch (e) {
     return { error: t("checkoutFailed", { message: e instanceof Error ? e.message : "unknown" }) };

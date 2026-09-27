@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
+import { after } from "next/server";
+import { clientInfoFromHeaders, logCourseViewThrottled } from "@/lib/access-log";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { shareMetadata } from "@/lib/seo";
@@ -99,6 +102,7 @@ export default async function CoursePage({
   const isPublished = course.status === "published";
   // 購入済みか（購入記録は本人のものだけ読める）
   let purchased = false;
+  let purchaseId: string | null = null;
   if (user && course.price > 0 && !isAuthor) {
     const { data: p } = await supabase
       .from("course_purchases")
@@ -108,6 +112,7 @@ export default async function CoursePage({
       .eq("status", "completed")
       .maybeSingle();
     purchased = Boolean(p);
+    purchaseId = p?.id ?? null;
   }
   // 非公開になった講座も、購入済みの人は引き続き読める
   if (!isPublished && !isAuthor && !isAdmin && !purchased) notFound();
@@ -123,6 +128,22 @@ export default async function CoursePage({
   const fullDoc = (body?.content as JSONNode | undefined) ?? null;
   const hasFullAccess =
     Boolean(fullDoc) && (course.price === 0 || isAuthor || isAdmin || purchased);
+
+  // 有料講座を購入者が閲覧したことを記録する（返金の判断・チャージバックの証拠用。lib/access-log.ts 参照）。
+  // 開くたびに記録すると量が増えるだけなので、同じ購入について6時間に1回までにする。応答は遅らせない
+  if (purchased && purchaseId && user) {
+    const info = clientInfoFromHeaders(await headers());
+    const courseId = course.id;
+    const userId = user.id;
+    after(() =>
+      logCourseViewThrottled(createAdminClient(), {
+        userId,
+        courseId,
+        coursePurchaseId: purchaseId as string,
+        ...info,
+      })
+    );
+  }
 
   const html = renderCourseHtml(hasFullAccess ? fullDoc : course.free_content);
 

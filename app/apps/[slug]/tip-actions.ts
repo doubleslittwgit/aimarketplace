@@ -2,8 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { getTranslations } from "next-intl/server";
-import { stripe, PLATFORM_FEE_RATE } from "@/lib/stripe/server";
+import { getTranslations, getLocale } from "next-intl/server";
+import { createCheckoutSessionWithConsent } from "@/lib/stripe/checkout-consent";
+import { PLATFORM_FEE_RATE } from "@/lib/stripe/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { TIP_AMOUNTS, type TipAmount } from "@/lib/tip-amounts";
@@ -80,7 +81,7 @@ export async function startTip(
   let checkoutUrl: string | null = null;
 
   try {
-    const session = await stripe.checkout.sessions.create({
+    const session = await createCheckoutSessionWithConsent({
       // 支払い方法はカード（Apple Pay・Google Payを含む）に限定する。
       // コンビニ払いなどの「後から支払う」方式は、特定商取引法の表記（クレジットカード決済）と合わず、
       // 支払いの完了が遅れて届くため購入の記録・権限付与の流れとも合わないため。
@@ -118,7 +119,7 @@ export async function startTip(
         platform_fee: String(platformFee),
         seller_earnings: String(amount - platformFee),
       },
-    });
+    }, "tip", await getLocale());
 
     checkoutUrl = session.url;
   } catch (e) {

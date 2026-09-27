@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe } from "@/lib/stripe/server";
-import { findPaymentRecord, markPaymentRefunded } from "@/lib/stripe/payment-records";
+import { findPaymentRecord, markPaymentRefunded, getRecordAccessSummary } from "@/lib/stripe/payment-records";
 import { notify } from "@/lib/notifications/create";
 import { purchaseRefundedBuyer, purchaseRefundedSeller } from "@/lib/notifications/content";
 import { formatPrice } from "@/lib/mock-data";
@@ -60,11 +60,22 @@ export async function updateRefundRequestStatus(
  *
  * 対象の指定は「返金・トラブル報告」から（requestId）か、Stripeの支払いID（pi_...）で行う。
  */
+export type RefundResult = {
+  error: string | null;
+  /**
+   * 購入者がすでに商品を受け取っている（ダウンロード・利用・閲覧した）場合、返金せずにこれを返す。
+   * 画面で内容を見せて、もう一度確認を取ってから acknowledgeAccess: true で呼び直す。
+   */
+  accessWarning?: { count: number; first: string; last: string };
+};
+
 export async function refundPayment(input: {
   requestId?: string;
   paymentIntentId?: string;
   note?: string;
-}): Promise<{ error: string | null }> {
+  /** 受け取り済みであることを確認したうえで返金する */
+  acknowledgeAccess?: boolean;
+}): Promise<RefundResult> {
   const { ok } = await requireAdmin();
   if (!ok) return { error: "管理者権限がありません" };
 
@@ -96,6 +107,18 @@ export async function refundPayment(input: {
   if (!record) return { error: "この支払いIDの購入記録が見つかりません" };
   if (record.status === "refunded") return { error: "この支払いはすでに返金済みです" };
   if (record.amount <= 0) return { error: "無料の取得は返金の対象外です" };
+
+  // デジタル商品は返金しても手元に残る。すでに受け取っている場合は、画面でもう一段確認を取る
+  // （ボタンの押し間違いや、確認不足のまま返金してしまうのを防ぐ。サーバー側で必ず止める）
+  if (!input.acknowledgeAccess) {
+    const summary = await getRecordAccessSummary(admin, record);
+    if (summary && summary.count > 0 && summary.first && summary.last) {
+      return {
+        error: null,
+        accessWarning: { count: summary.count, first: summary.first, last: summary.last },
+      };
+    }
+  }
 
   // 2. Stripeで返金する（同じ支払いへの二重返金は、冪等キーでStripe側でも防ぐ）
   try {
