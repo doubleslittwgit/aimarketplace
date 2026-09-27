@@ -17,7 +17,12 @@ export function shareMetadata(params: {
   /** 公開されていないページなど、検索に出したくない場合 */
   noindex?: boolean;
 }): Metadata {
-  const description = params.description.replace(/\s+/g, " ").trim().slice(0, 160);
+  // 説明文の飾り罫（———— や ==== など）は、検索結果やシェア表示ではノイズになるので取り除く
+  const description = params.description
+    .replace(/[-—―─━=＝*＊_~〜・･]{3,}/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160);
   const images = params.image ? [{ url: params.image }] : [{ url: "/OGP.png", width: 1200, height: 630 }];
   return {
     title: params.title,
