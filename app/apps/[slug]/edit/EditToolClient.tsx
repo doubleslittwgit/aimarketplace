@@ -30,7 +30,7 @@ type Tool = {
   sale_price: number | null;
   sale_ends_at: string | null;
   remix_allowed: boolean;
-  refund_policy: "none" | "conditional" | "full";
+  refund_policy: "none" | "conditional";
   is_wip: boolean;
   video_url: string | null;
   runtime: "cloud" | "local";
@@ -713,7 +713,6 @@ export default function EditToolClient({
             >
               <option value="none">{tSubmit("refundPolicyNone")}</option>
               <option value="conditional">{tSubmit("refundPolicyConditional")}</option>
-              <option value="full">{tSubmit("refundPolicyFull")}</option>
             </select>
           </Field>
 

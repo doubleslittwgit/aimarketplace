@@ -170,8 +170,8 @@ async function saveCourseInner(input: SaveCourseInput): Promise<SaveCourseResult
       price,
       // 決められたカテゴリ以外は保存しない（DB側の制約とも一致させている）
       category: isCourseCategory(input.category) ? input.category : null,
-      // 決められた3つ以外は「返金なし」として扱う
-      refund_policy: ["none", "conditional", "full"].includes(input.refundPolicy) ? input.refundPolicy : "none",
+      // 決められた2つ（返金なし／場合によって返金あり）以外は「返金なし」として扱う
+      refund_policy: ["none", "conditional"].includes(input.refundPolicy) ? input.refundPolicy : "none",
       status,
       free_content: freeContent,
       toc: buildToc(doc),

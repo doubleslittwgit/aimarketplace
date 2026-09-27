@@ -292,8 +292,7 @@
       "wipBadge": "開發中",
       "refundPolicyTitle": "退款方針",
       "refundPolicyNone": "不接受退款",
-      "refundPolicyConditional": "視情況而定",
-      "refundPolicyFull": "接受退款",
+      "refundPolicyConditional": "視情況退款",
       "internet": "網路連線",
       "internetValue": {
         "required": "需要",
@@ -850,8 +849,7 @@
     "versionHint": "由於您更換了檔案，可以記錄本次更新內容。留空也可以儲存。",
     "refundPolicyLabel": "退款方針（選填）",
     "refundPolicyNone": "不接受退款",
-    "refundPolicyConditional": "視情況而定",
-    "refundPolicyFull": "接受退款",
+    "refundPolicyConditional": "視情況退款",
     "refundPolicyHint": "在商品頁面顯示退款方針，讓買家更安心。",
     "wipLabel": "發布狀態（選填）",
     "wipEnable": "以「開發中」的狀態發布",
@@ -1419,8 +1417,7 @@
     "refundTitle": "退款方針",
     "refund": {
       "none": "不接受退款",
-      "conditional": "視情況而定",
-      "full": "接受退款"
+      "conditional": "視情況退款"
     },
     "errors": {
       "notPurchasable": "此課程目前無法購買",

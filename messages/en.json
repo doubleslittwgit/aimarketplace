@@ -292,8 +292,7 @@
       "wipBadge": "In development",
       "refundPolicyTitle": "Refunds",
       "refundPolicyNone": "No refunds",
-      "refundPolicyConditional": "Case by case",
-      "refundPolicyFull": "Refunds offered",
+      "refundPolicyConditional": "Refunds case by case",
       "internet": "Internet",
       "internetValue": {
         "required": "Required",
@@ -850,8 +849,7 @@
     "versionHint": "You replaced the file, so you can record what changed. Leaving this blank is fine.",
     "refundPolicyLabel": "Refund policy (optional)",
     "refundPolicyNone": "No refunds",
-    "refundPolicyConditional": "Case by case",
-    "refundPolicyFull": "Refunds offered",
+    "refundPolicyConditional": "Refunds case by case",
     "refundPolicyHint": "Shown on the tool page so buyers know where they stand before paying.",
     "wipLabel": "Release state (optional)",
     "wipEnable": "Publish as a work in progress",
@@ -1419,8 +1417,7 @@
     "refundTitle": "Refunds",
     "refund": {
       "none": "No refunds",
-      "conditional": "Case by case",
-      "full": "Refunds offered"
+      "conditional": "Refunds case by case"
     },
     "errors": {
       "notPurchasable": "This course can't be purchased right now",

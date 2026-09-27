@@ -27,7 +27,7 @@ type CourseRow = {
   toc: TocItem[] | null;
   free_content: JSONNode | null;
   author_id: string;
-  refund_policy: "none" | "conditional" | "full";
+  refund_policy: "none" | "conditional";
   profiles: { display_name: string | null; handle: string | null } | null;
 };
 
@@ -225,7 +225,7 @@ export default async function CoursePage({
       {isPaid && (
         <p className="mt-3 flex items-center justify-between rounded-lg border border-border px-3 py-2 text-[12px]">
           <span className="text-text-muted">{t("refundTitle")}</span>
-          <span className="font-medium text-text-secondary">{t(`refund.${course.refund_policy ?? "none"}`)}</span>
+          <span className="font-medium text-text-secondary">{t(course.refund_policy === "conditional" ? "refund.conditional" : "refund.none")}</span>
         </p>
       )}
       <ul className="mt-4 space-y-1.5 border-t border-border pt-4 text-[12px] text-text-secondary">

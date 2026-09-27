@@ -126,9 +126,7 @@ export default function BuyBox({
         <div className="mt-4 flex items-center justify-between rounded-lg border border-border px-3 py-2.5">
           <span className="text-[12px] text-text-muted">{t("refundPolicyTitle")}</span>
           <span className="text-[12px] font-medium text-text-secondary">
-            {tool.refundPolicy === "full"
-              ? t("refundPolicyFull")
-              : t("refundPolicyConditional")}
+            {t("refundPolicyConditional")}
           </span>
         </div>
       )}

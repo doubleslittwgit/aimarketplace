@@ -66,7 +66,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
   const remixAllowed = formData.get("remixAllowed") === "1";
   const refundPolicyRaw = String(formData.get("refundPolicy") || "none");
-  const refundPolicy = ["none", "conditional", "full"].includes(refundPolicyRaw)
+  const refundPolicy = ["none", "conditional"].includes(refundPolicyRaw)
     ? refundPolicyRaw
     : "none";
   const isWip = formData.get("isWip") === "1";
@@ -323,7 +323,7 @@ export async function saveDraft(
   const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
   const remixAllowed = formData.get("remixAllowed") === "1";
   const refundPolicyRaw = String(formData.get("refundPolicy") || "none");
-  const refundPolicy = ["none", "conditional", "full"].includes(refundPolicyRaw)
+  const refundPolicy = ["none", "conditional"].includes(refundPolicyRaw)
     ? refundPolicyRaw
     : "none";
   const isWip = formData.get("isWip") === "1";

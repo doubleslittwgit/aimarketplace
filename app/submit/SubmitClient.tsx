@@ -870,7 +870,6 @@ export default function SubmitClient({
                 >
                   <option value="none">{t("refundPolicyNone")}</option>
                   <option value="conditional">{t("refundPolicyConditional")}</option>
-                  <option value="full">{t("refundPolicyFull")}</option>
                 </select>
               </Field>
 

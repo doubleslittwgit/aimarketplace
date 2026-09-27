@@ -292,8 +292,7 @@
       "wipBadge": "開発中",
       "refundPolicyTitle": "返金対応",
       "refundPolicyNone": "返金なし",
-      "refundPolicyConditional": "条件により対応",
-      "refundPolicyFull": "返金対応あり",
+      "refundPolicyConditional": "場合によって返金あり",
       "internet": "ネット接続",
       "internetValue": {
         "required": "必要",
@@ -850,8 +849,7 @@
     "versionHint": "ファイルを差し替えたので、更新内容を記録できます。空欄のままでも保存できます。",
     "refundPolicyLabel": "返金対応（任意）",
     "refundPolicyNone": "返金なし",
-    "refundPolicyConditional": "条件により対応",
-    "refundPolicyFull": "返金対応あり",
+    "refundPolicyConditional": "場合によって返金あり",
     "refundPolicyHint": "購入者が安心して買えるよう、返金の方針を商品ページに表示します。",
     "wipLabel": "公開状態（任意）",
     "wipEnable": "開発中のツールとして公開する",
@@ -1419,8 +1417,7 @@
     "refundTitle": "返金対応",
     "refund": {
       "none": "返金なし",
-      "conditional": "条件により対応",
-      "full": "返金対応あり"
+      "conditional": "場合によって返金あり"
     },
     "errors": {
       "notPurchasable": "この講座は現在購入できません",

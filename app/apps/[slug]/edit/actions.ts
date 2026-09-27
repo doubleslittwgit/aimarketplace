@@ -84,7 +84,7 @@ export async function updateTool(
   const hostAppsList = hostAppsRaw ? hostAppsRaw.split(",").filter(Boolean) : [];
   const remixAllowed = formData.get("remixAllowed") === "1";
   const refundPolicyRaw = String(formData.get("refundPolicy") || "none");
-  const refundPolicy = ["none", "conditional", "full"].includes(refundPolicyRaw)
+  const refundPolicy = ["none", "conditional"].includes(refundPolicyRaw)
     ? refundPolicyRaw
     : "none";
   const isWip = formData.get("isWip") === "1";

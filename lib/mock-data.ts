@@ -31,7 +31,7 @@ export type Tool = {
   /** 改造・再配布を許可しているか */
   remixAllowed?: boolean;
   /** 返金対応の方針 */
-  refundPolicy?: "none" | "conditional" | "full";
+  refundPolicy?: "none" | "conditional";
   /** 完成前の「開発中」として公開しているか */
   isWip?: boolean;
   /** 紹介動画のURL（YouTube/Vimeoのみ） */

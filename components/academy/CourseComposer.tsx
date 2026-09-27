@@ -47,7 +47,7 @@ export default function CourseComposer({
     thumbnailUrl: string | null;
     price: number;
     category: string | null;
-    refundPolicy: "none" | "conditional" | "full";
+    refundPolicy: "none" | "conditional";
     /** 販売部数の上限（無ければ null） */
     salesLimit?: number | null;
     content: JSONNode | null;
@@ -442,14 +442,13 @@ export default function CourseComposer({
               <select
                 value={refundPolicy}
                 onChange={(e) => {
-                  setRefundPolicy(e.target.value as "none" | "conditional" | "full");
+                  setRefundPolicy(e.target.value as "none" | "conditional");
                   markDirty();
                 }}
                 className="rounded-lg border border-border bg-surface px-2 py-1.5 text-[13px] text-text-primary outline-none focus:border-border-strong"
               >
                 <option value="none">{tCourse("refund.none")}</option>
                 <option value="conditional">{tCourse("refund.conditional")}</option>
-                <option value="full">{tCourse("refund.full")}</option>
               </select>
             </label>
           )}
