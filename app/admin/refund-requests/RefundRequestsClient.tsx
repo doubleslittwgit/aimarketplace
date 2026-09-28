@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/mock-data";
-import { updateRefundRequestStatus, refundPayment } from "./actions";
+import { updateRefundRequestStatus, refundPayment, type RefundResult } from "./actions";
 import type { RefundRequestRow } from "./page";
 
 const STATUS_STYLE: Record<string, string> = {
@@ -127,6 +127,8 @@ function RequestRowItem({
   const [note, setNote] = useState(request.admin_note ?? "");
 
   const [refundError, setRefundError] = useState<string | null>(null);
+  // 受け取り済みの購入を返金するときの、2回目の確認（画面内に表示する）
+  const [warning, setWarning] = useState<AccessWarning | null>(null);
   const payment = request.purchases ?? request.course_purchases;
   const alreadyRefunded = payment?.status === "refunded";
   const canRefund = Boolean(payment && payment.price_paid > 0 && !alreadyRefunded);
@@ -140,16 +142,18 @@ function RequestRowItem({
         "・Stripeの決済手数料は戻りません\n\nこの操作は取り消せません。返金しますか？"
     );
     if (!ok) return;
+    runRefund(false);
+  }
+
+  function runRefund(acknowledgeAccess: boolean) {
     setRefundError(null);
+    setWarning(null);
     startTransition(async () => {
-      let result = await refundPayment({ requestId: request.id, note });
+      const result = await callRefund({ requestId: request.id, note, acknowledgeAccess });
       // すでにダウンロード・利用・閲覧している場合は、内容を見せてもう一度確認する
-      if (result.accessWarning) {
-        if (!window.confirm(accessWarningText(result.accessWarning))) return;
-        result = await refundPayment({ requestId: request.id, note, acknowledgeAccess: true });
-      }
-      if (result.error) setRefundError(result.error);
-      else if (!result.accessWarning) onUpdate("resolved", note || "返金済み", true);
+      if (result.accessWarning) setWarning(result.accessWarning);
+      else if (result.error) setRefundError(result.error);
+      else onUpdate("resolved", note || "返金済み", true);
     });
   }
 
@@ -221,6 +225,14 @@ function RequestRowItem({
             className="w-full resize-none rounded-lg border border-border bg-bg px-3 py-2 text-[12px] text-text-primary outline-none focus:border-border-strong"
           />
           {refundError && <p className="text-[12px] text-accent-danger">{refundError}</p>}
+          {warning && (
+            <AccessWarningPanel
+              warning={warning}
+              pending={isPending}
+              onConfirm={() => runRefund(true)}
+              onCancel={() => setWarning(null)}
+            />
+          )}
           <div className="flex flex-wrap gap-2">
             {canRefund && (
               <button
@@ -266,6 +278,7 @@ function RefundByPaymentId() {
   const [open, setOpen] = useState(false);
   const [paymentIntentId, setPaymentIntentId] = useState("");
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const [warning, setWarning] = useState<AccessWarning | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function submit() {
@@ -275,12 +288,17 @@ function RefundByPaymentId() {
       `支払い ${id} を返金します。\n出品者への送金とBuildBayの手数料も取り消され、購入者の権限は外れます。\nこの操作は取り消せません。返金しますか？`
     );
     if (!ok) return;
+    runRefund(id, false);
+  }
+
+  function runRefund(id: string, acknowledgeAccess: boolean) {
     setMessage(null);
+    setWarning(null);
     startTransition(async () => {
-      let result = await refundPayment({ paymentIntentId: id });
+      const result = await callRefund({ paymentIntentId: id, acknowledgeAccess });
       if (result.accessWarning) {
-        if (!window.confirm(accessWarningText(result.accessWarning))) return;
-        result = await refundPayment({ paymentIntentId: id, acknowledgeAccess: true });
+        setWarning(result.accessWarning);
+        return;
       }
       setMessage(result.error ? { kind: "error", text: result.error } : { kind: "ok", text: "返金しました" });
       if (!result.error) setPaymentIntentId("");
@@ -317,6 +335,14 @@ function RefundByPaymentId() {
               {isPending ? "処理中..." : "返金する"}
             </button>
           </div>
+          {warning && (
+            <AccessWarningPanel
+              warning={warning}
+              pending={isPending}
+              onConfirm={() => runRefund(paymentIntentId.trim(), true)}
+              onCancel={() => setWarning(null)}
+            />
+          )}
           {message && (
             <p className={`text-[12px] ${message.kind === "ok" ? "text-accent-success" : "text-accent-danger"}`}>
               {message.text}
@@ -335,14 +361,73 @@ function formatJst(iso: string | null | undefined): string {
   return new Date(iso).toLocaleString("ja-JP");
 }
 
-function accessWarningText(w: { count: number; first: string; last: string }): string {
+type AccessWarning = { count: number; first: string; last: string };
+
+/**
+ * 返金の処理を呼び出す。通信の失敗などで例外が起きても、画面全体のエラー表示にせず、
+ * その場にメッセージを出せるようにする（スマホのブラウザで、確認のポップアップの後の通信が
+ * 失敗し、「問題が発生しました」の画面になってしまったことがあるため）。
+ */
+async function callRefund(input: Parameters<typeof refundPayment>[0]): Promise<RefundResult> {
+  try {
+    return await refundPayment(input);
+  } catch (e) {
+    console.error("[refund]", e);
+    return {
+      error:
+        "通信に失敗しました。返金されたかどうかを、ページを再読み込みして確認してください（返金済みなら「返金済み」と表示されます）。",
+    };
+  }
+}
+
+/**
+ * 購入者がすでに商品を受け取っている場合の、2回目の確認。
+ * ブラウザの確認ポップアップではなく画面内に出す（ポップアップの後の通信が、
+ * スマホのブラウザで失敗することがあったため）。
+ */
+function AccessWarningPanel({
+  warning,
+  pending,
+  onConfirm,
+  onCancel,
+}: {
+  warning: AccessWarning;
+  pending: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
   return (
-    `⚠️ この購入者は、すでに商品を受け取っています（ダウンロード・利用・閲覧 ${w.count}回）。\n` +
-    `初回: ${formatJst(w.first)}\n最終: ${formatJst(w.last)}\n\n` +
-    "返金しても、ダウンロードしたファイルや利用先URLは購入者の手元に残ります。\n" +
-    "・出品者に不具合や状況を確認しましたか？\n" +
-    "・返金の条件（場合によって返金あり／重大な不具合／決済の誤り）に当てはまりますか？\n\n" +
-    "それでも返金しますか？"
+    <div role="alertdialog" className="rounded-lg border border-accent-danger/40 bg-accent-danger/5 p-3 text-[12px] leading-relaxed text-text-secondary">
+      <p className="font-semibold text-accent-danger">
+        ⚠️ この購入者は、すでに商品を受け取っています（ダウンロード・利用・閲覧 {warning.count}回）
+      </p>
+      <p className="mt-1">
+        初回: {formatJst(warning.first)} ／ 最終: {formatJst(warning.last)}
+      </p>
+      <p className="mt-2">返金しても、ダウンロードしたファイルや利用先URLは購入者の手元に残ります。</p>
+      <ul className="mt-1 list-disc pl-5">
+        <li>出品者に不具合や状況を確認しましたか？</li>
+        <li>返金の条件（場合によって返金あり／重大な不具合／決済の誤り）に当てはまりますか？</li>
+      </ul>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={pending}
+          className="rounded-lg bg-accent-danger px-3 py-1.5 text-[12px] font-medium text-white transition hover:brightness-105 disabled:opacity-60"
+        >
+          {pending ? "処理中..." : "それでも返金する"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={pending}
+          className="rounded-lg border border-border px-3 py-1.5 text-[12px] text-text-secondary hover:bg-surface-raised disabled:opacity-60"
+        >
+          やめる
+        </button>
+      </div>
+    </div>
   );
 }
 
