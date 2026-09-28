@@ -93,7 +93,8 @@
     "claimOwnTool": "You can download your own tool without claiming it.",
     "claimUnavailable": "This tool can't be claimed right now (it may have been unpublished or made paid).",
     "claimFailedGeneric": "Couldn't claim the tool. Please try again later.",
-    "cannotReviewOwnTool": "You can't review your own tool."
+    "cannotReviewOwnTool": "You can't review your own tool.",
+    "resubmissionNoteRequired": "Please describe what you fixed to request another review."
   },
   "cookieNotice": {
     "text": "This site uses cookies required to keep you logged in. See our <link>Privacy Policy</link> for details.",
@@ -814,7 +815,15 @@
     "confirmDelete": "Yes, delete it",
     "deleting": "Deleting...",
     "cancel": "Cancel",
-    "deleteButton": "Delete"
+    "deleteButton": "Delete",
+    "resubmit": {
+      "rejectedTitle": "This tool was sent back",
+      "takenDownTitle": "This tool was unpublished by BuildBay",
+      "reason": "Reason",
+      "hint": "Saving your changes sends the tool for review again. Please describe what you changed so the reviewer can check it.",
+      "noteLabel": "What you fixed",
+      "notePlaceholder": "e.g. Removed exaggerated claims from the description and added system requirements"
+    }
   },
   "submit": {
     "titleNew": "Publish a tool",

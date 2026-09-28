@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { formatPrice } from "@/lib/mock-data";
 import { HIGH_PRICE_REVIEW_THRESHOLD } from "@/lib/ai/review-tool";
 import { approveTool, rejectTool, unpublishToolByAdmin } from "./actions";
+import type { SnapshotChange } from "@/lib/review-snapshot";
 
 type PendingTool = {
   id: string;
@@ -22,6 +23,10 @@ type PendingTool = {
   thumbnail_url: string | null;
   file_key: string | null;
   updated_at: string | null;
+  previous_rejection_reason: string | null;
+  resubmission_note: string | null;
+  /** 前回の審査からの変更点（初めての審査なら null） */
+  changes: SnapshotChange[] | null;
   ai_review_summary: string | null;
   ai_review_risk: "low" | "medium" | "high" | "unknown" | null;
   created_at: string;
@@ -321,9 +326,14 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
         )}
       </div>
 
-      <p className="mb-3 whitespace-pre-wrap text-[13px] leading-relaxed text-text-secondary">
-        {tool.description}
-      </p>
+      <ReviewContext tool={tool} />
+
+      <details className="mb-3" open={tool.changes === null}>
+        <summary className="cursor-pointer text-[12px] text-text-muted">説明文の全文</summary>
+        <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-text-secondary">
+          {tool.description}
+        </p>
+      </details>
 
       {tool.ai_review_summary && (
         <div className="mb-3 rounded-lg border border-border bg-bg p-3">
@@ -416,5 +426,140 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * 審査の判断材料：前回の理由・出品者の修正内容・前回の審査からの変更点。
+ * 「何が変わったか」を自分で探さなくて済むようにするための表示。
+ */
+function ReviewContext({ tool }: { tool: PendingTool }) {
+  const isResubmission = Boolean(tool.previous_rejection_reason);
+  return (
+    <div className="mb-3 space-y-2">
+      <p className="text-[11px] font-medium text-text-muted">
+        {tool.changes === null
+          ? "初めての審査"
+          : isResubmission
+            ? "再申請（前回は差し戻し・運営による非公開）"
+            : "公開中のツールの更新による再審査"}
+      </p>
+
+      {isResubmission && (
+        <div className="grid gap-2 sm:grid-cols-2">
+          <div className="rounded-lg border border-accent-danger/30 bg-accent-danger/5 p-3">
+            <p className="mb-1 text-[11px] font-medium text-accent-danger">前回の理由</p>
+            <p className="whitespace-pre-wrap text-[12px] leading-relaxed text-text-secondary">
+              {tool.previous_rejection_reason}
+            </p>
+          </div>
+          <div className="rounded-lg border border-accent-success/30 bg-accent-success/5 p-3">
+            <p className="mb-1 text-[11px] font-medium text-accent-success">出品者が書いた修正内容</p>
+            <p className="whitespace-pre-wrap text-[12px] leading-relaxed text-text-secondary">
+              {tool.resubmission_note || "（記入なし）"}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {tool.changes !== null && (
+        <div className="rounded-lg border border-border bg-bg p-3">
+          <p className="mb-2 text-[11px] font-medium text-text-muted">前回の審査からの変更点</p>
+          {tool.changes.length === 0 ? (
+            <p className="text-[12px] text-text-secondary">
+              BuildBay 上の内容は前回から変更されていません
+              {tool.runtime === "cloud" && "（クラウド型は、出品者のサイト側で直している場合があります。ツールのURLを開いて確認してください）"}
+            </p>
+          ) : (
+            <ul className="space-y-2.5">
+              {tool.changes.map((c) => (
+                <li key={c.field} className="text-[12px]">
+                  <p className="font-medium text-text-primary">{c.field}</p>
+                  <ChangeDetail change={c} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ChangeDetail({ change }: { change: SnapshotChange }) {
+  const clip = (v: string) => (v.length > 300 ? `${v.slice(0, 300)}…` : v);
+  if (change.kind === "image") {
+    return (
+      <div className="mt-1 flex items-center gap-2">
+        <Thumb src={change.before} />
+        <span className="text-text-dim">→</span>
+        <Thumb src={change.after} />
+      </div>
+    );
+  }
+  if (change.kind === "images") {
+    return (
+      <div className="mt-1 space-y-1">
+        {change.added.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-accent-success">追加:</span>
+            {change.added.map((u) => (
+              <Thumb key={u} src={u} />
+            ))}
+          </div>
+        )}
+        {change.removed.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-text-muted">削除:</span>
+            {change.removed.map((u) => (
+              <Thumb key={u} src={u} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+  if (change.kind === "link") {
+    return (
+      <p className="mt-0.5 break-all text-text-secondary">
+        <span className="text-text-dim line-through">{change.before ?? "（なし）"}</span>
+        <span className="mx-1.5 text-text-dim">→</span>
+        {change.after ? (
+          <a href={change.after} target="_blank" rel="noopener noreferrer" className="text-accent-signal hover:underline">
+            {change.after}
+          </a>
+        ) : (
+          "（なし）"
+        )}
+      </p>
+    );
+  }
+  return (
+    <div className="mt-0.5 grid gap-1 text-text-secondary sm:grid-cols-2">
+      <p className="whitespace-pre-wrap rounded bg-surface-raised/60 px-2 py-1 text-text-dim">
+        <span className="mr-1 text-[10px]">前</span>
+        {clip(change.before)}
+      </p>
+      <p className="whitespace-pre-wrap rounded bg-accent-signal/5 px-2 py-1">
+        <span className="mr-1 text-[10px] text-accent-signal">後</span>
+        {clip(change.after)}
+      </p>
+    </div>
+  );
+}
+
+function Thumb({ src }: { src: string | null }) {
+  if (!src) {
+    return (
+      <span className="inline-flex h-12 w-12 items-center justify-center rounded border border-border text-[10px] text-text-dim">
+        なし
+      </span>
+    );
+  }
+  return (
+    <a href={src} target="_blank" rel="noopener noreferrer">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt="" className="h-12 w-12 rounded border border-border object-cover" />
+    </a>
   );
 }

@@ -93,7 +93,8 @@
     "claimOwnTool": "ご自身のツールは、取得しなくてもダウンロードできます",
     "claimUnavailable": "このツールは現在取得できません（公開が停止されたか、有料になった可能性があります）",
     "claimFailedGeneric": "取得できませんでした。時間をおいてもう一度お試しください",
-    "cannotReviewOwnTool": "ご自身のツールにはレビューを書けません"
+    "cannotReviewOwnTool": "ご自身のツールにはレビューを書けません",
+    "resubmissionNoteRequired": "再審査を申請するには「修正した内容」を入力してください"
   },
   "cookieNotice": {
     "text": "本サービスは、ログイン状態を維持するために必要なCookieを使用しています。詳しくは<link>プライバシーポリシー</link>をご覧ください。",
@@ -814,7 +815,15 @@
     "confirmDelete": "本当に削除する",
     "deleting": "削除中...",
     "cancel": "キャンセル",
-    "deleteButton": "削除する"
+    "deleteButton": "削除する",
+    "resubmit": {
+      "rejectedTitle": "このツールは差し戻されています",
+      "takenDownTitle": "このツールは運営によって非公開にされています",
+      "reason": "理由",
+      "hint": "内容を直して保存すると、再審査の申請になります。審査担当者が確認できるよう、何を直したかを書いてください。",
+      "noteLabel": "修正した内容",
+      "notePlaceholder": "例：説明文の誇大な表現を修正し、動作環境を追記しました"
+    }
   },
   "submit": {
     "titleNew": "ツールを公開する",

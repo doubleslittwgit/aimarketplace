@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import AdminReviewClient from "./AdminReviewClient";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { buildToolSnapshot, diffSnapshots, SNAPSHOT_TOOL_COLUMNS, type ToolSnapshot } from "@/lib/review-snapshot";
 
 export default async function AdminReviewPage() {
   const supabase = await createClient();
@@ -25,7 +26,7 @@ export default async function AdminReviewPage() {
     admin
       .from("tools")
       .select(
-        "id, slug, name, tagline, description, category, price, runtime, platforms, min_os_version, thumbnail_url, file_key, updated_at, ai_review_summary, ai_review_risk, created_at, author_id, profiles:author_id(display_name, handle)"
+        `id, slug, category, updated_at, ai_review_summary, ai_review_risk, created_at, author_id, last_reviewed_snapshot, previous_rejection_reason, resubmission_note, ${SNAPSHOT_TOOL_COLUMNS}, profiles:author_id(display_name, handle)`
       )
       .eq("status", "pending_review")
       .order("created_at", { ascending: true }),
@@ -44,10 +45,17 @@ export default async function AdminReviewPage() {
     ? await admin.from("tool_access_urls").select("tool_id, url").in("tool_id", pendingIds)
     : { data: [] as { tool_id: string; url: string }[] };
   const urlByTool = new Map((accessRows ?? []).map((r) => [r.tool_id, r.url]));
-  const pendingWithUrls = (pendingTools ?? []).map((t) => ({
-    ...t,
-    demo_url: urlByTool.get(t.id) ?? null,
-  }));
+  // 前回の審査（承認・差し戻し・非公開）からの変更点を、ここで計算して渡す
+  const pendingWithUrls = (pendingTools ?? []).map((t) => {
+    const accessUrl = urlByTool.get(t.id) ?? null;
+    const previous = (t.last_reviewed_snapshot as ToolSnapshot | null) ?? null;
+    const now = buildToolSnapshot(t as unknown as Parameters<typeof buildToolSnapshot>[0], accessUrl);
+    return {
+      ...t,
+      demo_url: accessUrl,
+      changes: previous ? diffSnapshots(previous, now) : null,
+    };
+  });
 
   return (
     <>

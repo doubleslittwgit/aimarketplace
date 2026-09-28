@@ -44,7 +44,8 @@ type Tool = {
   thumbnail_url: string | null;
   gallery_urls: string[] | null;
   file_key: string | null;
-  status: "draft" | "pending_review" | "published" | "suspended";
+  status: "draft" | "pending_review" | "published" | "suspended" | "rejected";
+  rejection_reason: string | null;
 };
 
 export default function EditToolClient({
@@ -58,6 +59,9 @@ export default function EditToolClient({
 }) {
   const t = useTranslations("edit");
   const router = useRouter();
+  // 差し戻された・運営が非公開にしたツールは、保存すると再審査の申請になる
+  const isResubmission =
+    tool.status === "rejected" || (tool.status === "suspended" && Boolean(tool.rejection_reason));
   const tSubmit = useTranslations("submit");
   const tCategories = useTranslations("categories");
   const tCommon = useTranslations("common");
@@ -382,7 +386,7 @@ export default function EditToolClient({
         )}
 
         {/* 公開・非公開の切り替え（公開中か、自分で非公開にしたツールだけ） */}
-        {(tool.status === "published" || tool.status === "suspended") && (
+        {(tool.status === "published" || (tool.status === "suspended" && !tool.rejection_reason)) && (
         <div className="mb-8 flex items-center justify-between rounded-lg border border-border bg-surface px-4 py-3">
           <div>
             <p className="text-[13px] font-medium text-text-primary">
@@ -408,6 +412,32 @@ export default function EditToolClient({
         )}
 
         <form action={handleFormAction} className="space-y-7">
+          {/* 差し戻し・運営による非公開の後の再申請：理由を見せ、修正内容を書いてもらう */}
+          {isResubmission && (
+            <div className="rounded-xl border border-accent-danger/30 bg-accent-danger/5 p-4">
+              <p className="text-[13px] font-semibold text-accent-danger">
+                {tool.status === "rejected" ? t("resubmit.rejectedTitle") : t("resubmit.takenDownTitle")}
+              </p>
+              {tool.rejection_reason && (
+                <p className="mt-1.5 whitespace-pre-wrap text-[13px] leading-relaxed text-text-secondary">
+                  {t("resubmit.reason")}: {tool.rejection_reason}
+                </p>
+              )}
+              <p className="mt-3 text-[12px] leading-relaxed text-text-muted">{t("resubmit.hint")}</p>
+              <label className="mt-3 block text-[13px] font-medium text-text-primary">
+                {t("resubmit.noteLabel")} <span className="text-accent-danger">*</span>
+                <textarea
+                  name="resubmissionNote"
+                  required
+                  maxLength={1000}
+                  rows={3}
+                  placeholder={t("resubmit.notePlaceholder")}
+                  className="mt-1.5 w-full resize-y rounded-lg border border-border bg-surface px-3.5 py-2.5 text-[14px] font-normal text-text-primary outline-none focus:border-border-strong"
+                />
+              </label>
+            </div>
+          )}
+
           {/* サムネイル画像 */}
           <Field label={tSubmit("thumbnail")}>
             <div className="flex items-center gap-4">

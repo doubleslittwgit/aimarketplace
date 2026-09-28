@@ -255,6 +255,12 @@ export async function updateTool(
     existing.status === "rejected" ||
     (existing.status === "suspended" && Boolean(existing.rejection_reason));
 
+  // 再申請のときは「何を直したか」を必ず書いてもらう（審査画面で、前回の理由と並べて表示する）
+  const resubmissionNote = String(formData.get("resubmissionNote") || "").trim().slice(0, 1000);
+  if (resubmitting && !resubmissionNote) {
+    return { error: t("resubmissionNoteRequired") };
+  }
+
   const nextStatus: string | undefined =
     needsReReview || resubmitting ? "pending_review" : undefined;
 
@@ -305,6 +311,8 @@ export async function updateTool(
             ai_review_summary: null,
             ai_review_risk: null,
             rejection_reason: null,
+            // 再申請なら修正内容、それ以外の再審査では前回の記入を残さない
+            resubmission_note: resubmitting ? resubmissionNote : null,
           }
         : {}),
     })

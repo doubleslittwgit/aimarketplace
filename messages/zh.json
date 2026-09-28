@@ -93,7 +93,8 @@
     "claimOwnTool": "您自己的工具不需取得即可下載",
     "claimUnavailable": "目前無法取得此工具（可能已停止公開或改為付費）",
     "claimFailedGeneric": "取得失敗，請稍後再試",
-    "cannotReviewOwnTool": "無法為自己的工具撰寫評論"
+    "cannotReviewOwnTool": "無法為自己的工具撰寫評論",
+    "resubmissionNoteRequired": "申請重新審核時，請填寫「修正內容」"
   },
   "cookieNotice": {
     "text": "本服務使用維持登入狀態所必需的Cookie。詳情請參閱<link>隱私權政策</link>。",
@@ -814,7 +815,15 @@
     "confirmDelete": "確定要刪除",
     "deleting": "刪除中…",
     "cancel": "取消",
-    "deleteButton": "刪除"
+    "deleteButton": "刪除",
+    "resubmit": {
+      "rejectedTitle": "此工具已被退回",
+      "takenDownTitle": "此工具已被營運方設為不公開",
+      "reason": "原因",
+      "hint": "修改內容並儲存後，即會申請重新審核。請寫下修改了哪些地方，方便審核人員確認。",
+      "noteLabel": "修正內容",
+      "notePlaceholder": "例如：修正了說明中誇大的描述，並補充了執行環境"
+    }
   },
   "submit": {
     "titleNew": "上架你的工具",

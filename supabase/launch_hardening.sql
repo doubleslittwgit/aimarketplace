@@ -35,6 +35,27 @@ alter table public.tool_access_urls add column if not exists approved_url text;
 comment on column public.tool_access_urls.approved_url is
   '管理者が承認した時点のURL。購入者にはこちらを案内する';
 
+-- 審査画面で「前回の審査からの変更点」「前回の理由」「出品者の修正内容」を出すための列
+alter table public.tools add column if not exists last_reviewed_snapshot jsonb;
+alter table public.tools add column if not exists previous_rejection_reason text;
+alter table public.tools add column if not exists resubmission_note text;
+comment on column public.tools.last_reviewed_snapshot is '管理者が最後に判断（承認・差し戻し・非公開）した時点の内容。審査画面で「前回からの変更点」を出すために使う';
+comment on column public.tools.previous_rejection_reason is '再審査に出されたときの、直前の差し戻し・運営非公開の理由';
+comment on column public.tools.resubmission_note is '再申請のときに出品者が書いた「修正内容」';
+
+-- 既存のツールは、今の内容を「最後に審査した内容」として扱う
+update public.tools t
+   set last_reviewed_snapshot = jsonb_build_object(
+     'name', t.name, 'tagline', t.tagline, 'description', t.description, 'price', t.price,
+     'categories', to_jsonb(t.categories), 'host_apps', to_jsonb(t.host_apps), 'runtime', t.runtime,
+     'platforms', to_jsonb(t.platforms), 'min_os_version', t.min_os_version, 'video_url', t.video_url,
+     'thumbnail_url', t.thumbnail_url, 'gallery_urls', to_jsonb(t.gallery_urls), 'file_key', t.file_key,
+     'file_size_bytes', t.file_size_bytes, 'internet_access', t.internet_access, 'ui_languages', to_jsonb(t.ui_languages),
+     'refund_policy', t.refund_policy, 'is_wip', t.is_wip, 'remix_allowed', t.remix_allowed,
+     'access_url', (select a.url from public.tool_access_urls a where a.tool_id = t.id)
+   )
+ where t.last_reviewed_snapshot is null and t.status in ('published', 'suspended', 'rejected');
+
 -- 既に公開済み・非公開中のもの（＝承認済み）は、今の内容を承認済みとして扱う
 update public.tools
    set approved_file_key = file_key
@@ -81,6 +102,8 @@ begin
     new.reviewed_by := null;
     new.reviewed_at := null;
     new.approved_file_key := null;
+    new.last_reviewed_snapshot := null;
+    new.previous_rejection_reason := null;
     return new;
   end if;
 
@@ -89,6 +112,8 @@ begin
   new.approved_file_key := old.approved_file_key;
   new.reviewed_by := old.reviewed_by;
   new.reviewed_at := old.reviewed_at;
+  new.last_reviewed_snapshot := old.last_reviewed_snapshot;
+  new.previous_rejection_reason := old.previous_rejection_reason;
 
   -- 承認済み（公開中・非公開中）のツールで、見た目や中身に関わる項目が変わったら、
   -- 出品者の指定にかかわらず審査待ちに戻す
@@ -122,6 +147,11 @@ begin
       end if;
       raise exception '審査ステータスは直接変更できません';
     end if;
+  end if;
+
+  -- 審査に出し直すときは、直前の差し戻し・運営非公開の理由を、審査画面に出すために残しておく
+  if new.status is distinct from old.status and new.status = 'pending_review' then
+    new.previous_rejection_reason := old.rejection_reason;
   end if;
 
   if new.status is distinct from old.status and new.status in ('pending_review', 'draft') then

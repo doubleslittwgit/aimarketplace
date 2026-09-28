@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { notify } from "@/lib/notifications/create";
 import { translateAndSaveTool } from "@/lib/translate-tool";
+import { buildToolSnapshot, SNAPSHOT_TOOL_COLUMNS, type ToolSnapshot } from "@/lib/review-snapshot";
 import {
   toolApproved,
   toolRejected,
@@ -15,6 +16,22 @@ import {
 } from "@/lib/notifications/content";
 
 export type ReviewActionResult = { error: string } | { error: null };
+
+/**
+ * 管理者が判断した時点のツールの内容（次の審査で「前回からの変更点」を出すために保存する）。
+ * lib/review-snapshot.ts 参照。
+ */
+async function currentSnapshot(
+  admin: ReturnType<typeof createAdminClient>,
+  toolId: string
+): Promise<ToolSnapshot | null> {
+  const [{ data: row }, { data: access }] = await Promise.all([
+    admin.from("tools").select(SNAPSHOT_TOOL_COLUMNS).eq("id", toolId).maybeSingle(),
+    admin.from("tool_access_urls").select("url").eq("tool_id", toolId).maybeSingle(),
+  ]);
+  if (!row) return null;
+  return buildToolSnapshot(row as unknown as Parameters<typeof buildToolSnapshot>[0], access?.url ?? null);
+}
 
 /**
  * 呼び出し元が管理者かどうかを確認する。
@@ -79,6 +96,7 @@ export async function approveTool(
     };
   }
 
+  const snapshot = await currentSnapshot(admin, toolId);
   const { data: tool, error } = await admin
     .from("tools")
     .update({
@@ -87,6 +105,9 @@ export async function approveTool(
       reviewed_at: new Date().toISOString(),
       rejection_reason: null,
       approved_file_key: current.file_key,
+      last_reviewed_snapshot: snapshot,
+      previous_rejection_reason: null,
+      resubmission_note: null,
     })
     .eq("id", toolId)
     .eq("status", "pending_review")
@@ -158,6 +179,7 @@ export async function rejectTool(
   }
 
   const admin = createAdminClient();
+  const snapshot = await currentSnapshot(admin, toolId);
   const { data: tool, error } = await admin
     .from("tools")
     .update({
@@ -165,6 +187,9 @@ export async function rejectTool(
       reviewed_by: userId,
       reviewed_at: new Date().toISOString(),
       rejection_reason: reason.trim(),
+      last_reviewed_snapshot: snapshot,
+      previous_rejection_reason: null,
+      resubmission_note: null,
     })
     .eq("id", toolId)
     .select("id, name, author_id")
@@ -199,6 +224,7 @@ export async function unpublishToolByAdmin(
   }
 
   const admin = createAdminClient();
+  const snapshot = await currentSnapshot(admin, toolId);
   const { data: tool, error } = await admin
     .from("tools")
     .update({
@@ -206,6 +232,8 @@ export async function unpublishToolByAdmin(
       reviewed_by: userId,
       reviewed_at: new Date().toISOString(),
       rejection_reason: reason.trim(),
+      last_reviewed_snapshot: snapshot,
+      resubmission_note: null,
     })
     .eq("id", toolId)
     .eq("status", "published")
