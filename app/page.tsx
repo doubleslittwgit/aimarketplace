@@ -18,6 +18,7 @@ import { COURSE_CATEGORIES, CATEGORY_ICONS } from "@/lib/academy/categories";
 import AcademyBlurs from "@/components/academy/AcademyBlurs";
 import type { Locale } from "@/i18n/config";
 import RuntimeBadge from "@/components/RuntimeBadge";
+import HomeToolFinder from "@/components/HomeToolFinder";
 import {
   categories,
   formatInstalls,
@@ -359,6 +360,8 @@ export default async function Home() {
             <p className="mt-2 text-[14px] text-text-muted">
               {t("browseHeadingSub")}
             </p>
+            {/* キーワード検索と、よく使う条件から探す入口（押すと「ツールを探す」がその条件で開く） */}
+            <HomeToolFinder />
             {/* スマホでは27個が縦に10行以上並んでしまうため、3段に並べて横にスワイプする形にする。
                 右端をフェードさせ、横に続きがあることが分かるようにしている。PCは従来どおり折り返し */}
             <div className="relative -mx-6 mt-5 sm:mx-0">

@@ -288,6 +288,11 @@
       "offline": "Works offline",
       "japanese": "Japanese",
       "rating": "★4 & up"
+    },
+    "home": {
+      "button": "Search",
+      "quickTitle": "Quick filters:",
+      "advanced": "More filters"
     }
   },
   "aiSearch": {

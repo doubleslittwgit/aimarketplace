@@ -288,6 +288,11 @@
       "offline": "可離線使用",
       "japanese": "支援日文",
       "rating": "★4 以上"
+    },
+    "home": {
+      "button": "搜尋",
+      "quickTitle": "依條件搜尋：",
+      "advanced": "進階篩選"
     }
   },
   "aiSearch": {
