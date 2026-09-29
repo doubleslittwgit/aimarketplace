@@ -18,6 +18,7 @@ import ToolCard from "@/components/ToolCard";
 import ToolReviews from "@/components/ToolReviews";
 import PurchaseSuccessModal from "@/components/PurchaseSuccessModal";
 import DownloadErrorNotice from "@/components/DownloadErrorNotice";
+import RuntimeBadge from "@/components/RuntimeBadge";
 import ImageCarousel from "@/components/ImageCarousel";
 import { createClient } from "@/lib/supabase/server";
 import { shareMetadata } from "@/lib/seo";
@@ -475,15 +476,7 @@ export default async function ToolDetailPage({
                     </div>
                   )}
                 </div>
-                <span
-                  className={`shrink-0 rounded-full px-2.5 py-1 font-mono text-[11px] tracking-wide ${
-                    tool.runtime === "local"
-                      ? "bg-accent-ai-dim text-accent-ai"
-                      : "border border-border text-text-muted"
-                  }`}
-                >
-                  {tool.runtime === "local" ? "LOCAL" : "CLOUD"}
-                </span>
+                <RuntimeBadge runtime={tool.runtime} size="lg" className="shrink-0" />
               </div>
 
               {/* 実績バー：ダウンロード数・いいね数・閲覧数 */}

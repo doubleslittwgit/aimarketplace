@@ -17,6 +17,7 @@ import { CREATIVE_APPS } from "@/lib/creative-apps";
 import { COURSE_CATEGORIES, CATEGORY_ICONS } from "@/lib/academy/categories";
 import AcademyBlurs from "@/components/academy/AcademyBlurs";
 import type { Locale } from "@/i18n/config";
+import RuntimeBadge from "@/components/RuntimeBadge";
 import {
   categories,
   formatInstalls,
@@ -600,15 +601,7 @@ function MobileFloatingCard({
       href={`/apps/${tool.slug}`}
       className={`absolute z-[5] w-40 rounded-2xl border border-border bg-bg/95 p-3 shadow-[0_16px_34px_-12px_rgba(30,78,150,0.35)] backdrop-blur-sm transition active:scale-[0.97] ${className}`}
     >
-      <span
-        className={`absolute right-2.5 top-2.5 rounded-full px-1.5 py-0.5 font-mono text-[9px] tracking-wide ${
-          tool.runtime === "local"
-            ? "bg-accent-ai-dim text-accent-ai"
-            : "bg-surface-raised text-text-muted"
-        }`}
-      >
-        {tool.runtime === "local" ? "LOCAL" : "CLOUD"}
-      </span>
+      <RuntimeBadge runtime={tool.runtime} size="sm" className="absolute right-2.5 top-2.5" />
 
       <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-surface-raised to-surface">
         {tool.thumbnailUrl ? (
@@ -685,15 +678,7 @@ function FloatingCard({
             {tool.name.slice(0, 1)}
           </span>
         )}
-        <span
-          className={`absolute right-2.5 top-2.5 rounded-full px-2 py-0.5 font-mono text-[10px] tracking-wide ${
-            tool.runtime === "local"
-              ? "bg-accent-ai-dim text-accent-ai"
-              : "bg-bg/90 text-text-muted"
-          }`}
-        >
-          {tool.runtime === "local" ? "LOCAL" : "CLOUD"}
-        </span>
+        <RuntimeBadge runtime={tool.runtime} size="sm" className="absolute right-2.5 top-2.5" />
       </div>
 
       <div className="p-4">

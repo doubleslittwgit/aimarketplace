@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { Tool, formatInstalls, formatPrice } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
 import { isSaleActive } from "@/lib/sale-price";
+import RuntimeBadge from "@/components/RuntimeBadge";
 
 export default function ToolCard({ tool }: { tool: Tool }) {
   const t = useTranslations();
@@ -25,16 +26,6 @@ export default function ToolCard({ tool }: { tool: Tool }) {
     >
       {/* Preview area */}
       <div className="relative aspect-video overflow-hidden border-b border-border bg-gradient-to-br from-surface-raised to-bg">
-        {onSale && (
-          <span className="absolute left-3 top-3 z-10 rounded-full bg-accent-danger px-2 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-white">
-            SALE
-          </span>
-        )}
-        {tool.isWip && !onSale && (
-          <span className="absolute left-3 top-3 z-10 rounded-full bg-accent-ai px-2 py-0.5 text-[10px] font-semibold text-white">
-            {t("toolDetail.buyBox.wipBadge")}
-          </span>
-        )}
         {tool.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -47,18 +38,22 @@ export default function ToolCard({ tool }: { tool: Tool }) {
             {tool.name.slice(0, 2).toUpperCase()}
           </span>
         )}
-        <span
-          className={`absolute right-3 top-3 rounded-full px-2 py-0.5 font-mono text-[10px] tracking-wide ${
-            tool.runtime === "local"
-              ? "bg-accent-ai-dim text-accent-ai"
-              : "bg-surface text-text-muted border border-border"
-          }`}
-        >
-          {tool.runtime === "local" ? "LOCAL" : "CLOUD"}
-        </span>
+        {/* 提供形態（クラウド／ローカル）。買う前に大事な情報なので右上に大きめに出す */}
+        <RuntimeBadge runtime={tool.runtime} className="absolute right-3 top-3 z-10" />
 
-        {/* 入手実績バッジ（インストール数・いいね数・閲覧数） */}
-        <div className="absolute left-3 top-3 flex items-center gap-1.5">
+        {/* セール・開発中の表示と、入手実績バッジ（インストール数・いいね数・閲覧数）。
+            重ならないよう、同じ行に左から順に並べる */}
+        <div className="absolute left-3 right-24 top-3 flex flex-wrap items-center gap-1.5">
+          {onSale && (
+            <span className="rounded-full bg-accent-danger px-2 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-white shadow-sm">
+              SALE
+            </span>
+          )}
+          {tool.isWip && !onSale && (
+            <span className="rounded-full bg-accent-ai px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm">
+              {t("toolDetail.buyBox.wipBadge")}
+            </span>
+          )}
           <span className="flex items-center gap-1 rounded-full bg-bg/90 px-2 py-0.5 text-[11px] font-medium text-text-secondary shadow-sm backdrop-blur-sm">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-ai">
               <path d="M12 3v12" />

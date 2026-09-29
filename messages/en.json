@@ -1669,5 +1669,9 @@
     "body": "We couldn't display this page. Please try again in a moment. If it keeps happening, contact us with the ID below.",
     "retry": "Try again",
     "home": "Back to home"
+  },
+  "runtimeBadge": {
+    "cloud": "Cloud",
+    "local": "Local"
   }
 }
