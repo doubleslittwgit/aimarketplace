@@ -1753,5 +1753,13 @@
   "runtimeBadge": {
     "cloud": "雲端",
     "local": "本機"
+  },
+  "bottomNav": {
+    "ariaLabel": "主選單",
+    "home": "首頁",
+    "browse": "探索",
+    "sell": "上架",
+    "academy": "Academy",
+    "mypage": "我的頁面"
   }
 }

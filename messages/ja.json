@@ -1753,5 +1753,13 @@
   "runtimeBadge": {
     "cloud": "クラウド",
     "local": "ローカル"
+  },
+  "bottomNav": {
+    "ariaLabel": "メインメニュー",
+    "home": "ホーム",
+    "browse": "探す",
+    "sell": "出品する",
+    "academy": "Academy",
+    "mypage": "マイページ"
   }
 }

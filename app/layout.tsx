@@ -3,6 +3,7 @@ import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import MobileTabBar from "@/components/MobileTabBar";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -82,6 +83,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
           <CookieConsentBanner />
+          {/* スマホ用の下部ナビゲーション（リキッドグラス風のバー） */}
+          <MobileTabBar />
         </NextIntlClientProvider>
         {/* アクセス解析（Vercel Web Analytics）。Cookieを使わず、個人を特定しない形でページの閲覧数などを数える */}
         <Analytics />

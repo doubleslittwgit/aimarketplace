@@ -1753,5 +1753,13 @@
   "runtimeBadge": {
     "cloud": "Cloud",
     "local": "Local"
+  },
+  "bottomNav": {
+    "ariaLabel": "Main menu",
+    "home": "Home",
+    "browse": "Explore",
+    "sell": "Sell",
+    "academy": "Academy",
+    "mypage": "My page"
   }
 }
