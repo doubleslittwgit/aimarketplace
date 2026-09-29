@@ -109,6 +109,15 @@ export default function ToolCard({ tool }: { tool: Tool }) {
           {tool.tagline}
         </p>
 
+        {/* 評価（レビューがあるときだけ） */}
+        {(tool.ratingCount ?? 0) > 0 && (
+          <p className="flex items-center gap-1 text-[12px] text-text-secondary">
+            <span className="text-[#f5a623]" aria-hidden>★</span>
+            <span className="font-semibold">{(tool.ratingAvg ?? 0).toFixed(1)}</span>
+            <span className="text-text-dim">({tool.ratingCount})</span>
+          </p>
+        )}
+
         {/* カテゴリ */}
         {tool.categories.length > 0 && (
           <div className="flex flex-wrap items-center gap-1">

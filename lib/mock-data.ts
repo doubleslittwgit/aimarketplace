@@ -38,6 +38,11 @@ export type Tool = {
   videoUrl?: string | null;
   /** 対応ソフト（BuildBay Creativeのプラグインの場合） */
   hostApps?: string[];
+  /** 対応OS（ローカル実行のツール。Windows / macOS / Linux） */
+  platforms?: string[];
+  /** レビューの平均（★）と件数。レビューが無ければ件数0 */
+  ratingAvg?: number;
+  ratingCount?: number;
 };
 
 // 出品フォームの上限（サーバー側 app/submit/actions.ts のチェックと必ず揃えること）

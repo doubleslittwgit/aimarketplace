@@ -213,7 +213,82 @@
     "emptyTitle": "該当するツールが見つかりませんでした",
     "emptyHint": "キーワードやカテゴリを変えて、もう一度お試しください",
     "freeOnly": "無料のみ",
-    "metaDescription": "AIを活用して作られたツールを、カテゴリ・キーワード・AI検索で探せます。無料のツールから有料のツールまで。"
+    "metaDescription": "AIを活用して作られたツールを、カテゴリ・キーワード・AI検索で探せます。無料のツールから有料のツールまで。",
+    "searchPlaceholderLong": "ツール名・やりたいこと・出品者名で検索",
+    "clearSearch": "検索語を消す",
+    "filtersTitle": "絞り込み",
+    "filterButton": "絞り込み",
+    "clearAll": "すべて解除",
+    "close": "閉じる",
+    "remove": "外す",
+    "showResults": "{count}件を表示",
+    "activeFilters": "絞り込み中:",
+    "sortLabel": "並べ替え",
+    "emptyClear": "条件をリセットする",
+    "emptyRequest": "欲しいツールをリクエストする",
+    "sort": {
+      "recommended": "おすすめ順",
+      "new": "新着順",
+      "popular": "入手数が多い順",
+      "likes": "いいねが多い順",
+      "rating": "評価が高い順",
+      "price_asc": "価格が安い順",
+      "price_desc": "価格が高い順"
+    },
+    "sections": {
+      "price": "価格",
+      "budget": "予算",
+      "runtime": "使い方",
+      "os": "対応OS（ローカル）",
+      "net": "インターネット接続",
+      "languages": "対応言語",
+      "rating": "評価",
+      "other": "その他"
+    },
+    "price": {
+      "all": "すべて",
+      "free": "無料",
+      "paid": "有料",
+      "sale": "セール中"
+    },
+    "budget": {
+      "any": "上限なし",
+      "under": "¥{amount}以下"
+    },
+    "runtime": {
+      "all": "すべて",
+      "cloud": "クラウド（ブラウザで使う）",
+      "local": "ローカル（ダウンロードしてPCで使う）",
+      "cloudShort": "クラウド",
+      "localShort": "ローカル",
+      "hint": "クラウドはインストール不要。ローカルは自分のPCで動くので、データが外に出ません。"
+    },
+    "net": {
+      "offline": "不要（オフラインで使える）",
+      "partial": "一部の機能で必要",
+      "required": "必要",
+      "offlineShort": "オフラインOK",
+      "partialShort": "一部ネット必要",
+      "requiredShort": "ネット必要"
+    },
+    "rating": {
+      "any": "すべて",
+      "atLeast": "★{n}以上"
+    },
+    "other": {
+      "hideWip": "開発中のツールを除く",
+      "remix": "改造・再配布OK",
+      "refundable": "返金対応あり（条件付き）"
+    },
+    "quick": {
+      "free": "無料",
+      "sale": "セール中",
+      "cloud": "ブラウザで使える",
+      "local": "ダウンロード型",
+      "offline": "オフラインで使える",
+      "japanese": "日本語対応",
+      "rating": "★4以上"
+    }
   },
   "aiSearch": {
     "title": "AIに相談して探す",

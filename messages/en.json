@@ -213,7 +213,82 @@
     "emptyTitle": "No matching tools found",
     "emptyHint": "Try different keywords or categories",
     "freeOnly": "Free only",
-    "metaDescription": "Find tools built with AI by category, keyword, or AI search — from free to paid."
+    "metaDescription": "Find tools built with AI by category, keyword, or AI search — from free to paid.",
+    "searchPlaceholderLong": "Search by tool name, what you want to do, or seller",
+    "clearSearch": "Clear search",
+    "filtersTitle": "Filters",
+    "filterButton": "Filters",
+    "clearAll": "Clear all",
+    "close": "Close",
+    "remove": "Remove",
+    "showResults": "Show {count} results",
+    "activeFilters": "Filtering by:",
+    "sortLabel": "Sort by",
+    "emptyClear": "Reset filters",
+    "emptyRequest": "Request the tool you want",
+    "sort": {
+      "recommended": "Recommended",
+      "new": "Newest",
+      "popular": "Most downloaded",
+      "likes": "Most liked",
+      "rating": "Highest rated",
+      "price_asc": "Price: low to high",
+      "price_desc": "Price: high to low"
+    },
+    "sections": {
+      "price": "Price",
+      "budget": "Budget",
+      "runtime": "How it runs",
+      "os": "Supported OS (local)",
+      "net": "Internet connection",
+      "languages": "Languages",
+      "rating": "Rating",
+      "other": "Other"
+    },
+    "price": {
+      "all": "All",
+      "free": "Free",
+      "paid": "Paid",
+      "sale": "On sale"
+    },
+    "budget": {
+      "any": "Any",
+      "under": "Under ¥{amount}"
+    },
+    "runtime": {
+      "all": "All",
+      "cloud": "Cloud (use in your browser)",
+      "local": "Local (download and run on your PC)",
+      "cloudShort": "Cloud",
+      "localShort": "Local",
+      "hint": "Cloud tools need no install. Local tools run on your own PC, so your data stays with you."
+    },
+    "net": {
+      "offline": "Not needed (works offline)",
+      "partial": "Needed for some features",
+      "required": "Required",
+      "offlineShort": "Works offline",
+      "partialShort": "Partly online",
+      "requiredShort": "Online only"
+    },
+    "rating": {
+      "any": "All",
+      "atLeast": "★{n} & up"
+    },
+    "other": {
+      "hideWip": "Hide work-in-progress tools",
+      "remix": "Remix & redistribution OK",
+      "refundable": "Refunds available (conditions apply)"
+    },
+    "quick": {
+      "free": "Free",
+      "sale": "On sale",
+      "cloud": "Runs in browser",
+      "local": "Downloadable",
+      "offline": "Works offline",
+      "japanese": "Japanese",
+      "rating": "★4 & up"
+    }
   },
   "aiSearch": {
     "title": "Ask AI to find a tool",

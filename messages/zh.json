@@ -213,7 +213,82 @@
     "emptyTitle": "找不到符合條件的工具",
     "emptyHint": "請試著更換關鍵字或分類再試一次",
     "freeOnly": "只看免費",
-    "metaDescription": "透過分類、關鍵字與 AI 搜尋，找到運用 AI 打造的各種工具。從免費到付費應有盡有。"
+    "metaDescription": "透過分類、關鍵字與 AI 搜尋，找到運用 AI 打造的各種工具。從免費到付費應有盡有。",
+    "searchPlaceholderLong": "搜尋工具名稱、想做的事或賣家名稱",
+    "clearSearch": "清除搜尋",
+    "filtersTitle": "篩選",
+    "filterButton": "篩選",
+    "clearAll": "全部清除",
+    "close": "關閉",
+    "remove": "移除",
+    "showResults": "顯示 {count} 項結果",
+    "activeFilters": "篩選中：",
+    "sortLabel": "排序",
+    "emptyClear": "重設條件",
+    "emptyRequest": "提出想要的工具",
+    "sort": {
+      "recommended": "推薦排序",
+      "new": "最新",
+      "popular": "取得數最多",
+      "likes": "最多喜歡",
+      "rating": "評價最高",
+      "price_asc": "價格由低到高",
+      "price_desc": "價格由高到低"
+    },
+    "sections": {
+      "price": "價格",
+      "budget": "預算",
+      "runtime": "使用方式",
+      "os": "支援作業系統（本機）",
+      "net": "網路連線",
+      "languages": "支援語言",
+      "rating": "評價",
+      "other": "其他"
+    },
+    "price": {
+      "all": "全部",
+      "free": "免費",
+      "paid": "付費",
+      "sale": "特價中"
+    },
+    "budget": {
+      "any": "不限",
+      "under": "¥{amount} 以下"
+    },
+    "runtime": {
+      "all": "全部",
+      "cloud": "雲端（用瀏覽器使用）",
+      "local": "本機（下載到電腦使用）",
+      "cloudShort": "雲端",
+      "localShort": "本機",
+      "hint": "雲端免安裝；本機在自己的電腦上執行，資料不會外流。"
+    },
+    "net": {
+      "offline": "不需要（可離線使用）",
+      "partial": "部分功能需要",
+      "required": "需要",
+      "offlineShort": "可離線",
+      "partialShort": "部分需網路",
+      "requiredShort": "需網路"
+    },
+    "rating": {
+      "any": "全部",
+      "atLeast": "★{n} 以上"
+    },
+    "other": {
+      "hideWip": "排除開發中的工具",
+      "remix": "可改作・再發布",
+      "refundable": "可退款（有條件）"
+    },
+    "quick": {
+      "free": "免費",
+      "sale": "特價中",
+      "cloud": "瀏覽器即可用",
+      "local": "下載型",
+      "offline": "可離線使用",
+      "japanese": "支援日文",
+      "rating": "★4 以上"
+    }
   },
   "aiSearch": {
     "title": "問AI找工具",

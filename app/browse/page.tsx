@@ -24,6 +24,18 @@ async function loadRealTools(locale: Locale): Promise<Tool[]> {
     .eq("status", "published")
     .order("created_at", { ascending: false });
 
+  // 評価（★）で絞り込み・並べ替えできるよう、レビューの平均と件数をツールごとにまとめる
+  const ids = (data ?? []).map((r) => r.id);
+  const { data: reviewRows } = ids.length
+    ? await supabase.from("reviews").select("tool_id, rating").in("tool_id", ids)
+    : { data: [] as { tool_id: string; rating: number }[] };
+  const ratings = new Map<string, { avg: number; count: number }>();
+  for (const row of reviewRows ?? []) {
+    const cur = ratings.get(row.tool_id) ?? { avg: 0, count: 0 };
+    const count = cur.count + 1;
+    ratings.set(row.tool_id, { count, avg: (cur.avg * cur.count + Number(row.rating)) / count });
+  }
+
   const tools =
     data?.map((r) => ({
       id: r.id,
@@ -49,6 +61,13 @@ async function loadRealTools(locale: Locale): Promise<Tool[]> {
       salePrice: r.sale_price ?? null,
       saleEndsAt: r.sale_ends_at ?? null,
       isWip: r.is_wip ?? false,
+      internetAccess: r.internet_access ?? null,
+      uiLanguages: r.ui_languages ?? [],
+      platforms: r.platforms ?? [],
+      remixAllowed: r.remix_allowed ?? false,
+      refundPolicy: r.refund_policy ?? "none",
+      ratingAvg: ratings.get(r.id)?.avg ?? 0,
+      ratingCount: ratings.get(r.id)?.count ?? 0,
     })) || [];
 
   return applyToolTranslations(supabase, tools, locale);
@@ -57,9 +76,14 @@ async function loadRealTools(locale: Locale): Promise<Tool[]> {
 export default async function BrowsePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { q, category } = await searchParams;
+  const raw = await searchParams;
+  // 絞り込みの条件（?price=free&runtime=local など）を、そのまま画面に渡す
+  const params: Record<string, string | undefined> = Object.fromEntries(
+    Object.entries(raw).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v])
+  );
+  const { q, category } = params;
   const locale = (await getLocale()) as Locale;
   const realTools = await loadRealTools(locale);
   // 実際に公開されているツールだけを並べる（架空のデモ用ツールは混ぜない）
@@ -76,6 +100,7 @@ export default async function BrowsePage({
           initialTools={allTools}
           initialQuery={q ?? ""}
           initialCategory={category ?? ALL_CATEGORIES_VALUE}
+          initialParams={params}
         />
       </main>
       <Footer />
