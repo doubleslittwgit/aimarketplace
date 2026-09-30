@@ -9,9 +9,9 @@ import { formatConverted, type Currency } from "@/lib/currency/config";
  * 値はサーバー側（app/layout.tsx → lib/currency/server.ts）で決めて渡す。
  */
 
-type Value = { currency: Currency; rate: number; chosen: boolean };
+type Value = { currency: Currency; rate: number };
 
-const CurrencyContext = createContext<Value>({ currency: "JPY", rate: 1, chosen: false });
+const CurrencyContext = createContext<Value>({ currency: "JPY", rate: 1 });
 
 export function CurrencyProvider({ value, children }: { value: Value; children: ReactNode }) {
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;

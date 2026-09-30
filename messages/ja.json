@@ -127,10 +127,7 @@
     "publish": "公開する",
     "menuAriaLabel": "メニュー",
     "languageAriaLabel": "言語を選択",
-    "academy": "Academy",
-    "currencyLabel": "価格の目安を表示する通貨",
-    "currencyAuto": "自動（{currency}）",
-    "currencyHint": "お支払いは常に日本円です。ここで選んだ通貨は、価格の横に目安として表示されます。"
+    "academy": "Academy"
   },
   "userMenu": {
     "dashboard": "マイページ",

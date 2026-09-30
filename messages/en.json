@@ -127,10 +127,7 @@
     "publish": "Publish",
     "menuAriaLabel": "Menu",
     "languageAriaLabel": "Select language",
-    "academy": "Academy",
-    "currencyLabel": "Show approximate prices in",
-    "currencyAuto": "Auto ({currency})",
-    "currencyHint": "You are always charged in Japanese yen. The currency you pick here is only shown as an estimate next to prices."
+    "academy": "Academy"
   },
   "userMenu": {
     "dashboard": "Dashboard",

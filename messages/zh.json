@@ -127,10 +127,7 @@
     "publish": "上架工具",
     "menuAriaLabel": "選單",
     "languageAriaLabel": "選擇語言",
-    "academy": "Academy",
-    "currencyLabel": "價格參考幣別",
-    "currencyAuto": "自動（{currency}）",
-    "currencyHint": "付款一律以日圓進行。這裡選擇的幣別只會在價格旁顯示參考金額。"
+    "academy": "Academy"
   },
   "userMenu": {
     "dashboard": "會員中心",
