@@ -39,7 +39,7 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
   // 価格は必ずDBから取得する（ブラウザからの金額は信用しない）
   const { data: tool, error: toolError } = await supabase
     .from("tools")
-    .select("id, slug, name, tagline, price, sale_price, sale_ends_at, author_id, status, thumbnail_url")
+    .select("id, slug, name, tagline, price, sale_price, sale_ends_at, author_id, status, thumbnail_url, external_purchase_url")
     .eq("id", toolId)
     .maybeSingle();
 
@@ -51,6 +51,11 @@ export async function startCheckout(toolId: string): Promise<CheckoutResult | ne
   }
   if (tool.price <= 0) {
     return { error: t("freeToolNoCheckout") };
+  }
+  // 外部の販売ページで売っているツールは、BuildBay の決済を作らない（lib/external-sales.ts）。
+  // 商品ページでは購入ボタン自体を出していないが、直接呼ばれた場合に備えてここでも止める。
+  if (tool.external_purchase_url) {
+    return { error: t("externalSaleNoCheckout") };
   }
   // セール中なら、実際に請求する額をセール価格に差し替える
   // （ここでもサーバー側のDB値だけを根拠にする。ブラウザからは一切受け取らない）

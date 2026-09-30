@@ -4,6 +4,7 @@ import { isSaleActive } from "@/lib/sale-price";
 import { TOOL_LANGUAGE_NATIVE_NAMES, parseToolLanguages } from "@/lib/tool-languages";
 import PurchaseButton from "@/components/PurchaseButton";
 import ChargeCurrencyNote from "@/components/ChargeCurrencyNote";
+import { ApproxPrice } from "@/components/CurrencyProvider";
 
 type Props = {
   tool: Tool;
@@ -25,6 +26,11 @@ export default function BuyBox({
   const tCommon = useTranslations("common");
   const isFree = tool.price === 0;
   const isCloud = tool.runtime === "cloud";
+  // 外部の販売ページで売っているツール（海外の出品者向け）。BuildBay の決済は使わない。
+  // 外部販売に切り替わる前に BuildBay で買っていた人には、今まで通りダウンロードのボタンを出す
+  // 出品者本人には、今まで通り「あなたの出品です」の表示を出す
+  const external = !isFree && !isPurchased && !isOwner && tool.externalSale ? tool.externalSale : null;
+  const platformLabel = external?.platform ?? t("external.platformFallback");
   const onSale = isSaleActive({
     price: tool.price,
     sale_price: tool.salePrice,
@@ -58,22 +64,47 @@ export default function BuyBox({
             {formatPrice(tool.price, tCommon("free"))}
           </span>
         )}
-        {!isFree && (
+        {!isFree && !external && (
           <span className="text-[12px] text-text-muted">{t("oneTimePurchase")}</span>
         )}
       </div>
-      {/* 海外の人向けに、現地の通貨での目安と「支払いは円」の案内（日本円表示のときは出ない） */}
-      {!isFree && (
+      {/* 海外の人向けに、現地の通貨での目安と「支払いは円」の案内（日本円表示のときは出ない）。
+          外部販売のツールは支払いが BuildBay ではないので、代わりに「価格は目安」の案内を出す */}
+      {!isFree && !external && (
         <ChargeCurrencyNote
           yen={onSale ? (tool.salePrice as number) : tool.price}
           className="-mt-2 mb-4"
         />
+      )}
+      {external && (
+        <div className="-mt-2 mb-4 rounded-lg bg-surface-raised px-3 py-2">
+          <ApproxPrice yen={tool.price} className="block text-[14px] font-semibold text-text-primary" />
+          <p className="mt-0.5 text-[11px] leading-relaxed text-text-muted">{t("external.priceNote")}</p>
+        </div>
       )}
 
       {isDemo ? (
         <div className="mb-3 w-full rounded-lg border border-border bg-surface-raised py-3 text-center text-sm text-text-muted">
           {t("demoNotice")}
         </div>
+      ) : external ? (
+        external.url ? (
+          <a
+            href={external.url}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="mb-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent-signal py-3 text-center text-sm font-medium text-white transition hover:brightness-105"
+          >
+            {t("external.button", { platform: platformLabel })}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M14 4h6v6M20 4l-9 9M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5" />
+            </svg>
+          </a>
+        ) : (
+          <div className="mb-3 w-full rounded-lg border border-border bg-surface-raised py-3 text-center text-sm text-text-muted">
+            {t("external.preparing")}
+          </div>
+        )
       ) : (
         <PurchaseButton
           toolId={tool.id}
@@ -86,7 +117,9 @@ export default function BuyBox({
       )}
 
       <p className="mb-4 text-center text-[12px] text-text-dim">
-        {isCloud
+        {external
+          ? t("external.notice", { platform: platformLabel })
+          : isCloud
           ? isPurchased
             ? t("cloudPurchasedNotice")
             : t("cloudUnpurchasedNotice")
@@ -130,7 +163,7 @@ export default function BuyBox({
         </div>
       )}
 
-      {!isFree && tool.refundPolicy && tool.refundPolicy !== "none" && (
+      {!isFree && !external && tool.refundPolicy && tool.refundPolicy !== "none" && (
         <div className="mt-4 flex items-center justify-between rounded-lg border border-border px-3 py-2.5">
           <span className="text-[12px] text-text-muted">{t("refundPolicyTitle")}</span>
           <span className="text-[12px] font-medium text-text-secondary">

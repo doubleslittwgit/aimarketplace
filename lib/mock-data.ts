@@ -40,6 +40,11 @@ export type Tool = {
   hostApps?: string[];
   /** 対応OS（ローカル実行のツール。Windows / macOS / Linux） */
   platforms?: string[];
+  /**
+   * 外部の販売ページで販売しているツール（海外の出品者向け。lib/external-sales.ts）。
+   * url は管理者が承認した販売ページ（未承認なら null）。null/undefined なら BuildBay の決済で販売。
+   */
+  externalSale?: { url: string | null; platform: string | null } | null;
   /** レビューの平均（★）と件数。レビューが無ければ件数0 */
   ratingAvg?: number;
   ratingCount?: number;

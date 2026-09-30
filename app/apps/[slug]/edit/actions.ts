@@ -14,6 +14,7 @@ import { parseToolLanguages } from "@/lib/tool-languages";
 import { syncToolAccessUrl, isValidToolUrl } from "@/lib/tool-access-url";
 import { translateAndSaveTool } from "@/lib/translate-tool";
 import { MIN_PAID_PRICE } from "@/lib/pricing";
+import { normalizeExternalPurchaseUrl } from "@/lib/external-sales";
 import { isOwnToolImageUrl, allOwnToolImageUrls, isValidToolFileKey } from "@/lib/storage-urls";
 import { notify, notifyAdmins } from "@/lib/notifications/create";
 import {
@@ -67,7 +68,7 @@ export async function updateTool(
   // 「他人のツールを編集しようとした」という分かりやすいエラーを返せる。
   const { data: existing, error: fetchError } = await supabase
     .from("tools")
-    .select("id, slug, author_id, runtime, file_key, thumbnail_url, status, price, sale_price, video_url, gallery_urls, rejection_reason")
+    .select("id, slug, author_id, runtime, file_key, thumbnail_url, status, price, sale_price, video_url, gallery_urls, rejection_reason, external_purchase_url")
     .eq("id", toolId)
     .maybeSingle();
 
@@ -105,8 +106,18 @@ export async function updateTool(
   const priceRaw = String(formData.get("price") || "0");
   const price = Math.max(0, Math.round(Number(priceRaw)));
 
+  // 販売方法: BuildBay の決済（既定） か、外部の販売ページ（海外の出品者向け。lib/external-sales.ts）
+  const wantsExternal = price > 0 && formData.get("salesMode") === "external";
+  const externalPurchaseUrl = wantsExternal
+    ? normalizeExternalPurchaseUrl(String(formData.get("externalPurchaseUrl") || ""))
+    : null;
+  if (wantsExternal && !externalPurchaseUrl) {
+    return { error: t("invalidExternalPurchaseUrl") };
+  }
+
   // セール価格（任意）。saleEnabledがオフなら、他の値に関わらずnull（=セール無し）にする。
-  const saleEnabled = formData.get("saleEnabled") === "1";
+  // 外部販売のツールは、価格が販売ページ側で決まるためセールを使わない。
+  const saleEnabled = formData.get("saleEnabled") === "1" && !externalPurchaseUrl;
   const salePriceRaw = String(formData.get("salePrice") || "").trim();
   const saleEndsAtRaw = String(formData.get("saleEndsAt") || "").trim();
   let salePrice: number | null = null;
@@ -164,7 +175,12 @@ export async function updateTool(
         error: t("payoutCheckFailed", { message: receiveCheckError.message }),
       };
     }
-    if (!canReceive) {
+    if (externalPurchaseUrl) {
+      // BuildBay の決済で受け取れる出品者は、外部販売を使えない（手数料の回避を防ぐ）
+      if (canReceive) {
+        return { error: t("externalSaleNotAllowed") };
+      }
+    } else if (!canReceive) {
       return {
         error: t("payoutRequiredForContinuedPublish"),
       };
@@ -248,7 +264,9 @@ export async function updateTool(
       // （動画を外すだけなら審査は不要）
       (Boolean(videoUrl) && videoUrl !== existing.video_url) ||
       addedGallery.length > 0 ||
-      accessUrlChanged);
+      accessUrlChanged ||
+      // 外部の販売ページのURLを変えた・付けた・外した（購入者の行き先が変わるため再審査）
+      (existing.external_purchase_url ?? null) !== externalPurchaseUrl);
 
   // 差し戻されたツール・運営が非公開にしたツールは、直して保存したら、そのまま審査に出し直す
   const resubmitting =
@@ -297,6 +315,7 @@ export async function updateTool(
       price,
       sale_price: salePrice,
       sale_ends_at: saleEndsAt,
+      external_purchase_url: externalPurchaseUrl,
       internet_access: internetAccess,
       ui_languages: uiLanguages,
       platforms,

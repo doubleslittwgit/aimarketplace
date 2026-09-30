@@ -31,6 +31,7 @@ import { applyToolTranslations, applyReviewTranslations } from "@/lib/apply-tran
 import type { Locale } from "@/i18n/config";
 import { formatInstalls, type Tool } from "@/lib/mock-data";
 import { ApproxPrice } from "@/components/CurrencyProvider";
+import { externalPlatformName } from "@/lib/external-sales";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -108,6 +109,13 @@ async function loadTool(
       hostApps: (row.host_apps as string[] | null) ?? [],
       galleryUrls: row.gallery_urls || [],
       fileSizeBytes: row.file_size_bytes ?? null,
+      // 外部の販売ページで売っている場合。購入者に見せるのは管理者が承認したURLだけ
+      externalSale: row.external_purchase_url
+        ? {
+            url: row.approved_external_url ?? null,
+            platform: externalPlatformName(row.approved_external_url ?? row.external_purchase_url),
+          }
+        : null,
     };
 
     // 閲覧数（インプレッション表示用）。

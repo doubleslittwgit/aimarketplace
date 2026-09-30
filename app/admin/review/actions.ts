@@ -5,6 +5,7 @@ import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { normalizeExternalPurchaseUrl } from "@/lib/external-sales";
 import { notify } from "@/lib/notifications/create";
 import { translateAndSaveTool } from "@/lib/translate-tool";
 import { buildToolSnapshot, SNAPSHOT_TOOL_COLUMNS, type ToolSnapshot } from "@/lib/review-snapshot";
@@ -74,7 +75,7 @@ export async function approveTool(
 
   const admin = createAdminClient();
   const [{ data: current }, { data: access }] = await Promise.all([
-    admin.from("tools").select("file_key, approved_file_key, status, updated_at").eq("id", toolId).maybeSingle(),
+    admin.from("tools").select("file_key, approved_file_key, external_purchase_url, author_id, status, updated_at").eq("id", toolId).maybeSingle(),
     admin.from("tool_access_urls").select("url").eq("tool_id", toolId).maybeSingle(),
   ]);
   if (!current) return { error: tAdmin("approveFailed", { message: "not found" }) };
@@ -96,6 +97,28 @@ export async function approveTool(
     };
   }
 
+  // 外部の販売ページで売るツールは、承認の時点でもサーバー側で確認し直す
+  // （出品フォームを通さずにデータベースへ直接書かれたURLを、見落として承認しないため）
+  if (current.external_purchase_url) {
+    if (normalizeExternalPurchaseUrl(current.external_purchase_url) !== current.external_purchase_url) {
+      return {
+        error: tAdmin("approveFailed", {
+          message: "外部の販売ページのURLが、対応している販売サービスのURLではありません。差し戻してください",
+        }),
+      };
+    }
+    const { data: canReceive } = await admin.rpc("seller_can_receive_payments", {
+      p_user_id: current.author_id,
+    });
+    if (canReceive) {
+      return {
+        error: tAdmin("approveFailed", {
+          message: "この出品者は BuildBay の決済で売上を受け取れるため、外部販売は使えません。差し戻してください",
+        }),
+      };
+    }
+  }
+
   const snapshot = await currentSnapshot(admin, toolId);
   const { data: tool, error } = await admin
     .from("tools")
@@ -105,12 +128,16 @@ export async function approveTool(
       reviewed_at: new Date().toISOString(),
       rejection_reason: null,
       approved_file_key: current.file_key,
+      // 外部の販売ページで売るツールは、確認したURLだけを購入者に見せる（外していれば null になる）
+      approved_external_url: current.external_purchase_url ?? null,
       last_reviewed_snapshot: snapshot,
       previous_rejection_reason: null,
       resubmission_note: null,
     })
     .eq("id", toolId)
     .eq("status", "pending_review")
+    // 読み取ってから書き込むまでの間に出品者が内容を変えていたら、承認しない（見ていない内容を承認しないため）
+    .eq("updated_at", current.updated_at)
     .select("id, name, tagline, description, slug, author_id")
     .maybeSingle();
 

@@ -94,7 +94,10 @@
     "claimUnavailable": "目前無法取得此工具（可能已停止公開或改為付費）",
     "claimFailedGeneric": "取得失敗，請稍後再試",
     "cannotReviewOwnTool": "無法為自己的工具撰寫評論",
-    "resubmissionNoteRequired": "申請重新審核時，請填寫「修正內容」"
+    "resubmissionNoteRequired": "申請重新審核時，請填寫「修正內容」",
+    "invalidExternalPurchaseUrl": "請確認銷售頁面的網址。只能登錄以 https 開頭、且為支援的銷售平台（Gumroad、Lemon Squeezy、Polar 等）的網址。",
+    "externalSaleNotAllowed": "你已完成 BuildBay 金流的收款設定，因此無法使用外部銷售頁面。請將銷售方式改回「在 BuildBay 販售」後再儲存。",
+    "externalSaleNoCheckout": "這個工具是在賣家的銷售頁面販售。請從商品頁的購買按鈕前往銷售頁面。"
   },
   "cookieNotice": {
     "text": "本服務使用維持登入狀態所必需的Cookie。詳情請參閱<link>隱私權政策</link>。",
@@ -404,7 +407,14 @@
         "offline": "不需要（可離線）"
       },
       "languages": "支援語言",
-      "languageOther": "其他"
+      "languageOther": "其他",
+      "external": {
+        "button": "前往 {platform} 購買",
+        "platformFallback": "銷售頁面",
+        "preparing": "銷售頁面準備中",
+        "notice": "這個工具在賣家的銷售頁面（{platform}）販售。購買、付款、下載與退款都在銷售頁面進行，BuildBay 不經手金流。",
+        "priceNote": "價格僅供參考。最終價格與幣別請以銷售頁面為準。"
+      }
     },
     "purchaseButton": {
       "ownerNotice": "這是您上架的工具",
@@ -1018,6 +1028,20 @@
       "title": "支援語言",
       "hint": "請選擇工具畫面與說明文件使用的所有語言（可複選），會顯示在工具頁面上。",
       "other": "其他"
+    },
+    "external": {
+      "altTitle": "居住在日本以外的賣家",
+      "altBody": "如果無法用日本的銀行帳戶完成收款設定，你可以在 Gumroad 等外部銷售頁面販售，並在 BuildBay 放上該連結。",
+      "altCta": "使用外部銷售頁面販售",
+      "modeTitle": "在外部銷售頁面販售",
+      "modeBody": "購買、付款與下載都會在你的銷售頁面進行。BuildBay 不經手金流，也不收取手續費。商品頁會顯示「前往銷售頁面購買」的按鈕。",
+      "cancel": "改回在 BuildBay 販售",
+      "urlLabel": "銷售頁面網址",
+      "urlHint": "支援的銷售平台：{platforms}",
+      "reviewNote": "銷售頁面網址會在審核時確認。上架後若更改網址，需要重新審核。上傳的檔案（或工具網址）僅供審核使用，請透過銷售頁面交付給買家。",
+      "priceLabel": "顯示價格（請與銷售頁面的價格一致）",
+      "priceHint": "請以日圓輸入。中文與英文頁面會同時顯示新台幣與美元的參考金額。",
+      "switchedToBuildBay": "你已完成 BuildBay 金流的收款設定，儲存後這個工具會改為在 BuildBay 販售（銷售頁面連結會移除，並重新審核）。"
     }
   },
   "categories": {

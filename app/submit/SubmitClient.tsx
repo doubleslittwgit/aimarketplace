@@ -16,6 +16,8 @@ import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
 import { uploadNonce } from "@/lib/storage-urls";
 import { createClient as createBrowserSupabase } from "@/lib/supabase/client";
 import { createTool, saveDraft } from "./actions";
+import { EXTERNAL_SALE_PLATFORM_NAMES } from "@/lib/external-sales";
+import { ApproxPrice } from "@/components/CurrencyProvider";
 
 type PriceType = "free" | "paid" | null;
 
@@ -27,6 +29,8 @@ export type DraftInitialValues = {
   category: string;
   categories: string[];
   price: number;
+  /** 外部の販売ページ（海外の出品者向け）。null なら BuildBay の決済で販売 */
+  externalPurchaseUrl: string | null;
   runtime: "cloud" | "local";
   internetAccess: InternetAccess | null;
   uiLanguages: ToolLanguage[];
@@ -55,6 +59,11 @@ export default function SubmitClient({
   const [price, setPrice] = useState(
     initialDraft ? String(initialDraft.price || "") : ""
   );
+  // 販売方法。日本で Stripe 登録ができない海外の出品者は、外部の販売ページで販売できる（lib/external-sales.ts）
+  const [salesMode, setSalesMode] = useState<"buildbay" | "external">(
+    initialDraft?.externalPurchaseUrl && !canReceivePayments ? "external" : "buildbay"
+  );
+  const [externalUrl, setExternalUrl] = useState(initialDraft?.externalPurchaseUrl ?? "");
   const [runtime, setRuntime] = useState<"cloud" | "local">(
     initialDraft?.runtime ?? "cloud"
   );
@@ -126,11 +135,14 @@ export default function SubmitClient({
 
   // 有料を選んだのに受け取り設定が終わっていない場合は、
   // 詳細フォームそのものを表示しない（どうせ公開できないため）。
-  const paidBlocked = priceType === "paid" && !canReceivePayments;
-  const showForm =
-    priceType === "free" || (priceType === "paid" && canReceivePayments);
+  // 外部販売を選んだ海外の出品者は、受け取り設定なしで有料の出品に進める
+  const external = priceType === "paid" && !canReceivePayments && salesMode === "external";
+  const paidReady = priceType === "paid" && (canReceivePayments || external);
+  const paidBlocked = priceType === "paid" && !paidReady;
+  const showForm = priceType === "free" || paidReady;
   const priceValid =
-    priceType === "free" || (priceType === "paid" && priceNumber > 0);
+    priceType === "free" ||
+    (paidReady && priceNumber > 0 && (!external || externalUrl.trim().length > 0));
 
   function handleFile(file: File | undefined) {
     if (!file) return;
@@ -418,14 +430,60 @@ export default function SubmitClient({
                 >
                   {t("payoutCta")}
                 </a>
+
+                {/* 海外の出品者（日本で Stripe 登録ができない人）向けの別の道 */}
+                <div className="mt-4 border-t border-accent-danger/20 pt-4">
+                  <p className="text-[13px] font-semibold text-text-primary">{t("external.altTitle")}</p>
+                  <p className="mt-1 text-[12px] leading-relaxed text-text-secondary">{t("external.altBody")}</p>
+                  <button
+                    type="button"
+                    onClick={() => setSalesMode("external")}
+                    className="mt-3 inline-block rounded-lg border border-border-strong bg-bg px-4 py-2 text-[12px] font-medium text-text-primary transition hover:bg-surface-raised"
+                  >
+                    {t("external.altCta")}
+                  </button>
+                </div>
               </div>
             )}
 
-            {/* 有料 & 受け取り設定済み → 価格入力欄を出す */}
-            {priceType === "paid" && canReceivePayments && (
+            {/* 有料 & 受け取り設定済み（または外部販売） → 価格入力欄を出す */}
+            {paidReady && (
               <div className="mt-4">
+                <input type="hidden" name="salesMode" value={external ? "external" : "buildbay"} />
+                {external && (
+                  <div className="mb-4 rounded-lg border border-accent-ai/30 bg-accent-ai-dim p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="text-[13px] font-semibold text-accent-ai">{t("external.modeTitle")}</p>
+                      <button
+                        type="button"
+                        onClick={() => setSalesMode("buildbay")}
+                        className="shrink-0 text-[11px] text-text-muted underline"
+                      >
+                        {t("external.cancel")}
+                      </button>
+                    </div>
+                    <p className="mt-1 text-[12px] leading-relaxed text-text-secondary">{t("external.modeBody")}</p>
+                    <label className="mb-1.5 mt-3 block text-[12px] font-medium text-text-secondary">
+                      {t("external.urlLabel")}
+                      <span className="ml-1 text-accent-signal">*</span>
+                    </label>
+                    <input
+                      type="url"
+                      name="externalPurchaseUrl"
+                      inputMode="url"
+                      value={externalUrl}
+                      onChange={(e) => setExternalUrl(e.target.value)}
+                      placeholder="https://yourname.gumroad.com/l/..."
+                      className="w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
+                    />
+                    <p className="mt-1.5 text-[11px] leading-relaxed text-text-dim">
+                      {t("external.urlHint", { platforms: EXTERNAL_SALE_PLATFORM_NAMES })}
+                    </p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-text-dim">{t("external.reviewNote")}</p>
+                  </div>
+                )}
                 <label className="mb-1.5 block text-[12px] text-text-muted">
-                  {t("price")}
+                  {external ? t("external.priceLabel") : t("price")}
                 </label>
                 <div className="relative">
                   <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xl text-text-muted">
@@ -444,13 +502,18 @@ export default function SubmitClient({
                   />
                 </div>
                 <p className="mt-2 text-[12px] text-text-dim">
-                  {priceNumber > 0
+                  {external
+                    ? t("external.priceHint")
+                    : priceNumber > 0
                     ? t("priceHint", {
                         amount: priceNumber.toLocaleString(),
                         net: Math.round(priceNumber * 0.8).toLocaleString(),
                       })
                     : t("priceHintEmpty")}
                 </p>
+                {external && priceNumber > 0 && (
+                  <ApproxPrice yen={priceNumber} className="mt-1 block text-[12px] text-text-muted" />
+                )}
               </div>
             )}
 
@@ -460,7 +523,7 @@ export default function SubmitClient({
           </div>
 
           {/* 実行環境（無料/有料の次に決める、重要な設定のため） */}
-          {(priceType === "free" || (priceType === "paid" && canReceivePayments)) && (
+          {(priceType === "free" || paidReady) && (
             <Field label={t("runtime")} required>
               <div className="flex gap-3">
                 <RuntimeOption
@@ -486,14 +549,14 @@ export default function SubmitClient({
           )}
 
           {/* インターネット接続の要否（ローカル実行・クラウドのどちらでも選ぶ） */}
-          {(priceType === "free" || (priceType === "paid" && canReceivePayments)) && (
+          {(priceType === "free" || paidReady) && (
             <Field label={t("internetAccess.title")} required>
               <InternetAccessPicker value={internetAccess} onChange={setInternetAccess} />
             </Field>
           )}
 
           {/* ツールの対応言語（複数選択） */}
-          {(priceType === "free" || (priceType === "paid" && canReceivePayments)) && (
+          {(priceType === "free" || paidReady) && (
             <Field label={t("languages.title")} required>
               <ToolLanguagePicker value={uiLanguages} onChange={setUiLanguages} />
             </Field>

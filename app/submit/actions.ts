@@ -13,6 +13,7 @@ import { parseVideoUrl } from "@/lib/video-embed";
 import { notifyAdmins } from "@/lib/notifications/create";
 import { adminNewPendingReview } from "@/lib/notifications/content";
 import { MIN_PAID_PRICE } from "@/lib/pricing";
+import { normalizeExternalPurchaseUrl } from "@/lib/external-sales";
 import { isOwnToolImageUrl, allOwnToolImageUrls, isValidToolFileKey } from "@/lib/storage-urls";
 
 export type CreateToolResult = { error: string } | { error: null };
@@ -111,6 +112,14 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
   if (price > 0 && price < MIN_PAID_PRICE) {
     return { error: t("priceTooLow", { min: MIN_PAID_PRICE }) };
   }
+  // 販売方法: BuildBay の決済（既定） か、外部の販売ページ（海外の出品者向け。lib/external-sales.ts）
+  const externalPurchaseUrl =
+    price > 0 && formData.get("salesMode") === "external"
+      ? normalizeExternalPurchaseUrl(String(formData.get("externalPurchaseUrl") || ""))
+      : null;
+  if (price > 0 && formData.get("salesMode") === "external" && !externalPurchaseUrl) {
+    return { error: t("invalidExternalPurchaseUrl") };
+  }
   if (price > 0) {
     // 有料ツールは、実際に売上を受け取れる状態の出品者しか出せないようにする。
     // これをしないと「買えるのに出品者が代金を受け取れない」商品が生まれてしまう。
@@ -123,7 +132,12 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
         error: t("payoutCheckFailed", { message: receiveCheckError.message }),
       };
     }
-    if (!canReceive) {
+    if (externalPurchaseUrl) {
+      // BuildBay の決済で受け取れる出品者は、外部販売を使えない（手数料の回避を防ぐ）
+      if (canReceive) {
+        return { error: t("externalSaleNotAllowed") };
+      }
+    } else if (!canReceive) {
       return {
         error: t("payoutRequiredForSubmit"),
       };
@@ -250,6 +264,7 @@ export async function createTool(formData: FormData): Promise<CreateToolResult> 
       is_wip: isWip,
       video_url: videoUrl,
       price,
+      external_purchase_url: externalPurchaseUrl,
       runtime,
       internet_access: internetAccess,
       ui_languages: uiLanguages,
@@ -355,6 +370,13 @@ export async function saveDraft(
   if (price > 0 && price < MIN_PAID_PRICE) {
     return { error: t("priceTooLow", { min: MIN_PAID_PRICE }) };
   }
+  // 外部の販売ページ（下書きでも、入力されていれば形式だけは確認する）
+  const externalRaw = String(formData.get("externalPurchaseUrl") || "").trim();
+  const wantsExternal = price > 0 && formData.get("salesMode") === "external";
+  const externalPurchaseUrl = wantsExternal && externalRaw ? normalizeExternalPurchaseUrl(externalRaw) : null;
+  if (wantsExternal && externalRaw && !externalPurchaseUrl) {
+    return { error: t("invalidExternalPurchaseUrl") };
+  }
   const platformsRaw = String(formData.get("platforms") || "");
   const platforms = platformsRaw ? platformsRaw.split(",").filter(Boolean) : [];
   const minOsVersion = String(formData.get("minOsVersion") || "").trim() || null;
@@ -452,6 +474,7 @@ export async function saveDraft(
       is_wip: isWip,
       video_url: videoUrl,
       price,
+      external_purchase_url: externalPurchaseUrl,
       runtime,
       internet_access: internetAccess,
       ui_languages: uiLanguages,
