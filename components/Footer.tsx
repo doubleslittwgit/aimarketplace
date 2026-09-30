@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { RatesAttribution } from "@/components/CurrencyProvider";
 
 /**
  * 全ページ共通のフッター。
@@ -40,6 +41,8 @@ export default function Footer({ width = "max-w-7xl" }: { width?: string }) {
         <p className="mt-8 font-mono text-[12px] text-text-dim">
           {t("copyright", { year: new Date().getFullYear() })}
         </p>
+        {/* 現地の通貨での目安を出しているときの、為替レート提供元の表記 */}
+        <RatesAttribution />
       </div>
     </footer>
   );

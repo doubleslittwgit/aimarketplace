@@ -19,6 +19,7 @@ import PurchasedCelebration from "@/components/academy/PurchasedCelebration";
 import ReadingProgress, { type SavedProgress } from "@/components/academy/ReadingProgress";
 import CourseReviews, { type CourseReview } from "@/components/academy/CourseReviews";
 import type { JSONNode, TocItem } from "@/lib/course-content";
+import ChargeCurrencyNote from "@/components/ChargeCurrencyNote";
 
 type CourseRow = {
   id: string;
@@ -228,6 +229,7 @@ export default async function CoursePage({
       <p className={`font-display text-[26px] font-bold ${isPaid ? "text-text-primary" : "text-[#1F7A4D]"}`}>
         {isPaid ? `¥${course.price.toLocaleString()}` : tHome("card.free")}
       </p>
+      {isPaid && <ChargeCurrencyNote yen={course.price} className="mt-2" />}
       {!isPaid ? (
         <p className="mt-2 text-[13px] text-text-muted">{t("freeNote")}</p>
       ) : purchased ? (

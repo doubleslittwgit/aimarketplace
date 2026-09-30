@@ -19,6 +19,7 @@ import AcademyBlurs from "@/components/academy/AcademyBlurs";
 import type { Locale } from "@/i18n/config";
 import RuntimeBadge from "@/components/RuntimeBadge";
 import HomeToolFinder from "@/components/HomeToolFinder";
+import { ApproxPrice } from "@/components/CurrencyProvider";
 import {
   categories,
   formatInstalls,
@@ -633,6 +634,7 @@ function MobileFloatingCard({
         </span>
         <span className="text-[11px] font-semibold text-accent-signal">
           {tool.price === 0 ? freeLabel : `¥${tool.price.toLocaleString()}`}
+          <ApproxPrice yen={tool.price} className="ml-1 font-normal text-text-muted" />
         </span>
       </div>
     </a>

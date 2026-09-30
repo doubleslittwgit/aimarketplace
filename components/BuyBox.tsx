@@ -3,6 +3,7 @@ import { Tool, formatPrice, formatFileSize } from "@/lib/mock-data";
 import { isSaleActive } from "@/lib/sale-price";
 import { TOOL_LANGUAGE_NATIVE_NAMES, parseToolLanguages } from "@/lib/tool-languages";
 import PurchaseButton from "@/components/PurchaseButton";
+import ChargeCurrencyNote from "@/components/ChargeCurrencyNote";
 
 type Props = {
   tool: Tool;
@@ -61,6 +62,13 @@ export default function BuyBox({
           <span className="text-[12px] text-text-muted">{t("oneTimePurchase")}</span>
         )}
       </div>
+      {/* 海外の人向けに、現地の通貨での目安と「支払いは円」の案内（日本円表示のときは出ない） */}
+      {!isFree && (
+        <ChargeCurrencyNote
+          yen={onSale ? (tool.salePrice as number) : tool.price}
+          className="-mt-2 mb-4"
+        />
+      )}
 
       {isDemo ? (
         <div className="mb-3 w-full rounded-lg border border-border bg-surface-raised py-3 text-center text-sm text-text-muted">

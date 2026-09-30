@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { startTip } from "@/app/apps/[slug]/tip-actions";
 import { TIP_AMOUNTS } from "@/lib/tip-amounts";
+import ChargeCurrencyNote from "@/components/ChargeCurrencyNote";
 
 export default function TipBox({
   toolId,
@@ -62,6 +63,8 @@ export default function TipBox({
           </button>
         ))}
       </div>
+
+      <ChargeCurrencyNote yen={selected} className="mt-2" />
 
       {error && <p className="mt-2 text-[12px] text-accent-danger">{error}</p>}
 

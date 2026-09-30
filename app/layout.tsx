@@ -4,6 +4,8 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import MobileTabBar from "@/components/MobileTabBar";
+import { CurrencyProvider } from "@/components/CurrencyProvider";
+import { getDisplayCurrency } from "@/lib/currency/server";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -73,6 +75,8 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const locale = await getLocale();
   const messages = await getMessages();
+  // 価格の横に添える「現地の通貨での目安」の通貨とレート（lib/currency/config.ts 参照）
+  const displayCurrency = await getDisplayCurrency(locale);
 
   return (
     <html
@@ -81,10 +85,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-bg bg-noise">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
-          <CookieConsentBanner />
-          {/* スマホ用の下部ナビゲーション（リキッドグラス風のバー） */}
-          <MobileTabBar />
+          <CurrencyProvider value={displayCurrency}>
+            {children}
+            <CookieConsentBanner />
+            {/* スマホ用の下部ナビゲーション（リキッドグラス風のバー） */}
+            <MobileTabBar />
+          </CurrencyProvider>
         </NextIntlClientProvider>
         {/* アクセス解析（Vercel Web Analytics）。Cookieを使わず、個人を特定しない形でページの閲覧数などを数える */}
         <Analytics />

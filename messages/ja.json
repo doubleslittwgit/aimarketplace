@@ -127,7 +127,10 @@
     "publish": "公開する",
     "menuAriaLabel": "メニュー",
     "languageAriaLabel": "言語を選択",
-    "academy": "Academy"
+    "academy": "Academy",
+    "currencyLabel": "価格の目安を表示する通貨",
+    "currencyAuto": "自動（{currency}）",
+    "currencyHint": "お支払いは常に日本円です。ここで選んだ通貨は、価格の横に目安として表示されます。"
   },
   "userMenu": {
     "dashboard": "マイページ",
@@ -1761,5 +1764,11 @@
     "sell": "出品する",
     "academy": "Academy",
     "mypage": "マイページ"
+  },
+  "currency": {
+    "approx": "約{amount}",
+    "approxTitle": "現地の通貨での目安です。お支払いは日本円で、実際の請求額はカード会社のレートで決まります。",
+    "chargedInYen": "お支払いは日本円（{price}）です。実際の請求額は、お使いのカード会社の為替レートで決まります。",
+    "attributionPrefix": "価格の目安に使っている為替レート:"
   }
 }

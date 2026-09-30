@@ -4,6 +4,7 @@ import { Tool, formatInstalls, formatPrice } from "@/lib/mock-data";
 import { categoryToSlug } from "@/lib/category-slugs";
 import { isSaleActive } from "@/lib/sale-price";
 import RuntimeBadge from "@/components/RuntimeBadge";
+import { ApproxPrice } from "@/components/CurrencyProvider";
 
 export default function ToolCard({ tool }: { tool: Tool }) {
   const t = useTranslations();
@@ -94,14 +95,18 @@ export default function ToolCard({ tool }: { tool: Tool }) {
               <span className="text-accent-danger">
                 {formatPrice(tool.salePrice as number, t("common.free"))}
               </span>
+              <ApproxPrice yen={tool.salePrice as number} className="font-sans text-[11px] font-normal text-text-muted" />
             </span>
           ) : (
-            <span
-              className={`shrink-0 font-mono text-[13px] font-medium ${
-                isFree ? "text-text-muted" : "text-accent-signal"
-              }`}
-            >
-              {formatPrice(tool.price, t("common.free"))}
+            <span className="flex shrink-0 flex-col items-end">
+              <span
+                className={`font-mono text-[13px] font-medium ${
+                  isFree ? "text-text-muted" : "text-accent-signal"
+                }`}
+              >
+                {formatPrice(tool.price, t("common.free"))}
+              </span>
+              <ApproxPrice yen={tool.price} className="text-[11px] text-text-muted" />
             </span>
           )}
         </div>

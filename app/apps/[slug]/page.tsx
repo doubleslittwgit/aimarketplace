@@ -30,6 +30,7 @@ import { categoryToSlug } from "@/lib/category-slugs";
 import { applyToolTranslations, applyReviewTranslations } from "@/lib/apply-translations";
 import type { Locale } from "@/i18n/config";
 import { formatInstalls, type Tool } from "@/lib/mock-data";
+import { ApproxPrice } from "@/components/CurrencyProvider";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -654,6 +655,7 @@ export default async function ToolDetailPage({
                             <span className="line-clamp-2 text-[13px] font-semibold leading-snug text-[#173F35]">{lc.title}</span>
                             <span className="text-[11px] text-[#9C7A12]">
                               {lc.price > 0 ? `¥${lc.price.toLocaleString()}` : "BuildBay Academy"}
+                              <ApproxPrice yen={lc.price} className="ml-1 text-text-muted" />
                             </span>
                           </span>
                         </Link>

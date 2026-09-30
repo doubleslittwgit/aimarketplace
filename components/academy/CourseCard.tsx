@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import Stars from "@/components/academy/Stars";
+import { ApproxPrice } from "@/components/CurrencyProvider";
 
 export type CourseCardData = {
   slug: string;
@@ -105,10 +106,11 @@ export default function CourseCard({ course }: { course: CourseCardData }) {
             </span>
             <span className="truncate text-[12px] text-text-muted">{course.authorName}</span>
           </span>
-          <span
-            className={`shrink-0 text-[15px] font-bold ${isFree ? "text-[#1F7A4D]" : "text-[#9C7A12]"}`}
-          >
-            {isFree ? t("card.free") : `¥${course.price.toLocaleString()}`}
+          <span className="flex shrink-0 flex-col items-end">
+            <span className={`text-[15px] font-bold ${isFree ? "text-[#1F7A4D]" : "text-[#9C7A12]"}`}>
+              {isFree ? t("card.free") : `¥${course.price.toLocaleString()}`}
+            </span>
+            <ApproxPrice yen={course.price} className="text-[11px] text-text-muted" />
           </span>
         </div>
       </div>

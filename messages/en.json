@@ -127,7 +127,10 @@
     "publish": "Publish",
     "menuAriaLabel": "Menu",
     "languageAriaLabel": "Select language",
-    "academy": "Academy"
+    "academy": "Academy",
+    "currencyLabel": "Show approximate prices in",
+    "currencyAuto": "Auto ({currency})",
+    "currencyHint": "You are always charged in Japanese yen. The currency you pick here is only shown as an estimate next to prices."
   },
   "userMenu": {
     "dashboard": "Dashboard",
@@ -1761,5 +1764,11 @@
     "sell": "Sell",
     "academy": "Academy",
     "mypage": "My page"
+  },
+  "currency": {
+    "approx": "≈ {amount}",
+    "approxTitle": "Estimate in your local currency. You are charged in Japanese yen; the final amount depends on your card issuer’s exchange rate.",
+    "chargedInYen": "You will be charged in Japanese yen ({price}). The final amount depends on your card issuer’s exchange rate.",
+    "attributionPrefix": "Exchange rates for price estimates:"
   }
 }

@@ -127,7 +127,10 @@
     "publish": "上架工具",
     "menuAriaLabel": "選單",
     "languageAriaLabel": "選擇語言",
-    "academy": "Academy"
+    "academy": "Academy",
+    "currencyLabel": "價格參考幣別",
+    "currencyAuto": "自動（{currency}）",
+    "currencyHint": "付款一律以日圓進行。這裡選擇的幣別只會在價格旁顯示參考金額。"
   },
   "userMenu": {
     "dashboard": "會員中心",
@@ -1761,5 +1764,11 @@
     "sell": "上架",
     "academy": "Academy",
     "mypage": "我的頁面"
+  },
+  "currency": {
+    "approx": "約{amount}",
+    "approxTitle": "以當地貨幣換算的參考金額。付款以日圓進行，實際請款金額依您的發卡機構匯率而定。",
+    "chargedInYen": "付款以日圓（{price}）進行。實際請款金額依您的發卡機構匯率而定。",
+    "attributionPrefix": "參考價格使用的匯率："
   }
 }

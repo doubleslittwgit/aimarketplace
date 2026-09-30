@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { setLocale } from "@/app/locale-actions";
+import { setCurrency, setLocale } from "@/app/locale-actions";
+import { useDisplayCurrency } from "@/components/CurrencyProvider";
+import { CURRENCIES, type Currency } from "@/lib/currency/config";
 import { locales, type Locale } from "@/i18n/config";
 
 /**
@@ -49,6 +51,24 @@ export default function LanguageSwitcher() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const { currency, chosen } = useDisplayCurrency();
+
+  /** 通貨名はその時の表示言語で（例: 新台湾ドル / 新台幣 / New Taiwan Dollar） */
+  function currencyName(code: Currency) {
+    try {
+      return new Intl.DisplayNames([locale === "zh" ? "zh-TW" : locale], { type: "currency" }).of(code) ?? code;
+    } catch {
+      return code;
+    }
+  }
+
+  function chooseCurrency(next: string) {
+    startTransition(async () => {
+      await setCurrency(next as Currency | "auto");
+      router.refresh();
+    });
+  }
+
   function choose(next: Locale) {
     setOpen(false);
     if (next === locale) return;
@@ -82,7 +102,7 @@ export default function LanguageSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded-lg border border-border bg-surface py-1.5 shadow-lg">
+        <div className="absolute right-0 top-full z-50 mt-2 w-60 rounded-lg border border-border bg-surface py-1.5 shadow-lg">
           {locales.map((l) => (
             <button
               key={l}
@@ -103,6 +123,30 @@ export default function LanguageSwitcher() {
               )}
             </button>
           ))}
+
+          {/* 価格の横に出す「現地の通貨での目安」の通貨。支払いは常に日本円 */}
+          <div className="mt-1.5 border-t border-border px-3.5 pb-1.5 pt-2.5">
+            <label htmlFor="display-currency" className="block text-[11px] font-medium text-text-muted">
+              {t("currencyLabel")}
+            </label>
+            <select
+              id="display-currency"
+              value={chosen ? currency : "auto"}
+              onChange={(e) => chooseCurrency(e.target.value)}
+              disabled={isPending}
+              className="mt-1 w-full rounded-md border border-border bg-bg px-2 py-1.5 text-[12px] text-text-primary"
+            >
+              <option value="auto">
+                {t("currencyAuto", { currency: chosen ? "—" : `${currency} · ${currencyName(currency)}` })}
+              </option>
+              {CURRENCIES.map((c) => (
+                <option key={c} value={c}>
+                  {c} · {currencyName(c)}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-[10px] leading-snug text-text-dim">{t("currencyHint")}</p>
+          </div>
         </div>
       )}
     </div>
