@@ -50,6 +50,14 @@ const TEXT: Record<string, Record<Kind, { consent: string; submit: string }>> = 
   },
 };
 
+/**
+ * 現地通貨での支払い（Adaptive Pricing）は使わない。
+ * ダッシュボードで有効になっていても、この決済画面では必ず日本円で請求する。
+ * 理由: 購入の記録・金額の照合（Webhook）・出品者への送金・返金がすべて円を前提にしているため。
+ * 海外の人向けの通貨は、サイト上の「約NT$」などの目安表示で案内している（lib/currency）。
+ */
+const NO_ADAPTIVE_PRICING = { adaptive_pricing: { enabled: false } } as const;
+
 export async function createCheckoutSessionWithConsent(
   params: Stripe.Checkout.SessionCreateParams,
   kind: Kind,
@@ -59,6 +67,7 @@ export async function createCheckoutSessionWithConsent(
   try {
     return await stripe.checkout.sessions.create({
       ...params,
+      ...NO_ADAPTIVE_PRICING,
       consent_collection: { terms_of_service: "required" },
       custom_text: {
         terms_of_service_acceptance: { message: text.consent },
@@ -75,6 +84,7 @@ export async function createCheckoutSessionWithConsent(
     // 同意チェックは付けられないが、返金についての案内だけは表示して購入を続ける
     return stripe.checkout.sessions.create({
       ...params,
+      ...NO_ADAPTIVE_PRICING,
       custom_text: { submit: { message: text.submit } },
     });
   }
