@@ -18,8 +18,6 @@ import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
 import { uploadNonce } from "@/lib/storage-urls";
 import { createClient as createBrowserSupabase } from "@/lib/supabase/client";
 import { updateTool, setToolPublished, deleteTool } from "./actions";
-import { EXTERNAL_SALE_PLATFORM_NAMES } from "@/lib/external-sales";
-import { ApproxPrice } from "@/components/CurrencyProvider";
 
 type Tool = {
   id: string;
@@ -33,8 +31,6 @@ type Tool = {
   price: number;
   sale_price: number | null;
   sale_ends_at: string | null;
-  /** 外部の販売ページ（海外の出品者向け）。null なら BuildBay の決済で販売 */
-  external_purchase_url: string | null;
   remix_allowed: boolean;
   refund_policy: "none" | "conditional";
   is_wip: boolean;
@@ -70,11 +66,6 @@ export default function EditToolClient({
   const tCategories = useTranslations("categories");
   const tCommon = useTranslations("common");
   const [price, setPrice] = useState(String(tool.price));
-  // 販売方法。日本で Stripe 登録ができない海外の出品者は、外部の販売ページで販売できる（lib/external-sales.ts）
-  const [salesMode, setSalesMode] = useState<"buildbay" | "external">(
-    tool.external_purchase_url && !canReceivePayments ? "external" : "buildbay"
-  );
-  const [externalUrl, setExternalUrl] = useState(tool.external_purchase_url ?? "");
   const [salePrice, setSalePrice] = useState(
     tool.sale_price != null ? String(tool.sale_price) : ""
   );
@@ -146,9 +137,7 @@ export default function EditToolClient({
   const fileTooLarge = fileSize !== null && fileSize > MAX_TOOL_FILE_SIZE;
   const thumbnailTooLarge =
     thumbnailSize !== null && thumbnailSize > MAX_THUMBNAIL_FILE_SIZE;
-  const external = !isFree && priceNumber > 0 && !canReceivePayments && salesMode === "external";
-  const priceBlocked = !isFree && priceNumber > 0 && !canReceivePayments && !external;
-  const externalUrlMissing = external && externalUrl.trim().length === 0;
+  const priceBlocked = !isFree && priceNumber > 0 && !canReceivePayments;
 
   function togglePlatform(p: string) {
     setPlatforms((prev) =>
@@ -863,89 +852,33 @@ export default function EditToolClient({
                 className="w-full rounded-lg border border-border bg-surface py-2.5 pl-8 pr-3.5 text-[14px] text-text-primary outline-none focus:border-border-strong"
               />
             </div>
-            <input type="hidden" name="salesMode" value={external ? "external" : "buildbay"} />
-            {/* 外部販売だったツールで、その後 BuildBay の受け取り設定が済んだ場合 */}
-            {tool.external_purchase_url && canReceivePayments && (
-              <p className="mt-2 rounded-lg border border-accent-ai/30 bg-accent-ai-dim px-3 py-2 text-[12px] text-accent-ai">
-                {tSubmit("external.switchedToBuildBay")}
-              </p>
-            )}
             <p className="mt-2 text-[12px] text-text-dim">
               {isFree
                 ? t("freePublishNotice")
-                : external
-                ? tSubmit("external.priceHint")
                 : tSubmit("priceHint", {
                     amount: priceNumber.toLocaleString(),
                     net: Math.round(priceNumber * 0.8).toLocaleString(),
                   })}
             </p>
-            {external && priceNumber > 0 && (
-              <ApproxPrice yen={priceNumber} className="mt-1 block text-[12px] text-text-muted" />
-            )}
-            {external && (
-              <div className="mt-3 rounded-lg border border-accent-ai/30 bg-accent-ai-dim p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="text-[13px] font-semibold text-accent-ai">{tSubmit("external.modeTitle")}</p>
-                  <button
-                    type="button"
-                    onClick={() => setSalesMode("buildbay")}
-                    className="shrink-0 text-[11px] text-text-muted underline"
-                  >
-                    {tSubmit("external.cancel")}
-                  </button>
-                </div>
-                <p className="mt-1 text-[12px] leading-relaxed text-text-secondary">{tSubmit("external.modeBody")}</p>
-                <label className="mb-1.5 mt-3 block text-[12px] font-medium text-text-secondary">
-                  {tSubmit("external.urlLabel")}
-                  <span className="ml-1 text-accent-signal">*</span>
-                </label>
-                <input
-                  type="url"
-                  name="externalPurchaseUrl"
-                  inputMode="url"
-                  value={externalUrl}
-                  onChange={(e) => setExternalUrl(e.target.value)}
-                  placeholder="https://yourname.gumroad.com/l/..."
-                  className="w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 text-[14px] text-text-primary outline-none placeholder:text-text-dim focus:border-border-strong"
-                />
-                <p className="mt-1.5 text-[11px] leading-relaxed text-text-dim">
-                  {tSubmit("external.urlHint", { platforms: EXTERNAL_SALE_PLATFORM_NAMES })}
-                </p>
-                <p className="mt-1 text-[11px] leading-relaxed text-text-dim">{tSubmit("external.reviewNote")}</p>
-              </div>
-            )}
             {tool.runtime === "cloud" && !isFree && (
               <p className="mt-2 text-[12px] font-medium leading-relaxed text-accent-danger">
                 {tSubmit("cloudPaidWarning")}
               </p>
             )}
             {priceBlocked && (
-              <div className="mt-2 rounded-lg border border-accent-danger/30 bg-accent-danger/5 px-3 py-2">
-                <p className="text-[12px] text-accent-danger">
-                  {t.rich("payoutRequiredNotice", {
-                    link: (chunks) => (
-                      <a href="/seller" className="mx-1 underline">
-                        {chunks}
-                      </a>
-                    ),
-                  })}
-                </p>
-                {/* 海外の出品者（日本で Stripe 登録ができない人）向けの別の道 */}
-                <p className="mt-2 text-[12px] font-semibold text-text-primary">{tSubmit("external.altTitle")}</p>
-                <p className="mt-0.5 text-[12px] text-text-secondary">{tSubmit("external.altBody")}</p>
-                <button
-                  type="button"
-                  onClick={() => setSalesMode("external")}
-                  className="mt-2 rounded-lg border border-border-strong bg-bg px-3 py-1.5 text-[12px] font-medium text-text-primary transition hover:bg-surface-raised"
-                >
-                  {tSubmit("external.altCta")}
-                </button>
-              </div>
+              <p className="mt-2 rounded-lg border border-accent-danger/30 bg-accent-danger/5 px-3 py-2 text-[12px] text-accent-danger">
+                {t.rich("payoutRequiredNotice", {
+                  link: (chunks) => (
+                    <a href="/seller" className="mx-1 underline">
+                      {chunks}
+                    </a>
+                  ),
+                })}
+              </p>
             )}
           </Field>
 
-          {!isFree && !external && (
+          {!isFree && (
             <Field label={tSubmit("saleLabel")}>
               <input type="hidden" name="saleEnabled" value={saleEnabled ? "1" : "0"} />
               <label className="flex cursor-pointer items-center gap-2.5 text-[13px] text-text-secondary">
@@ -1011,7 +944,7 @@ export default function EditToolClient({
 
           <button
             type="submit"
-            disabled={isPending || fileTooLarge || thumbnailTooLarge || priceBlocked || externalUrlMissing}
+            disabled={isPending || fileTooLarge || thumbnailTooLarge || priceBlocked}
             className="w-full rounded-lg bg-accent-signal py-3 text-sm font-medium text-white transition hover:brightness-105 disabled:opacity-60"
           >
             {isPending ? t("saving") : t("save")}

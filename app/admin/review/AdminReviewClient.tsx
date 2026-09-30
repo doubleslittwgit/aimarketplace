@@ -7,7 +7,6 @@ import { formatPrice } from "@/lib/mock-data";
 import { HIGH_PRICE_REVIEW_THRESHOLD } from "@/lib/ai/review-tool";
 import { approveTool, rejectTool, unpublishToolByAdmin } from "./actions";
 import type { SnapshotChange } from "@/lib/review-snapshot";
-import { normalizeExternalPurchaseUrl } from "@/lib/external-sales";
 
 type PendingTool = {
   id: string;
@@ -21,8 +20,6 @@ type PendingTool = {
   platforms: string[] | null;
   min_os_version: string | null;
   demo_url: string | null;
-  /** 外部の販売ページ（海外の出品者向け）。null なら BuildBay の決済で販売 */
-  external_purchase_url: string | null;
   thumbnail_url: string | null;
   file_key: string | null;
   updated_at: string | null;
@@ -328,32 +325,6 @@ function ReviewCard({ tool }: { tool: PendingTool }) {
           />
         )}
       </div>
-
-      {tool.external_purchase_url && (
-        <div className="mb-3 rounded-lg border border-accent-signal/40 bg-accent-signal-dim/40 p-3">
-          <p className="text-[12px] font-semibold text-accent-signal">
-            外部の販売ページで販売（BuildBay の決済は使いません）
-          </p>
-          {normalizeExternalPurchaseUrl(tool.external_purchase_url) !== tool.external_purchase_url && (
-            <p className="mt-1 rounded bg-accent-danger/10 px-2 py-1 text-[12px] font-semibold text-accent-danger">
-              ⚠ 対応している販売サービスのURLではありません。承認できないので差し戻してください。
-            </p>
-          )}
-          <a
-            href={tool.external_purchase_url}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            className="mt-1 block break-all text-[12px] text-accent-ai hover:underline"
-          >
-            {tool.external_purchase_url}
-          </a>
-          <p className="mt-1.5 text-[11px] leading-relaxed text-text-muted">
-            承認すると、このURLが商品ページの「購入」ボタンの行き先になります。
-            開いて、①出品者本人の販売ページであること ②同じツールであること ③価格が大きく違わないこと を確認してください。
-            外部販売は、日本で Stripe 登録ができない海外の出品者のための仕組みです。日本在住の出品者と分かる場合は差し戻してください。
-          </p>
-        </div>
-      )}
 
       <ReviewContext tool={tool} />
 

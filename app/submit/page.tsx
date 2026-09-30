@@ -90,7 +90,7 @@ export default async function SubmitPage({
     const { data: draft } = await supabase
       .from("tools")
       .select(
-        "id, author_id, status, name, tagline, description, category, categories, price, external_purchase_url, runtime, internet_access, ui_languages, platforms, min_os_version, thumbnail_url, gallery_urls, file_key"
+        "id, author_id, status, name, tagline, description, category, categories, price, runtime, internet_access, ui_languages, platforms, min_os_version, thumbnail_url, gallery_urls, file_key"
       )
       .eq("id", draftId)
       .maybeSingle();
@@ -112,7 +112,6 @@ export default async function SubmitPage({
         category: draft.category,
         categories: draft.categories?.length ? draft.categories : draft.category ? [draft.category] : [],
         price: draft.price,
-        externalPurchaseUrl: draft.external_purchase_url ?? null,
         runtime: draft.runtime,
         platforms: draft.platforms ?? [],
         minOsVersion: draft.min_os_version,

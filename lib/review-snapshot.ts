@@ -26,14 +26,12 @@ export type ToolSnapshot = {
   refund_policy: string | null;
   is_wip: boolean | null;
   remix_allowed: boolean | null;
-  /** 外部の販売ページ（古いスナップショットには無い） */
-  external_purchase_url?: string | null;
   access_url: string | null;
 };
 
 /** スナップショットを作るために tools から読む列 */
 export const SNAPSHOT_TOOL_COLUMNS =
-  "name, tagline, description, price, categories, host_apps, runtime, platforms, min_os_version, video_url, thumbnail_url, gallery_urls, file_key, file_size_bytes, internet_access, ui_languages, refund_policy, is_wip, remix_allowed, external_purchase_url";
+  "name, tagline, description, price, categories, host_apps, runtime, platforms, min_os_version, video_url, thumbnail_url, gallery_urls, file_key, file_size_bytes, internet_access, ui_languages, refund_policy, is_wip, remix_allowed";
 
 type ToolRowForSnapshot = Omit<ToolSnapshot, "access_url">;
 
@@ -58,7 +56,6 @@ export function buildToolSnapshot(row: ToolRowForSnapshot, accessUrl: string | n
     refund_policy: row.refund_policy ?? null,
     is_wip: row.is_wip ?? null,
     remix_allowed: row.remix_allowed ?? null,
-    external_purchase_url: row.external_purchase_url ?? null,
     access_url: accessUrl ?? null,
   };
 }
@@ -89,7 +86,6 @@ const LABELS: Record<keyof ToolSnapshot, string> = {
   refund_policy: "返金ポリシー",
   is_wip: "開発中の表示",
   remix_allowed: "リミックスの許可",
-  external_purchase_url: "外部の販売ページ",
   access_url: "ツールのURL",
 };
 
@@ -132,7 +128,7 @@ export function diffSnapshots(before: ToolSnapshot, after: ToolSnapshot): Snapsh
         before: fileName(a as string | null) ?? "（なし）",
         after: `${fileName(b as string | null) ?? "（なし）"}（新しいファイル）`,
       });
-    } else if (key === "access_url" || key === "video_url" || key === "external_purchase_url") {
+    } else if (key === "access_url" || key === "video_url") {
       changes.push({ field, kind: "link", before: (a as string) ?? null, after: (b as string) ?? null });
     } else if (key === "price") {
       changes.push({

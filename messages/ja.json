@@ -94,10 +94,7 @@
     "claimUnavailable": "このツールは現在取得できません（公開が停止されたか、有料になった可能性があります）",
     "claimFailedGeneric": "取得できませんでした。時間をおいてもう一度お試しください",
     "cannotReviewOwnTool": "ご自身のツールにはレビューを書けません",
-    "resubmissionNoteRequired": "再審査を申請するには「修正した内容」を入力してください",
-    "invalidExternalPurchaseUrl": "販売ページのURLを確認してください。https から始まる、対応している販売サービス（Gumroad・Lemon Squeezy・Polar など）のURLのみ登録できます。",
-    "externalSaleNotAllowed": "BuildBay の決済で売上を受け取れる設定が済んでいるため、外部の販売ページは使えません。販売方法を「BuildBay で販売」に戻して保存してください。",
-    "externalSaleNoCheckout": "このツールは出品者の販売ページで販売されています。商品ページの購入ボタンから販売ページへ進んでください。"
+    "resubmissionNoteRequired": "再審査を申請するには「修正した内容」を入力してください"
   },
   "cookieNotice": {
     "text": "本サービスは、ログイン状態を維持するために必要なCookieを使用しています。詳しくは<link>プライバシーポリシー</link>をご覧ください。",
@@ -407,14 +404,7 @@
         "offline": "不要（オフライン可）"
       },
       "languages": "対応言語",
-      "languageOther": "その他",
-      "external": {
-        "button": "{platform} で購入する",
-        "platformFallback": "販売ページ",
-        "preparing": "販売ページを準備中です",
-        "notice": "このツールは出品者の販売ページ（{platform}）で販売されています。購入・支払い・ダウンロード・返金は販売ページで行われ、BuildBay は決済に関わりません。",
-        "priceNote": "価格は目安です。最終的な価格と通貨は、販売ページでご確認ください。"
-      }
+      "languageOther": "その他"
     },
     "purchaseButton": {
       "ownerNotice": "あなたが出品したツールです",
@@ -1028,20 +1018,6 @@
       "title": "対応言語",
       "hint": "ツールの画面や説明書で使われている言語を、すべて選んでください（複数選択可）。ツールのページに表示されます。",
       "other": "その他"
-    },
-    "external": {
-      "altTitle": "日本国外にお住まいの方",
-      "altBody": "日本の銀行口座での受け取り登録ができない場合は、Gumroad などの外部の販売ページで販売し、BuildBay にはそのリンクを載せることができます。",
-      "altCta": "外部の販売ページで販売する",
-      "modeTitle": "外部の販売ページで販売",
-      "modeBody": "購入・支払い・ダウンロードは、あなたの販売ページで行われます。BuildBay は決済に関わらず、手数料もかかりません。商品ページには「販売ページで購入する」ボタンが表示されます。",
-      "cancel": "BuildBay で販売に戻す",
-      "urlLabel": "販売ページのURL",
-      "urlHint": "対応している販売サービス: {platforms}",
-      "reviewNote": "販売ページのURLは審査で確認します。公開後にURLを変更すると、再審査になります。アップロードしたファイル（またはツールのURL）は審査用で、購入者には販売ページから届けてください。",
-      "priceLabel": "表示価格（販売ページの価格に合わせてください）",
-      "priceHint": "円で入力します。中国語・英語の画面では、台湾ドル・米ドルの目安も一緒に表示されます。",
-      "switchedToBuildBay": "BuildBay の決済で売上を受け取れる設定が済んだため、このツールは保存すると BuildBay での販売に切り替わります（販売ページのリンクは外れ、再審査になります）。"
     }
   },
   "categories": {

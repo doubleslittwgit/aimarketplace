@@ -94,10 +94,7 @@
     "claimUnavailable": "This tool can't be claimed right now (it may have been unpublished or made paid).",
     "claimFailedGeneric": "Couldn't claim the tool. Please try again later.",
     "cannotReviewOwnTool": "You can't review your own tool.",
-    "resubmissionNoteRequired": "Please describe what you fixed to request another review.",
-    "invalidExternalPurchaseUrl": "Please check the sales page URL. Only https URLs from supported platforms (Gumroad, Lemon Squeezy, Polar, etc.) are accepted.",
-    "externalSaleNotAllowed": "You have already set up payouts through BuildBay, so external sales pages can't be used. Switch the sales method back to “Sell on BuildBay” and save.",
-    "externalSaleNoCheckout": "This tool is sold on the seller's own sales page. Please use the purchase button on the product page to go there."
+    "resubmissionNoteRequired": "Please describe what you fixed to request another review."
   },
   "cookieNotice": {
     "text": "This site uses cookies required to keep you logged in. See our <link>Privacy Policy</link> for details.",
@@ -407,14 +404,7 @@
         "offline": "Not needed (works offline)"
       },
       "languages": "Languages",
-      "languageOther": "Other",
-      "external": {
-        "button": "Buy on {platform}",
-        "platformFallback": "the sales page",
-        "preparing": "The sales page is being prepared",
-        "notice": "This tool is sold on the seller's own sales page ({platform}). Purchase, payment, download and refunds are handled there; BuildBay is not involved in the payment.",
-        "priceNote": "The price is an estimate. Check the final price and currency on the sales page."
-      }
+      "languageOther": "Other"
     },
     "purchaseButton": {
       "ownerNotice": "This is your own listing",
@@ -1028,20 +1018,6 @@
       "title": "Languages",
       "hint": "Select every language used in the tool's interface and docs (multiple allowed). Shown on the tool page.",
       "other": "Other"
-    },
-    "external": {
-      "altTitle": "Sellers outside Japan",
-      "altBody": "If you can't set up payouts with a Japanese bank account, you can sell on an external sales page such as Gumroad and list the link on BuildBay.",
-      "altCta": "Sell on an external sales page",
-      "modeTitle": "Sell on an external sales page",
-      "modeBody": "Purchase, payment and download all happen on your sales page. BuildBay doesn't handle the payment and charges no fee. The product page shows a “Buy on your sales page” button.",
-      "cancel": "Switch back to selling on BuildBay",
-      "urlLabel": "Sales page URL",
-      "urlHint": "Supported platforms: {platforms}",
-      "reviewNote": "We check the sales page URL during review. Changing it after publishing requires a new review. The file (or tool URL) you upload is for review only; deliver the tool to buyers through your sales page.",
-      "priceLabel": "Display price (match the price on your sales page)",
-      "priceHint": "Enter the price in yen. Chinese and English pages also show an estimate in NT$ and US$.",
-      "switchedToBuildBay": "Your BuildBay payouts are now set up, so saving will switch this tool to selling on BuildBay (the sales page link is removed and the tool is reviewed again)."
     }
   },
   "categories": {
