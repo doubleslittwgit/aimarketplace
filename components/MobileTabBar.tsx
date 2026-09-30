@@ -9,21 +9,22 @@ import { useTranslations } from "next-intl";
  * スマホ用の、画面下に浮かぶナビゲーションバー（sm未満だけ表示）。
  *
  * - 角の丸いカプセル型で、後ろの画面がすりガラス越しに透けて見える「リキッドグラス」風の質感
- * - 項目: ホーム / 探す / 出品する（中央・強調） / Academy / マイページ
+ * - 項目: 探す / Creative / 出品する（中央・強調） / Academy / マイページ
+ *   （ホームへは画面上部のロゴから戻れるので、バーには入れない）
  * - 今いるページの項目は、バーの中で白いカプセルが浮いて見える
  * - 下にスクロールしている間は隠れ、上に戻すと出てくる（読んでいる内容を邪魔しないため）
  * - 入力に集中する画面（出品・編集・講座を書く・ログイン・管理画面など）では出さない
  */
 
 type Item = {
-  key: "home" | "browse" | "sell" | "academy" | "mypage";
+  key: "browse" | "creative" | "sell" | "academy" | "mypage";
   href: string;
   match: (path: string) => boolean;
 };
 
 const ITEMS: Item[] = [
-  { key: "home", href: "/", match: (p) => p === "/" },
   { key: "browse", href: "/browse", match: (p) => p.startsWith("/browse") || p.startsWith("/apps/") },
+  { key: "creative", href: "/creative", match: (p) => p.startsWith("/creative") },
   { key: "sell", href: "/submit", match: (p) => p.startsWith("/submit") },
   { key: "academy", href: "/academy", match: (p) => p.startsWith("/academy") },
   {
@@ -147,10 +148,14 @@ function Icon({ name }: { name: Item["key"] }) {
     "aria-hidden": true,
   };
   switch (name) {
-    case "home":
+    case "creative":
+      // パレット（クリエイター向けツール）
       return (
         <svg {...common}>
-          <path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1Z" />
+          <path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7H17a4 4 0 0 0 4-4c0-4.4-4-8.2-9-8.2Z" />
+          <circle cx="7.5" cy="11" r="1" fill="currentColor" />
+          <circle cx="10" cy="7" r="1" fill="currentColor" />
+          <circle cx="15" cy="7.5" r="1" fill="currentColor" />
         </svg>
       );
     case "browse":

@@ -1756,8 +1756,8 @@
   },
   "bottomNav": {
     "ariaLabel": "主選單",
-    "home": "首頁",
     "browse": "探索",
+    "creative": "Creative",
     "sell": "上架",
     "academy": "Academy",
     "mypage": "我的頁面"

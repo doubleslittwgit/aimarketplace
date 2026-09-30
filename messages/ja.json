@@ -1756,8 +1756,8 @@
   },
   "bottomNav": {
     "ariaLabel": "メインメニュー",
-    "home": "ホーム",
     "browse": "探す",
+    "creative": "Creative",
     "sell": "出品する",
     "academy": "Academy",
     "mypage": "マイページ"

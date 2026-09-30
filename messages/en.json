@@ -1756,8 +1756,8 @@
   },
   "bottomNav": {
     "ariaLabel": "Main menu",
-    "home": "Home",
     "browse": "Explore",
+    "creative": "Creative",
     "sell": "Sell",
     "academy": "Academy",
     "mypage": "My page"
