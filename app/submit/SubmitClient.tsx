@@ -11,6 +11,7 @@ import { categoryToSlug } from "@/lib/category-slugs";
 import { CREATIVE_APPS } from "@/lib/creative-apps";
 import { TOOL_FILE_ACCEPT, isAllowedToolFile } from "@/lib/tool-file-types";
 import { parseVideoUrl } from "@/lib/video-embed";
+import ImageRatioHint from "@/components/ImageRatioHint";
 import { compressImage, compressImagesSequentially, COMPRESS_PRESET_THUMBNAIL, COMPRESS_PRESET_GALLERY } from "@/lib/compress-image";
 import { uploadToStorage, sanitizeFileName } from "@/lib/direct-upload";
 import { uploadNonce } from "@/lib/storage-urls";
@@ -504,7 +505,7 @@ export default function SubmitClient({
               {/* サムネイル画像 */}
               <Field label={t("thumbnail")}>
                 <div className="flex items-center gap-4">
-                  <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-surface">
+                  <div className="flex aspect-video h-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-surface">
                     {thumbnailPreview ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -571,6 +572,7 @@ export default function SubmitClient({
                     />
                   </div>
                 </div>
+                <ImageRatioHint text={t("imageRatioHint")} />
               </Field>
 
               {/* ギャラリー画像（最大5枚、商品詳細ページで矢印で切り替えられる） */}
@@ -635,6 +637,7 @@ export default function SubmitClient({
                   className="hidden"
                 />
 
+                <ImageRatioHint text={t("imageRatioHint")} />
                 {galleryError && (
                   <p className="mt-2 text-[12px] text-accent-danger">{galleryError}</p>
                 )}
