@@ -84,10 +84,10 @@ body {
 @media (max-width: 639px) {
   .site-bg {
     background:
-      radial-gradient(15rem 12rem at 0% 4%, rgba(63, 169, 224, 0.15), transparent 70%),
-      radial-gradient(13rem 10rem at 100% 2%, rgba(255, 107, 74, 0.12), transparent 70%),
-      radial-gradient(16rem 13rem at 100% 96%, rgba(63, 169, 224, 0.11), transparent 70%),
-      radial-gradient(13rem 10rem at 0% 98%, rgba(255, 107, 74, 0.09), transparent 70%);
+      radial-gradient(20rem 16rem at 10% 8%, rgba(63, 169, 224, 0.30), transparent 70%),
+      radial-gradient(18rem 14rem at 92% 4%, rgba(255, 107, 74, 0.26), transparent 70%),
+      radial-gradient(20rem 16rem at 90% 92%, rgba(63, 169, 224, 0.26), transparent 70%),
+      radial-gradient(18rem 14rem at 8% 96%, rgba(255, 107, 74, 0.22), transparent 70%);
   }
 }
 
