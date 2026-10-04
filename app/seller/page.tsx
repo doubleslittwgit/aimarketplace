@@ -182,6 +182,11 @@ export default async function SellerPage({
             </div>
           ) : (
             <div className="rounded-xl border border-border bg-surface p-6">
+              {/* 受け取り口座は日本のみ。海外の人が登録を始めてから気づかないよう、最初に伝える */}
+              <div className="mb-5 rounded-lg border border-accent-ai/30 bg-accent-ai-dim p-4">
+                <p className="text-[14px] font-semibold text-text-primary">🌏 {t("japanOnlyTitle")}</p>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-text-secondary">{t("japanOnlyBody")}</p>
+              </div>
               <p className="mb-1 text-[13px] font-medium text-text-primary">
                 {t("registrationFlowTitle")}
               </p>

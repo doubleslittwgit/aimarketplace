@@ -47,7 +47,7 @@ export default function CourseCard({ course }: { course: CourseCardData }) {
   return (
     <Link
       href={`/academy/courses/${course.slug}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface transition hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-12px_rgba(23,63,53,0.35)]"
+      className="card-lift group flex flex-col overflow-hidden rounded-xl border border-border bg-surface"
     >
       <div className="relative aspect-video overflow-hidden bg-[#173F35]">
         {course.thumbnailUrl ? (

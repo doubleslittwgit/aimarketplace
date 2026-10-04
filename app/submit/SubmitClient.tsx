@@ -396,7 +396,24 @@ export default function SubmitClient({
 
             {/* 有料だが受け取り設定が未完了 → 案内を出し、フォームは見せない */}
             {paidBlocked && (
-              <div className="mt-4 rounded-lg border border-accent-danger/30 bg-accent-danger/5 p-4">
+              <>
+              {/* 受け取り口座は日本のみ（Stripe のアカウントを日本で作る仕組みのため）。
+                  海外の人が日本の口座登録画面に進んで戸惑わないよう、先に伝えて無料出品へ誘導する */}
+              <div className="mt-4 rounded-lg border border-accent-ai/30 bg-accent-ai-dim p-4">
+                <p className="text-[14px] font-semibold text-text-primary">🌏 {t("paidJapanOnlyTitle")}</p>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-text-secondary">{t("paidJapanOnlyBody")}</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPriceType("free");
+                    setPrice("0");
+                  }}
+                  className="mt-3 rounded-lg bg-accent-ai px-4 py-2 text-[13px] font-semibold text-white transition hover:brightness-105"
+                >
+                  {t("switchToFree")}
+                </button>
+              </div>
+              <div className="mt-3 rounded-lg border border-accent-danger/30 bg-accent-danger/5 p-4">
                 <p className="mb-2 text-[13px] font-semibold text-accent-danger">
                   {t("payoutRequiredTitle")}
                 </p>
@@ -420,6 +437,7 @@ export default function SubmitClient({
                   {t("payoutCta")}
                 </a>
               </div>
+              </>
             )}
 
             {/* 有料 & 受け取り設定済み → 価格入力欄を出す */}

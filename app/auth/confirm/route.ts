@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { withWelcome } from "@/lib/signup-source";
 
 /**
  * メール内のリンク（パスワード再設定・登録確認）を受け取る窓口（トークン方式）。
@@ -25,9 +26,12 @@ export async function GET(request: Request) {
 
   if (tokenHash && type) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
+    const { data, error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
     if (!error) {
-      return NextResponse.redirect(`${origin}${type === "recovery" ? "/reset-password" : next}`);
+      if (type === "recovery") return NextResponse.redirect(`${origin}/reset-password`);
+      // 登録確認なら ?welcome=1 を付け、流入元を数えてもらう（components/SignupSourceTracker.tsx）
+      const dest = type === "signup" || type === "email" ? withWelcome(next, data.user?.created_at) : next;
+      return NextResponse.redirect(`${origin}${dest}`);
     }
   }
 

@@ -51,17 +51,63 @@
   --font-mono: var(--font-mono);
 }
 
-body {
+/* 白い下地は html に置く。body は透明にして、下の .site-bg（ブランド色のぼかし）を透かす */
+html {
   background: var(--bg);
+}
+body {
+  background: transparent;
   color: var(--text-primary);
   font-family: var(--font-body), system-ui, sans-serif;
 }
 
-/* Soft ambient wash — sky blue + coral at very low opacity, kept airy */
-.bg-noise {
-  background-image:
-    radial-gradient(circle at 15% 10%, rgba(63, 169, 224, 0.07), transparent 45%),
-    radial-gradient(circle at 85% 0%, rgba(255, 107, 74, 0.05), transparent 40%);
+/*
+ * サイト全体の背景：淡いブランドカラー（青とオレンジ）のぼかし。
+ *
+ * 以前は body の背景画像にしていたため、ページが画面より長いと
+ * 同じ模様が画面1枚分ごとに繰り返され、途中に「線」のような境目が出ていた。
+ * 画面に固定した1枚の層にしたので、スクロールしても境目は出ない。
+ * filter: blur ではなく放射グラデーションで描いているのは、スマホでも重くならないようにするため。
+ */
+.site-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(40rem 32rem at 4% 6%, rgba(63, 169, 224, 0.14), transparent 70%),
+    radial-gradient(36rem 28rem at 97% 3%, rgba(255, 107, 74, 0.11), transparent 70%),
+    radial-gradient(42rem 34rem at 92% 94%, rgba(63, 169, 224, 0.10), transparent 70%),
+    radial-gradient(34rem 26rem at 3% 97%, rgba(255, 107, 74, 0.08), transparent 70%);
+}
+/* スマホは画面が小さいので、ぼかしも小さくする（同じ大きさだと画面全体が色で埋まってしまう） */
+@media (max-width: 639px) {
+  .site-bg {
+    background:
+      radial-gradient(15rem 12rem at 0% 4%, rgba(63, 169, 224, 0.15), transparent 70%),
+      radial-gradient(13rem 10rem at 100% 2%, rgba(255, 107, 74, 0.12), transparent 70%),
+      radial-gradient(16rem 13rem at 100% 96%, rgba(63, 169, 224, 0.11), transparent 70%),
+      radial-gradient(13rem 10rem at 0% 98%, rgba(255, 107, 74, 0.09), transparent 70%);
+  }
+}
+
+/*
+ * 商品カード（ツール・講座）の下に落ちる影。
+ * 下方向に少しずらした黒っぽいぼかしで、カードが浮いて見えるようにする。
+ */
+.card-lift {
+  box-shadow:
+    0 1px 2px rgba(14, 39, 72, 0.06),
+    0 12px 28px -10px rgba(14, 39, 72, 0.32);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+@media (hover: hover) {
+  .card-lift:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 2px 4px rgba(14, 39, 72, 0.06),
+      0 18px 36px -14px rgba(14, 39, 72, 0.36);
+  }
 }
 
 .font-display {

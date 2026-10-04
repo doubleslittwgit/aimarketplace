@@ -42,6 +42,7 @@ export default async function AdminHomePage() {
     { count: publishedTools },
     { count: totalUsers },
     { data: recentSales },
+    { data: sourceRows },
   ] = await Promise.all([
     admin.from("tools").select("id", { count: "exact", head: true }).eq("status", "pending_review"),
     // 通報の未対応は "open"（返金申告は "pending"）で、テーブルごとに語彙が違う
@@ -56,7 +57,16 @@ export default async function AdminHomePage() {
       .select("price_paid, platform_fee")
       .eq("status", "completed")
       .gte("created_at", since30),
+    // 新規登録の流入元（日ごとの件数。supabase/signup_source_counts.sql）
+    admin.from("signup_source_counts").select("source, count").gte("day", since30.slice(0, 10)),
   ]);
+
+  const sourceTotals = new Map<string, number>();
+  for (const r of (sourceRows ?? []) as { source: string; count: number }[]) {
+    sourceTotals.set(r.source, (sourceTotals.get(r.source) ?? 0) + r.count);
+  }
+  const sources = [...sourceTotals.entries()].sort((a, b) => b[1] - a[1]);
+  const sourceSum = sources.reduce((s, [, n]) => s + n, 0);
 
   // 使われていないAcademyの画像（メンテナンス欄に表示）
   const { data: unusedImages } = await admin.rpc("list_unused_course_images", { p_min_age: "1 hour" });
@@ -154,6 +164,39 @@ export default async function AdminHomePage() {
             <StatCard label="手数料収入（30日）" value={formatPrice(revenue)} accent />
           </div>
 
+          {/* 新規登録の流入元 */}
+          <h2 className="mb-1 mt-8 text-[13px] font-medium text-text-secondary">
+            新規登録の流入元（30日）
+          </h2>
+          <p className="mb-3 text-[12px] text-text-dim">
+            投稿のリンクに <code className="font-mono">?utm_source=threads</code> のように付けると、ここで分かれて数えられます。
+            付け忘れても、Threads などから来た場合はある程度自動で判定します。
+          </p>
+          <div className="rounded-xl border border-border bg-surface p-4">
+            {sources.length === 0 ? (
+              <p className="text-[13px] text-text-dim">まだデータがありません。</p>
+            ) : (
+              <ul className="space-y-2.5">
+                {sources.map(([src, n]) => (
+                  <li key={src} className="flex items-center gap-3">
+                    <span className="w-28 shrink-0 truncate font-mono text-[13px] text-text-primary">
+                      {SOURCE_LABELS[src] ?? src}
+                    </span>
+                    <span className="h-2 flex-1 overflow-hidden rounded-full bg-surface-raised">
+                      <span
+                        className="block h-full rounded-full bg-accent-ai"
+                        style={{ width: `${Math.max(4, (n / sourceSum) * 100)}%` }}
+                      />
+                    </span>
+                    <span className="w-16 shrink-0 text-right font-display text-[14px] font-semibold text-text-primary">
+                      {n}人
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
           <h2 className="mb-3 mt-8 text-[13px] font-medium text-text-secondary">メンテナンス</h2>
           <CleanupImagesButton count={unused.length} bytes={unusedBytes} />
         </div>
@@ -161,6 +204,21 @@ export default async function AdminHomePage() {
     </>
   );
 }
+
+const SOURCE_LABELS: Record<string, string> = {
+  direct: "直接・不明",
+  threads: "Threads",
+  instagram: "Instagram",
+  facebook: "Facebook",
+  x: "X",
+  line: "LINE",
+  google: "Google検索",
+  bing: "Bing検索",
+  youtube: "YouTube",
+  dcard: "Dcard",
+  ptt: "PTT",
+  other: "その他",
+};
 
 function StatCard({
   label,

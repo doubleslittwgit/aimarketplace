@@ -23,7 +23,7 @@ export default function ToolCard({ tool }: { tool: Tool }) {
   return (
     <Link
       href={`/apps/${tool.slug}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface transition hover:border-border-strong hover:bg-surface-raised"
+      className="card-lift group flex flex-col overflow-hidden rounded-xl border border-border bg-surface hover:border-border-strong hover:bg-surface-raised"
     >
       {/* Preview area */}
       <div className="relative aspect-video overflow-hidden border-b border-border bg-gradient-to-br from-surface-raised to-bg">

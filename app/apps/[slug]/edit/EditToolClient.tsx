@@ -869,6 +869,12 @@ export default function EditToolClient({
               </p>
             )}
             {priceBlocked && (
+              <div className="mt-2 rounded-lg border border-accent-ai/30 bg-accent-ai-dim px-3 py-2.5">
+                <p className="text-[13px] font-semibold text-text-primary">🌏 {tSubmit("paidJapanOnlyTitle")}</p>
+                <p className="mt-1 text-[12px] leading-relaxed text-text-secondary">{tSubmit("paidJapanOnlyBody")}</p>
+              </div>
+            )}
+            {priceBlocked && (
               <p className="mt-2 rounded-lg border border-accent-danger/30 bg-accent-danger/5 px-3 py-2 text-[12px] text-accent-danger">
                 {t.rich("payoutRequiredNotice", {
                   link: (chunks) => (

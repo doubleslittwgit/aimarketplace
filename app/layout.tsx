@@ -7,6 +7,7 @@ import MobileTabBar from "@/components/MobileTabBar";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
 import { getDisplayCurrency } from "@/lib/currency/server";
 import { Analytics } from "@vercel/analytics/next";
+import SignupSourceTracker from "@/components/SignupSourceTracker";
 import "./globals.css";
 
 // Supabase（DB）が東京リージョンにあるため、サーバー関数もできるだけ近い場所で
@@ -83,11 +84,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang={locale}
       className={`${spaceGrotesk.variable} ${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-bg bg-noise">
+      <body className="min-h-full flex flex-col">
+        <div aria-hidden className="site-bg" />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <CurrencyProvider value={displayCurrency}>
             {children}
             <CookieConsentBanner />
+            <SignupSourceTracker />
             {/* スマホ用の下部ナビゲーション（リキッドグラス風のバー） */}
             <MobileTabBar />
           </CurrencyProvider>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { withWelcome } from "@/lib/signup-source";
 
 /**
  * Googleなどの外部ログインが完了した後、Supabaseがユーザーを
@@ -17,9 +18,11 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      // 登録して間もない人には ?welcome=1 を付け、流入元を数えてもらう（components/SignupSourceTracker.tsx）
+      const dest = next.startsWith("/reset-password") ? next : withWelcome(next, data.user?.created_at);
+      return NextResponse.redirect(`${origin}${dest}`);
     }
   }
 

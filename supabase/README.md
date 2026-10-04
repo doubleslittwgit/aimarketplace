@@ -45,6 +45,7 @@
 | `increment_install.sql` | ダウンロード数を加算する関数 |
 | `launch_hardening.sql` | リリース前の総点検：審査のすり抜け防止・承認済みファイル・価格の下限・レビュー等（後から足したもの） |
 | `action_throttle.sql` | AI検索・フォロー通知の回数制限（後から足したもの） |
+| `signup_source_counts.sql` | 新規登録の流入元（Threads など）を日ごとの件数で集計（後から足したもの） |
 | `grants.sql` | 各テーブルへのアクセス許可（**最後に実行**） |
 
 ---
@@ -110,7 +111,8 @@
 43. `purchase_evidence.sql`
 44. `launch_hardening.sql`
 45. `action_throttle.sql`
-46. `grants.sql` ← **必ず最後**
+46. `signup_source_counts.sql`
+47. `grants.sql` ← **必ず最後**
 
 > `grants.sql` を最後に実行するのは、それより前に作られたテーブルすべてに
 > 許可を与える必要があるためです。順番を飛ばすと「401エラーで何も見えない」
